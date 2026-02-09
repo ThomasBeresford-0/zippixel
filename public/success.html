@@ -1,11 +1,23 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Payment successful | ZipPixel</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
 <body>
-<h1>Payment successful ✅</h1>
-<p>Your ZIP is ready.</p>
-<script>
-const jobId = new URLSearchParams(location.search).get("jobId");
-document.write(`<a href="/api/download/${jobId}">Download ZIP</a>`);
-</script>
+  <main class="section">
+    <h2>Payment successful ✅</h2>
+    <p style="color:var(--muted)">If your download says “Not paid”, refresh once (webhook can take a moment).</p>
+    <p id="link"></p>
+    <p><a href="/">Back to ZipPixel</a></p>
+  </main>
+
+  <script>
+    const jobId = new URLSearchParams(location.search).get("jobId") || "";
+    document.getElementById("link").innerHTML =
+      `<a class="btn btn--primary" href="/api/download/${encodeURIComponent(jobId)}">Download ZIP</a>`;
+  </script>
 </body>
 </html>

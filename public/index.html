@@ -1,62 +1,199 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>ZipPixel – Compress Images into a ZIP Instantly</title>
-  <meta name="description" content="Upload images, pay once, download a ZIP instantly. No signup. Fast image compression." />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Compress Images Instantly & Download One ZIP | ZipPixel</title>
+  <meta name="description" content="Compress up to 10 images and download one optimised ZIP. Pay once (£4.99). No signup. Secure Stripe checkout. Files auto-deleted." />
+  <link rel="canonical" href="https://zippixel.it.com/" />
+
+  <meta property="og:title" content="ZipPixel — Compress Images. Download One ZIP." />
+  <meta property="og:description" content="Upload up to 10 images → Pay once → Download a compressed ZIP instantly. No signup." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://zippixel.it.com/" />
+
   <link rel="stylesheet" href="/style.css" />
+
+  <!-- Schema (helps Google understand the product) -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"ZipPixel",
+    "applicationCategory":"MultimediaApplication",
+    "operatingSystem":"Web",
+    "offers":{
+      "@type":"Offer",
+      "price":"4.99",
+      "priceCurrency":"GBP"
+    },
+    "description":"Compress up to 10 images and download one optimised ZIP. Pay once. No signup. Files auto-deleted."
+  }
+  </script>
 </head>
+
 <body>
+  <header class="nav">
+    <div class="nav__brand">
+      <div class="logo">ZP</div>
+      <div>
+        <div class="brand">ZipPixel</div>
+        <div class="tag">Compress images → one ZIP</div>
+      </div>
+    </div>
 
-<header>
-  <h1>ZipPixel</h1>
-  <p>Upload images → Pay £4.99 → Download ZIP instantly</p>
-</header>
+    <div class="nav__links">
+      <a href="#how">How it works</a>
+      <a href="#faq">FAQ</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </div>
+  </header>
 
-<main>
-  <button id="start">Start</button>
+  <main>
+    <section class="hero">
+      <div class="hero__inner">
+        <h1>Compress Images Instantly.<br/>Download One Optimised ZIP.</h1>
+        <p class="sub">
+          Upload up to <b>10</b> images, pay once, download a perfectly compressed ZIP.
+          <br/>No signup. Secure Stripe checkout. Files deleted automatically.
+        </p>
 
-  <div id="flow" hidden>
-    <input type="file" id="files" multiple accept="image/*" />
-    <button id="upload">Upload</button>
-    <button id="pay" disabled>Pay £4.99</button>
-    <p id="status"></p>
-  </div>
-</main>
+        <div class="ctaRow">
+          <button class="btn btn--primary" id="start">Compress Images Now</button>
+          <div class="price">£4.99 one-time</div>
+        </div>
 
-<footer>
-  <p>Private. One-time payment. Files deleted automatically.</p>
-</footer>
+        <div class="trust">
+          <div>✔ Secure Stripe payments</div>
+          <div>✔ Files auto-deleted</div>
+          <div>✔ No account needed</div>
+        </div>
 
-<script>
-let jobId;
-const status = msg => document.getElementById("status").textContent = msg;
+        <div id="flow" class="flow" hidden>
+          <div class="panel">
+            <div class="panel__title">1) Choose images</div>
+            <input id="files" type="file" accept="image/*" multiple />
+            <div class="panel__hint">Up to 10 images (max 25MB each)</div>
+          </div>
 
-document.getElementById("start").onclick = async () => {
-  const r = await fetch("/api/jobs", { method: "POST" }).then(r => r.json());
-  jobId = r.jobId;
-  document.getElementById("flow").hidden = false;
-  status("Choose images.");
-};
+          <div class="panel">
+            <div class="panel__title">2) Upload</div>
+            <button class="btn" id="upload">Upload</button>
+            <div class="panel__hint">We prep your job for checkout</div>
+          </div>
 
-document.getElementById("upload").onclick = async () => {
-  const fd = new FormData();
-  for (const f of files.files) fd.append("images", f);
-  const r = await fetch(`/api/jobs/${jobId}/upload`, { method: "POST", body: fd }).then(r => r.json());
-  status(`Uploaded ${r.fileCount} images`);
-  pay.disabled = false;
-};
+          <div class="panel">
+            <div class="panel__title">3) Pay & download</div>
+            <button class="btn btn--primary" id="pay" disabled>Pay £4.99</button>
+            <div class="panel__hint">Checkout opens in Stripe</div>
+          </div>
 
-document.getElementById("pay").onclick = async () => {
-  const r = await fetch("/api/checkout", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ jobId })
-  }).then(r => r.json());
-  location.href = r.url;
-};
-</script>
+          <div class="status" id="status">Ready.</div>
+        </div>
+      </div>
+    </section>
 
+    <section class="section" id="how">
+      <h2>How it works</h2>
+      <div class="cards">
+        <div class="card"><div class="card__n">1</div><div class="card__t">Upload up to 10 images</div><div class="card__d">JPG, PNG, WebP, HEIC and more.</div></div>
+        <div class="card"><div class="card__n">2</div><div class="card__t">Pay securely</div><div class="card__d">One-time payment via Stripe.</div></div>
+        <div class="card"><div class="card__n">3</div><div class="card__t">Download your ZIP</div><div class="card__d">Optimised images inside one archive.</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <h2>FAQ</h2>
+      <div class="faq">
+        <details>
+          <summary>Do I need an account?</summary>
+          <p>No. Upload → pay → download. That’s it.</p>
+        </details>
+        <details>
+          <summary>Are my files private?</summary>
+          <p>Yes. Files are used only to generate your ZIP and are deleted automatically after a short time.</p>
+        </details>
+        <details>
+          <summary>What formats do you support?</summary>
+          <p>Most common image formats (JPG, PNG, WebP, HEIC/HEIF, AVIF).</p>
+        </details>
+        <details>
+          <summary>Why pay £4.99?</summary>
+          <p>It covers processing + hosting and keeps the tool fast with no signup friction.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="section final">
+      <h2>Ready to compress?</h2>
+      <p>One click. One payment. One ZIP.</p>
+      <button class="btn btn--primary" onclick="document.getElementById('start').click()">Start now</button>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>© <span id="y"></span> ZipPixel</div>
+    <div class="footer__links">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+
+    let jobId = null;
+
+    const startBtn = document.getElementById("start");
+    const flow = document.getElementById("flow");
+    const filesEl = document.getElementById("files");
+    const uploadBtn = document.getElementById("upload");
+    const payBtn = document.getElementById("pay");
+    const statusEl = document.getElementById("status");
+
+    const setStatus = (m) => statusEl.textContent = m;
+
+    startBtn.onclick = async () => {
+      setStatus("Creating secure job…");
+      const j = await fetch("/api/jobs", { method: "POST" }).then(r => r.json());
+      jobId = j.jobId;
+      flow.hidden = false;
+      setStatus("Job created. Choose images.");
+      flow.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+
+    uploadBtn.onclick = async () => {
+      if (!jobId) return setStatus("Click “Compress Images Now” first.");
+      const files = filesEl.files;
+      if (!files || files.length === 0) return setStatus("Choose images first.");
+
+      setStatus("Uploading…");
+      const fd = new FormData();
+      for (const f of files) fd.append("images", f);
+
+      const up = await fetch(`/api/jobs/${jobId}/upload`, { method: "POST", body: fd })
+        .then(r => r.json())
+        .catch(() => ({ error: "Upload failed." }));
+
+      if (up.error) return setStatus(up.error);
+
+      setStatus(`Uploaded ${up.fileCount} images. Ready to pay.`);
+      payBtn.disabled = false;
+    };
+
+    payBtn.onclick = async () => {
+      setStatus("Opening secure checkout…");
+      const resp = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobId })
+      }).then(r => r.json());
+
+      if (resp.error) return setStatus(resp.error);
+      window.location.href = resp.url;
+    };
+  </script>
 </body>
 </html>
