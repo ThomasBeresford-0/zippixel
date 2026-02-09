@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: zippixel
+    env: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm run dev
+    envVars:
+      - key: NODE_ENV
+        value: production
