@@ -35,11 +35,7 @@
     "name":"ZipPixel",
     "applicationCategory":"MultimediaApplication",
     "operatingSystem":"Web",
-    "offers":{
-      "@type":"Offer",
-      "price":"4.99",
-      "priceCurrency":"GBP"
-    },
+    "offers":{"@type":"Offer","price":"4.99","priceCurrency":"GBP"},
     "description":"Compress up to 10 images and download one optimised ZIP. Pay once. No signup. Files auto-deleted."
   }
   </script>
@@ -100,64 +96,98 @@
   <main>
     <section class="hero">
       <div class="hero__inner">
-        <h1>Compress Images Instantly.<br/>Download One Optimised ZIP.</h1>
-        <p class="sub">
-          Upload up to <b>10</b> images, pay once, download a perfectly compressed ZIP.
-          <br/>No signup. Secure Stripe checkout. Files deleted automatically.
-        </p>
+        <!-- LEFT: COPY -->
+        <div class="hero__copy">
+          <div class="eyebrow">Pay once • Download instantly</div>
 
-        <div class="ctaRow">
-          <button class="btn btn--primary" id="start">Compress Images Now</button>
-          <div class="price">£4.99 one-time</div>
+          <h1>Compress images fast.<br/>Download one clean ZIP.</h1>
+
+          <p class="sub">
+            Upload up to <b>10</b> images, we optimise them, and you download a single ZIP.
+            No account. Secure checkout. Files are deleted automatically.
+          </p>
+
+          <div class="ctaRow">
+            <button class="btn btn--primary" id="start">Start compression</button>
+            <div class="price">£4.99 one-time</div>
+          </div>
+
+          <ul class="trustList" aria-label="Trust">
+            <li>Secure Stripe checkout</li>
+            <li>No signup required</li>
+            <li>Auto-deleted files</li>
+          </ul>
+
+          <p class="fineprint">
+            Supports JPG, PNG, WebP, HEIC/HEIF, AVIF • Max 25MB per image
+          </p>
         </div>
 
-        <!-- CLEAN benefits (no pills/emoji) -->
-        <ul class="benefits" aria-label="Key benefits">
-          <li>One-time payment</li>
-          <li>No signup</li>
-          <li>Auto-deleted files</li>
-          <li>Secure Stripe checkout</li>
-        </ul>
+        <!-- RIGHT: PRODUCT CARD -->
+        <div class="hero__product">
+          <div class="productCard" id="flow" hidden>
+            <div class="productCard__head">
+              <div class="productTitle">Your ZIP job</div>
+              <div class="productMeta" id="status">Ready.</div>
+            </div>
 
-        <p class="fineprint">
-          Supports JPG, PNG, WebP, HEIC/HEIF, AVIF • Up to 10 images • 25MB each
-        </p>
+            <div class="stepGrid">
+              <div class="step">
+                <div class="step__title">1) Choose images</div>
+                <div class="dropzone" id="dropzone">
+                  <input id="files" type="file" accept="image/*" multiple />
+                  <div class="step__hint">Drag & drop or click to choose (max 10)</div>
 
-        <div id="flow" class="flow flow--product" hidden>
-          <div class="panel">
-            <div class="panel__title">1) Choose images</div>
-
-            <div class="dropzone" id="dropzone">
-              <input id="files" type="file" accept="image/*" multiple />
-              <div class="panel__hint" style="margin-top:10px;">
-                Drag & drop here, or click to choose
+                  <div class="fileMeta" id="fileMeta" hidden>
+                    <div id="fileSummary"></div>
+                    <ol class="fileList" id="fileList"></ol>
+                  </div>
+                </div>
               </div>
 
-              <div class="fileMeta" id="fileMeta" hidden>
-                <div id="fileSummary"></div>
-                <ol class="fileList" id="fileList"></ol>
+              <div class="step">
+                <div class="step__title">2) Upload</div>
+                <button class="btn" id="upload" disabled>Upload</button>
+                <div class="step__hint">We prepare your checkout</div>
               </div>
+
+              <div class="step">
+                <div class="step__title">3) Pay & download</div>
+                <button class="btn btn--primary" id="pay" disabled>Pay £4.99</button>
+                <div class="step__hint">Opens in Stripe</div>
+              </div>
+            </div>
+
+            <div class="noteBox">
+              Files are used only to generate your ZIP and are deleted automatically.
+              If anything fails, we refund you. Need help?
+              <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>
             </div>
           </div>
 
-          <div class="panel">
-            <div class="panel__title">2) Upload</div>
-            <button class="btn" id="upload" disabled>Upload</button>
-            <div class="panel__hint">We prepare your job for checkout</div>
-          </div>
+          <!-- Shown before start -->
+          <div class="productCard productCard--placeholder" id="flowPlaceholder">
+            <div class="productCard__head">
+              <div class="productTitle">Quick workflow</div>
+              <div class="productMeta">1 minute • No signup</div>
+            </div>
 
-          <div class="panel">
-            <div class="panel__title">3) Pay & download</div>
-            <button class="btn btn--primary" id="pay" disabled>Pay £4.99</button>
-            <div class="panel__hint">Checkout opens in Stripe</div>
-          </div>
+            <div class="miniSteps">
+              <div class="miniStep">
+                <div class="miniStep__k">1</div>
+                <div class="miniStep__t">Choose up to 10 images</div>
+              </div>
+              <div class="miniStep">
+                <div class="miniStep__k">2</div>
+                <div class="miniStep__t">Pay once via Stripe</div>
+              </div>
+              <div class="miniStep">
+                <div class="miniStep__k">3</div>
+                <div class="miniStep__t">Download one ZIP</div>
+              </div>
+            </div>
 
-          <div class="status" id="status">Ready.</div>
-
-          <div class="noteBox">
-            Your files are used only to generate your ZIP and are automatically deleted.
-            If anything fails, we’ll refund you.
-            Need help? <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>
+            <button class="btn btn--primary btn--block" onclick="document.getElementById('start').click()">Start now</button>
           </div>
         </div>
       </div>
@@ -166,41 +196,29 @@
     <section class="section" id="how">
       <h2>How it works</h2>
       <div class="cards">
-        <div class="card">
-          <div class="card__n">1</div>
-          <div class="card__t">Upload up to 10 images</div>
-          <div class="card__d">JPG, PNG, WebP, HEIC and more.</div>
-        </div>
-        <div class="card">
-          <div class="card__n">2</div>
-          <div class="card__t">Pay securely</div>
-          <div class="card__d">One-time payment via Stripe.</div>
-        </div>
-        <div class="card">
-          <div class="card__n">3</div>
-          <div class="card__t">Download your ZIP</div>
-          <div class="card__d">Optimised images inside one archive.</div>
-        </div>
+        <div class="card"><div class="card__n">1</div><div class="card__t">Upload up to 10 images</div><div class="card__d">JPG, PNG, WebP, HEIC and more.</div></div>
+        <div class="card"><div class="card__n">2</div><div class="card__t">Pay securely</div><div class="card__d">One-time payment via Stripe.</div></div>
+        <div class="card"><div class="card__n">3</div><div class="card__t">Download your ZIP</div><div class="card__d">Optimised images inside one archive.</div></div>
       </div>
     </section>
 
     <section class="section" id="proof">
-      <h2>Used for quick client delivery</h2>
+      <h2>Built for fast delivery</h2>
       <div class="cards">
         <div class="card">
-          <div class="card__t">“Property photos went from 48MB → 9MB.”</div>
-          <div class="card__d">Compressed 10 images and sent one ZIP link to the agent.</div>
-          <div class="card__meta">— UK photographer</div>
+          <div class="card__t">“Sent one ZIP instead of 10 attachments.”</div>
+          <div class="card__d">Clean handover to clients without huge file sizes.</div>
+          <div class="card__meta">— Freelancer</div>
         </div>
         <div class="card">
-          <div class="card__t">“Uploaded my listings in one go.”</div>
-          <div class="card__d">Optimised images for faster Etsy/eCommerce uploads.</div>
+          <div class="card__t">“Uploads stopped timing out.”</div>
+          <div class="card__d">Optimised images for listings and web pages.</div>
           <div class="card__meta">— Small business owner</div>
         </div>
         <div class="card">
-          <div class="card__t">“No account. Took 30 seconds.”</div>
-          <div class="card__d">Paid once, got the ZIP instantly, done.</div>
-          <div class="card__meta">— Freelancer</div>
+          <div class="card__t">“Takes seconds. No account.”</div>
+          <div class="card__d">Pay once, download instantly, done.</div>
+          <div class="card__meta">— UK creator</div>
         </div>
       </div>
     </section>
@@ -257,6 +275,8 @@
 
     const startBtn = document.getElementById("start");
     const flow = document.getElementById("flow");
+    const flowPlaceholder = document.getElementById("flowPlaceholder");
+
     const filesEl = document.getElementById("files");
     const dropzone = document.getElementById("dropzone");
     const uploadBtn = document.getElementById("upload");
@@ -302,10 +322,13 @@
 
     startBtn.onclick = async () => {
       if (creatingJob) return;
+
+      // reveal product card UI immediately (feels responsive)
+      flowPlaceholder.hidden = true;
+      flow.hidden = false;
+
       if (jobId) {
-        flow.hidden = false;
-        setStatus("Job already created. Choose images.");
-        flow.scrollIntoView({ behavior: "smooth", block: "center" });
+        setStatus("Job ready. Choose images.");
         return;
       }
 
@@ -319,17 +342,17 @@
 
         if (!j || !j.jobId) {
           setStatus("Couldn’t create a job. Please refresh and try again.");
-          startBtn.disabled = false;
-          creatingJob = false;
+          flow.hidden = true;
+          flowPlaceholder.hidden = false;
           return;
         }
 
         jobId = j.jobId;
-        flow.hidden = false;
         setStatus("Job created. Choose images.");
-        flow.scrollIntoView({ behavior: "smooth", block: "center" });
       } catch (e) {
         setStatus("Network error. Please refresh and try again.");
+        flow.hidden = true;
+        flowPlaceholder.hidden = false;
       } finally {
         creatingJob = false;
         startBtn.disabled = false;
@@ -378,7 +401,7 @@
     });
 
     uploadBtn.onclick = async () => {
-      if (!jobId) return setStatus("Click “Compress Images Now” first.");
+      if (!jobId) return setStatus("Click “Start compression” first.");
 
       const files = [...filesEl.files];
       const v = validateFiles(files);
@@ -410,7 +433,7 @@
     };
 
     payBtn.onclick = async () => {
-      if (!jobId) return setStatus("Click “Compress Images Now” first.");
+      if (!jobId) return setStatus("Click “Start compression” first.");
 
       setStatus("Opening secure checkout…");
       payBtn.disabled = true;
