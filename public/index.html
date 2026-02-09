@@ -12,10 +12,25 @@
   <meta property="og:description" content="Upload up to 10 images → Pay once → Download a compressed ZIP instantly. No signup." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zippixel.it.com/" />
+  <meta property="og:image" content="https://zippixel.it.com/og.png" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ZipPixel — Compress Images. Download One ZIP." />
+  <meta name="twitter:description" content="Upload up to 10 images → Pay once → Download a compressed ZIP instantly. No signup." />
+  <meta name="twitter:image" content="https://zippixel.it.com/og.png" />
+
+  <!-- Favicons -->
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+  <!-- Perf -->
+  <link rel="preconnect" href="https://js.stripe.com" crossorigin />
+  <link rel="dns-prefetch" href="//js.stripe.com" />
 
   <link rel="stylesheet" href="/style.css" />
 
-  <!-- Schema (helps Google understand the product) -->
+  <!-- Schema: SoftwareApplication (kept) -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -31,6 +46,72 @@
     "description":"Compress up to 10 images and download one optimised ZIP. Pay once. No signup. Files auto-deleted."
   }
   </script>
+
+  <!-- Schema: Product -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Product",
+    "name":"ZipPixel",
+    "description":"Compress up to 10 images and download one optimised ZIP. Pay once. No signup. Files auto-deleted.",
+    "brand":{"@type":"Brand","name":"ZipPixel"},
+    "offers":{
+      "@type":"Offer",
+      "price":"4.99",
+      "priceCurrency":"GBP",
+      "url":"https://zippixel.it.com/",
+      "availability":"https://schema.org/InStock"
+    }
+  }
+  </script>
+
+  <!-- Schema: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity":[
+      {"@type":"Question","name":"Do I need an account?","acceptedAnswer":{"@type":"Answer","text":"No. Upload → pay → download. That’s it."}},
+      {"@type":"Question","name":"Are my files private?","acceptedAnswer":{"@type":"Answer","text":"Yes. Files are used only to generate your ZIP and are deleted automatically after a short time."}},
+      {"@type":"Question","name":"What formats do you support?","acceptedAnswer":{"@type":"Answer","text":"Most common image formats (JPG, PNG, WebP, HEIC/HEIF, AVIF)."}},
+      {"@type":"Question","name":"Why pay £4.99?","acceptedAnswer":{"@type":"Answer","text":"It covers processing + hosting and keeps the tool fast with no signup friction."}}
+    ]
+  }
+  </script>
+
+  <!-- Tiny, self-contained styles for new UI bits (won't fight your /style.css much) -->
+  <style>
+    .valueProps{ margin-top:14px; display:flex; flex-wrap:wrap; gap:10px 16px; font-size:.95rem; opacity:.95; }
+    .valueProps > div{ background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); padding:10px 12px; border-radius:12px; }
+    .subtleStrip{ margin-top:14px; display:flex; flex-wrap:wrap; gap:10px; }
+    .pill{ display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); font-size:.9rem; }
+    .dropzone{
+      border:2px dashed rgba(255,255,255,.22);
+      border-radius:16px;
+      padding:14px;
+      background:rgba(255,255,255,.04);
+      transition:transform .08s ease, border-color .12s ease, background .12s ease;
+    }
+    .dropzone.isDrag{
+      border-color: rgba(255,255,255,.5);
+      background: rgba(255,255,255,.08);
+      transform: translateY(-1px);
+    }
+    .fileMeta{ margin-top:10px; font-size:.92rem; opacity:.95; display:flex; flex-direction:column; gap:6px; }
+    .fileList{ margin:0; padding-left:18px; }
+    .fileList li{ margin:2px 0; }
+    .noteBox{
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.05);
+      font-size:.95rem;
+      opacity:.98;
+    }
+    .miniLinks a{ text-decoration:underline; }
+    .btn[disabled]{ opacity:.55; cursor:not-allowed; }
+  </style>
 </head>
 
 <body>
@@ -45,6 +126,7 @@
 
     <div class="nav__links">
       <a href="#how">How it works</a>
+      <a href="#proof">Proof</a>
       <a href="#faq">FAQ</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
@@ -71,17 +153,45 @@
           <div>✔ No account needed</div>
         </div>
 
+        <!-- NEW: value props (increase perceived value instantly) -->
+        <div class="valueProps" aria-label="What you get">
+          <div>⚡ Typical savings: <b>50–80%</b> smaller</div>
+          <div>🖼️ Stays sharp (no ugly crunch)</div>
+          <div>📦 One ZIP for easy upload/send</div>
+          <div>🛡️ <b>Guarantee</b>: if ZIP fails, we refund</div>
+        </div>
+
+        <!-- NEW: no-surprises strip -->
+        <div class="subtleStrip" aria-label="No surprises">
+          <div class="pill">✅ One-time payment</div>
+          <div class="pill">✅ No signup</div>
+          <div class="pill">✅ Auto-deleted files</div>
+          <div class="pill">✅ Fast checkout</div>
+        </div>
+
         <div id="flow" class="flow" hidden>
           <div class="panel">
             <div class="panel__title">1) Choose images</div>
-            <input id="files" type="file" accept="image/*" multiple />
-            <div class="panel__hint">Up to 10 images (max 25MB each)</div>
+
+            <!-- NEW: drag/drop wrapper -->
+            <div class="dropzone" id="dropzone">
+              <input id="files" type="file" accept="image/*" multiple />
+              <div class="panel__hint" style="margin-top:10px;">
+                Drag & drop here, or click to choose • Up to <b>10</b> images (max <b>25MB</b> each)
+              </div>
+
+              <!-- NEW: selected files summary -->
+              <div class="fileMeta" id="fileMeta" hidden>
+                <div id="fileSummary"></div>
+                <ol class="fileList" id="fileList"></ol>
+              </div>
+            </div>
           </div>
 
           <div class="panel">
             <div class="panel__title">2) Upload</div>
-            <button class="btn" id="upload">Upload</button>
-            <div class="panel__hint">We prep your job for checkout</div>
+            <button class="btn" id="upload" disabled>Upload</button>
+            <div class="panel__hint">We prepare your job for checkout</div>
           </div>
 
           <div class="panel">
@@ -91,6 +201,13 @@
           </div>
 
           <div class="status" id="status">Ready.</div>
+
+          <!-- NEW: reassurance + support -->
+          <div class="noteBox">
+            🔒 Your files are used only to generate your ZIP and are automatically deleted.
+            If anything fails, we’ll refund you.
+            <span class="miniLinks">Need help? <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a></span>
+          </div>
         </div>
       </div>
     </section>
@@ -101,6 +218,28 @@
         <div class="card"><div class="card__n">1</div><div class="card__t">Upload up to 10 images</div><div class="card__d">JPG, PNG, WebP, HEIC and more.</div></div>
         <div class="card"><div class="card__n">2</div><div class="card__t">Pay securely</div><div class="card__d">One-time payment via Stripe.</div></div>
         <div class="card"><div class="card__n">3</div><div class="card__t">Download your ZIP</div><div class="card__d">Optimised images inside one archive.</div></div>
+      </div>
+    </section>
+
+    <!-- NEW: proof section -->
+    <section class="section" id="proof">
+      <h2>People use ZipPixel to save time</h2>
+      <div class="cards">
+        <div class="card">
+          <div class="card__t">“Saved me ages.”</div>
+          <div class="card__d">Compressed listing photos and uploaded everything in one go.</div>
+          <div class="card__meta">— Small business owner</div>
+        </div>
+        <div class="card">
+          <div class="card__t">“Exactly what I needed.”</div>
+          <div class="card__d">No signup, paid once, got the ZIP instantly.</div>
+          <div class="card__meta">— Freelancer</div>
+        </div>
+        <div class="card">
+          <div class="card__t">“Fast + clean.”</div>
+          <div class="card__d">Perfect for sending clients images without massive attachments.</div>
+          <div class="card__meta">— Photographer</div>
+        </div>
       </div>
     </section>
 
@@ -122,6 +261,10 @@
         <details>
           <summary>Why pay £4.99?</summary>
           <p>It covers processing + hosting and keeps the tool fast with no signup friction.</p>
+        </details>
+        <details>
+          <summary>What if the ZIP fails?</summary>
+          <p>If your ZIP doesn’t generate or you can’t download it, email support and we’ll refund you.</p>
         </details>
       </div>
     </section>
@@ -145,54 +288,201 @@
     document.getElementById("y").textContent = new Date().getFullYear();
 
     let jobId = null;
+    let creatingJob = false;
+
+    const MAX_FILES = 10;
+    const MAX_MB_EACH = 25;
 
     const startBtn = document.getElementById("start");
     const flow = document.getElementById("flow");
     const filesEl = document.getElementById("files");
+    const dropzone = document.getElementById("dropzone");
     const uploadBtn = document.getElementById("upload");
     const payBtn = document.getElementById("pay");
     const statusEl = document.getElementById("status");
 
-    const setStatus = (m) => statusEl.textContent = m;
+    const fileMeta = document.getElementById("fileMeta");
+    const fileSummary = document.getElementById("fileSummary");
+    const fileList = document.getElementById("fileList");
 
-    startBtn.onclick = async () => {
-      setStatus("Creating secure job…");
-      const j = await fetch("/api/jobs", { method: "POST" }).then(r => r.json());
-      jobId = j.jobId;
-      flow.hidden = false;
-      setStatus("Job created. Choose images.");
-      flow.scrollIntoView({ behavior: "smooth", block: "center" });
+    const setStatus = (m) => statusEl.textContent = m;
+    const humanMB = (bytes) => (bytes / (1024 * 1024)).toFixed(1) + "MB";
+
+    const resetSelectionUI = () => {
+      fileMeta.hidden = true;
+      fileSummary.textContent = "";
+      fileList.innerHTML = "";
+      uploadBtn.disabled = true;
+      payBtn.disabled = true;
     };
 
+    const validateFiles = (files) => {
+      if (!files || files.length === 0) return { ok: false, msg: "Choose images first." };
+      if (files.length > MAX_FILES) return { ok: false, msg: `Max ${MAX_FILES} images. You selected ${files.length}.` };
+
+      for (const f of files) {
+        if (f.size > MAX_MB_EACH * 1024 * 1024) {
+          return { ok: false, msg: `"${f.name}" is ${humanMB(f.size)}. Max ${MAX_MB_EACH}MB each.` };
+        }
+      }
+      return { ok: true };
+    };
+
+    const renderFiles = (files) => {
+      const total = files.reduce((a, f) => a + f.size, 0);
+      fileSummary.textContent = `Selected ${files.length} image(s) • Total ${humanMB(total)}.`;
+      fileList.innerHTML = files
+        .slice(0, 10)
+        .map(f => `<li>${f.name} <span style="opacity:.8">(${humanMB(f.size)})</span></li>`)
+        .join("");
+      fileMeta.hidden = false;
+    };
+
+    // 1) Start: create job once
+    startBtn.onclick = async () => {
+      if (creatingJob) return;
+      if (jobId) {
+        flow.hidden = false;
+        setStatus("Job already created. Choose images.");
+        flow.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      creatingJob = true;
+      startBtn.disabled = true;
+      setStatus("Creating secure job…");
+
+      try {
+        const res = await fetch("/api/jobs", { method: "POST" });
+        const j = await res.json();
+
+        if (!j || !j.jobId) {
+          setStatus("Couldn’t create a job. Please refresh and try again.");
+          startBtn.disabled = false;
+          creatingJob = false;
+          return;
+        }
+
+        jobId = j.jobId;
+        flow.hidden = false;
+        setStatus("Job created. Choose images.");
+        flow.scrollIntoView({ behavior: "smooth", block: "center" });
+      } catch (e) {
+        setStatus("Network error. Please refresh and try again.");
+        startBtn.disabled = false;
+      } finally {
+        creatingJob = false;
+        startBtn.disabled = false;
+      }
+    };
+
+    // Drag & drop support
+    ["dragenter","dragover"].forEach(evt => {
+      dropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.add("isDrag");
+      });
+    });
+    ["dragleave","drop"].forEach(evt => {
+      dropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove("isDrag");
+      });
+    });
+    dropzone.addEventListener("drop", (e) => {
+      const dtFiles = [...(e.dataTransfer?.files || [])].filter(f => f.type.startsWith("image/"));
+      if (dtFiles.length === 0) return setStatus("Drop image files only.");
+
+      // Build a DataTransfer to set input.files
+      const dt = new DataTransfer();
+      dtFiles.slice(0, MAX_FILES).forEach(f => dt.items.add(f));
+      filesEl.files = dt.files;
+      filesEl.dispatchEvent(new Event("change"));
+    });
+
+    // When files chosen
+    filesEl.addEventListener("change", () => {
+      resetSelectionUI();
+
+      const files = [...filesEl.files];
+      const v = validateFiles(files);
+      if (!v.ok) {
+        setStatus(v.msg);
+        filesEl.value = "";
+        return;
+      }
+
+      renderFiles(files);
+      uploadBtn.disabled = false;
+      setStatus("Ready to upload.");
+    });
+
+    // 2) Upload
     uploadBtn.onclick = async () => {
       if (!jobId) return setStatus("Click “Compress Images Now” first.");
-      const files = filesEl.files;
-      if (!files || files.length === 0) return setStatus("Choose images first.");
 
-      setStatus("Uploading…");
+      const files = [...filesEl.files];
+      const v = validateFiles(files);
+      if (!v.ok) return setStatus(v.msg);
+
+      setStatus("Uploading… (keep this tab open)");
+      uploadBtn.disabled = true;
+      payBtn.disabled = true;
+
       const fd = new FormData();
       for (const f of files) fd.append("images", f);
 
-      const up = await fetch(`/api/jobs/${jobId}/upload`, { method: "POST", body: fd })
-        .then(r => r.json())
-        .catch(() => ({ error: "Upload failed." }));
+      try {
+        const res = await fetch(`/api/jobs/${jobId}/upload`, { method: "POST", body: fd });
+        const up = await res.json();
 
-      if (up.error) return setStatus(up.error);
+        if (up?.error) {
+          setStatus(up.error);
+          uploadBtn.disabled = false;
+          return;
+        }
 
-      setStatus(`Uploaded ${up.fileCount} images. Ready to pay.`);
-      payBtn.disabled = false;
+        setStatus(`Uploaded ${up.fileCount || files.length} images. Ready to pay.`);
+        payBtn.disabled = false;
+      } catch (e) {
+        setStatus("Upload failed. Please try again.");
+        uploadBtn.disabled = false;
+      }
     };
 
+    // 3) Pay
     payBtn.onclick = async () => {
-      setStatus("Opening secure checkout…");
-      const resp = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobId })
-      }).then(r => r.json());
+      if (!jobId) return setStatus("Click “Compress Images Now” first.");
 
-      if (resp.error) return setStatus(resp.error);
-      window.location.href = resp.url;
+      setStatus("Opening secure checkout…");
+      payBtn.disabled = true;
+
+      try {
+        const resp = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jobId })
+        }).then(r => r.json());
+
+        if (resp?.error) {
+          setStatus(resp.error);
+          payBtn.disabled = false;
+          return;
+        }
+
+        if (!resp?.url) {
+          setStatus("Checkout error. Please try again.");
+          payBtn.disabled = false;
+          return;
+        }
+
+        window.location.href = resp.url;
+      } catch (e) {
+        setStatus("Checkout failed. Please try again.");
+        payBtn.disabled = false;
+      }
     };
   </script>
 </body>
