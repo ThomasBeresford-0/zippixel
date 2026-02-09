@@ -19,8 +19,10 @@
   <meta name="twitter:description" content="Upload up to 10 images → Checkout → Download a compressed ZIP instantly. No signup." />
   <meta name="twitter:image" content="https://zippixel.it.com/og.png" />
 
-  <link rel="icon" href="/favicon.ico" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <!-- Favicons (keep these filenames in /public) -->
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
   <link rel="preconnect" href="https://js.stripe.com" crossorigin />
   <link rel="dns-prefetch" href="//js.stripe.com" />
@@ -61,17 +63,21 @@
 </head>
 
 <body>
+  <!-- TOP NAV -->
   <header class="top">
     <div class="container top__inner">
       <a class="brand" href="/" aria-label="ZipPixel home">
-        <div class="brand__mark">ZP</div>
-        <div class="brand__text">
-          <div class="brand__name">ZipPixel</div>
-          <div class="brand__sub">Compress images → one ZIP</div>
-        </div>
+        <span class="brand__logo" aria-hidden="true">
+          <!-- Use the apple touch icon as the “real logo” -->
+          <img src="/apple-touch-icon.png" alt="" width="36" height="36" />
+        </span>
+        <span class="brand__text">
+          <span class="brand__name">ZipPixel</span>
+          <span class="brand__sub">Compress images → one ZIP</span>
+        </span>
       </a>
 
-      <nav class="top__nav" aria-label="Site">
+      <nav class="nav" aria-label="Site">
         <a href="#how">How</a>
         <a href="#use">Use cases</a>
         <a href="#faq">FAQ</a>
@@ -80,11 +86,13 @@
       </nav>
 
       <div class="top__cta">
-        <button class="btn btn--soft" onclick="document.getElementById('start').click()">Start</button>
+        <button class="btn btn--ghost" onclick="document.getElementById('files').click()">Upload</button>
+        <button class="btn btn--primary" onclick="document.getElementById('start').click()">Start</button>
       </div>
     </div>
   </header>
 
+  <!-- STICKY CTA -->
   <div class="sticky" id="stickyBar" aria-hidden="true">
     <div class="container sticky__inner">
       <div class="sticky__left">
@@ -96,35 +104,53 @@
   </div>
 
   <main>
-    <!-- TOOL FIRST -->
-    <section class="tool">
-      <div class="container">
-        <div class="tool__head">
+    <!-- HERO + TOOL -->
+    <section class="hero">
+      <div class="container hero__grid">
+        <div class="hero__copy">
+          <div class="pill">
+            <span class="dot" aria-hidden="true"></span>
+            One-time payment • Instant ZIP download
+          </div>
+
           <h1>Compress images.<br/>Download one ZIP.</h1>
-          <p class="sub">
-            Drop up to <b>10</b> images. We optimise them. You download a single ZIP.
+          <p class="lead">
+            Drop up to <b>10</b> images, we optimise them, you download a single ZIP.
             <span class="muted">No account. Files auto-deleted.</span>
           </p>
+
+          <div class="trust">
+            <div class="trust__item">✓ No signup</div>
+            <div class="trust__item">✓ Secure Stripe</div>
+            <div class="trust__item">✓ Auto-deleted files</div>
+          </div>
         </div>
 
-        <div class="toolCard">
+        <div class="toolCard" aria-label="ZipPixel tool">
           <div class="toolCard__top">
-            <div class="toolCard__left">
+            <div class="statusBlock">
               <div class="label">Job status</div>
               <div class="status" id="status">Ready.</div>
+              <div class="statusHint" id="statusHint">Click <b>Start compression</b> to create a secure job.</div>
             </div>
 
-            <div class="toolCard__right">
+            <div class="toolCard__cta">
               <button class="btn btn--primary btn--lg" id="start">Start compression</button>
               <div class="micro">Secure Stripe checkout · One-time payment at checkout</div>
             </div>
           </div>
 
-          <!-- DROPZONE: BIG + CENTER -->
+          <!-- DROPZONE -->
           <div class="dropzone" id="dropzone" aria-label="Upload images">
             <input id="files" type="file" accept="image/*" multiple />
             <div class="dropzone__inner">
-              <div class="dzIcon" aria-hidden="true"></div>
+              <div class="dzIcon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 16V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M8.5 11.5L12 8l3.5 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M7 16.5c-1.7 0-3-1.3-3-3 0-1.4.9-2.6 2.2-2.9C6.6 8.1 8.6 6.5 11 6.5c2.3 0 4.3 1.5 4.9 3.7.2 0 .5-.1.7-.1 2 0 3.5 1.6 3.5 3.5S18.6 17 16.6 17H7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
               <div class="dzText">
                 <div class="dzTitle">Drop images here</div>
                 <div class="dzSub">or click to choose · Max 10 · Max 25MB each</div>
@@ -138,38 +164,42 @@
           </div>
 
           <!-- ACTIONS -->
-          <div class="actions">
-            <div class="action">
-              <div class="action__t">1) Upload</div>
-              <div class="action__d">We prepare your checkout.</div>
+          <div class="steps">
+            <div class="step">
+              <div class="step__k">1</div>
+              <div class="step__body">
+                <div class="step__t">Upload</div>
+                <div class="step__d">We prepare your ZIP job.</div>
+              </div>
               <button class="btn btn--soft btn--block" id="upload" disabled>Upload</button>
             </div>
 
-            <div class="action">
-              <div class="action__t">2) Checkout</div>
-              <div class="action__d">Opens in Stripe.</div>
+            <div class="step">
+              <div class="step__k">2</div>
+              <div class="step__body">
+                <div class="step__t">Checkout</div>
+                <div class="step__d">Opens in Stripe.</div>
+              </div>
               <button class="btn btn--primary btn--block" id="pay" disabled>Continue to checkout</button>
             </div>
 
-            <div class="action action--note">
-              <div class="action__t">Money-back guarantee</div>
-              <div class="action__d">
+            <div class="guarantee">
+              <div class="g__t">Money-back guarantee</div>
+              <div class="g__d">
                 If your ZIP fails to generate or download, we refund you.
                 Email <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="trustLine">
-          <span>✓ No signup</span>
-          <span>✓ Secure Stripe</span>
-          <span>✓ Auto-deleted files</span>
+          <div class="fineprint">
+            By continuing you agree to our <a href="/terms">Terms</a>. Read our <a href="/privacy">Privacy</a>.
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- SMALL + CLEAN BELOW THE FOLD -->
+    <!-- BELOW THE FOLD -->
     <section class="section" id="how">
       <div class="container">
         <div class="sectionHead">
@@ -283,6 +313,7 @@
     const uploadBtn = document.getElementById("upload");
     const payBtn = document.getElementById("pay");
     const statusEl = document.getElementById("status");
+    const statusHint = document.getElementById("statusHint");
     const stickyBar = document.getElementById("stickyBar");
 
     const fileMeta = document.getElementById("fileMeta");
@@ -292,6 +323,8 @@
     const PRICE_TEXT = "£4.99 (one-time)";
 
     const setStatus = (m) => statusEl.textContent = m;
+    const setHint = (m) => statusHint.innerHTML = m;
+
     const humanMB = (bytes) => (bytes / (1024 * 1024)).toFixed(1) + "MB";
 
     const resetSelectionUI = () => {
@@ -304,6 +337,7 @@
     };
 
     const validateFiles = (files) => {
+      if (!jobId) return { ok: false, msg: "Click “Start compression” first." };
       if (!files || files.length === 0) return { ok: false, msg: "Choose images first." };
       if (files.length > MAX_FILES) return { ok: false, msg: `Max ${MAX_FILES} images. You selected ${files.length}.` };
       for (const f of files) {
@@ -319,31 +353,45 @@
       fileSummary.textContent = `Selected ${files.length} image(s) • Total ${humanMB(total)}.`;
       fileList.innerHTML = files
         .slice(0, 10)
-        .map(f => `<li>${f.name} <span style="opacity:.7">(${humanMB(f.size)})</span></li>`)
+        .map(f => `<li><span class="fileName">${escapeHtml(f.name)}</span><span class="fileSize">${humanMB(f.size)}</span></li>`)
         .join("");
       fileMeta.hidden = false;
     };
 
+    const escapeHtml = (str) =>
+      String(str).replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
+
     startBtn.onclick = async () => {
       if (creatingJob) return;
-      if (jobId) return setStatus("Job ready. Choose images.");
+      if (jobId) {
+        setStatus("Job ready.");
+        setHint("Choose up to <b>10</b> images below.");
+        dropzone?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
 
       creatingJob = true;
       startBtn.disabled = true;
       setStatus("Creating secure job…");
+      setHint("This takes a second. Keep this tab open.");
 
       try {
         const res = await fetch("/api/jobs", { method: "POST" });
         const j = await res.json();
+
         if (!j || !j.jobId) {
-          setStatus("Couldn’t create a job. Please refresh and try again.");
+          setStatus("Couldn’t create a job.");
+          setHint("Please refresh and try again.");
           return;
         }
+
         jobId = j.jobId;
-        setStatus("Job created. Choose images.");
+        setStatus("Job created.");
+        setHint("Now choose your images below.");
         dropzone?.scrollIntoView({ behavior: "smooth", block: "center" });
       } catch (e) {
-        setStatus("Network error. Please refresh and try again.");
+        setStatus("Network error.");
+        setHint("Please refresh and try again.");
       } finally {
         creatingJob = false;
         startBtn.disabled = false;
@@ -377,24 +425,35 @@
     filesEl.addEventListener("change", () => {
       resetSelectionUI();
       const files = [...filesEl.files];
-      const v = validateFiles(files);
-      if (!v.ok) {
-        setStatus(v.msg);
+
+      if (!jobId) {
+        setStatus("Click “Start compression” first.");
+        setHint("We create a secure job before uploading files.");
         filesEl.value = "";
         return;
       }
+
+      const v = validateFiles(files);
+      if (!v.ok) {
+        setStatus(v.msg);
+        setHint("Try again with fewer / smaller images.");
+        filesEl.value = "";
+        return;
+      }
+
       renderFiles(files);
       uploadBtn.disabled = false;
       setStatus("Ready to upload.");
+      setHint("Upload your images, then proceed to secure checkout.");
     });
 
     uploadBtn.onclick = async () => {
-      if (!jobId) return setStatus("Click “Start compression” first.");
       const files = [...filesEl.files];
       const v = validateFiles(files);
       if (!v.ok) return setStatus(v.msg);
 
-      setStatus("Uploading… (keep this tab open)");
+      setStatus("Uploading…");
+      setHint("Keep this tab open. We’ll prepare checkout next.");
       uploadBtn.disabled = true;
       payBtn.disabled = true;
 
@@ -404,16 +463,21 @@
       try {
         const res = await fetch(`/api/jobs/${jobId}/upload`, { method: "POST", body: fd });
         const up = await res.json();
+
         if (up?.error) {
           setStatus(up.error);
+          setHint("Please try again.");
           uploadBtn.disabled = false;
           return;
         }
-        setStatus(`Uploaded ${up.fileCount || files.length} images. Ready for checkout.`);
+
+        setStatus(`Uploaded ${up.fileCount || files.length} image(s).`);
+        setHint("Proceed to secure checkout to generate your ZIP.");
         payBtn.textContent = `Pay ${PRICE_TEXT}`;
         payBtn.disabled = false;
       } catch (e) {
-        setStatus("Upload failed. Please try again.");
+        setStatus("Upload failed.");
+        setHint("Please try again.");
         uploadBtn.disabled = false;
       }
     };
@@ -422,6 +486,7 @@
       if (!jobId) return setStatus("Click “Start compression” first.");
 
       setStatus("Opening secure checkout…");
+      setHint("You’ll be redirected to Stripe.");
       payBtn.disabled = true;
 
       try {
@@ -433,17 +498,21 @@
 
         if (resp?.error) {
           setStatus(resp.error);
+          setHint("Please try again.");
           payBtn.disabled = false;
           return;
         }
         if (!resp?.url) {
-          setStatus("Checkout error. Please try again.");
+          setStatus("Checkout error.");
+          setHint("Please try again.");
           payBtn.disabled = false;
           return;
         }
+
         window.location.href = resp.url;
       } catch (e) {
-        setStatus("Checkout failed. Please try again.");
+        setStatus("Checkout failed.");
+        setHint("Please try again.");
         payBtn.disabled = false;
       }
     };
