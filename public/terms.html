@@ -3,21 +3,125 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <title>Terms | ZipPixel</title>
+  <meta name="description" content="ZipPixel Terms of Service. Rules for use, uploads, and service availability." />
+  <link rel="canonical" href="https://zippixel.it.com/terms" />
+
+  <!-- Favicons (match your current files) -->
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
   <link rel="stylesheet" href="/style.css" />
 </head>
+
 <body>
-  <main class="section" style="max-width:850px;text-align:left">
-    <h2>Terms of Service</h2>
-    <p style="color:var(--muted)">Last updated: today</p>
-    <p>By using ZipPixel, you agree to these terms.</p>
-    <h3>Use</h3>
-    <p>You must have rights to the images you upload. Do not upload illegal content.</p>
-    <h3>Refunds</h3>
-    <p>Because processing is instant, refunds are assessed case-by-case.</p>
-    <h3>Availability</h3>
-    <p>We aim for high uptime but do not guarantee uninterrupted service.</p>
-    <p><a href="/">Back</a></p>
+  <header class="top">
+    <div class="container top__inner">
+      <a class="brand" href="/" aria-label="ZipPixel home">
+        <span class="brand__logo" aria-hidden="true">
+          <img src="/apple-touch-icon.png" alt="" width="34" height="34" />
+        </span>
+        <span class="brand__text">
+          <span class="brand__name">ZipPixel</span>
+          <span class="brand__sub">Compress images → one ZIP</span>
+        </span>
+      </a>
+
+      <nav class="nav" aria-label="Site">
+        <a href="/#how">How</a>
+        <a href="/#use">Use cases</a>
+        <a href="/#faq">FAQ</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms" aria-current="page">Terms</a>
+      </nav>
+
+      <div class="top__cta">
+        <a class="btn btn--soft" href="/">Back</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container legal">
+      <div class="legal__head">
+        <h1 class="legal__title">Terms of Service</h1>
+        <p class="legal__meta">Last updated: <span id="lastUpdated"></span></p>
+      </div>
+
+      <div class="legal__card">
+        <p>
+          These Terms apply to your use of ZipPixel (the “Service”).
+          By accessing or using the Service, you agree to these Terms.
+        </p>
+
+        <h2>1. Using the service</h2>
+        <ul>
+          <li>You must have the rights to upload and process any images you submit.</li>
+          <li>Do not upload illegal, harmful, or abusive content.</li>
+          <li>You agree not to misuse the Service (for example, attempting to overload, reverse engineer, or bypass limits).</li>
+        </ul>
+
+        <h2>2. Your content</h2>
+        <p>
+          You keep ownership of your images. You grant ZipPixel a limited permission to process your images
+          only for the purpose of generating your output ZIP.
+        </p>
+
+        <h2>3. Availability</h2>
+        <p>
+          We aim to keep ZipPixel available and reliable, but the Service may be unavailable at times
+          due to maintenance, updates, or issues outside our control.
+        </p>
+
+        <h2>4. Disclaimers</h2>
+        <p>
+          ZipPixel is provided on an “as is” and “as available” basis. To the maximum extent permitted by law,
+          we make no warranties that the Service will be uninterrupted, error-free, or meet your requirements.
+        </p>
+
+        <h2>5. Limitation of liability</h2>
+        <p>
+          To the maximum extent permitted by law, ZipPixel will not be liable for any indirect, incidental,
+          special, consequential, or punitive damages, or any loss of data, profits, or revenue arising from your
+          use of the Service.
+        </p>
+
+        <h2>6. Changes</h2>
+        <p>
+          We may update these Terms from time to time. If changes are material, we’ll update the “Last updated” date.
+          Continuing to use ZipPixel after changes means you accept the updated Terms.
+        </p>
+
+        <h2>7. Contact</h2>
+        <p>
+          Questions? Email <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
+        </p>
+
+        <div class="legal__actions">
+          <a class="btn btn--primary" href="/">Back to ZipPixel</a>
+          <a class="btn btn--soft" href="/privacy">Privacy</a>
+        </div>
+      </div>
+    </div>
   </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div>© <span id="y"></span> ZipPixel</div>
+      <div class="footer__links">
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+    const d = new Date();
+    document.getElementById("lastUpdated").textContent =
+      d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+  </script>
 </body>
 </html>

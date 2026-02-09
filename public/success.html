@@ -3,21 +3,191 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Payment successful | ZipPixel</title>
+
+  <title>Success | ZipPixel</title>
+  <meta name="description" content="Your ZIP is ready. Download your compressed images." />
+  <link rel="canonical" href="https://zippixel.it.com/success" />
+
+  <!-- Favicons (match your current files) -->
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
   <link rel="stylesheet" href="/style.css" />
 </head>
+
 <body>
+  <header class="top">
+    <div class="container top__inner">
+      <a class="brand" href="/" aria-label="ZipPixel home">
+        <span class="brand__logo" aria-hidden="true">
+          <img src="/apple-touch-icon.png" alt="" width="34" height="34" />
+        </span>
+        <span class="brand__text">
+          <span class="brand__name">ZipPixel</span>
+          <span class="brand__sub">Compress images → one ZIP</span>
+        </span>
+      </a>
+
+      <nav class="nav" aria-label="Site">
+        <a href="/#how">How</a>
+        <a href="/#use">Use cases</a>
+        <a href="/#faq">FAQ</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+      </nav>
+
+      <div class="top__cta">
+        <a class="btn btn--soft" href="/">Home</a>
+      </div>
+    </div>
+  </header>
+
   <main class="section">
-    <h2>Payment successful ✅</h2>
-    <p style="color:var(--muted)">If your download says “Not paid”, refresh once (webhook can take a moment).</p>
-    <p id="link"></p>
-    <p><a href="/">Back to ZipPixel</a></p>
+    <div class="container legal">
+      <div class="legal__head">
+        <h1 class="legal__title">You’re all set.</h1>
+        <p class="legal__meta" id="sub">Preparing your download…</p>
+      </div>
+
+      <div class="legal__card">
+        <div class="successBox">
+          <div class="successIcon" aria-hidden="true">✅</div>
+          <div>
+            <div class="successTitle">Payment confirmed</div>
+            <div class="successDesc" id="desc">
+              We’re getting your ZIP ready. This usually takes a few seconds.
+            </div>
+          </div>
+        </div>
+
+        <div class="successActions" id="actions">
+          <!-- buttons injected -->
+        </div>
+
+        <div class="fineprint" id="hint">
+          If it says “Not ready yet”, don’t worry — we’ll retry automatically for ~30 seconds.
+        </div>
+      </div>
+    </div>
   </main>
 
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div>© <span id="y"></span> ZipPixel</div>
+      <div class="footer__links">
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+      </div>
+    </div>
+  </footer>
+
   <script>
-    const jobId = new URLSearchParams(location.search).get("jobId") || "";
-    document.getElementById("link").innerHTML =
-      `<a class="btn btn--primary" href="/api/download/${encodeURIComponent(jobId)}">Download ZIP</a>`;
+    document.getElementById("y").textContent = new Date().getFullYear();
+
+    const qs = new URLSearchParams(location.search);
+    const jobId = (qs.get("jobId") || "").trim();
+
+    const actions = document.getElementById("actions");
+    const sub = document.getElementById("sub");
+    const desc = document.getElementById("desc");
+    const hint = document.getElementById("hint");
+
+    const escapeHtml = (str) =>
+      String(str).replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
+
+    const setActions = (html) => { actions.innerHTML = html; };
+
+    const downloadUrl = jobId ? `/api/download/${encodeURIComponent(jobId)}` : "#";
+
+    // Missing jobId (edge case)
+    if (!jobId) {
+      sub.textContent = "We couldn’t find your job.";
+      desc.textContent = "Open ZipPixel and try again. If this keeps happening, email support.";
+      hint.innerHTML = `Support: <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>`;
+      setActions(`
+        <a class="btn btn--primary" href="/">Go to ZipPixel</a>
+        <a class="btn btn--soft" href="/privacy">Privacy</a>
+      `);
+    } else {
+      // Strategy:
+      // 1) Attempt a "HEAD" ping on the download endpoint (fast).
+      // 2) If not ready, retry with exponential-ish backoff for ~30 seconds.
+      // 3) Always allow manual retry.
+
+      const maxMs = 30000;
+      const start = Date.now();
+      let attempt = 0;
+
+      const renderReady = () => {
+        sub.textContent = "Your ZIP is ready.";
+        desc.textContent = "Download your compressed ZIP below.";
+        hint.textContent = "Tip: If the download doesn’t start, try again once.";
+        setActions(`
+          <a class="btn btn--primary" href="${downloadUrl}">Download ZIP</a>
+          <a class="btn btn--soft" href="/">Back to ZipPixel</a>
+        `);
+      };
+
+      const renderWaiting = (msg) => {
+        sub.textContent = "Preparing your download…";
+        desc.textContent = msg || "This usually takes a few seconds.";
+        setActions(`
+          <button class="btn btn--primary" id="retryBtn" type="button">Check again</button>
+          <a class="btn btn--soft" href="/">Back to ZipPixel</a>
+        `);
+        document.getElementById("retryBtn").onclick = () => poll();
+      };
+
+      const renderFailed = () => {
+        sub.textContent = "Still not ready.";
+        desc.textContent = "If this doesn’t resolve, refresh once. If it still fails, email support and we’ll sort it.";
+        hint.innerHTML = `Support: <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>`;
+        setActions(`
+          <a class="btn btn--primary" href="${downloadUrl}">Try download</a>
+          <button class="btn btn--soft" id="retryBtn2" type="button">Check again</button>
+        `);
+        document.getElementById("retryBtn2").onclick = () => poll(true);
+      };
+
+      // A fast "is it ready" check: HEAD request
+      // - If server returns 200 -> ready
+      // - If 402/409/etc -> not ready (depends on your backend)
+      const isReady = async () => {
+        try {
+          const r = await fetch(downloadUrl, { method: "HEAD", cache: "no-store" });
+          return r.ok;
+        } catch {
+          return false;
+        }
+      };
+
+      const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+
+      const poll = async (manual = false) => {
+        attempt++;
+        const waited = Date.now() - start;
+
+        if (manual) {
+          renderWaiting("Checking…");
+        }
+
+        const ready = await isReady();
+        if (ready) return renderReady();
+
+        if (waited >= maxMs) return renderFailed();
+
+        // backoff: 800ms → 1200 → 1800 → 2500…
+        const delay = Math.min(2500, 800 + attempt * 350);
+        renderWaiting(`Not ready yet. Retrying in ${(delay/1000).toFixed(1)}s…`);
+        await sleep(delay);
+        return poll(false);
+      };
+
+      // initial UI
+      renderWaiting("Checking your download…");
+      poll(false);
+    }
   </script>
 </body>
 </html>

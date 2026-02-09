@@ -487,3 +487,90 @@ details p{ margin: 10px 0 0; color: var(--muted); font-size: 13px; }
   .grid3{ grid-template-columns: 1fr; }
   .grid2{ grid-template-columns: 1fr; }
 }
+
+
+/* Legal pages */
+.legal{
+  width: min(900px, 100%);
+  margin: 0 auto;
+}
+.legal__head{
+  margin-bottom: 14px;
+}
+.legal__title{
+  margin: 0;
+  font-size: 34px;
+  letter-spacing: -0.03em;
+}
+.legal__meta{
+  margin: 8px 0 0;
+  color: var(--muted2);
+  font-size: 13px;
+}
+.legal__card{
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  box-shadow: var(--shadow2);
+  padding: 20px;
+}
+.legal__card h2{
+  margin: 18px 0 8px;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+}
+.legal__card p{
+  margin: 10px 0;
+  color: var(--muted);
+}
+.legal__card ul{
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+.legal__card li{
+  margin: 6px 0;
+}
+.legal__actions{
+  margin-top: 18px;
+  display:flex;
+  gap: 10px;
+}
+
+
+/* Success UI */
+.successBox{
+  display:flex;
+  align-items:flex-start;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(15, 23, 42, .015);
+}
+.successIcon{
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display:grid;
+  place-items:center;
+  background: rgba(37,99,235,.08);
+  border: 1px solid rgba(37,99,235,.16);
+  font-size: 18px;
+}
+.successTitle{
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+.successDesc{
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.successActions{
+  margin-top: 14px;
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
