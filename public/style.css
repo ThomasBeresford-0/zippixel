@@ -436,3 +436,9 @@ details p{
   .quoteBar{ justify-content:center; text-align:center; }
   .finalCta{ justify-content:center; text-align:center; }
 }
+
+.section--alt{
+  background: transparent !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
