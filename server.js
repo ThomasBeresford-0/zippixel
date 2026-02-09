@@ -10,6 +10,10 @@ const path = require("path");
 const crypto = require("crypto");
 const Stripe = require("stripe");
 
+// NEW: ffmpeg (self-contained binary)
+const ffmpegPath = require("ffmpeg-static");
+const { spawn } = require("child_process");
+
 const app = express();
 
 const PORT = process.env.PORT || 4242;
@@ -19,7 +23,6 @@ const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 const STANDARD_MAX = 5;
 const PRO_MAX = 10;
 
-// Default to your original £4.99 if envs aren't set
 const STANDARD_PRICE_GBP_PENCE = Number(process.env.STANDARD_PRICE_GBP_PENCE || 299);
 const PRO_PRICE_GBP_PENCE = Number(process.env.PRO_PRICE_GBP_PENCE || process.env.PRICE_GBP_PENCE || 499);
 
@@ -28,14 +31,14 @@ if (!process.env.STRIPE_WEBHOOK_SECRET) console.warn("⚠️ STRIPE_WEBHOOK_SECR
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-// --- Security headers (safe defaults) ---
+// --- Security headers ---
 app.use(
   helmet({
-    contentSecurityPolicy: false, // keep off for now (Stripe redirect + inline minimal)
+    contentSecurityPolicy: false,
   })
 );
 
-// --- Basic rate limiting (stop bots/abuse) ---
+// --- Basic rate limiting ---
 const limiter = rateLimit({
   windowMs: 60 * 1000,
   max: 120,
@@ -47,35 +50,29 @@ app.use(limiter);
 // Normal JSON for everything else
 app.use(express.json());
 
-// ====== STATIC SITE (BULLETPROOF) ======
-// Absolute path so Render/production cwd can’t break static serving.
-// This is what fixes: Cannot GET /googleXXXX.html
+// ====== STATIC SITE ======
 const PUBLIC_DIR = path.join(__dirname, "public");
 app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
 
-// Serve SEO files explicitly (optional, but fine)
 app.get("/robots.txt", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "robots.txt")));
 app.get("/sitemap.xml", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "sitemap.xml")));
 app.get("/favicon.ico", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "favicon.ico")));
 
-// Pages
 app.get("/", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "index.html")));
 app.get("/success", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "success.html")));
 app.get("/cancel", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "cancel.html")));
 app.get("/privacy", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "privacy.html")));
 app.get("/terms", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "terms.html")));
+app.get("/pricing", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "pricing.html")));
 
-// Health check (Render/monitoring)
 app.get("/health", (req, res) => res.json({ ok: true }));
 
 // ====== UPLOADS / JOBS ======
 const UPLOAD_DIR = path.join(__dirname, "uploads");
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
-// In-memory jobs store (MVP). Note: if the server restarts, jobs reset.
-const jobs = new Map(); // jobId -> { status, createdAt, files: [{path, originalname, mimetype}], paidAt?, checkoutSessionId? }
+const jobs = new Map(); // jobId -> { status, createdAt, files, paidAt?, checkoutSessionId? }
 
-// Cleanup jobs after 60 mins
 setInterval(() => {
   const now = Date.now();
   for (const [jobId, job] of jobs.entries()) {
@@ -100,7 +97,7 @@ function getJob(jobId) {
   return job;
 }
 
-// Multer: store per job folder
+// ====== MULTER ======
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const jobId = req.params.jobId;
@@ -114,8 +111,9 @@ const storage = multer.diskStorage({
   }
 });
 
-// Only allow image mime types
+// Accept images + common video types
 const allowedMimes = new Set([
+  // images
   "image/jpeg",
   "image/png",
   "image/webp",
@@ -123,18 +121,66 @@ const allowedMimes = new Set([
   "image/heic",
   "image/heif",
   "image/avif",
+
+  // videos (MVP)
+  "video/mp4",
+  "video/quicktime", // .mov
+  "video/webm",
+  "video/x-matroska", // .mkv (sometimes)
 ]);
+
+// IMPORTANT: videos are big. If you keep 25MB for everything, video will be useless.
+// Set these envs in prod if you want: MAX_MB_EACH=250
+const MAX_MB_EACH = Number(process.env.MAX_MB_EACH || 250);
 
 const upload = multer({
   storage,
-  limits: { files: PRO_MAX, fileSize: 25 * 1024 * 1024 },
+  limits: { files: PRO_MAX, fileSize: MAX_MB_EACH * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (!allowedMimes.has(file.mimetype)) {
-      return cb(new Error("Only image uploads are allowed."));
+      return cb(new Error("Only image/video uploads are allowed."));
     }
     cb(null, true);
   },
 });
+
+// ====== VIDEO COMPRESS (FFMPEG) ======
+function runFfmpeg(args) {
+  return new Promise((resolve, reject) => {
+    if (!ffmpegPath) return reject(new Error("ffmpeg binary not found"));
+
+    const p = spawn(ffmpegPath, args, { stdio: ["ignore", "ignore", "pipe"] });
+    let err = "";
+    p.stderr.on("data", (d) => (err += d.toString()));
+
+    p.on("close", (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`ffmpeg failed (code ${code})`));
+    });
+  });
+}
+
+async function compressVideoToMp4(inputPath, outputPath) {
+  // MVP settings:
+  // - H.264 video + AAC audio
+  // - "faststart" for web-friendly MP4
+  // - CRF 28 (decent compression), preset "veryfast" (lower CPU cost)
+  // - scale down to max 1280 wide (keeps quality decent, reduces size)
+  const args = [
+    "-y",
+    "-i", inputPath,
+    "-vf", "scale='min(1280,iw)':-2",
+    "-c:v", "libx264",
+    "-preset", "veryfast",
+    "-crf", "28",
+    "-c:a", "aac",
+    "-b:a", "128k",
+    "-movflags", "+faststart",
+    outputPath
+  ];
+
+  await runFfmpeg(args);
+}
 
 // ====== API ======
 app.post("/api/jobs", (req, res) => {
@@ -159,31 +205,26 @@ app.post("/api/jobs/:jobId/upload", upload.array("images", PRO_MAX), (req, res) 
   }
 });
 
-// Tiered checkout: 1-5 => Standard (£2.99), 6-10 => Pro (£4.99)
-// Frontend may send tier, but we also compute from file count for safety.
 app.post("/api/checkout", async (req, res) => {
   try {
     const { jobId, tier } = req.body || {};
     const job = getJob(jobId);
 
     if (!job.files || job.files.length === 0) {
-      return res.status(400).json({ error: "Upload images first." });
+      return res.status(400).json({ error: "Upload files first." });
     }
 
     const count = job.files.length;
     const computedTier = count > STANDARD_MAX ? "pro" : "standard";
-
-    // If frontend sends a tier, trust it only if consistent with file count.
     const finalTier = (tier === "standard" || tier === "pro") ? tier : computedTier;
     const safeTier = (finalTier === "standard" && count > STANDARD_MAX) ? "pro" : finalTier;
 
-    const unitAmount =
-      safeTier === "pro" ? PRO_PRICE_GBP_PENCE : STANDARD_PRICE_GBP_PENCE;
+    const unitAmount = safeTier === "pro" ? PRO_PRICE_GBP_PENCE : STANDARD_PRICE_GBP_PENCE;
 
     const productName =
       safeTier === "pro"
-        ? `ZipPixel – Pro ZIP (up to ${PRO_MAX} images)`
-        : `ZipPixel – Standard ZIP (up to ${STANDARD_MAX} images)`;
+        ? `ZipPixel – Pro ZIP (up to ${PRO_MAX} files)`
+        : `ZipPixel – Standard ZIP (up to ${STANDARD_MAX} files)`;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -213,12 +254,10 @@ app.post("/api/checkout", async (req, res) => {
   }
 });
 
-// Paywall: only PAID can download
 app.get("/api/download/:jobId", async (req, res) => {
   try {
     const job = getJob(req.params.jobId);
 
-    // If webhook is slow, verify once via Stripe to reduce “Not paid” rage.
     if (job.status !== "PAID" && job.checkoutSessionId) {
       try {
         const s = await stripe.checkout.sessions.retrieve(job.checkoutSessionId);
@@ -241,16 +280,38 @@ app.get("/api/download/:jobId", async (req, res) => {
     });
     archive.pipe(res);
 
+    const jobDir = path.join(UPLOAD_DIR, req.params.jobId);
+    const outDir = path.join(jobDir, "out");
+    fs.mkdirSync(outDir, { recursive: true });
+
     for (const f of job.files) {
-      const base = path.basename(f.originalname || "image").replace(/\.(heic|heif)$/i, ".jpg");
-      const outName = base.replace(/\.[^.]+$/, ".jpg");
+      const originalBase = path.basename(f.originalname || "file");
+      const safeBase = originalBase.replace(/[^a-z0-9.\-_]/gi, "_");
 
-      const buf = await sharp(f.path)
-        .rotate()
-        .jpeg({ quality: 80, mozjpeg: true })
-        .toBuffer();
+      if (f.mimetype && f.mimetype.startsWith("image/")) {
+        // Images -> JPG
+        const base = safeBase.replace(/\.(heic|heif)$/i, ".jpg");
+        const outName = base.replace(/\.[^.]+$/, ".jpg");
 
-      archive.append(buf, { name: outName });
+        const buf = await sharp(f.path)
+          .rotate()
+          .jpeg({ quality: 80, mozjpeg: true })
+          .toBuffer();
+
+        archive.append(buf, { name: outName });
+      } else if (f.mimetype && f.mimetype.startsWith("video/")) {
+        // Videos -> compressed mp4
+        const outName = safeBase.replace(/\.[^.]+$/, ".mp4");
+        const outPath = path.join(outDir, `${Date.now()}_${outName}`);
+
+        await compressVideoToMp4(f.path, outPath);
+
+        // Append as stream (avoid loading big file into memory)
+        archive.file(outPath, { name: outName });
+      } else {
+        // Shouldn’t happen due to filter, but just in case:
+        archive.file(f.path, { name: safeBase });
+      }
     }
 
     await archive.finalize();
@@ -260,12 +321,8 @@ app.get("/api/download/:jobId", async (req, res) => {
 });
 
 // ====== STRIPE WEBHOOK (RAW BODY) ======
-// IMPORTANT: this must be after express.json() is used for normal routes,
-// but we mount raw on this specific route only.
-// Keeping it here (after static) avoids any weirdness with verification files.
 app.post("/webhook", express.raw({ type: "application/json" }), webhookHandler);
 
-// --- Webhook handler ---
 function webhookHandler(req, res) {
   const sig = req.headers["stripe-signature"];
   let event;

@@ -368,7 +368,7 @@
 
           <!-- DROPZONE -->
           <div class="dropzone" id="dropzone" aria-label="Upload images">
-            <input id="files" type="file" accept="image/*" multiple />
+          <input id="files" type="file" accept="image/*,video/*" multiple />
             <div class="dropzone__inner">
               <div class="dzIcon" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -379,7 +379,7 @@
               </div>
               <div class="dzText">
                 <div class="dzTitle">Drop images here</div>
-                <div class="dzSub">or click to choose · Max 10 · Max 25MB each</div>
+              <div class="dzSub">or click to choose · Images & videos · Max 10 · Max 250MB each</div>
               </div>
             </div>
 
@@ -594,7 +594,7 @@
     const PRO_PRICE_LABEL = "£4.99";
 
     const MAX_FILES = PRO_MAX;
-    const MAX_MB_EACH = 25;
+    const MAX_MB_EACH = 250;
 
     const dropzone = document.getElementById("dropzone");
     const filesEl = document.getElementById("files");
@@ -650,10 +650,16 @@
     const keyOf = (f) => `${f.name}__${f.size}__${f.lastModified}`;
 
     const validateFile = (f) => {
-      if (!f.type.startsWith("image/")) return `“${f.name}” isn’t an image.`;
-      if (f.size > MAX_MB_EACH * 1024 * 1024) return `“${f.name}” is ${humanMB(f.size)} (max ${MAX_MB_EACH}MB).`;
+      const isImage = f.type.startsWith("image/");
+      const isVideo = f.type.startsWith("video/");
+      if (!isImage && !isVideo) return `“${f.name}” isn’t a supported file.`;
+
+      if (f.size > MAX_MB_EACH * 1024 * 1024) {
+        return `“${f.name}” is ${humanMB(f.size)} (max ${MAX_MB_EACH}MB).`;
+      }
       return null;
     };
+
 
     const resetProgress = () => {
       progressWrap.hidden = true;
