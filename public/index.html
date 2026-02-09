@@ -345,7 +345,7 @@
                 <div class="spinner" id="spinner" aria-hidden="true"></div>
               </div>
               <div class="statusHint" id="statusHint">
-                Drop images to begin.
+                Drop files to begin.
               </div>
             </div>
 
@@ -356,7 +356,7 @@
 
           <div class="toolTopStrip" aria-label="Limits and checkout">
             <div class="toolTopStripLeft">
-              <span class="tinyPill"><b>Max</b> 10 images</span>
+              <span class="tinyPill"><b>Max</b> 10 files</span>
               <span class="tinyPill"><b>Max</b> 25MB each</span>
               <span class="tinyPill"><b>Output</b> ZIP</span>
             </div>
@@ -368,7 +368,7 @@
 
           <!-- DROPZONE -->
           <div class="dropzone" id="dropzone" aria-label="Upload images">
-            <input id="files" type="file" accept="image/*" multiple />
+          <input id="files" type="file" accept="image/*,application/pdf" multiple />
             <div class="dropzone__inner">
               <div class="dzIcon" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -378,8 +378,8 @@
                 </svg>
               </div>
               <div class="dzText">
-                <div class="dzTitle">Drop images here</div>
-                <div class="dzSub">or click to choose · Max 10 · Max 25MB each</div>
+                <div class="dzTitle">Drop images or PDFs here</div>
+                <div class="dzSub">or click to choose · Max 10 files · Max 25MB each</div>
               </div>
             </div>
 
@@ -501,7 +501,7 @@
           </details>
           <details>
             <summary>What formats do you support?</summary>
-            <p>Most common image formats (JPG, PNG, WebP, HEIC/HEIF, AVIF).</p>
+          <p>Most common image formats (JPG, PNG, WebP, HEIC/HEIF, AVIF) and PDFs.</p>
           </details>
           <details>
             <summary>How many images can I add?</summary>
@@ -650,10 +650,20 @@
     const keyOf = (f) => `${f.name}__${f.size}__${f.lastModified}`;
 
     const validateFile = (f) => {
-      if (!f.type.startsWith("image/")) return `“${f.name}” isn’t an image.`;
-      if (f.size > MAX_MB_EACH * 1024 * 1024) return `“${f.name}” is ${humanMB(f.size)} (max ${MAX_MB_EACH}MB).`;
+      const isImage = f.type.startsWith("image/");
+      const isPDF = f.type === "application/pdf";
+
+      if (!isImage && !isPDF) {
+        return `“${f.name}” isn’t a supported file type.`;
+      }
+
+      if (f.size > MAX_MB_EACH * 1024 * 1024) {
+        return `“${f.name}” is ${humanMB(f.size)} (max ${MAX_MB_EACH}MB).`;
+      }
+
       return null;
     };
+
 
     const resetProgress = () => {
       progressWrap.hidden = true;
@@ -675,7 +685,7 @@
       const tier = getTier();
       const n = selected.length;
 
-      priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> image${n === 1 ? "" : "s"}.`;
+      priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> file${n === 1 ? "" : "s"}.`;
 
       // Update the “you’ll pay” summary
       tierInline.textContent = getTierLabel();
