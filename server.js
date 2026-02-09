@@ -14,14 +14,17 @@ const app = express();
 
 const PORT = process.env.PORT || 4242;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
-const PRICE_GBP_PENCE = Number(process.env.PRICE_GBP_PENCE || 499);
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  console.warn("⚠️ STRIPE_SECRET_KEY missing");
-}
-if (!process.env.STRIPE_WEBHOOK_SECRET) {
-  console.warn("⚠️ STRIPE_WEBHOOK_SECRET missing");
-}
+// ====== PRICING (tiered) ======
+const STANDARD_MAX = 5;
+const PRO_MAX = 10;
+
+// Default to your original £4.99 if envs aren't set
+const STANDARD_PRICE_GBP_PENCE = Number(process.env.STANDARD_PRICE_GBP_PENCE || 299);
+const PRO_PRICE_GBP_PENCE = Number(process.env.PRO_PRICE_GBP_PENCE || process.env.PRICE_GBP_PENCE || 499);
+
+if (!process.env.STRIPE_SECRET_KEY) console.warn("⚠️ STRIPE_SECRET_KEY missing");
+if (!process.env.STRIPE_WEBHOOK_SECRET) console.warn("⚠️ STRIPE_WEBHOOK_SECRET missing");
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -41,30 +44,31 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// --- Stripe webhook MUST be raw body ---
-app.post("/webhook", express.raw({ type: "application/json" }), webhookHandler);
-
 // Normal JSON for everything else
 app.use(express.json());
 
-// Static site
-app.use(express.static("public", { extensions: ["html"] }));
+// ====== STATIC SITE (BULLETPROOF) ======
+// Absolute path so Render/production cwd can’t break static serving.
+// This is what fixes: Cannot GET /googleXXXX.html
+const PUBLIC_DIR = path.join(__dirname, "public");
+app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
 
-// Serve SEO files explicitly
-app.get("/robots.txt", (req, res) => res.sendFile(path.join(__dirname, "public/robots.txt")));
-app.get("/sitemap.xml", (req, res) => res.sendFile(path.join(__dirname, "public/sitemap.xml")));
-app.get("/favicon.ico", (req, res) => res.sendFile(path.join(__dirname, "public/favicon.ico")));
+// Serve SEO files explicitly (optional, but fine)
+app.get("/robots.txt", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "robots.txt")));
+app.get("/sitemap.xml", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "sitemap.xml")));
+app.get("/favicon.ico", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "favicon.ico")));
 
 // Pages
-app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public/index.html")));
-app.get("/success", (req, res) => res.sendFile(path.join(__dirname, "public/success.html")));
-app.get("/cancel", (req, res) => res.sendFile(path.join(__dirname, "public/cancel.html")));
-app.get("/privacy", (req, res) => res.sendFile(path.join(__dirname, "public/privacy.html")));
-app.get("/terms", (req, res) => res.sendFile(path.join(__dirname, "public/terms.html")));
+app.get("/", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "index.html")));
+app.get("/success", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "success.html")));
+app.get("/cancel", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "cancel.html")));
+app.get("/privacy", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "privacy.html")));
+app.get("/terms", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "terms.html")));
 
 // Health check (Render/monitoring)
 app.get("/health", (req, res) => res.json({ ok: true }));
 
+// ====== UPLOADS / JOBS ======
 const UPLOAD_DIR = path.join(__dirname, "uploads");
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
@@ -123,7 +127,7 @@ const allowedMimes = new Set([
 
 const upload = multer({
   storage,
-  limits: { files: 10, fileSize: 25 * 1024 * 1024 },
+  limits: { files: PRO_MAX, fileSize: 25 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (!allowedMimes.has(file.mimetype)) {
       return cb(new Error("Only image uploads are allowed."));
@@ -132,14 +136,14 @@ const upload = multer({
   },
 });
 
-// --- API ---
+// ====== API ======
 app.post("/api/jobs", (req, res) => {
   const jobId = newId("job");
   jobs.set(jobId, { status: "CREATED", createdAt: Date.now(), files: [] });
   res.json({ jobId });
 });
 
-app.post("/api/jobs/:jobId/upload", upload.array("images", 10), (req, res) => {
+app.post("/api/jobs/:jobId/upload", upload.array("images", PRO_MAX), (req, res) => {
   try {
     const job = getJob(req.params.jobId);
     if (!req.files || req.files.length === 0) return res.status(400).json({ error: "No files" });
@@ -155,21 +159,41 @@ app.post("/api/jobs/:jobId/upload", upload.array("images", 10), (req, res) => {
   }
 });
 
+// Tiered checkout: 1-5 => Standard (£2.99), 6-10 => Pro (£4.99)
+// Frontend may send tier, but we also compute from file count for safety.
 app.post("/api/checkout", async (req, res) => {
   try {
-    const { jobId } = req.body;
+    const { jobId, tier } = req.body || {};
     const job = getJob(jobId);
-    if (!job.files || job.files.length === 0) return res.status(400).json({ error: "Upload images first." });
+
+    if (!job.files || job.files.length === 0) {
+      return res.status(400).json({ error: "Upload images first." });
+    }
+
+    const count = job.files.length;
+    const computedTier = count > STANDARD_MAX ? "pro" : "standard";
+
+    // If frontend sends a tier, trust it only if consistent with file count.
+    const finalTier = (tier === "standard" || tier === "pro") ? tier : computedTier;
+    const safeTier = (finalTier === "standard" && count > STANDARD_MAX) ? "pro" : finalTier;
+
+    const unitAmount =
+      safeTier === "pro" ? PRO_PRICE_GBP_PENCE : STANDARD_PRICE_GBP_PENCE;
+
+    const productName =
+      safeTier === "pro"
+        ? `ZipPixel – Pro ZIP (up to ${PRO_MAX} images)`
+        : `ZipPixel – Standard ZIP (up to ${STANDARD_MAX} images)`;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      metadata: { jobId },
+      metadata: { jobId, tier: safeTier, fileCount: String(count) },
       line_items: [
         {
           price_data: {
             currency: "gbp",
-            unit_amount: PRICE_GBP_PENCE,
-            product_data: { name: "ZipPixel – Image Compression ZIP" }
+            unit_amount: unitAmount,
+            product_data: { name: productName }
           },
           quantity: 1
         }
@@ -180,6 +204,8 @@ app.post("/api/checkout", async (req, res) => {
 
     job.status = "CHECKOUT_CREATED";
     job.checkoutSessionId = session.id;
+    job.tier = safeTier;
+    job.pricePaidPence = unitAmount;
 
     res.json({ url: session.url });
   } catch (e) {
@@ -192,7 +218,7 @@ app.get("/api/download/:jobId", async (req, res) => {
   try {
     const job = getJob(req.params.jobId);
 
-    // If webhook is slow, we do one extra verification attempt (reduces “Not paid” rage).
+    // If webhook is slow, verify once via Stripe to reduce “Not paid” rage.
     if (job.status !== "PAID" && job.checkoutSessionId) {
       try {
         const s = await stripe.checkout.sessions.retrieve(job.checkoutSessionId);
@@ -232,6 +258,12 @@ app.get("/api/download/:jobId", async (req, res) => {
     res.status(400).send(e.message);
   }
 });
+
+// ====== STRIPE WEBHOOK (RAW BODY) ======
+// IMPORTANT: this must be after express.json() is used for normal routes,
+// but we mount raw on this specific route only.
+// Keeping it here (after static) avoids any weirdness with verification files.
+app.post("/webhook", express.raw({ type: "application/json" }), webhookHandler);
 
 // --- Webhook handler ---
 function webhookHandler(req, res) {
