@@ -5,34 +5,122 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>ZipPixel — Compress Images & Download One ZIP</title>
-  <meta name="description" content="Compress up to 10 images and download a single ZIP. No signup." />
+  <meta name="description" content="Upload up to 10 images. We optimise them and bundle everything into one ZIP. No signup. Pricing shown before payment." />
   <link rel="canonical" href="https://zippixel.it.com/" />
 
   <meta property="og:title" content="ZipPixel — Compress Images. Download One ZIP." />
-  <meta property="og:description" content="Upload up to 10 images → Download a single compressed ZIP instantly. No signup." />
+  <meta property="og:description" content="Upload up to 10 images → Download a single compressed ZIP instantly. No signup. Pricing shown before payment." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zippixel.it.com/" />
   <meta property="og:image" content="https://zippixel.it.com/og.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="ZipPixel — Compress Images. Download One ZIP." />
-  <meta name="twitter:description" content="Upload up to 10 images → Download a single compressed ZIP instantly. No signup." />
+  <meta name="twitter:description" content="Upload up to 10 images → Download one compressed ZIP. No signup. Pricing shown before payment." />
   <meta name="twitter:image" content="https://zippixel.it.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <!-- Cache-bust to ensure your latest CSS loads in browsers -->
   <link rel="stylesheet" href="/style.css?v=2" />
 
-  <!-- Minimal modal styles (kept inline so you don’t have to touch CSS files) -->
+  <!-- FULL RAMBO polish: small, surgical, professional additions without rewriting your CSS -->
   <style>
+    /* Slightly tighter hero + better rhythm */
+    .hero{ padding: 56px 0 34px; }
+    .hero__copy{ padding-top: 6px; }
+    .heroBadges{
+      margin-top: 16px;
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items:center;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 10px 22px rgba(2,6,23,.06);
+      font-size: 12px;
+      color: rgba(11,18,32,.86);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      user-select:none;
+    }
+    .badgeDot{
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(37,99,235,.95);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.10);
+    }
+    .badgeIcon{
+      width: 18px;height: 18px;
+      display:grid;place-items:center;
+      border-radius: 999px;
+      background: rgba(37,99,235,.10);
+      border: 1px solid rgba(37,99,235,.16);
+      color: rgba(29,78,216,1);
+      font-weight: 900;
+      font-size: 12px;
+      flex: 0 0 auto;
+    }
+
+    /* ToolCard: subtle top strip for trust */
+    .toolTopStrip{
+      margin: 10px 0 0;
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items:center;
+      justify-content: space-between;
+      border: 1px solid rgba(15,23,42,.08);
+      background: rgba(15,23,42,.012);
+      border-radius: 16px;
+      padding: 10px 12px;
+    }
+    .toolTopStripLeft{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items:center;
+      color: rgba(75,85,99,.98);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .toolTopStripRight{
+      display:flex;
+      gap: 8px;
+      align-items:center;
+      color: rgba(75,85,99,.98);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .tinyPill{
+      display:inline-flex;
+      gap: 8px;
+      align-items:center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.7);
+    }
+    .tinyPill b{ color: rgba(11,18,32,.92); }
+    .linkSoft{ text-decoration:none; }
+    .linkSoft:hover{ opacity:.9; }
+
+    /* Modal: professional, clearer summary, accessible focus ring */
     .modalOverlay{
       position: fixed;
       inset: 0;
-      background: rgba(2,6,23,.55);
-      backdrop-filter: blur(8px);
+      background: rgba(2,6,23,.58);
+      backdrop-filter: blur(10px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -41,20 +129,26 @@
     }
     .modalOverlay.isOpen{ display:flex; }
     .modalCard{
-      width: min(520px, 100%);
+      width: min(560px, 100%);
       background: #fff;
       border: 1px solid rgba(2,6,23,.14);
-      border-radius: 16px;
-      box-shadow: 0 30px 90px rgba(2,6,23,.22);
+      border-radius: 18px;
+      box-shadow: 0 40px 110px rgba(2,6,23,.28);
       overflow: hidden;
+      transform: translateY(6px);
+      animation: modalIn .14s ease-out forwards;
+    }
+    @keyframes modalIn{
+      to { transform: translateY(0); }
     }
     .modalTop{
       padding: 14px 16px;
-      border-bottom: 1px solid rgba(2,6,23,.10);
+      border-bottom: 1px solid rgba(2,6,23,.08);
       display:flex;
       align-items:center;
       justify-content: space-between;
       gap: 12px;
+      background: linear-gradient(180deg, rgba(37,99,235,.06), rgba(255,255,255,0));
     }
     .modalTitle{
       font-weight: 950;
@@ -64,23 +158,70 @@
     .modalClose{
       border: 1px solid rgba(2,6,23,.12);
       background: #fff;
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 8px 10px;
       cursor:pointer;
       font-weight: 900;
       font-size: 12px;
     }
-    .modalBody{ padding: 14px 16px; }
+    .modalClose:focus,
+    .modalBackBtn:focus,
+    .modalPayBtn:focus{
+      outline: 3px solid rgba(37,99,235,.28);
+      outline-offset: 2px;
+    }
+    .modalBody{ padding: 14px 16px 6px; }
     .modalLead{
-      margin: 0 0 10px;
+      margin: 0;
       color: rgba(11,18,32,.86);
       font-size: 14px;
-      line-height: 1.4;
+      line-height: 1.45;
+    }
+    .modalSummary{
+      margin-top: 12px;
+      border: 1px solid rgba(2,6,23,.10);
+      background: rgba(2,6,23,.02);
+      border-radius: 16px;
+      padding: 12px;
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .modalSummaryLeft{
+      display:flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .modalSummaryKicker{
+      font-size: 12px;
+      font-weight: 900;
+      color: rgba(107,114,128,.98);
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+    .modalSummaryMain{
+      font-size: 14px;
+      font-weight: 950;
+      letter-spacing: -0.01em;
+      color: rgba(11,18,32,.95);
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 360px;
+    }
+    .modalSummaryAmt{
+      font-size: 16px;
+      font-weight: 950;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      color: rgba(11,18,32,.95);
     }
     .priceGrid{
       display:grid;
       gap: 10px;
-      margin-top: 10px;
+      margin-top: 12px;
     }
     .priceRow{
       display:flex;
@@ -88,27 +229,44 @@
       justify-content: space-between;
       gap: 12px;
       padding: 12px;
-      border-radius: 14px;
+      border-radius: 16px;
       border: 1px solid rgba(2,6,23,.10);
       background: rgba(2,6,23,.02);
+    }
+    .priceRow.isChosen{
+      border-color: rgba(37,99,235,.35);
+      background: rgba(37,99,235,.08);
     }
     .priceLeft{ display:flex; flex-direction: column; gap: 3px; }
     .priceName{ font-weight: 950; font-size: 13px; letter-spacing: -0.01em; }
     .priceDesc{ font-size: 12px; color: rgba(75,85,99,.95); }
     .priceAmt{ font-weight: 950; font-size: 13px; white-space: nowrap; }
-    .modalFoot{
-      padding: 14px 16px;
-      border-top: 1px solid rgba(2,6,23,.10);
-      display:flex;
-      justify-content: flex-end;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
     .modalNote{
       margin-top: 10px;
       font-size: 12px;
       color: rgba(107,114,128,.98);
-      line-height: 1.35;
+      line-height: 1.45;
+    }
+    .modalFoot{
+      padding: 14px 16px;
+      border-top: 1px solid rgba(2,6,23,.08);
+      display:flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: rgba(2,6,23,.01);
+    }
+    .modalBackBtn{ }
+    .modalPayBtn{ }
+
+    /* More premium section headings */
+    .sectionHead{ max-width: 820px; }
+    .sectionHead p{ line-height: 1.45; }
+
+    @media (max-width: 980px){
+      .hero{ padding: 38px 0 24px; }
+      .toolTopStrip{ margin-top: 12px; }
+      .modalSummaryMain{ max-width: 240px; }
     }
   </style>
 
@@ -119,7 +277,7 @@
     "name":"ZipPixel",
     "applicationCategory":"MultimediaApplication",
     "operatingSystem":"Web",
-    "description":"Compress up to 10 images and download a single optimised ZIP. No signup."
+    "description":"Compress images and download a single optimised ZIP. No signup. Pricing shown before payment."
   }
   </script>
 </head>
@@ -141,6 +299,7 @@
         <a href="#how">How</a>
         <a href="#use">Use cases</a>
         <a href="#faq">FAQ</a>
+        <a href="/pricing">Pricing</a>
         <a href="/privacy">Privacy</a>
         <a href="/terms">Terms</a>
       </nav>
@@ -158,12 +317,22 @@
       <div class="container hero__grid">
         <div class="hero__copy">
           <h1>Compress images.<br/>Download one ZIP.</h1>
+
           <p class="lead">
-            Drop up to <b>10</b> images. We optimise them and bundle everything into one clean ZIP.
+            Upload up to <b>10</b> images. We optimise them and bundle everything into one clean ZIP.
             <span class="muted">No signup.</span>
           </p>
+
           <div class="microLine">
-            Best for sending photos to clients, portals, listings, and inboxes without massive attachments.
+            Built for client handover, listings and inbox limits.
+            <span class="muted">Pricing is shown before payment.</span>
+          </div>
+
+          <div class="heroBadges" aria-label="Highlights">
+            <span class="badge"><span class="badgeDot" aria-hidden="true"></span> Fast ZIP output</span>
+            <span class="badge"><span class="badgeIcon" aria-hidden="true">⭳</span> One file to send</span>
+            <span class="badge"><span class="badgeIcon" aria-hidden="true">✓</span> Secure Stripe checkout</span>
+            <span class="badge"><span class="badgeIcon" aria-hidden="true">🗑</span> Auto-deleted files</span>
           </div>
         </div>
 
@@ -182,6 +351,18 @@
 
             <div class="toolCard__cta">
               <button class="btn btn--soft btn--lg" id="chooseBtn" type="button">Choose files</button>
+            </div>
+          </div>
+
+          <div class="toolTopStrip" aria-label="Limits and checkout">
+            <div class="toolTopStripLeft">
+              <span class="tinyPill"><b>Max</b> 10 images</span>
+              <span class="tinyPill"><b>Max</b> 25MB each</span>
+              <span class="tinyPill"><b>Output</b> ZIP</span>
+            </div>
+            <div class="toolTopStripRight">
+              <a class="linkSoft tinyPill" href="/pricing" aria-label="View pricing">Pricing</a>
+              <span class="tinyPill" aria-label="Stripe checkout">Secure checkout</span>
             </div>
           </div>
 
@@ -224,7 +405,7 @@
           </div>
 
           <!-- ACTIONS -->
-          <div class="steps">
+          <div class="steps" aria-label="Steps">
             <div class="step">
               <div class="step__k">1</div>
               <div class="step__body">
@@ -237,8 +418,8 @@
             <div class="step">
               <div class="step__k">2</div>
               <div class="step__body">
-                <div class="step__t">Get ZIP</div>
-                <div class="step__d">Continue to generate your ZIP.</div>
+                <div class="step__t">Download</div>
+                <div class="step__d">Confirm and proceed to payment.</div>
               </div>
               <button class="btn btn--primary btn--block" id="continue" disabled>Continue</button>
             </div>
@@ -255,7 +436,7 @@
       <div class="container">
         <div class="sectionHead">
           <h2>How it works</h2>
-          <p>Simple flow. No setup.</p>
+          <p>Two quick steps. No accounts. No clutter.</p>
         </div>
 
         <div class="grid3">
@@ -267,12 +448,12 @@
           <div class="card">
             <div class="k">2</div>
             <div class="t">We optimise</div>
-            <div class="d">Sizes go down, quality stays clean.</div>
+            <div class="d">Smaller files, clean output. Great for email and portals.</div>
           </div>
           <div class="card">
             <div class="k">3</div>
             <div class="t">Download one ZIP</div>
-            <div class="d">One tidy file, ready to send.</div>
+            <div class="d">One tidy bundle ready to send or archive.</div>
           </div>
         </div>
       </div>
@@ -288,19 +469,19 @@
         <div class="grid2">
           <div class="card card--flat">
             <div class="t">Property / Airbnb photos</div>
-            <div class="d">Send one ZIP to owners or agents.</div>
+            <div class="d">Send one ZIP to owners, agents or portals.</div>
           </div>
           <div class="card card--flat">
             <div class="t">E-commerce listings</div>
-            <div class="d">Faster uploads, fewer timeouts.</div>
+            <div class="d">Faster uploads and fewer timeouts.</div>
           </div>
           <div class="card card--flat">
             <div class="t">Client handover</div>
-            <div class="d">Deliver cleanly without huge attachments.</div>
+            <div class="d">Deliver neatly without massive attachments.</div>
           </div>
           <div class="card card--flat">
             <div class="t">Web & newsletters</div>
-            <div class="d">Smaller images = faster pages.</div>
+            <div class="d">Smaller images = faster pages and better deliverability.</div>
           </div>
         </div>
       </div>
@@ -316,7 +497,7 @@
         <div class="faq">
           <details>
             <summary>Do I need an account?</summary>
-            <p>No.</p>
+            <p>No signup — upload, pay, download.</p>
           </details>
           <details>
             <summary>What formats do you support?</summary>
@@ -324,7 +505,11 @@
           </details>
           <details>
             <summary>How many images can I add?</summary>
-            <p>Up to 10 per job.</p>
+            <p>Up to 10 per job (max 25MB each).</p>
+          </details>
+          <details>
+            <summary>When do I see pricing?</summary>
+            <p>After you upload — you’ll see the total before you go to Stripe Checkout.</p>
           </details>
           <details>
             <summary>What happens to my files?</summary>
@@ -347,17 +532,27 @@
 
   <!-- PRICE MODAL (only shown when user clicks Continue) -->
   <div class="modalOverlay" id="priceModal" role="dialog" aria-modal="true" aria-labelledby="priceModalTitle">
-    <div class="modalCard">
+    <div class="modalCard" role="document">
       <div class="modalTop">
         <div class="modalTitle" id="priceModalTitle">Confirm your ZIP</div>
         <button class="modalClose" id="modalCloseBtn" type="button" aria-label="Close">Close</button>
       </div>
+
       <div class="modalBody">
         <p class="modalLead" id="priceModalLead">
-          You’ve uploaded <b>0</b> images. Choose your ZIP option:
+          You’ve uploaded <b>0</b> images.
         </p>
 
-        <div class="priceGrid">
+        <!-- Clear summary: what they will be charged (only revealed here) -->
+        <div class="modalSummary" aria-label="Checkout summary">
+          <div class="modalSummaryLeft">
+            <div class="modalSummaryKicker">You’ll pay</div>
+            <div class="modalSummaryMain"><span id="tierInline">Standard ZIP</span> • <span id="countInline">0</span> images</div>
+          </div>
+          <div class="modalSummaryAmt" id="priceInline">£0.00</div>
+        </div>
+
+        <div class="priceGrid" aria-label="Pricing tiers">
           <div class="priceRow" id="rowStandard">
             <div class="priceLeft">
               <div class="priceName">Standard ZIP</div>
@@ -379,18 +574,19 @@
           You’ll be redirected to secure Stripe Checkout.
         </div>
       </div>
+
       <div class="modalFoot">
-        <button class="btn btn--ghost" id="modalBackBtn" type="button">Go back</button>
-        <button class="btn btn--primary" id="modalPayBtn" type="button">Continue to payment</button>
+        <button class="btn btn--ghost modalBackBtn" id="modalBackBtn" type="button">Go back</button>
+        <button class="btn btn--primary modalPayBtn" id="modalPayBtn" type="button">Continue to payment</button>
       </div>
     </div>
   </div>
 
   <script>
-    // ====== ZIPPIXEL FRONTEND (RAMBO) ======
+    // ====== ZIPPIXEL FRONTEND (FULL RAMBO) ======
     document.getElementById("y").textContent = new Date().getFullYear();
 
-    // Tiering
+    // Tiering (must match backend)
     const STANDARD_MAX = 5;
     const PRO_MAX = 10;
 
@@ -431,14 +627,14 @@
     const priceModalNote = document.getElementById("priceModalNote");
     const rowStandard = document.getElementById("rowStandard");
     const rowPro = document.getElementById("rowPro");
+    const tierInline = document.getElementById("tierInline");
+    const priceInline = document.getElementById("priceInline");
+    const countInline = document.getElementById("countInline");
 
     let jobId = null;
     let creatingJob = false;
     let uploading = false;
     let selected = []; // Array<File>
-
-    // Gate: only show price when Continue is clicked
-    let continueConfirmed = false;
 
     const setStatus = (m) => statusEl.textContent = m;
     const setHint = (m) => statusHint.innerHTML = m;
@@ -471,22 +667,24 @@
     const getTierLabel = () => (getTier() === "pro" ? "Pro ZIP" : "Standard ZIP");
     const getTierPriceLabel = () => (getTier() === "pro" ? PRO_PRICE_LABEL : STANDARD_PRICE_LABEL);
 
+    const setChosen = (el, chosen) => {
+      el.classList.toggle("isChosen", !!chosen);
+    };
+
     const openPriceModal = () => {
       const tier = getTier();
       const n = selected.length;
 
-      // Update copy (only revealed now)
-      priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> image${n === 1 ? "" : "s"}. Your ZIP option:`;
+      priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> image${n === 1 ? "" : "s"}.`;
 
-      // Highlight selected tier
-      const highlight = (el, on) => {
-        el.style.borderColor = on ? "rgba(37,99,235,.45)" : "rgba(2,6,23,.10)";
-        el.style.background = on ? "rgba(37,99,235,.08)" : "rgba(2,6,23,.02)";
-      };
-      highlight(rowStandard, tier === "standard");
-      highlight(rowPro, tier === "pro");
+      // Update the “you’ll pay” summary
+      tierInline.textContent = getTierLabel();
+      priceInline.textContent = getTierPriceLabel();
+      countInline.textContent = String(n);
 
-      // Note for pro selection
+      setChosen(rowStandard, tier === "standard");
+      setChosen(rowPro, tier === "pro");
+
       if (tier === "pro") {
         priceModalNote.textContent = "Pro is selected because you have 6+ images. Remove images to pay Standard.";
       } else {
@@ -495,6 +693,8 @@
 
       priceModal.classList.add("isOpen");
       document.body.style.overflow = "hidden";
+
+      // focus
       modalPayBtn.focus();
     };
 
@@ -504,24 +704,18 @@
       continueBtn.focus();
     };
 
-    // Modal interactions
     modalCloseBtn.addEventListener("click", closePriceModal);
     modalBackBtn.addEventListener("click", closePriceModal);
 
-    // Click outside closes
     priceModal.addEventListener("click", (e) => {
       if (e.target === priceModal) closePriceModal();
     });
 
-    // ESC closes
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && priceModal.classList.contains("isOpen")) closePriceModal();
     });
 
     const renderSelected = () => {
-      // Any edit invalidates confirmation (price should be re-confirmed)
-      continueConfirmed = false;
-
       if (selected.length === 0) {
         fileMeta.hidden = true;
         fileSummary.textContent = "";
@@ -576,8 +770,8 @@
 
     const ensureJob = async () => {
       if (jobId) return jobId;
+
       if (creatingJob) {
-        // wait for existing create
         return new Promise((resolve, reject) => {
           const start = Date.now();
           const tick = () => {
@@ -614,7 +808,6 @@
     const addFiles = async (incomingFiles) => {
       const arr = [...incomingFiles].filter(Boolean);
 
-      // filter + validate
       const errors = [];
       const incomingValid = [];
       for (const f of arr) {
@@ -628,7 +821,6 @@
         setHint(errors.slice(0, 2).map(e => escapeHtml(e)).join("<br/>") + (errors.length > 2 ? "<br/>…" : ""));
       }
 
-      // merge + dedupe
       const existingKeys = new Set(selected.map(keyOf));
       for (const f of incomingValid) {
         const k = keyOf(f);
@@ -638,7 +830,6 @@
         }
       }
 
-      // enforce max
       if (selected.length > MAX_FILES) {
         selected = selected.slice(0, MAX_FILES);
         setStatus("Max reached.");
@@ -647,7 +838,6 @@
 
       renderSelected();
 
-      // auto-start job when user adds files
       try {
         await ensureJob();
       } catch (e) {
@@ -656,21 +846,17 @@
         return;
       }
 
-      // enable upload
       uploadBtn.disabled = uploading || selected.length === 0;
     };
 
-    // Choose button
     chooseBtn.addEventListener("click", () => filesEl.click());
 
-    // Input change
     filesEl.addEventListener("change", async () => {
       if (!filesEl.files || filesEl.files.length === 0) return;
       await addFiles(filesEl.files);
       filesEl.value = "";
     });
 
-    // Drag & drop robustness (prevent browser opening files)
     ["dragenter","dragover"].forEach(evt => {
       window.addEventListener(evt, (e) => { e.preventDefault(); }, { passive:false });
     });
@@ -680,22 +866,22 @@
     const dragOn = () => dropzone.classList.add("isDrag");
     const dragOff = () => dropzone.classList.remove("isDrag");
 
-    ["dragenter"].forEach(evt => dropzone.addEventListener(evt, (e) => {
+    dropzone.addEventListener("dragenter", (e) => {
       e.preventDefault(); e.stopPropagation();
       dragDepth++;
       dragOn();
-    }));
+    });
 
-    ["dragleave"].forEach(evt => dropzone.addEventListener(evt, (e) => {
+    dropzone.addEventListener("dragleave", (e) => {
       e.preventDefault(); e.stopPropagation();
       dragDepth = clamp(dragDepth - 1, 0, 999);
       if (dragDepth === 0) dragOff();
-    }));
+    });
 
-    ["dragover"].forEach(evt => dropzone.addEventListener(evt, (e) => {
+    dropzone.addEventListener("dragover", (e) => {
       e.preventDefault(); e.stopPropagation();
       dragOn();
-    }));
+    });
 
     dropzone.addEventListener("drop", async (e) => {
       e.preventDefault(); e.stopPropagation();
@@ -712,14 +898,12 @@
       await addFiles(files);
     });
 
-    // Clear selection
     clearBtn.addEventListener("click", () => {
       if (uploading) return;
       selected = [];
       renderSelected();
     });
 
-    // Upload with REAL progress
     const uploadWithProgress = (url, formData) => {
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -783,7 +967,7 @@
         if (up?.error) throw new Error(up.error);
 
         setStatus("Uploaded.");
-        setHint("Continue to generate your ZIP.");
+        setHint("Continue to confirm and proceed to payment.");
         progressLabel.textContent = "Uploaded";
         progressFill.style.width = "100%";
         progressPct.textContent = "100%";
@@ -804,8 +988,8 @@
       if (!jobId) return;
 
       setBusy(true);
-      setStatus("Continuing…");
-      setHint("Preparing your ZIP…");
+      setStatus("Redirecting…");
+      setHint("Opening secure checkout…");
       continueBtn.disabled = true;
 
       const tier = getTier(); // "standard" or "pro"
@@ -814,8 +998,6 @@
         const resp = await fetch("/api/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          // Send tier so backend can pick correct Stripe Price ID.
-          // If backend ignores it, nothing breaks.
           body: JSON.stringify({ jobId, tier })
         }).then(r => r.json());
 
@@ -831,23 +1013,17 @@
       }
     };
 
-    // Continue: reveal price ONLY here (after upload), then proceed
     continueBtn.addEventListener("click", async () => {
       if (!jobId) return;
       if (selected.length === 0) return;
-
-      // Reveal pricing at the last moment (per your requirement)
-      continueConfirmed = false;
       openPriceModal();
     });
 
-    // Modal Pay -> proceed to Stripe
     modalPayBtn.addEventListener("click", async () => {
       closePriceModal();
       await startCheckout();
     });
 
-    // Initial render
     renderSelected();
   </script>
 </body>
