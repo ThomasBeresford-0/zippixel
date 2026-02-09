@@ -10,12 +10,7 @@
   --shadow: 0 20px 60px rgba(0,0,0,.45);
   --radius: 18px;
 
-  /* NEW */
   --line2: rgba(255,255,255,.12);
-  --glass: rgba(255,255,255,.04);
-  --glass2: rgba(255,255,255,.06);
-  --danger:#FF4D6D;
-  --success:#22C55E;
 }
 
 *{box-sizing:border-box}
@@ -33,7 +28,6 @@ body{
 a{color:var(--muted); text-decoration:none}
 a:hover{color:var(--text)}
 
-/* Slightly nicer focus for accessibility + conversions */
 :focus-visible{
   outline: 3px solid rgba(109,91,255,.55);
   outline-offset: 2px;
@@ -64,25 +58,11 @@ a:hover{color:var(--text)}
 
 .nav__links{display:flex; gap:14px; font-size:14px; flex-wrap:wrap}
 
-.hero{ padding:64px 20px 22px; }
+.hero{ padding:56px 20px 26px; }
 .hero__inner{
-  max-width:1100px;
+  max-width:980px;
   margin:0 auto;
   text-align:center;
-}
-
-/* NEW: add a little depth behind the hero content */
-.hero__inner::before{
-  content:"";
-  display:block;
-  width:min(900px, 92vw);
-  height:220px;
-  margin:0 auto -220px;
-  border-radius: 999px;
-  background: radial-gradient(closest-side, rgba(255,255,255,.08), transparent 70%);
-  filter: blur(10px);
-  opacity:.45;
-  pointer-events:none;
 }
 
 h1{
@@ -105,11 +85,10 @@ h1{
   align-items:center;
   gap:14px;
   flex-wrap:wrap;
-  margin:18px 0 8px;
+  margin:20px 0 10px;
 }
-.price{color:var(--muted); font-weight:700}
+.price{color:var(--muted); font-weight:700; opacity:.85}
 
-/* Buttons */
 .btn{
   border:1px solid var(--line);
   background: rgba(255,255,255,.06);
@@ -131,102 +110,86 @@ h1{
 .btn--primary:hover{filter: brightness(1.07)}
 .btn[disabled]{ opacity:.55; cursor:not-allowed; transform:none; }
 
-.trust{
+/* Clean benefits row (no badge spam) */
+.benefits{
+  margin: 16px auto 0;
+  padding: 0;
+  list-style: none;
   display:flex;
   justify-content:center;
-  gap:18px;
-  flex-wrap:wrap;
-  color:var(--muted);
-  font-size:13px;
-  margin-top:10px;
+  gap: 18px;
+  flex-wrap: wrap;
+  color: rgba(234,240,255,.78);
+  font-size: 13px;
 }
-
-/* NEW: hooks for the upgraded HTML (safe even if not used) */
-.valueProps{
-  margin-top:14px;
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:10px 12px;
-  font-size:.95rem;
-  opacity:.98;
+.benefits li{
+  position: relative;
+  padding-left: 14px;
 }
-.valueProps > div{
-  background: rgba(255,255,255,.05);
-  border:1px solid var(--line);
-  padding:10px 12px;
-  border-radius:999px;
-  backdrop-filter: blur(8px);
+.benefits li::before{
+  content:"";
+  width:6px; height:6px;
+  border-radius:99px;
+  background: rgba(255,255,255,.55);
+  position:absolute;
+  left:0; top: 7px;
+  opacity:.65;
 }
-
-.subtleStrip{
-  margin-top:12px;
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:10px;
-}
-.pill{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:8px 12px;
-  border-radius:999px;
-  border:1px solid var(--line);
-  background: rgba(255,255,255,.04);
-  font-size:.9rem;
-  color:var(--muted);
+.fineprint{
+  margin: 10px auto 0;
+  color: rgba(169,179,209,.85);
+  font-size: 12px;
+  max-width: 760px;
 }
 
 .flow{
   margin:26px auto 0;
   max-width:980px;
   padding:18px;
-  border:1px solid var(--line2);
-  background: rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  box-shadow: 0 24px 80px rgba(0,0,0,.55);
   display:grid;
   gap:14px;
 }
 @media(min-width:900px){
   .flow{grid-template-columns: 1fr 1fr 1fr}
   .status{grid-column:1/-1}
+  .noteBox{grid-column:1/-1}
 }
 
 .panel{
-  background: rgba(0,0,0,.18);
-  border:1px solid var(--line);
+  background: rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.08);
   border-radius: 16px;
   padding:14px;
   text-align:left;
 }
-.panel__title{font-weight:900; margin-bottom:8px}
+.panel__title{font-weight:900; margin-bottom:8px; letter-spacing:-.2px}
 .panel__hint{color:var(--muted); font-size:12px; margin-top:8px; line-height:1.45}
 
-/* Inputs */
-input[type="file"]{
-  width:100%;
-  color:var(--muted);
-  padding:12px;
-  border:1px dashed rgba(255,255,255,.18);
-  border-radius:14px;
-  background: rgba(255,255,255,.03);
-}
-
-/* NEW: dropzone styles if you use the upgraded HTML */
 .dropzone{
-  border:2px dashed rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.10);
   border-radius:16px;
   padding:14px;
-  background: rgba(255,255,255,.03);
+  background: rgba(0,0,0,.18);
   transition: transform .08s ease, border-color .12s ease, background .12s ease;
 }
-.dropzone:hover{ border-color: rgba(255,255,255,.28); }
+.dropzone:hover{ border-color: rgba(255,255,255,.18); }
 .dropzone.isDrag{
   border-color: rgba(109,91,255,.55);
   background: rgba(109,91,255,.10);
   transform: translateY(-1px);
+}
+
+input[type="file"]{
+  width:100%;
+  color:var(--muted);
+  padding:12px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:14px;
+  background: rgba(0,0,0,.18);
 }
 
 .fileMeta{
@@ -244,25 +207,24 @@ input[type="file"]{
   margin-top:6px;
   padding:12px 14px;
   border-radius:14px;
-  border:1px solid rgba(255,255,255,.12);
-  background: rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.08);
+  background: rgba(0,0,0,.18);
   color: var(--text);
   font-weight:900;
   text-align:center;
 }
 
-/* NEW: little reassurance box under flow */
 .noteBox{
   margin-top:10px;
   padding:12px 14px;
   border-radius:16px;
-  border:1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.04);
-  color:var(--muted);
+  border:1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.03);
+  color: rgba(169,179,209,.92);
   text-align:left;
   line-height:1.45;
 }
-.noteBox a{ color:var(--text); text-decoration:underline; }
+.noteBox a{ color: var(--text); text-decoration: underline; }
 
 .section{
   max-width:1100px;
@@ -275,7 +237,6 @@ input[type="file"]{
   font-size:28px;
   letter-spacing:-.4px;
 }
-
 .cards{
   display:grid;
   gap:14px;
@@ -284,7 +245,6 @@ input[type="file"]{
 @media(min-width:900px){
   .cards{grid-template-columns:1fr 1fr 1fr}
 }
-
 .card{
   background: rgba(255,255,255,.04);
   border:1px solid var(--line);
@@ -298,7 +258,6 @@ input[type="file"]{
   border-color: rgba(255,255,255,.14);
   background: rgba(255,255,255,.05);
 }
-
 .card__n{
   width:34px;height:34px;border-radius:12px;
   display:grid;place-items:center;
@@ -307,12 +266,11 @@ input[type="file"]{
   font-weight:900;
 }
 .card__t{font-weight:900}
-.card__d{color:var(--muted); margin-top:6px; font-size:13px; line-height:1.45}
+.card__d{color:var(--muted); margin-top:6px; font-size:13px; line-height:1.55}
 
-/* If you added card__meta in proof section */
 .card__meta{
   margin-top:10px;
-  color: rgba(255,255,255,.72);
+  color: rgba(255,255,255,.70);
   font-size:12px;
   font-weight:800;
   opacity:.9;
@@ -324,27 +282,25 @@ input[type="file"]{
   text-align:left;
 }
 details{
-  background: rgba(255,255,255,.04);
-  border:1px solid var(--line);
+  background: rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
   border-radius: 16px;
   padding:14px 16px;
   margin-bottom:10px;
 }
 summary{
   cursor:pointer;
-  font-weight:900;
+  font-weight:800;
   list-style:none;
 }
 summary::-webkit-details-marker{display:none}
-
-/* NEW: nicer accordion arrow */
 summary::after{
   content:"▾";
   float:right;
-  opacity:.7;
+  opacity:.55;
   transform: translateY(-1px);
 }
-details[open] summary::after{ content:"▴"; opacity:.85; }
+details[open] summary::after{ content:"▴"; opacity:.7; }
 
 details p{color:var(--muted); margin:10px 0 0; line-height:1.55}
 
@@ -366,11 +322,12 @@ details p{color:var(--muted); margin:10px 0 0; line-height:1.55}
 }
 .footer__links{display:flex; gap:14px}
 
-/* Mobile polish */
 @media(max-width:520px){
   .nav{padding:16px 16px}
-  .hero{padding-top:54px}
+  .hero{padding-top:52px}
   .btn{width: min(520px, 92vw)}
   .ctaRow{gap:10px}
   .price{width:100%}
+  .benefits{gap:12px}
+  .benefits li{padding-left:12px}
 }

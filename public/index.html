@@ -14,23 +14,20 @@
   <meta property="og:url" content="https://zippixel.it.com/" />
   <meta property="og:image" content="https://zippixel.it.com/og.png" />
 
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="ZipPixel — Compress Images. Download One ZIP." />
   <meta name="twitter:description" content="Upload up to 10 images → Pay once → Download a compressed ZIP instantly. No signup." />
   <meta name="twitter:image" content="https://zippixel.it.com/og.png" />
 
-  <!-- Favicons -->
   <link rel="icon" href="/favicon.ico" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-  <!-- Perf -->
   <link rel="preconnect" href="https://js.stripe.com" crossorigin />
   <link rel="dns-prefetch" href="//js.stripe.com" />
 
   <link rel="stylesheet" href="/style.css" />
 
-  <!-- Schema: SoftwareApplication (kept) -->
+  <!-- Schema: SoftwareApplication -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -74,44 +71,11 @@
       {"@type":"Question","name":"Do I need an account?","acceptedAnswer":{"@type":"Answer","text":"No. Upload → pay → download. That’s it."}},
       {"@type":"Question","name":"Are my files private?","acceptedAnswer":{"@type":"Answer","text":"Yes. Files are used only to generate your ZIP and are deleted automatically after a short time."}},
       {"@type":"Question","name":"What formats do you support?","acceptedAnswer":{"@type":"Answer","text":"Most common image formats (JPG, PNG, WebP, HEIC/HEIF, AVIF)."}},
-      {"@type":"Question","name":"Why pay £4.99?","acceptedAnswer":{"@type":"Answer","text":"It covers processing + hosting and keeps the tool fast with no signup friction."}}
+      {"@type":"Question","name":"Why pay £4.99?","acceptedAnswer":{"@type":"Answer","text":"It covers processing + hosting and keeps the tool fast with no signup friction."}},
+      {"@type":"Question","name":"What if the ZIP fails?","acceptedAnswer":{"@type":"Answer","text":"If your ZIP doesn’t generate or you can’t download it, email support and we’ll refund you."}}
     ]
   }
   </script>
-
-  <!-- Tiny, self-contained styles for new UI bits (won't fight your /style.css much) -->
-  <style>
-    .valueProps{ margin-top:14px; display:flex; flex-wrap:wrap; gap:10px 16px; font-size:.95rem; opacity:.95; }
-    .valueProps > div{ background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); padding:10px 12px; border-radius:12px; }
-    .subtleStrip{ margin-top:14px; display:flex; flex-wrap:wrap; gap:10px; }
-    .pill{ display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); font-size:.9rem; }
-    .dropzone{
-      border:2px dashed rgba(255,255,255,.22);
-      border-radius:16px;
-      padding:14px;
-      background:rgba(255,255,255,.04);
-      transition:transform .08s ease, border-color .12s ease, background .12s ease;
-    }
-    .dropzone.isDrag{
-      border-color: rgba(255,255,255,.5);
-      background: rgba(255,255,255,.08);
-      transform: translateY(-1px);
-    }
-    .fileMeta{ margin-top:10px; font-size:.92rem; opacity:.95; display:flex; flex-direction:column; gap:6px; }
-    .fileList{ margin:0; padding-left:18px; }
-    .fileList li{ margin:2px 0; }
-    .noteBox{
-      margin-top:14px;
-      padding:12px 14px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.05);
-      font-size:.95rem;
-      opacity:.98;
-    }
-    .miniLinks a{ text-decoration:underline; }
-    .btn[disabled]{ opacity:.55; cursor:not-allowed; }
-  </style>
 </head>
 
 <body>
@@ -147,40 +111,28 @@
           <div class="price">£4.99 one-time</div>
         </div>
 
-        <div class="trust">
-          <div>✔ Secure Stripe payments</div>
-          <div>✔ Files auto-deleted</div>
-          <div>✔ No account needed</div>
-        </div>
+        <!-- CLEAN benefits (no pills/emoji) -->
+        <ul class="benefits" aria-label="Key benefits">
+          <li>One-time payment</li>
+          <li>No signup</li>
+          <li>Auto-deleted files</li>
+          <li>Secure Stripe checkout</li>
+        </ul>
 
-        <!-- NEW: value props (increase perceived value instantly) -->
-        <div class="valueProps" aria-label="What you get">
-          <div>⚡ Typical savings: <b>50–80%</b> smaller</div>
-          <div>🖼️ Stays sharp (no ugly crunch)</div>
-          <div>📦 One ZIP for easy upload/send</div>
-          <div>🛡️ <b>Guarantee</b>: if ZIP fails, we refund</div>
-        </div>
+        <p class="fineprint">
+          Supports JPG, PNG, WebP, HEIC/HEIF, AVIF • Up to 10 images • 25MB each
+        </p>
 
-        <!-- NEW: no-surprises strip -->
-        <div class="subtleStrip" aria-label="No surprises">
-          <div class="pill">✅ One-time payment</div>
-          <div class="pill">✅ No signup</div>
-          <div class="pill">✅ Auto-deleted files</div>
-          <div class="pill">✅ Fast checkout</div>
-        </div>
-
-        <div id="flow" class="flow" hidden>
+        <div id="flow" class="flow flow--product" hidden>
           <div class="panel">
             <div class="panel__title">1) Choose images</div>
 
-            <!-- NEW: drag/drop wrapper -->
             <div class="dropzone" id="dropzone">
               <input id="files" type="file" accept="image/*" multiple />
               <div class="panel__hint" style="margin-top:10px;">
-                Drag & drop here, or click to choose • Up to <b>10</b> images (max <b>25MB</b> each)
+                Drag & drop here, or click to choose
               </div>
 
-              <!-- NEW: selected files summary -->
               <div class="fileMeta" id="fileMeta" hidden>
                 <div id="fileSummary"></div>
                 <ol class="fileList" id="fileList"></ol>
@@ -202,11 +154,10 @@
 
           <div class="status" id="status">Ready.</div>
 
-          <!-- NEW: reassurance + support -->
           <div class="noteBox">
-            🔒 Your files are used only to generate your ZIP and are automatically deleted.
+            Your files are used only to generate your ZIP and are automatically deleted.
             If anything fails, we’ll refund you.
-            <span class="miniLinks">Need help? <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a></span>
+            Need help? <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>
           </div>
         </div>
       </div>
@@ -215,30 +166,41 @@
     <section class="section" id="how">
       <h2>How it works</h2>
       <div class="cards">
-        <div class="card"><div class="card__n">1</div><div class="card__t">Upload up to 10 images</div><div class="card__d">JPG, PNG, WebP, HEIC and more.</div></div>
-        <div class="card"><div class="card__n">2</div><div class="card__t">Pay securely</div><div class="card__d">One-time payment via Stripe.</div></div>
-        <div class="card"><div class="card__n">3</div><div class="card__t">Download your ZIP</div><div class="card__d">Optimised images inside one archive.</div></div>
+        <div class="card">
+          <div class="card__n">1</div>
+          <div class="card__t">Upload up to 10 images</div>
+          <div class="card__d">JPG, PNG, WebP, HEIC and more.</div>
+        </div>
+        <div class="card">
+          <div class="card__n">2</div>
+          <div class="card__t">Pay securely</div>
+          <div class="card__d">One-time payment via Stripe.</div>
+        </div>
+        <div class="card">
+          <div class="card__n">3</div>
+          <div class="card__t">Download your ZIP</div>
+          <div class="card__d">Optimised images inside one archive.</div>
+        </div>
       </div>
     </section>
 
-    <!-- NEW: proof section -->
     <section class="section" id="proof">
-      <h2>People use ZipPixel to save time</h2>
+      <h2>Used for quick client delivery</h2>
       <div class="cards">
         <div class="card">
-          <div class="card__t">“Saved me ages.”</div>
-          <div class="card__d">Compressed listing photos and uploaded everything in one go.</div>
+          <div class="card__t">“Property photos went from 48MB → 9MB.”</div>
+          <div class="card__d">Compressed 10 images and sent one ZIP link to the agent.</div>
+          <div class="card__meta">— UK photographer</div>
+        </div>
+        <div class="card">
+          <div class="card__t">“Uploaded my listings in one go.”</div>
+          <div class="card__d">Optimised images for faster Etsy/eCommerce uploads.</div>
           <div class="card__meta">— Small business owner</div>
         </div>
         <div class="card">
-          <div class="card__t">“Exactly what I needed.”</div>
-          <div class="card__d">No signup, paid once, got the ZIP instantly.</div>
+          <div class="card__t">“No account. Took 30 seconds.”</div>
+          <div class="card__d">Paid once, got the ZIP instantly, done.</div>
           <div class="card__meta">— Freelancer</div>
-        </div>
-        <div class="card">
-          <div class="card__t">“Fast + clean.”</div>
-          <div class="card__d">Perfect for sending clients images without massive attachments.</div>
-          <div class="card__meta">— Photographer</div>
         </div>
       </div>
     </section>
@@ -333,12 +295,11 @@
       fileSummary.textContent = `Selected ${files.length} image(s) • Total ${humanMB(total)}.`;
       fileList.innerHTML = files
         .slice(0, 10)
-        .map(f => `<li>${f.name} <span style="opacity:.8">(${humanMB(f.size)})</span></li>`)
+        .map(f => `<li>${f.name} <span style="opacity:.75">(${humanMB(f.size)})</span></li>`)
         .join("");
       fileMeta.hidden = false;
     };
 
-    // 1) Start: create job once
     startBtn.onclick = async () => {
       if (creatingJob) return;
       if (jobId) {
@@ -369,14 +330,12 @@
         flow.scrollIntoView({ behavior: "smooth", block: "center" });
       } catch (e) {
         setStatus("Network error. Please refresh and try again.");
-        startBtn.disabled = false;
       } finally {
         creatingJob = false;
         startBtn.disabled = false;
       }
     };
 
-    // Drag & drop support
     ["dragenter","dragover"].forEach(evt => {
       dropzone.addEventListener(evt, (e) => {
         e.preventDefault();
@@ -391,18 +350,17 @@
         dropzone.classList.remove("isDrag");
       });
     });
+
     dropzone.addEventListener("drop", (e) => {
       const dtFiles = [...(e.dataTransfer?.files || [])].filter(f => f.type.startsWith("image/"));
       if (dtFiles.length === 0) return setStatus("Drop image files only.");
 
-      // Build a DataTransfer to set input.files
       const dt = new DataTransfer();
       dtFiles.slice(0, MAX_FILES).forEach(f => dt.items.add(f));
       filesEl.files = dt.files;
       filesEl.dispatchEvent(new Event("change"));
     });
 
-    // When files chosen
     filesEl.addEventListener("change", () => {
       resetSelectionUI();
 
@@ -419,7 +377,6 @@
       setStatus("Ready to upload.");
     });
 
-    // 2) Upload
     uploadBtn.onclick = async () => {
       if (!jobId) return setStatus("Click “Compress Images Now” first.");
 
@@ -452,7 +409,6 @@
       }
     };
 
-    // 3) Pay
     payBtn.onclick = async () => {
       if (!jobId) return setStatus("Click “Compress Images Now” first.");
 
