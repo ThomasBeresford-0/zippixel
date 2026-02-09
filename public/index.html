@@ -19,14 +19,14 @@
   <meta name="twitter:description" content="Upload up to 10 images → Download a single compressed ZIP instantly. No signup." />
   <meta name="twitter:image" content="https://zippixel.it.com/og.png" />
 
-  <!-- Favicons -->
+  <!-- Favicons (REAL sizes so it doesn't look "tiny") -->
   <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
   <link rel="stylesheet" href="/style.css" />
 
-  <!-- Schema (no pricing on landing) -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -61,13 +61,14 @@
       </nav>
 
       <div class="top__cta">
-        <button class="btn btn--primary" onclick="document.getElementById('start').click()">Start</button>
+        <button class="btn btn--primary" onclick="document.getElementById('dropzone').scrollIntoView({behavior:'smooth',block:'center'})">
+          Start
+        </button>
       </div>
     </div>
   </header>
 
   <main>
-    <!-- HERO + TOOL -->
     <section class="hero">
       <div class="container hero__grid">
         <div class="hero__copy">
@@ -76,7 +77,6 @@
             Drop up to <b>10</b> images. We optimise them and bundle everything into one clean ZIP.
             <span class="muted">No signup.</span>
           </p>
-
           <div class="microLine">
             Best for sending photos to clients, portals, listings, and inboxes without massive attachments.
           </div>
@@ -86,14 +86,17 @@
           <div class="toolCard__top">
             <div class="statusBlock">
               <div class="label">Status</div>
-              <div class="status" id="status">Ready.</div>
+              <div class="statusRow">
+                <div class="status" id="status">Ready.</div>
+                <div class="spinner" id="spinner" aria-hidden="true"></div>
+              </div>
               <div class="statusHint" id="statusHint">
-                Click <b>Start</b> to create a job, then add your images.
+                Drop images to begin.
               </div>
             </div>
 
             <div class="toolCard__cta">
-              <button class="btn btn--primary btn--lg" id="start">Start</button>
+              <button class="btn btn--soft btn--lg" id="chooseBtn" type="button">Choose files</button>
             </div>
           </div>
 
@@ -117,7 +120,22 @@
             <div class="fileMeta" id="fileMeta" hidden>
               <div class="fileSummary" id="fileSummary"></div>
               <ol class="fileList" id="fileList"></ol>
+              <div class="fileActions">
+                <button class="btn btn--ghost btn--sm" id="clearBtn" type="button">Clear</button>
+              </div>
             </div>
+          </div>
+
+          <!-- UPLOAD PROGRESS -->
+          <div class="progressWrap" id="progressWrap" hidden>
+            <div class="progressTop">
+              <div class="progressLabel" id="progressLabel">Uploading…</div>
+              <div class="progressPct" id="progressPct">0%</div>
+            </div>
+            <div class="progressBar" aria-hidden="true">
+              <div class="progressFill" id="progressFill"></div>
+            </div>
+            <div class="progressMeta" id="progressMeta"></div>
           </div>
 
           <!-- ACTIONS -->
@@ -126,7 +144,7 @@
               <div class="step__k">1</div>
               <div class="step__body">
                 <div class="step__t">Upload</div>
-                <div class="step__d">Add your images to the job.</div>
+                <div class="step__d">Send selected images.</div>
               </div>
               <button class="btn btn--soft btn--block" id="upload" disabled>Upload</button>
             </div>
@@ -137,7 +155,7 @@
                 <div class="step__t">Get ZIP</div>
                 <div class="step__d">Continue to generate your ZIP.</div>
               </div>
-              <button class="btn btn--primary btn--block" id="pay" disabled>Continue</button>
+              <button class="btn btn--primary btn--block" id="continue" disabled>Continue</button>
             </div>
           </div>
 
@@ -148,7 +166,6 @@
       </div>
     </section>
 
-    <!-- BELOW THE FOLD -->
     <section class="section" id="how">
       <div class="container">
         <div class="sectionHead">
@@ -244,191 +261,354 @@
   </footer>
 
   <script>
+    // ====== ZIPPIXEL FRONTEND (RAMBO) ======
     document.getElementById("y").textContent = new Date().getFullYear();
-
-    let jobId = null;
-    let creatingJob = false;
 
     const MAX_FILES = 10;
     const MAX_MB_EACH = 25;
 
-    const startBtn = document.getElementById("start");
-    const filesEl = document.getElementById("files");
     const dropzone = document.getElementById("dropzone");
+    const filesEl = document.getElementById("files");
+    const chooseBtn = document.getElementById("chooseBtn");
+    const clearBtn = document.getElementById("clearBtn");
+
     const uploadBtn = document.getElementById("upload");
-    const payBtn = document.getElementById("pay");
+    const continueBtn = document.getElementById("continue");
+
     const statusEl = document.getElementById("status");
     const statusHint = document.getElementById("statusHint");
+    const spinner = document.getElementById("spinner");
 
     const fileMeta = document.getElementById("fileMeta");
     const fileSummary = document.getElementById("fileSummary");
     const fileList = document.getElementById("fileList");
 
+    const progressWrap = document.getElementById("progressWrap");
+    const progressFill = document.getElementById("progressFill");
+    const progressPct = document.getElementById("progressPct");
+    const progressLabel = document.getElementById("progressLabel");
+    const progressMeta = document.getElementById("progressMeta");
+
+    let jobId = null;
+    let creatingJob = false;
+    let uploading = false;
+    let selected = []; // Array<File>
+
     const setStatus = (m) => statusEl.textContent = m;
     const setHint = (m) => statusHint.innerHTML = m;
+    const setBusy = (isBusy) => spinner.classList.toggle("isOn", !!isBusy);
+
     const humanMB = (bytes) => (bytes / (1024 * 1024)).toFixed(1) + "MB";
-
-    const resetSelectionUI = () => {
-      fileMeta.hidden = true;
-      fileSummary.textContent = "";
-      fileList.innerHTML = "";
-      uploadBtn.disabled = true;
-      payBtn.disabled = true;
-      payBtn.textContent = "Continue";
-    };
-
-    const validateFiles = (files) => {
-      if (!jobId) return { ok: false, msg: "Click Start first." };
-      if (!files || files.length === 0) return { ok: false, msg: "Choose images first." };
-      if (files.length > MAX_FILES) return { ok: false, msg: `Max ${MAX_FILES} images. You selected ${files.length}.` };
-      for (const f of files) {
-        if (f.size > MAX_MB_EACH * 1024 * 1024) {
-          return { ok: false, msg: `"${f.name}" is ${humanMB(f.size)}. Max ${MAX_MB_EACH}MB each.` };
-        }
-      }
-      return { ok: true };
-    };
+    const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
     const escapeHtml = (str) =>
       String(str).replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
 
-    const renderFiles = (files) => {
-      const total = files.reduce((a, f) => a + f.size, 0);
-      fileSummary.textContent = `Selected ${files.length} image(s) • Total ${humanMB(total)}.`;
-      fileList.innerHTML = files
-        .slice(0, 10)
-        .map(f => `<li><span class="fileName">${escapeHtml(f.name)}</span><span class="fileSize">${humanMB(f.size)}</span></li>`)
-        .join("");
-      fileMeta.hidden = false;
+    // Dedupe: same name + size + lastModified
+    const keyOf = (f) => `${f.name}__${f.size}__${f.lastModified}`;
+
+    const validateFile = (f) => {
+      if (!f.type.startsWith("image/")) return `“${f.name}” isn’t an image.`;
+      if (f.size > MAX_MB_EACH * 1024 * 1024) return `“${f.name}” is ${humanMB(f.size)} (max ${MAX_MB_EACH}MB).`;
+      return null;
     };
 
-    startBtn.onclick = async () => {
-      if (creatingJob) return;
-      if (jobId) {
-        setStatus("Job ready.");
-        setHint("Add up to <b>10</b> images below.");
-        dropzone?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const resetProgress = () => {
+      progressWrap.hidden = true;
+      progressFill.style.width = "0%";
+      progressPct.textContent = "0%";
+      progressLabel.textContent = "";
+      progressMeta.textContent = "";
+    };
+
+    const renderSelected = () => {
+      if (selected.length === 0) {
+        fileMeta.hidden = true;
+        fileSummary.textContent = "";
+        fileList.innerHTML = "";
+        uploadBtn.disabled = true;
+        continueBtn.disabled = true;
+        resetProgress();
+        setStatus("Ready.");
+        setHint("Drop images to begin.");
         return;
       }
 
+      const total = selected.reduce((a, f) => a + f.size, 0);
+      fileSummary.textContent = `Selected ${selected.length} image(s) • Total ${humanMB(total)}.`;
+
+      fileList.innerHTML = selected.map((f, idx) => {
+        const safe = escapeHtml(f.name);
+        return `
+          <li>
+            <span class="fileLeft">
+              <span class="fileName">${safe}</span>
+              <span class="fileSize">${humanMB(f.size)}</span>
+            </span>
+            <button class="iconBtn" type="button" aria-label="Remove ${safe}" data-remove="${idx}">Remove</button>
+          </li>
+        `;
+      }).join("");
+
+      fileMeta.hidden = false;
+
+      uploadBtn.disabled = !jobId || uploading;
+      continueBtn.disabled = true;
+
+      if (jobId) {
+        setStatus("Ready.");
+        setHint("Upload your images to continue.");
+      } else {
+        setStatus("Starting…");
+        setHint("Creating a job…");
+      }
+    };
+
+    fileList.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-remove]");
+      if (!btn) return;
+      const idx = Number(btn.getAttribute("data-remove"));
+      if (Number.isFinite(idx)) {
+        selected.splice(idx, 1);
+        renderSelected();
+      }
+    });
+
+    const ensureJob = async () => {
+      if (jobId) return jobId;
+      if (creatingJob) {
+        // wait for existing create
+        return new Promise((resolve, reject) => {
+          const start = Date.now();
+          const tick = () => {
+            if (jobId) return resolve(jobId);
+            if (!creatingJob) return reject(new Error("job create failed"));
+            if (Date.now() - start > 15000) return reject(new Error("job create timeout"));
+            requestAnimationFrame(tick);
+          };
+          tick();
+        });
+      }
+
       creatingJob = true;
-      startBtn.disabled = true;
+      setBusy(true);
       setStatus("Starting…");
-      setHint("Creating a new job.");
+      setHint("Creating a job…");
+      renderSelected();
 
       try {
         const res = await fetch("/api/jobs", { method: "POST" });
         const j = await res.json();
-
-        if (!j || !j.jobId) {
-          setStatus("Couldn’t start.");
-          setHint("Refresh and try again.");
-          return;
-        }
-
+        if (!j || !j.jobId) throw new Error("no jobId");
         jobId = j.jobId;
         setStatus("Ready.");
-        setHint("Now add your images.");
-        dropzone?.scrollIntoView({ behavior: "smooth", block: "center" });
-      } catch (e) {
-        setStatus("Network error.");
-        setHint("Refresh and try again.");
+        setHint(selected.length ? "Upload your images to continue." : "Drop images to begin.");
+        renderSelected();
+        return jobId;
       } finally {
         creatingJob = false;
-        startBtn.disabled = false;
+        setBusy(false);
       }
     };
 
+    const addFiles = async (incomingFiles) => {
+      const arr = [...incomingFiles].filter(Boolean);
+
+      // filter + validate
+      const errors = [];
+      const incomingValid = [];
+      for (const f of arr) {
+        const err = validateFile(f);
+        if (err) errors.push(err);
+        else incomingValid.push(f);
+      }
+
+      if (errors.length) {
+        setStatus("Some files were skipped.");
+        setHint(errors.slice(0, 2).map(e => escapeHtml(e)).join("<br/>") + (errors.length > 2 ? "<br/>…" : ""));
+      }
+
+      // merge + dedupe
+      const existingKeys = new Set(selected.map(keyOf));
+      for (const f of incomingValid) {
+        const k = keyOf(f);
+        if (!existingKeys.has(k)) {
+          selected.push(f);
+          existingKeys.add(k);
+        }
+      }
+
+      // enforce max
+      if (selected.length > MAX_FILES) {
+        selected = selected.slice(0, MAX_FILES);
+        setStatus("Max reached.");
+        setHint(`Only the first <b>${MAX_FILES}</b> images were kept.`);
+      }
+
+      renderSelected();
+
+      // RAMBO UX: auto-start job when user adds files
+      try {
+        await ensureJob();
+      } catch (e) {
+        setStatus("Couldn’t start.");
+        setHint("Refresh and try again.");
+        return;
+      }
+
+      // enable upload
+      uploadBtn.disabled = uploading || selected.length === 0;
+    };
+
+    // Choose button
+    chooseBtn.addEventListener("click", () => filesEl.click());
+
+    // Input change
+    filesEl.addEventListener("change", async () => {
+      if (!filesEl.files || filesEl.files.length === 0) return;
+      await addFiles(filesEl.files);
+      // clear input so selecting same files again triggers change
+      filesEl.value = "";
+    });
+
+    // Drag & drop robustness (prevent browser opening files)
     ["dragenter","dragover"].forEach(evt => {
-      dropzone.addEventListener(evt, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropzone.classList.add("isDrag");
+      window.addEventListener(evt, (e) => { e.preventDefault(); }, { passive:false });
+    });
+    window.addEventListener("drop", (e) => { e.preventDefault(); }, { passive:false });
+
+    let dragDepth = 0;
+    const dragOn = () => dropzone.classList.add("isDrag");
+    const dragOff = () => dropzone.classList.remove("isDrag");
+
+    ["dragenter"].forEach(evt => dropzone.addEventListener(evt, (e) => {
+      e.preventDefault(); e.stopPropagation();
+      dragDepth++;
+      dragOn();
+    }));
+
+    ["dragleave"].forEach(evt => dropzone.addEventListener(evt, (e) => {
+      e.preventDefault(); e.stopPropagation();
+      dragDepth = clamp(dragDepth - 1, 0, 999);
+      if (dragDepth === 0) dragOff();
+    }));
+
+    ["dragover"].forEach(evt => dropzone.addEventListener(evt, (e) => {
+      e.preventDefault(); e.stopPropagation();
+      dragOn();
+    }));
+
+    dropzone.addEventListener("drop", async (e) => {
+      e.preventDefault(); e.stopPropagation();
+      dragDepth = 0;
+      dragOff();
+
+      const dt = e.dataTransfer;
+      const files = dt?.files ? [...dt.files] : [];
+      if (!files.length) {
+        setStatus("Drop images only.");
+        setHint("Try dragging image files from Finder.");
+        return;
+      }
+      await addFiles(files);
+    });
+
+    // Clear selection
+    clearBtn.addEventListener("click", () => {
+      if (uploading) return;
+      selected = [];
+      renderSelected();
+    });
+
+    // Upload with REAL progress
+    const uploadWithProgress = (url, formData) => {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", url, true);
+
+        xhr.upload.onprogress = (evt) => {
+          if (!evt.lengthComputable) return;
+          const pct = Math.round((evt.loaded / evt.total) * 100);
+          progressFill.style.width = `${pct}%`;
+          progressPct.textContent = `${pct}%`;
+          progressMeta.textContent = `${humanMB(evt.loaded)} / ${humanMB(evt.total)}`;
+        };
+
+        xhr.onload = () => {
+          try {
+            const json = JSON.parse(xhr.responseText || "{}");
+            if (xhr.status >= 200 && xhr.status < 300) resolve(json);
+            else reject(json?.error ? new Error(json.error) : new Error("Upload failed"));
+          } catch {
+            reject(new Error("Upload failed"));
+          }
+        };
+
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.send(formData);
       });
-    });
-    ["dragleave","drop"].forEach(evt => {
-      dropzone.addEventListener(evt, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropzone.classList.remove("isDrag");
-      });
-    });
+    };
 
-    dropzone.addEventListener("drop", (e) => {
-      const dtFiles = [...(e.dataTransfer?.files || [])].filter(f => f.type.startsWith("image/"));
-      if (dtFiles.length === 0) return setStatus("Drop image files only.");
-      const dt = new DataTransfer();
-      dtFiles.slice(0, MAX_FILES).forEach(f => dt.items.add(f));
-      filesEl.files = dt.files;
-      filesEl.dispatchEvent(new Event("change"));
-    });
+    uploadBtn.addEventListener("click", async () => {
+      if (uploading) return;
+      if (selected.length === 0) return;
 
-    filesEl.addEventListener("change", () => {
-      resetSelectionUI();
-
-      if (!jobId) {
-        setStatus("Click Start first.");
-        setHint("Then add your images.");
-        filesEl.value = "";
+      try {
+        await ensureJob();
+      } catch (e) {
+        setStatus("Couldn’t start.");
+        setHint("Refresh and try again.");
         return;
       }
 
-      const files = [...filesEl.files];
-      const v = validateFiles(files);
-      if (!v.ok) {
-        setStatus(v.msg);
-        setHint("Try again.");
-        filesEl.value = "";
-        return;
-      }
+      uploading = true;
+      setBusy(true);
+      uploadBtn.disabled = true;
+      continueBtn.disabled = true;
 
-      renderFiles(files);
-      uploadBtn.disabled = false;
-      setStatus("Ready.");
-      setHint("Upload your images to continue.");
-    });
-
-    uploadBtn.onclick = async () => {
-      const files = [...filesEl.files];
-      const v = validateFiles(files);
-      if (!v.ok) return setStatus(v.msg);
+      resetProgress();
+      progressWrap.hidden = false;
+      progressLabel.textContent = "Uploading…";
+      progressFill.style.width = "0%";
+      progressPct.textContent = "0%";
+      progressMeta.textContent = "";
 
       setStatus("Uploading…");
       setHint("Keep this tab open.");
-      uploadBtn.disabled = true;
-      payBtn.disabled = true;
 
       const fd = new FormData();
-      for (const f of files) fd.append("images", f);
+      for (const f of selected) fd.append("images", f);
 
       try {
-        const res = await fetch(`/api/jobs/${jobId}/upload`, { method: "POST", body: fd });
-        const up = await res.json();
+        const up = await uploadWithProgress(`/api/jobs/${jobId}/upload`, fd);
 
-        if (up?.error) {
-          setStatus(up.error);
-          setHint("Please try again.");
-          uploadBtn.disabled = false;
-          return;
-        }
+        if (up?.error) throw new Error(up.error);
 
         setStatus("Uploaded.");
         setHint("Continue to generate your ZIP.");
-        payBtn.disabled = false;
-        payBtn.textContent = "Continue";
+        progressLabel.textContent = "Uploaded";
+        progressFill.style.width = "100%";
+        progressPct.textContent = "100%";
+
+        continueBtn.disabled = false;
       } catch (e) {
         setStatus("Upload failed.");
-        setHint("Please try again.");
+        setHint(escapeHtml(e?.message || "Please try again."));
         uploadBtn.disabled = false;
+        progressLabel.textContent = "Upload failed";
+      } finally {
+        uploading = false;
+        setBusy(false);
       }
-    };
+    });
 
-    payBtn.onclick = async () => {
-      if (!jobId) return setStatus("Click Start first.");
+    continueBtn.addEventListener("click", async () => {
+      if (!jobId) return;
 
+      setBusy(true);
       setStatus("Continuing…");
-      setHint("Generating your ZIP…");
-      payBtn.disabled = true;
+      setHint("Preparing your ZIP…");
+      continueBtn.disabled = true;
 
       try {
         const resp = await fetch("/api/checkout", {
@@ -437,25 +617,20 @@
           body: JSON.stringify({ jobId })
         }).then(r => r.json());
 
-        if (resp?.error) {
-          setStatus(resp.error);
-          setHint("Please try again.");
-          payBtn.disabled = false;
-          return;
-        }
-        if (!resp?.url) {
-          setStatus("Something went wrong.");
-          setHint("Please try again.");
-          payBtn.disabled = false;
-          return;
-        }
+        if (resp?.error) throw new Error(resp.error);
+        if (!resp?.url) throw new Error("Something went wrong.");
         window.location.href = resp.url;
       } catch (e) {
         setStatus("Couldn’t continue.");
-        setHint("Please try again.");
-        payBtn.disabled = false;
+        setHint(escapeHtml(e?.message || "Please try again."));
+        continueBtn.disabled = false;
+      } finally {
+        setBusy(false);
       }
-    };
+    });
+
+    // Initial render
+    renderSelected();
   </script>
 </body>
 </html>
