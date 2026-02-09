@@ -1,5 +1,9 @@
 // server.js
 const express = require("express");
+const app = express();
+
+app.use(express.static("public"));
+
 const multer = require("multer");
 const sharp = require("sharp");
 const archiver = require("archiver");
@@ -8,8 +12,7 @@ const path = require("path");
 const crypto = require("crypto");
 const Stripe = require("stripe");
 
-const app = express();
-const PORT = 4242;
+const PORT = process.env.PORT || 4242;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 const PRICE_GBP_PENCE = 499;
 
