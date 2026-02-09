@@ -23,8 +23,94 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
+  <!-- Cache-bust to ensure your latest CSS loads in browsers -->
+  <link rel="stylesheet" href="/style.css?v=2" />
 
-  <link rel="stylesheet" href="/style.css" />
+  <!-- Minimal modal styles (kept inline so you don’t have to touch CSS files) -->
+  <style>
+    .modalOverlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(2,6,23,.55);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 18px;
+    }
+    .modalOverlay.isOpen{ display:flex; }
+    .modalCard{
+      width: min(520px, 100%);
+      background: #fff;
+      border: 1px solid rgba(2,6,23,.14);
+      border-radius: 16px;
+      box-shadow: 0 30px 90px rgba(2,6,23,.22);
+      overflow: hidden;
+    }
+    .modalTop{
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(2,6,23,.10);
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .modalTitle{
+      font-weight: 950;
+      letter-spacing: -0.02em;
+      font-size: 14px;
+    }
+    .modalClose{
+      border: 1px solid rgba(2,6,23,.12);
+      background: #fff;
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor:pointer;
+      font-weight: 900;
+      font-size: 12px;
+    }
+    .modalBody{ padding: 14px 16px; }
+    .modalLead{
+      margin: 0 0 10px;
+      color: rgba(11,18,32,.86);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .priceGrid{
+      display:grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .priceRow{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(2,6,23,.10);
+      background: rgba(2,6,23,.02);
+    }
+    .priceLeft{ display:flex; flex-direction: column; gap: 3px; }
+    .priceName{ font-weight: 950; font-size: 13px; letter-spacing: -0.01em; }
+    .priceDesc{ font-size: 12px; color: rgba(75,85,99,.95); }
+    .priceAmt{ font-weight: 950; font-size: 13px; white-space: nowrap; }
+    .modalFoot{
+      padding: 14px 16px;
+      border-top: 1px solid rgba(2,6,23,.10);
+      display:flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .modalNote{
+      margin-top: 10px;
+      font-size: 12px;
+      color: rgba(107,114,128,.98);
+      line-height: 1.35;
+    }
+  </style>
 
   <script type="application/ld+json">
   {
@@ -259,11 +345,59 @@
     </div>
   </footer>
 
+  <!-- PRICE MODAL (only shown when user clicks Continue) -->
+  <div class="modalOverlay" id="priceModal" role="dialog" aria-modal="true" aria-labelledby="priceModalTitle">
+    <div class="modalCard">
+      <div class="modalTop">
+        <div class="modalTitle" id="priceModalTitle">Confirm your ZIP</div>
+        <button class="modalClose" id="modalCloseBtn" type="button" aria-label="Close">Close</button>
+      </div>
+      <div class="modalBody">
+        <p class="modalLead" id="priceModalLead">
+          You’ve uploaded <b>0</b> images. Choose your ZIP option:
+        </p>
+
+        <div class="priceGrid">
+          <div class="priceRow" id="rowStandard">
+            <div class="priceLeft">
+              <div class="priceName">Standard ZIP</div>
+              <div class="priceDesc">Up to 5 images</div>
+            </div>
+            <div class="priceAmt">£2.99</div>
+          </div>
+
+          <div class="priceRow" id="rowPro">
+            <div class="priceLeft">
+              <div class="priceName">Pro ZIP</div>
+              <div class="priceDesc">Up to 10 images</div>
+            </div>
+            <div class="priceAmt">£4.99</div>
+          </div>
+        </div>
+
+        <div class="modalNote" id="priceModalNote">
+          You’ll be redirected to secure Stripe Checkout.
+        </div>
+      </div>
+      <div class="modalFoot">
+        <button class="btn btn--ghost" id="modalBackBtn" type="button">Go back</button>
+        <button class="btn btn--primary" id="modalPayBtn" type="button">Continue to payment</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ====== ZIPPIXEL FRONTEND (RAMBO) ======
     document.getElementById("y").textContent = new Date().getFullYear();
 
-    const MAX_FILES = 10;
+    // Tiering
+    const STANDARD_MAX = 5;
+    const PRO_MAX = 10;
+
+    const STANDARD_PRICE_LABEL = "£2.99";
+    const PRO_PRICE_LABEL = "£4.99";
+
+    const MAX_FILES = PRO_MAX;
     const MAX_MB_EACH = 25;
 
     const dropzone = document.getElementById("dropzone");
@@ -288,10 +422,23 @@
     const progressLabel = document.getElementById("progressLabel");
     const progressMeta = document.getElementById("progressMeta");
 
+    // Modal elements
+    const priceModal = document.getElementById("priceModal");
+    const modalCloseBtn = document.getElementById("modalCloseBtn");
+    const modalBackBtn = document.getElementById("modalBackBtn");
+    const modalPayBtn = document.getElementById("modalPayBtn");
+    const priceModalLead = document.getElementById("priceModalLead");
+    const priceModalNote = document.getElementById("priceModalNote");
+    const rowStandard = document.getElementById("rowStandard");
+    const rowPro = document.getElementById("rowPro");
+
     let jobId = null;
     let creatingJob = false;
     let uploading = false;
     let selected = []; // Array<File>
+
+    // Gate: only show price when Continue is clicked
+    let continueConfirmed = false;
 
     const setStatus = (m) => statusEl.textContent = m;
     const setHint = (m) => statusHint.innerHTML = m;
@@ -320,7 +467,61 @@
       progressMeta.textContent = "";
     };
 
+    const getTier = () => (selected.length > STANDARD_MAX ? "pro" : "standard");
+    const getTierLabel = () => (getTier() === "pro" ? "Pro ZIP" : "Standard ZIP");
+    const getTierPriceLabel = () => (getTier() === "pro" ? PRO_PRICE_LABEL : STANDARD_PRICE_LABEL);
+
+    const openPriceModal = () => {
+      const tier = getTier();
+      const n = selected.length;
+
+      // Update copy (only revealed now)
+      priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> image${n === 1 ? "" : "s"}. Your ZIP option:`;
+
+      // Highlight selected tier
+      const highlight = (el, on) => {
+        el.style.borderColor = on ? "rgba(37,99,235,.45)" : "rgba(2,6,23,.10)";
+        el.style.background = on ? "rgba(37,99,235,.08)" : "rgba(2,6,23,.02)";
+      };
+      highlight(rowStandard, tier === "standard");
+      highlight(rowPro, tier === "pro");
+
+      // Note for pro selection
+      if (tier === "pro") {
+        priceModalNote.textContent = "Pro is selected because you have 6+ images. Remove images to pay Standard.";
+      } else {
+        priceModalNote.textContent = "You’ll be redirected to secure Stripe Checkout.";
+      }
+
+      priceModal.classList.add("isOpen");
+      document.body.style.overflow = "hidden";
+      modalPayBtn.focus();
+    };
+
+    const closePriceModal = () => {
+      priceModal.classList.remove("isOpen");
+      document.body.style.overflow = "";
+      continueBtn.focus();
+    };
+
+    // Modal interactions
+    modalCloseBtn.addEventListener("click", closePriceModal);
+    modalBackBtn.addEventListener("click", closePriceModal);
+
+    // Click outside closes
+    priceModal.addEventListener("click", (e) => {
+      if (e.target === priceModal) closePriceModal();
+    });
+
+    // ESC closes
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && priceModal.classList.contains("isOpen")) closePriceModal();
+    });
+
     const renderSelected = () => {
+      // Any edit invalidates confirmation (price should be re-confirmed)
+      continueConfirmed = false;
+
       if (selected.length === 0) {
         fileMeta.hidden = true;
         fileSummary.textContent = "";
@@ -446,7 +647,7 @@
 
       renderSelected();
 
-      // RAMBO UX: auto-start job when user adds files
+      // auto-start job when user adds files
       try {
         await ensureJob();
       } catch (e) {
@@ -466,7 +667,6 @@
     filesEl.addEventListener("change", async () => {
       if (!filesEl.files || filesEl.files.length === 0) return;
       await addFiles(filesEl.files);
-      // clear input so selecting same files again triggers change
       filesEl.value = "";
     });
 
@@ -580,7 +780,6 @@
 
       try {
         const up = await uploadWithProgress(`/api/jobs/${jobId}/upload`, fd);
-
         if (up?.error) throw new Error(up.error);
 
         setStatus("Uploaded.");
@@ -601,7 +800,7 @@
       }
     });
 
-    continueBtn.addEventListener("click", async () => {
+    const startCheckout = async () => {
       if (!jobId) return;
 
       setBusy(true);
@@ -609,11 +808,15 @@
       setHint("Preparing your ZIP…");
       continueBtn.disabled = true;
 
+      const tier = getTier(); // "standard" or "pro"
+
       try {
         const resp = await fetch("/api/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ jobId })
+          // Send tier so backend can pick correct Stripe Price ID.
+          // If backend ignores it, nothing breaks.
+          body: JSON.stringify({ jobId, tier })
         }).then(r => r.json());
 
         if (resp?.error) throw new Error(resp.error);
@@ -626,6 +829,22 @@
       } finally {
         setBusy(false);
       }
+    };
+
+    // Continue: reveal price ONLY here (after upload), then proceed
+    continueBtn.addEventListener("click", async () => {
+      if (!jobId) return;
+      if (selected.length === 0) return;
+
+      // Reveal pricing at the last moment (per your requirement)
+      continueConfirmed = false;
+      openPriceModal();
+    });
+
+    // Modal Pay -> proceed to Stripe
+    modalPayBtn.addEventListener("click", async () => {
+      closePriceModal();
+      await startCheckout();
     });
 
     // Initial render
