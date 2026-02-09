@@ -3,83 +3,60 @@
 <head>
   <meta charset="UTF-8" />
   <title>ZipPixel – Compress Images into a ZIP Instantly</title>
-  <meta name="description" content="Compress up to 10 images into a single ZIP. No signup. Secure Stripe checkout. Download instantly." />
+  <meta name="description" content="Upload images, pay once, download a ZIP instantly. No signup. Fast image compression." />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
 
-<header class="hero">
-  <div class="container">
-    <h1>Compress Images.<br>Download One ZIP.</h1>
-    <p class="subtitle">
-      Upload up to 10 images, pay once, get a perfectly compressed ZIP.
-      <br>No signup. No tracking. Files deleted automatically.
-    </p>
-    <button id="scrollToTool" class="primary-btn">Compress Images Now</button>
-
-    <div class="trust">
-      <span>✓ Secure Stripe payments</span>
-      <span>✓ Files auto-deleted</span>
-      <span>✓ No account needed</span>
-    </div>
-  </div>
+<header>
+  <h1>ZipPixel</h1>
+  <p>Upload images → Pay £4.99 → Download ZIP instantly</p>
 </header>
 
-<section class="how">
-  <div class="container">
-    <h2>How it works</h2>
-    <div class="steps">
-      <div class="step">1. Upload up to 10 images</div>
-      <div class="step">2. Pay £4.99 securely</div>
-      <div class="step">3. Download your ZIP</div>
-    </div>
+<main>
+  <button id="start">Start</button>
+
+  <div id="flow" hidden>
+    <input type="file" id="files" multiple accept="image/*" />
+    <button id="upload">Upload</button>
+    <button id="pay" disabled>Pay £4.99</button>
+    <p id="status"></p>
   </div>
-</section>
+</main>
 
-<section id="tool" class="tool">
-  <div class="container">
-    <h2>Start Compressing</h2>
-
-    <button id="start" class="secondary-btn">Start</button>
-
-    <div id="box" class="tool-box" style="display:none;">
-      <input id="files" type="file" accept="image/*" multiple />
-      <div class="tool-actions">
-        <button id="upload">Upload</button>
-        <button id="pay" disabled>Pay £4.99</button>
-      </div>
-      <p id="status"></p>
-    </div>
-  </div>
-</section>
-
-<section class="faq">
-  <div class="container">
-    <h2>FAQ</h2>
-
-    <p><strong>Do I need an account?</strong><br>No. Upload, pay, download. Done.</p>
-    <p><strong>Are my files safe?</strong><br>Yes. Files are processed securely and deleted automatically.</p>
-    <p><strong>What formats are supported?</strong><br>JPG, PNG, HEIC, WEBP.</p>
-    <p><strong>Can I use this for client work?</strong><br>Yes. Commercial use is allowed.</p>
-  </div>
-</section>
-
-<footer class="footer">
-  <div class="container">
-    <p>© ZipPixel · Secure payments via Stripe</p>
-    <p><a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a></p>
-  </div>
+<footer>
+  <p>Private. One-time payment. Files deleted automatically.</p>
 </footer>
 
 <script>
-  document.getElementById("scrollToTool").onclick = () => {
-    document.getElementById("tool").scrollIntoView({ behavior: "smooth" });
-  };
+let jobId;
+const status = msg => document.getElementById("status").textContent = msg;
+
+document.getElementById("start").onclick = async () => {
+  const r = await fetch("/api/jobs", { method: "POST" }).then(r => r.json());
+  jobId = r.jobId;
+  document.getElementById("flow").hidden = false;
+  status("Choose images.");
+};
+
+document.getElementById("upload").onclick = async () => {
+  const fd = new FormData();
+  for (const f of files.files) fd.append("images", f);
+  const r = await fetch(`/api/jobs/${jobId}/upload`, { method: "POST", body: fd }).then(r => r.json());
+  status(`Uploaded ${r.fileCount} images`);
+  pay.disabled = false;
+};
+
+document.getElementById("pay").onclick = async () => {
+  const r = await fetch("/api/checkout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jobId })
+  }).then(r => r.json());
+  location.href = r.url;
+};
 </script>
 
-<!-- KEEP YOUR EXISTING APP JS BELOW -->
-<script src="/app.js"></script>
 </body>
 </html>

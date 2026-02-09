@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>Payment successful ✅</h1>
+<p>Your ZIP is ready.</p>
+<script>
+const jobId = new URLSearchParams(location.search).get("jobId");
+document.write(`<a href="/api/download/${jobId}">Download ZIP</a>`);
+</script>
+</body>
+</html>
