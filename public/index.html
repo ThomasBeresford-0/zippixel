@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>ZipPixel — Compress Images & Download One ZIP</title>
-  <meta name="description" content="Compress up to 10 images and download a single ZIP. Pay once (£4.99). No signup. Secure Stripe checkout. Files auto-deleted." />
+  <meta name="description" content="Compress up to 10 images and download a single ZIP. No signup. Secure Stripe checkout. Files auto-deleted." />
   <link rel="canonical" href="https://zippixel.it.com/" />
 
   <meta property="og:title" content="ZipPixel — Compress Images. Download One ZIP." />
-  <meta property="og:description" content="Upload up to 10 images → Pay once → Download a compressed ZIP instantly. No signup." />
+  <meta property="og:description" content="Upload up to 10 images → Checkout → Download a compressed ZIP instantly. No signup." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zippixel.it.com/" />
   <meta property="og:image" content="https://zippixel.it.com/og.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="ZipPixel — Compress Images. Download One ZIP." />
-  <meta name="twitter:description" content="Upload up to 10 images → Pay once → Download a compressed ZIP instantly. No signup." />
+  <meta name="twitter:description" content="Upload up to 10 images → Checkout → Download a compressed ZIP instantly. No signup." />
   <meta name="twitter:image" content="https://zippixel.it.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" />
@@ -33,7 +33,7 @@
     "@context":"https://schema.org",
     "@type":"Product",
     "name":"ZipPixel",
-    "description":"Compress up to 10 images and download a single optimised ZIP. Pay once. No signup. Files auto-deleted.",
+    "description":"Compress up to 10 images and download a single optimised ZIP. One-time payment. No signup. Files auto-deleted.",
     "brand":{"@type":"Brand","name":"ZipPixel"},
     "offers":{
       "@type":"Offer",
@@ -50,10 +50,10 @@
     "@context":"https://schema.org",
     "@type":"FAQPage",
     "mainEntity":[
-      {"@type":"Question","name":"Do I need an account?","acceptedAnswer":{"@type":"Answer","text":"No. Upload → pay → download. That’s it."}},
+      {"@type":"Question","name":"Do I need an account?","acceptedAnswer":{"@type":"Answer","text":"No. Upload → checkout → download. That’s it."}},
       {"@type":"Question","name":"Are my files private?","acceptedAnswer":{"@type":"Answer","text":"Yes. Files are used only to generate your ZIP and are deleted automatically after a short time."}},
       {"@type":"Question","name":"What formats do you support?","acceptedAnswer":{"@type":"Answer","text":"Most common image formats (JPG, PNG, WebP, HEIC/HEIF, AVIF)."}},
-      {"@type":"Question","name":"Why pay £4.99?","acceptedAnswer":{"@type":"Answer","text":"It covers processing + hosting and keeps the tool fast with no signup friction."}},
+      {"@type":"Question","name":"Is it free?","acceptedAnswer":{"@type":"Answer","text":"It’s a one-time payment to cover processing + hosting and keep the tool fast with no signup friction. You’ll see the price at checkout."}},
       {"@type":"Question","name":"What if the ZIP fails?","acceptedAnswer":{"@type":"Answer","text":"If your ZIP doesn’t generate or you can’t download it, email support and we’ll refund you."}}
     ]
   }
@@ -83,12 +83,12 @@
     </div>
   </header>
 
-  <!-- Sticky money bar -->
+  <!-- Sticky bar (no price upfront) -->
   <div class="stickyBar" id="stickyBar" aria-hidden="true">
     <div class="stickyBar__inner">
       <div class="stickyBar__left">
         <div class="stickyBar__title">Compress up to 10 images → one ZIP</div>
-        <div class="stickyBar__meta">£4.99 one-time • No signup • Secure Stripe</div>
+        <div class="stickyBar__meta">No signup • Secure Stripe • Auto-deleted files</div>
       </div>
       <button class="btn btn--primary stickyBar__btn" onclick="document.getElementById('start').click()">Start compression</button>
     </div>
@@ -99,20 +99,16 @@
     <section class="hero">
       <div class="container hero__grid">
         <div class="hero__copy">
-
           <h1>Compress images fast.<br/>Download one clean ZIP.</h1>
 
           <p class="lead">
-            Upload up to <b>10</b> images, we optimise them, and you download a single ZIP.
+            Upload up to <b>10</b> images → we optimise them → you download a single ZIP.
             No account. Secure checkout. Files are deleted automatically.
           </p>
 
           <div class="hero__ctaRow">
             <button class="btn btn--primary" id="start">Start compression</button>
-            <div class="priceBlock">
-              <div class="priceBlock__price">£4.99</div>
-              <div class="priceBlock__meta">one-time</div>
-            </div>
+            <div class="microTrust">No signup • Secure Stripe • Auto-deleted</div>
           </div>
 
           <div class="trustRow" role="list" aria-label="Trust">
@@ -122,7 +118,7 @@
           </div>
 
           <div class="valueBox">
-            <div class="valueBox__title">Why people pay for ZipPixel</div>
+            <div class="valueBox__title">Why ZipPixel exists</div>
             <ul class="valueBox__list">
               <li>Send one ZIP instead of 10 attachments</li>
               <li>Stop upload timeouts on listings and dashboards</li>
@@ -164,8 +160,8 @@
               </div>
 
               <div class="step step--tight">
-                <div class="step__title">3) Pay & download</div>
-                <button class="btn btn--primary btn--block" id="pay" disabled>Pay £4.99</button>
+                <div class="step__title">3) Checkout & download</div>
+                <button class="btn btn--primary btn--block" id="pay" disabled>Continue to checkout</button>
                 <div class="step__hint">Opens in Stripe</div>
               </div>
             </div>
@@ -198,8 +194,8 @@
           </div>
           <div class="infoCard">
             <div class="infoCard__k">2</div>
-            <div class="infoCard__t">Pay once via Stripe</div>
-            <div class="infoCard__d">Fast checkout. No signup friction.</div>
+            <div class="infoCard__t">Checkout via Stripe</div>
+            <div class="infoCard__d">Fast, secure payment. No signup friction.</div>
           </div>
           <div class="infoCard">
             <div class="infoCard__k">3</div>
@@ -210,7 +206,7 @@
       </div>
     </section>
 
-    <!-- USE CASES (money section) -->
+    <!-- USE CASES -->
     <section class="section section--alt" id="use">
       <div class="container">
         <div class="sectionHead">
@@ -238,8 +234,8 @@
         </div>
 
         <div class="quoteBar">
-          <div class="quoteBar__big">£4.99 is cheaper than losing 15 minutes.</div>
-          <div class="quoteBar__small">Pay once, compress, download, done.</div>
+          <div class="quoteBar__big">Cheaper than losing 15 minutes.</div>
+          <div class="quoteBar__small">Upload → checkout → download. Done.</div>
           <button class="btn btn--primary" onclick="document.getElementById('start').click()">Start compression</button>
         </div>
       </div>
@@ -256,7 +252,7 @@
         <div class="faqWrap">
           <details>
             <summary>Do I need an account?</summary>
-            <p>No. Upload → pay → download. That’s it.</p>
+            <p>No. Upload → checkout → download. That’s it.</p>
           </details>
 
           <details>
@@ -270,8 +266,8 @@
           </details>
 
           <details>
-            <summary>Why pay £4.99?</summary>
-            <p>It covers processing + hosting and keeps the tool fast with no signup friction.</p>
+            <summary>Is it free?</summary>
+            <p>It’s a one-time payment to cover processing + hosting and keep the tool fast. You’ll see the price at checkout.</p>
           </details>
 
           <details>
@@ -283,7 +279,7 @@
         <div class="finalCta">
           <div class="finalCta__copy">
             <div class="finalCta__t">Ready to compress?</div>
-            <div class="finalCta__d">One click. One payment. One ZIP.</div>
+            <div class="finalCta__d">Pick images first. Checkout when you’re ready.</div>
           </div>
           <button class="btn btn--primary" onclick="document.getElementById('start').click()">Start now</button>
         </div>
@@ -323,6 +319,8 @@
 
     const stickyBar = document.getElementById("stickyBar");
 
+    const PRICE_TEXT = "£4.99 (one-time)";
+
     const setStatus = (m) => statusEl.textContent = m;
     const humanMB = (bytes) => (bytes / (1024 * 1024)).toFixed(1) + "MB";
 
@@ -332,6 +330,7 @@
       fileList.innerHTML = "";
       uploadBtn.disabled = true;
       payBtn.disabled = true;
+      payBtn.textContent = "Continue to checkout";
     };
 
     const validateFiles = (files) => {
@@ -372,6 +371,7 @@
         }
         jobId = j.jobId;
         setStatus("Job created. Choose images.");
+        dropzone?.scrollIntoView({ behavior: "smooth", block: "center" });
       } catch (e) {
         setStatus("Network error. Please refresh and try again.");
       } finally {
@@ -439,7 +439,8 @@
           uploadBtn.disabled = false;
           return;
         }
-        setStatus(`Uploaded ${up.fileCount || files.length} images. Ready to pay.`);
+        setStatus(`Uploaded ${up.fileCount || files.length} images. Ready for checkout.`);
+        payBtn.textContent = `Pay ${PRICE_TEXT}`;
         payBtn.disabled = false;
       } catch (e) {
         setStatus("Upload failed. Please try again.");
