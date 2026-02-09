@@ -53,7 +53,7 @@
       {"@type":"Question","name":"Do I need an account?","acceptedAnswer":{"@type":"Answer","text":"No. Upload → checkout → download. That’s it."}},
       {"@type":"Question","name":"Are my files private?","acceptedAnswer":{"@type":"Answer","text":"Yes. Files are used only to generate your ZIP and are deleted automatically after a short time."}},
       {"@type":"Question","name":"What formats do you support?","acceptedAnswer":{"@type":"Answer","text":"Most common image formats (JPG, PNG, WebP, HEIC/HEIF, AVIF)."}},
-      {"@type":"Question","name":"Is it free?","acceptedAnswer":{"@type":"Answer","text":"It’s a one-time payment to cover processing + hosting and keep the tool fast with no signup friction. You’ll see the price at checkout."}},
+      {"@type":"Question","name":"Is it free?","acceptedAnswer":{"@type":"Answer","text":"It’s a one-time payment to cover processing + hosting and keep the tool fast. You’ll see the price at checkout."}},
       {"@type":"Question","name":"What if the ZIP fails?","acceptedAnswer":{"@type":"Answer","text":"If your ZIP doesn’t generate or you can’t download it, email support and we’ll refund you."}}
     ]
   }
@@ -61,117 +61,134 @@
 </head>
 
 <body>
-  <header class="nav">
-    <a class="nav__brand" href="/" aria-label="ZipPixel home">
-      <div class="logo">ZP</div>
-      <div>
-        <div class="brand">ZipPixel</div>
-        <div class="tag">Compress images → one ZIP</div>
+  <!-- Top bar -->
+  <header class="top">
+    <div class="container top__inner">
+      <a class="brand" href="/" aria-label="ZipPixel home">
+        <span class="brand__mark" aria-hidden="true">ZP</span>
+        <span class="brand__text">
+          <span class="brand__name">ZipPixel</span>
+          <span class="brand__sub">Compress images → one ZIP</span>
+        </span>
+      </a>
+
+      <nav class="top__nav" aria-label="Site">
+        <a href="#how">How it works</a>
+        <a href="#use">Use cases</a>
+        <a href="#faq">FAQ</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+      </nav>
+
+      <div class="top__cta">
+        <button class="btn btn--soft" onclick="document.getElementById('start').click()">Start</button>
       </div>
-    </a>
-
-    <nav class="nav__links" aria-label="Site">
-      <a href="#how">How it works</a>
-      <a href="#use">Use cases</a>
-      <a href="#faq">FAQ</a>
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
-    </nav>
-
-    <div class="nav__cta">
-      <button class="btn btn--ghost" onclick="document.getElementById('start').click()">Start</button>
     </div>
   </header>
 
-  <!-- Sticky bar (no price upfront) -->
-  <div class="stickyBar" id="stickyBar" aria-hidden="true">
-    <div class="stickyBar__inner">
-      <div class="stickyBar__left">
-        <div class="stickyBar__title">Compress up to 10 images → one ZIP</div>
-        <div class="stickyBar__meta">No signup • Secure Stripe • Auto-deleted files</div>
+  <!-- Sticky action bar -->
+  <div class="sticky" id="stickyBar" aria-hidden="true">
+    <div class="container sticky__inner">
+      <div class="sticky__left">
+        <div class="sticky__title">Compress up to 10 images → one ZIP</div>
+        <div class="sticky__meta">No signup • Secure Stripe • Files auto-deleted</div>
       </div>
-      <button class="btn btn--primary stickyBar__btn" onclick="document.getElementById('start').click()">Start compression</button>
+      <button class="btn btn--primary" onclick="document.getElementById('start').click()">Start compression</button>
     </div>
   </div>
 
   <main>
-    <!-- HERO -->
+    <!-- HERO + PRODUCT -->
     <section class="hero">
       <div class="container hero__grid">
         <div class="hero__copy">
-          <h1>Compress images fast.<br/>Download one clean ZIP.</h1>
+          <h1>Compress images.<br/>Send one ZIP.</h1>
 
           <p class="lead">
-            Upload up to <b>10</b> images → we optimise them → you download a single ZIP.
-            No account. Secure checkout. Files are deleted automatically.
+            Upload up to <b>10</b> images. We optimise them. You download a single ZIP.
+            No account. Secure checkout. Files deleted automatically.
           </p>
 
-          <div class="hero__ctaRow">
-            <button class="btn btn--primary" id="start">Start compression</button>
-            <div class="microTrust">No signup • Secure Stripe • Auto-deleted</div>
+          <div class="hero__actions">
+            <button class="btn btn--primary btn--lg" id="start">Start compression</button>
+            <div class="hero__proof">
+              <div class="proofItem">Secure Stripe</div>
+              <div class="proofItem">No signup</div>
+              <div class="proofItem">Auto-delete</div>
+            </div>
           </div>
 
-          <div class="trustRow" role="list" aria-label="Trust">
-            <div class="trustRow__item" role="listitem">Secure Stripe checkout</div>
-            <div class="trustRow__item" role="listitem">No signup required</div>
-            <div class="trustRow__item" role="listitem">Auto-deleted files</div>
-          </div>
-
-          <div class="valueBox">
-            <div class="valueBox__title">Why ZipPixel exists</div>
-            <ul class="valueBox__list">
+          <div class="mini">
+            <div class="mini__title">Built for real work</div>
+            <ul class="mini__list">
               <li>Send one ZIP instead of 10 attachments</li>
-              <li>Stop upload timeouts on listings and dashboards</li>
-              <li>Ship client images fast without quality looking awful</li>
+              <li>Reduce upload timeouts on portals and listings</li>
+              <li>Keep quality decent without massive files</li>
             </ul>
-            <div class="valueBox__note">Supports JPG, PNG, WebP, HEIC/HEIF, AVIF • Max 25MB each</div>
+            <div class="mini__note">JPG, PNG, WebP, HEIC/HEIF, AVIF • Max 25MB per file</div>
           </div>
         </div>
 
-        <!-- PRODUCT CARD -->
-        <aside class="hero__card" aria-label="Compression flow">
-          <div class="cardShell">
-            <div class="cardShell__head">
-              <div>
-                <div class="cardShell__title">Your ZIP job</div>
-                <div class="cardShell__sub">3 steps. About a minute.</div>
-              </div>
-              <div class="chip" id="status">Ready.</div>
+        <aside class="panel" aria-label="Compression flow">
+          <div class="panel__head">
+            <div>
+              <div class="panel__title">Your job</div>
+              <div class="panel__sub">Three steps. One outcome.</div>
+            </div>
+            <div class="statusPill" id="status">Ready.</div>
+          </div>
+
+          <!-- Step 1 -->
+          <div class="block">
+            <div class="block__top">
+              <div class="block__k">1</div>
+              <div class="block__t">Choose images</div>
+              <div class="block__d">Drop files or click anywhere below.</div>
             </div>
 
-            <div class="steps">
-              <div class="step">
-                <div class="step__title">1) Choose images</div>
-                <div class="dropzone" id="dropzone">
-                  <input id="files" type="file" accept="image/*" multiple />
-                  <div class="step__hint">Drag & drop or click to choose (max 10)</div>
-
-                  <div class="fileMeta" id="fileMeta" hidden>
-                    <div id="fileSummary"></div>
-                    <ol class="fileList" id="fileList"></ol>
-                  </div>
+            <div class="drop" id="dropzone">
+              <input id="files" type="file" accept="image/*" multiple />
+              <div class="drop__inner">
+                <div class="drop__icon" aria-hidden="true"></div>
+                <div class="drop__text">
+                  <div class="drop__headline"><b>Drop images here</b> or click to choose</div>
+                  <div class="drop__sub">Max 10 images</div>
                 </div>
               </div>
 
-              <div class="step step--tight">
-                <div class="step__title">2) Upload</div>
-                <button class="btn btn--ghost btn--block" id="upload" disabled>Upload</button>
-                <div class="step__hint">We prep your checkout</div>
-              </div>
-
-              <div class="step step--tight">
-                <div class="step__title">3) Checkout & download</div>
-                <button class="btn btn--primary btn--block" id="pay" disabled>Continue to checkout</button>
-                <div class="step__hint">Opens in Stripe</div>
+              <div class="fileMeta" id="fileMeta" hidden>
+                <div id="fileSummary"></div>
+                <ol class="fileList" id="fileList"></ol>
               </div>
             </div>
+          </div>
 
-            <div class="guarantee">
-              <div class="guarantee__title">Money-back guarantee</div>
-              <div class="guarantee__text">
-                If your ZIP fails to generate or download, we refund you. Email
-                <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
+          <!-- Steps 2/3 -->
+          <div class="row2">
+            <div class="block block--compact">
+              <div class="block__top">
+                <div class="block__k">2</div>
+                <div class="block__t">Upload</div>
+                <div class="block__d">We prepare checkout.</div>
               </div>
+              <button class="btn btn--soft btn--block" id="upload" disabled>Upload</button>
+            </div>
+
+            <div class="block block--compact">
+              <div class="block__top">
+                <div class="block__k">3</div>
+                <div class="block__t">Checkout</div>
+                <div class="block__d">Opens in Stripe.</div>
+              </div>
+              <button class="btn btn--primary btn--block" id="pay" disabled>Continue to checkout</button>
+            </div>
+          </div>
+
+          <div class="note">
+            <div class="note__t">Money-back guarantee</div>
+            <div class="note__d">
+              If your ZIP fails to generate or download, we refund you.
+              Email <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
             </div>
           </div>
         </aside>
@@ -186,57 +203,59 @@
           <p>Simple by design. No accounts, no subscriptions.</p>
         </div>
 
-        <div class="grid3">
-          <div class="infoCard">
-            <div class="infoCard__k">1</div>
-            <div class="infoCard__t">Upload up to 10 images</div>
-            <div class="infoCard__d">Drag & drop in seconds.</div>
+        <div class="cards3">
+          <div class="card">
+            <div class="card__k">1</div>
+            <div class="card__t">Upload up to 10 images</div>
+            <div class="card__d">Drag & drop in seconds.</div>
           </div>
-          <div class="infoCard">
-            <div class="infoCard__k">2</div>
-            <div class="infoCard__t">Checkout via Stripe</div>
-            <div class="infoCard__d">Fast, secure payment. No signup friction.</div>
+          <div class="card">
+            <div class="card__k">2</div>
+            <div class="card__t">Checkout via Stripe</div>
+            <div class="card__d">Fast, secure payment. No signup.</div>
           </div>
-          <div class="infoCard">
-            <div class="infoCard__k">3</div>
-            <div class="infoCard__t">Download one ZIP</div>
-            <div class="infoCard__d">Optimised images inside one archive.</div>
+          <div class="card">
+            <div class="card__k">3</div>
+            <div class="card__t">Download one ZIP</div>
+            <div class="card__d">Optimised images inside one archive.</div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- USE CASES -->
-    <section class="section section--alt" id="use">
+    <section class="section" id="use">
       <div class="container">
         <div class="sectionHead">
-          <h2>Made for real work</h2>
-          <p>Not a “tool directory” toy. Built for people who ship files every day.</p>
+          <h2>Use cases</h2>
+          <p>Made for people who send files every day.</p>
         </div>
 
-        <div class="useGrid">
-          <div class="useItem">
-            <div class="useItem__t">Property / Airbnb photos</div>
-            <div class="useItem__d">Compress a set of images and send one ZIP to agents or owners.</div>
+        <div class="cards2">
+          <div class="card card--flat">
+            <div class="card__t">Property / Airbnb photos</div>
+            <div class="card__d">Compress a set and send one ZIP to agents or owners.</div>
           </div>
-          <div class="useItem">
-            <div class="useItem__t">E-commerce listings</div>
-            <div class="useItem__d">Keep uploads fast and reduce timeouts on marketplaces.</div>
+          <div class="card card--flat">
+            <div class="card__t">E-commerce listings</div>
+            <div class="card__d">Keep uploads fast and avoid platform timeouts.</div>
           </div>
-          <div class="useItem">
-            <div class="useItem__t">Client handover</div>
-            <div class="useItem__d">Deliver images cleanly without huge attachments.</div>
+          <div class="card card--flat">
+            <div class="card__t">Client handover</div>
+            <div class="card__d">Deliver cleanly without huge attachments.</div>
           </div>
-          <div class="useItem">
-            <div class="useItem__t">Web & newsletters</div>
-            <div class="useItem__d">Lighter images = faster pages and smaller emails.</div>
+          <div class="card card--flat">
+            <div class="card__t">Web & newsletters</div>
+            <div class="card__d">Smaller images = faster pages and lighter emails.</div>
           </div>
         </div>
 
-        <div class="quoteBar">
-          <div class="quoteBar__big">Cheaper than losing 15 minutes.</div>
-          <div class="quoteBar__small">Upload → checkout → download. Done.</div>
-          <button class="btn btn--primary" onclick="document.getElementById('start').click()">Start compression</button>
+        <div class="ctaBar">
+          <div>
+            <div class="ctaBar__t">Ready?</div>
+            <div class="ctaBar__d">Pick images first. Checkout when you’re ready.</div>
+          </div>
+          <button class="btn btn--primary" onclick="document.getElementById('start').click()">Start now</button>
         </div>
       </div>
     </section>
@@ -249,7 +268,7 @@
           <p>Quick answers. No fluff.</p>
         </div>
 
-        <div class="faqWrap">
+        <div class="faq">
           <details>
             <summary>Do I need an account?</summary>
             <p>No. Upload → checkout → download. That’s it.</p>
@@ -274,14 +293,6 @@
             <summary>What if the ZIP fails?</summary>
             <p>If your ZIP doesn’t generate or you can’t download it, email support and we’ll refund you.</p>
           </details>
-        </div>
-
-        <div class="finalCta">
-          <div class="finalCta__copy">
-            <div class="finalCta__t">Ready to compress?</div>
-            <div class="finalCta__d">Pick images first. Checkout when you’re ready.</div>
-          </div>
-          <button class="btn btn--primary" onclick="document.getElementById('start').click()">Start now</button>
         </div>
       </div>
     </section>
@@ -312,12 +323,11 @@
     const uploadBtn = document.getElementById("upload");
     const payBtn = document.getElementById("pay");
     const statusEl = document.getElementById("status");
+    const stickyBar = document.getElementById("stickyBar");
 
     const fileMeta = document.getElementById("fileMeta");
     const fileSummary = document.getElementById("fileSummary");
     const fileList = document.getElementById("fileList");
-
-    const stickyBar = document.getElementById("stickyBar");
 
     const PRICE_TEXT = "£4.99 (one-time)";
 
@@ -478,10 +488,10 @@
       }
     };
 
-    // Sticky bar on scroll (appears after hero)
+    // Sticky bar on scroll
     const onScroll = () => {
       const y = window.scrollY || 0;
-      if (y > 260) {
+      if (y > 220) {
         stickyBar.classList.add("isOn");
         stickyBar.setAttribute("aria-hidden", "false");
       } else {
