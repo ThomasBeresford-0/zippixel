@@ -1,19 +1,22 @@
+<!-- privacy.html — ZipPixel (REDESIGN v13 - SMALLPDF STYLE)
+     ✅ Matches tool + pricing styling
+     ✅ Clean legal layout, readable, professional
+-->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Privacy | ZipPixel</title>
+  <title>Privacy — ZipPixel</title>
   <meta name="description" content="ZipPixel Privacy Policy. How we handle uploads, retention, and data." />
   <link rel="canonical" href="https://zippixel.it.com/privacy" />
 
-  <!-- Favicons (match your current files) -->
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/style.css?v=13" />
 </head>
 
 <body>
@@ -21,7 +24,7 @@
     <div class="container top__inner">
       <a class="brand" href="/" aria-label="ZipPixel home">
         <span class="brand__logo" aria-hidden="true">
-          <img src="/apple-touch-icon.png" alt="" width="34" height="34" />
+          <img src="/favicon.svg?v=1" alt="ZipPixel" width="34" height="34" />
         </span>
         <span class="brand__text">
           <span class="brand__name">ZipPixel</span>
@@ -30,73 +33,78 @@
       </a>
 
       <nav class="nav" aria-label="Site">
-        <a href="/#how">How</a>
-        <a href="/#use">Use cases</a>
+        <a href="/">Tool</a>
+        <a href="/pricing">Pricing</a>
         <a href="/#faq">FAQ</a>
         <a href="/privacy" aria-current="page">Privacy</a>
         <a href="/terms">Terms</a>
       </nav>
 
       <div class="top__cta">
-        <a class="btn btn--soft" href="/">Back</a>
+        <a class="btn btn--primary btn--sm" href="/">Open tool</a>
       </div>
     </div>
   </header>
 
-  <main class="section">
-    <div class="container legal">
-      <div class="legal__head">
-        <h1 class="legal__title">Privacy Policy</h1>
-        <p class="legal__meta">Last updated: <span id="lastUpdated"></span></p>
-      </div>
-
-      <div class="legal__card">
-        <p>
-          ZipPixel is built to do one thing: compress your images and generate a ZIP you can download.
-          We don’t sell personal data and we don’t run ads.
-        </p>
-
-        <h2>What we collect</h2>
-        <ul>
-          <li><b>Uploaded images</b> — only for processing your ZIP.</li>
-          <li><b>Basic technical logs</b> — to keep the service reliable and prevent abuse (for example, errors and request metadata).</li>
-        </ul>
-
-        <h2>How your files are handled</h2>
-        <ul>
-          <li>Your files are stored <b>temporarily</b> to create your ZIP.</li>
-          <li>Files are <b>automatically deleted</b> after a short time.</li>
-          <li>We do not use your images for training models or marketing.</li>
-        </ul>
-
-        <h2>Cookies</h2>
-        <p>
-          ZipPixel does not use tracking cookies for advertising.
-          If we use essential cookies (for example, to maintain a session during processing), they’re only used to run the service.
-        </p>
-
-        <h2>Third parties</h2>
-        <p>
-          We may use trusted infrastructure providers to host and run ZipPixel.
-          These providers process data only to deliver the service.
-        </p>
-
-        <h2>Security</h2>
-        <p>
-          We take reasonable measures to protect your data during upload and processing.
-          No internet service can be guaranteed 100% secure, but we aim to keep the product safe and minimal by design.
-        </p>
-
-        <h2>Contact</h2>
-        <p>
-          Questions? Email <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
-        </p>
-
-        <div class="legal__actions">
-          <a class="btn btn--primary" href="/">Back to ZipPixel</a>
+  <main class="page">
+    <section class="legalPage">
+      <div class="container">
+        <div class="legalHeader">
+          <div class="legalKicker">Legal</div>
+          <h1 class="legalTitle">Privacy Policy</h1>
+          <p class="legalMeta">Last updated: <span id="lastUpdated"></span></p>
         </div>
+
+        <article class="legalCard">
+          <p class="legalIntro">
+            ZipPixel is built to do one thing: compress your files and generate a ZIP you can download.
+            We don’t sell personal data and we don’t run ads.
+          </p>
+
+          <h2>What we collect</h2>
+          <ul>
+            <li><b>Uploaded files</b> — only for processing your ZIP.</li>
+            <li><b>Basic technical logs</b> — to keep the service reliable and prevent abuse (e.g., errors and request metadata).</li>
+          </ul>
+
+          <h2>How your files are handled</h2>
+          <ul>
+            <li>Your files are stored <b>temporarily</b> to create your ZIP.</li>
+            <li>Files are <b>automatically deleted</b> after a short time.</li>
+            <li>We do not use your files for training models or marketing.</li>
+          </ul>
+
+          <h2>Cookies</h2>
+          <p>
+            ZipPixel does not use tracking cookies for advertising.
+            If we use essential cookies (for example, to maintain a session during processing),
+            they’re only used to run the service.
+          </p>
+
+          <h2>Third parties</h2>
+          <p>
+            We may use trusted infrastructure providers to host and run ZipPixel.
+            These providers process data only to deliver the service.
+          </p>
+
+          <h2>Security</h2>
+          <p>
+            We take reasonable measures to protect your data during upload and processing.
+            No internet service can be guaranteed 100% secure, but we keep the product minimal by design.
+          </p>
+
+          <h2>Contact</h2>
+          <p>
+            Questions? Email <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
+          </p>
+
+          <div class="legalActions">
+            <a class="btn btn--primary" href="/">Back to ZipPixel</a>
+            <a class="btn btn--ghost" href="/terms">View Terms</a>
+          </div>
+        </article>
       </div>
-    </div>
+    </section>
   </main>
 
   <footer class="footer">
@@ -111,7 +119,7 @@
 
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
-    // “Last updated” as real date, not “today”
+    // If you want a real fixed date, set it explicitly instead of "today"
     const d = new Date();
     document.getElementById("lastUpdated").textContent =
       d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
