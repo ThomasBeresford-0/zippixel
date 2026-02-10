@@ -11,17 +11,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const Stripe = require("stripe");
-const nodemailer = require("nodemailer");
 
-const mailer = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT || 587),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
 
 
 const app = express();
@@ -61,41 +51,6 @@ app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
 });
 
 app.get("/health", (_, res) => res.json({ ok: true }));
-// ====== EMAIL TEST ======
-app.get("/test-email", async (req, res) => {
-  try {
-    await mailer.sendMail({
-      from: "ZipPixel <support@zippixel.it.com>",
-      to: process.env.SMTP_USER,
-      subject: "ZipPixel email test",
-      text: "If you received this, SMTP is working.",
-    });
-
-    res.json({ ok: true });
-  } catch (err) {
-    console.error("Email test failed:", err);
-    res.status(500).json({
-    message: err.message,
-    code: err.code,
-    response: err.response,
-  });
-  }
-});
-
-app.get("/api/test-email", async (req, res) => {
-  try {
-    await mailer.sendMail({
-      from: `"ZipPixel" <${process.env.SMTP_USER}>`,
-      to: process.env.SMTP_USER,
-      subject: "ZipPixel email test",
-      text: "If you received this, email is working.",
-    });
-
-    res.json({ ok: true });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
 
 
 // ====== JOB STORAGE ======
@@ -373,37 +328,6 @@ function webhookHandler(req, res) {
       if (jobId && jobs.has(jobId)) {
         const job = jobs.get(jobId);
         job.status = "PAID";
-        // Send download email
-      (async () => {
-        try {
-          if (!process.env.SMTP_USER) return;
-
-          const downloadLink = `${BASE_URL}/success?jobId=${job.jobId}`;
-          const shareLink =
-            job.shareToken ? `${BASE_URL}/s/${job.shareToken}` : null;
-
-          await mailer.sendMail({
-            from: "ZipPixel <support@zippixel.it.com>",
-            to: event.data.object.customer_details?.email,
-            subject: "Your ZipPixel download is ready",
-            html: `
-              <h2>Your ZIP is ready</h2>
-              <p>Download your files here:</p>
-              <p><a href="${downloadLink}">${downloadLink}</a></p>
-              ${
-                shareLink
-                  ? `<p><strong>Shareable link:</strong><br/><a href="${shareLink}">${shareLink}</a></p>`
-                  : ""
-              }
-              <p style="margin-top:24px;font-size:13px;color:#666;">
-                Files are auto-deleted after a short time.
-              </p>
-            `,
-          });
-        } catch (err) {
-          console.error("Email send failed:", err.message);
-        }
-      })();
         if (job.options.shareLink) job.shareToken = newShareToken();
       }
     }
