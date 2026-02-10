@@ -704,3 +704,89 @@ details p{
     pointer-events:auto;
   }
 }
+
+/* =========================
+   Legal/Success/Cancel pages (Big Boys layout)
+========================= */
+
+.legalPage{
+  padding: 26px 0 40px;
+}
+
+.legalWrap{
+  max-width: 920px;
+}
+
+.legalHead{
+  padding: 4px 2px 14px;
+}
+
+.legalTitle{
+  margin: 10px 0 8px;
+  font-size: clamp(34px, 4.2vw, 54px);
+  letter-spacing: -0.060em;
+  line-height: 1.04;
+}
+
+.legalSub{
+  margin: 0;
+  color: rgba(11,18,32,.70);
+  font-size: 15px;
+  line-height: 1.5;
+  max-width: 70ch;
+}
+
+.legalCard{
+  margin-top: 14px;
+  background: rgba(255,255,255,.92);
+  border: 1px solid rgba(15,23,42,.10);
+  border-radius: 18px;
+  box-shadow: var(--sh-1);
+  padding: 16px;
+}
+
+.noticeRow{
+  display:flex;
+  gap: 12px;
+  align-items:flex-start;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(15,23,42,.08);
+  background: rgba(2,6,23,.02);
+}
+
+.noticeIcon{
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display:grid;
+  place-items:center;
+  background: rgba(37,99,235,.12);
+  border: 1px solid rgba(37,99,235,.18);
+  color: #1d4ed8;
+  flex: 0 0 auto;
+  font-size: 18px;
+}
+
+.noticeBody{ min-width: 0; }
+
+.noticeTitle{
+  font-weight: 950;
+  letter-spacing: -0.02em;
+  font-size: 14px;
+  margin: 0;
+}
+
+.noticeText{
+  margin-top: 4px;
+  color: rgba(11,18,32,.70);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.noticeActions{
+  margin-top: 14px;
+  display:flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
