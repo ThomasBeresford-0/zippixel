@@ -1,32 +1,35 @@
-/* style.css — ZipPixel (FULL REDESIGN v12 - PREMIUM LIGHT)
-   Premium product feel: deliberate layout, calmer palette, tighter typography.
+/* style.css — ZipPixel (REDESIGN v13 - SMALLPDF STYLE)
+   Goal: Calm, centered, tool-first layout.
+   - Big primary dropzone
+   - Minimal hero clutter
+   - Professional whitespace + typography
 */
 
 :root{
-  --bg: #f7f8fc;
-  --bg2:#ffffff;
+  --bg: #f6f7fb;
+  --panel: #ffffff;
 
-  --text:#0b1220;
-  --muted: rgba(11,18,32,.64);
-  --muted2: rgba(11,18,32,.52);
+  --text: #0b1220;
+  --muted: rgba(11,18,32,.62);
+  --muted2: rgba(11,18,32,.50);
 
   --border: rgba(15,23,42,.10);
-  --border2: rgba(15,23,42,.14);
-  --dash: rgba(15,23,42,.24);
+  --border2: rgba(15,23,42,.16);
+  --dash: rgba(15,23,42,.28);
 
   --primary:#2563eb;
   --primary2:#1d4ed8;
   --ring: rgba(37,99,235,.22);
 
-  --r-sm: 12px;
-  --r: 14px;
-  --r-lg: 18px;
-  --r-xl: 22px;
-  --r-2xl: 28px;
+  --r-sm: 10px;
+  --r: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-2xl: 26px;
 
   --sh-0: 0 1px 0 rgba(2,6,23,.04);
-  --sh-1: 0 12px 30px rgba(2,6,23,.08);
-  --sh-2: 0 34px 90px rgba(2,6,23,.12);
+  --sh-1: 0 14px 40px rgba(2,6,23,.10);
+  --sh-2: 0 36px 110px rgba(2,6,23,.14);
 
   --container: 1120px;
   --ease: cubic-bezier(.2,.8,.2,1);
@@ -39,9 +42,7 @@ body{
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   color: var(--text);
   background:
-    radial-gradient(900px 520px at 55% -10%, rgba(37,99,235,.12), transparent 60%),
-    radial-gradient(720px 420px at 18% 0%, rgba(17,24,39,.05), transparent 62%),
-    radial-gradient(720px 420px at 82% 0%, rgba(17,24,39,.04), transparent 62%),
+    radial-gradient(1000px 520px at 50% -10%, rgba(37,99,235,.10), transparent 58%),
     var(--bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -53,7 +54,7 @@ a:hover{ opacity:.92; }
 p{ margin:0; }
 
 .container{
-  width: min(var(--container), calc(100% - 48px));
+  width: min(var(--container), calc(100% - 40px));
   margin: 0 auto;
 }
 
@@ -64,43 +65,43 @@ p{ margin:0; }
 }
 
 /* =========================
-   Header
+   Header (clean, small)
 ========================= */
 .top{
   position: sticky;
   top:0;
   z-index: 20;
-  background: rgba(255,255,255,.72);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(15,23,42,.08);
+  background: rgba(246,247,251,.82);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(15,23,42,.06);
 }
 .top__inner{
   display:flex;
   align-items:center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 12px;
   padding: 12px 0;
 }
 
 .brand{
   display:flex;
   align-items:center;
-  gap: 12px;
+  gap: 10px;
 }
 .brand__logo{
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   overflow:hidden;
   border: 1px solid rgba(15,23,42,.10);
   background: #fff;
-  box-shadow: var(--sh-1);
+  box-shadow: var(--sh-0);
 }
 .brand__logo img{ width:100%; height:100%; object-fit:cover; }
 
 .brand__text{ display:flex; flex-direction:column; line-height:1.05; }
-.brand__name{ font-weight: 950; letter-spacing: -0.03em; font-size: 14px; }
-.brand__sub{ font-size: 12px; color: rgba(11,18,32,.58); margin-top: 3px; }
+.brand__name{ font-weight: 900; letter-spacing: -0.02em; font-size: 14px; }
+.brand__sub{ font-size: 12px; color: rgba(11,18,32,.56); margin-top: 3px; }
 
 .nav{ display:flex; gap: 6px; align-items:center; }
 .nav a{
@@ -126,7 +127,7 @@ p{ margin:0; }
   color: var(--text);
   border-radius: 12px;
   padding: 10px 14px;
-  font-weight: 950;
+  font-weight: 850;
   letter-spacing: -0.01em;
   cursor:pointer;
   transition: transform .10s var(--ease), background .16s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease);
@@ -140,9 +141,9 @@ p{ margin:0; }
   background: linear-gradient(180deg, rgba(37,99,235,1), rgba(29,78,216,1));
   border-color: rgba(37,99,235,.35);
   color:#fff;
-  box-shadow: 0 16px 40px rgba(37,99,235,.18);
+  box-shadow: 0 18px 46px rgba(37,99,235,.18);
 }
-.btn--primary:hover{ box-shadow: 0 20px 56px rgba(37,99,235,.22); }
+.btn--primary:hover{ box-shadow: 0 24px 64px rgba(37,99,235,.22); }
 
 .btn--soft{
   background: rgba(37,99,235,.10);
@@ -153,135 +154,86 @@ p{ margin:0; }
 .btn--ghost{ background: transparent; box-shadow:none; color: rgba(11,18,32,.86); }
 .btn--ghost:hover{ background: rgba(2,6,23,.03); }
 
-.btn--sm{ padding: 8px 10px; border-radius: 10px; font-weight: 950; }
+.btn--sm{ padding: 8px 10px; border-radius: 10px; font-weight: 850; }
 .btn--block{ width:100%; }
 
 /* =========================
-   Page
+   Page / Stage layout
 ========================= */
-.page{ padding-bottom: 22px; }
+.page{ padding: 34px 0 30px; }
 
-.muted{ color: rgba(11,18,32,.56); margin-left: 6px; }
-
-/* =========================
-   Stage (hero + tool)
-========================= */
 .stage{
-  padding: 18px 0 12px;
+  padding: 10px 0 20px;
 }
+
 .stage__inner{
   display:grid;
   grid-template-columns: 1fr;
-  gap: 14px;
+  gap: 16px;
   align-items:start;
+  justify-items: center;
 }
 
-.kicker{
-  display:inline-flex;
-  align-items:center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.75);
-  font-size: 12px;
-  font-weight: 950;
-  letter-spacing: .02em;
-  color: rgba(11,18,32,.76);
-  margin-bottom: 12px;
+/* Smallpdf-style hero */
+.hero{
+  text-align: center;
+  max-width: 860px;
+  margin: 0 auto;
 }
-.kDot{
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(37,99,235,1);
-  box-shadow: 0 0 0 4px rgba(37,99,235,.14);
-}
-
 .heroTitle{
-  margin:0 0 12px;
-  font-size: clamp(40px, 4.6vw, 62px);
-  letter-spacing: -0.070em;
-  line-height: 1.02;
+  margin: 0 0 10px;
+  font-size: clamp(30px, 3.6vw, 44px);
+  letter-spacing: -0.045em;
+  line-height: 1.08;
 }
 .heroLead{
-  font-size: 16px;
-  color: rgba(11,18,32,.78);
-  max-width: 72ch;
+  font-size: 15px;
+  color: rgba(11,18,32,.72);
+  line-height: 1.55;
 }
-
-.trustGrid{
-  margin-top: 14px;
-  display:grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  max-width: 720px;
-}
-.trustItem{
+.heroMeta{
+  margin-top: 10px;
   display:flex;
-  gap: 10px;
-  align-items:flex-start;
-  padding: 12px;
-  border-radius: 16px;
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.80);
-  box-shadow: var(--sh-0);
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
 }
-.trustIcon{
-  width: 40px;
-  height: 40px;
-  border-radius: 14px;
-  display:grid;
-  place-items:center;
-  background: rgba(37,99,235,.12);
-  border: 1px solid rgba(37,99,235,.18);
-  color: #1d4ed8;
-  flex: 0 0 auto;
-}
-.trustTitle{
-  font-weight: 950;
-  letter-spacing: -0.02em;
-  font-size: 13px;
-}
-.trustSub{
-  margin-top: 3px;
-  color: rgba(11,18,32,.66);
+.mini{
   font-size: 12px;
-  line-height: 1.45;
-}
-.microLine{
-  margin-top: 12px;
-  color: rgba(11,18,32,.62);
-  font-size: 13px;
-  max-width: 78ch;
+  font-weight: 800;
+  color: rgba(11,18,32,.68);
+  border: 1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.84);
+  border-radius: 999px;
+  padding: 6px 10px;
 }
 
-/* =========================
-   Tool card
-========================= */
+/* Tool card becomes the primary panel */
 .toolCard{
-  background: rgba(255,255,255,.92);
+  width: min(860px, 100%);
+  background: rgba(255,255,255,.96);
   border: 1px solid rgba(15,23,42,.10);
   border-radius: var(--r-2xl);
   box-shadow: var(--sh-2);
-  padding: 16px;
+  padding: 18px;
 }
 
+/* Hide heavy “status header” visually, but keep IDs intact */
 .toolTop{
   display:flex;
   align-items:flex-start;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 10px 12px;
+  padding: 0 2px 12px;
   border-bottom: 1px solid rgba(2,6,23,.06);
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .label{
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: .12em;
-  color: rgba(11,18,32,.52);
+  color: rgba(11,18,32,.46);
 }
 .statusRow{
   display:flex;
@@ -290,8 +242,8 @@ p{ margin:0; }
   margin-top: 6px;
 }
 .status{
-  font-size: 18px;
-  font-weight: 950;
+  font-size: 15px;
+  font-weight: 900;
   letter-spacing: -0.02em;
 }
 .statusHint{
@@ -319,30 +271,20 @@ p{ margin:0; }
   flex-wrap: wrap;
   justify-content:flex-end;
 }
-.mini{
-  font-size: 12px;
-  font-weight: 900;
-  color: rgba(11,18,32,.70);
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.84);
-  border-radius: 999px;
-  padding: 6px 10px;
-}
 
 /* =========================
-   Dropzone (more premium “stage”)
+   Dropzone (Smallpdf vibe)
 ========================= */
 .dropzone{
   position: relative;
-  border-radius: 20px;
-  border: 1px dashed var(--dash);
-  background:
-    radial-gradient(900px 260px at 40% 0%, rgba(37,99,235,.10), transparent 60%),
-    linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.72));
-  padding: 16px;
+  border-radius: 22px;
+  border: 2px dashed rgba(15,23,42,.22);
+  background: #fff;
+  padding: 22px;
   overflow:hidden;
-  transition: border-color .16s var(--ease), transform .10s var(--ease), box-shadow .16s var(--ease);
+  transition: border-color .16s var(--ease), transform .10s var(--ease), box-shadow .16s var(--ease), background .16s var(--ease);
 }
+
 .dropzone input[type="file"]{
   position:absolute;
   inset:0;
@@ -352,46 +294,57 @@ p{ margin:0; }
 
 .dropzone__inner{
   display:grid;
-  grid-template-columns: 52px 1fr auto;
-  gap: 12px;
+  grid-template-columns: 64px 1fr auto;
+  gap: 14px;
   align-items:center;
   pointer-events:none;
 }
 
 .dzBadge{
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
   display:grid;
   place-items:center;
-  background: rgba(37,99,235,.12);
+  background: rgba(37,99,235,.10);
   border: 1px solid rgba(37,99,235,.18);
   color: #1d4ed8;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.70);
 }
 
-.dzTitle{ font-weight: 950; letter-spacing:-0.02em; font-size: 15px; }
-.dzSub{ color: rgba(11,18,32,.58); font-size: 13px; margin-top: 2px; }
+.dzTitle{
+  font-weight: 900;
+  letter-spacing:-0.02em;
+  font-size: 16px;
+}
+.dzSub{
+  color: rgba(11,18,32,.58);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
 .dzActions{ pointer-events:auto; }
 
 .dzFine{
-  margin-top: 10px;
+  margin-top: 12px;
   font-size: 12px;
-  color: rgba(11,18,32,.58);
+  color: rgba(11,18,32,.54);
 }
 
+/* Drag state */
 .dropzone.isDrag{
-  border-color: rgba(37,99,235,.55);
+  border-color: rgba(37,99,235,.70);
+  background: rgba(37,99,235,.03);
   transform: translateY(-1px);
-  box-shadow: 0 18px 54px rgba(37,99,235,.14);
+  box-shadow: 0 22px 68px rgba(37,99,235,.16);
 }
 
 /* =========================
    File previews
 ========================= */
 .fileMeta{
-  margin-top: 12px;
-  padding-top: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
   border-top: 1px solid rgba(2,6,23,.08);
 }
 .fileMetaTop{
@@ -401,7 +354,7 @@ p{ margin:0; }
   gap: 10px;
   margin-bottom: 10px;
 }
-.fileSummary{ color: rgba(11,18,32,.72); font-size: 13px; }
+.fileSummary{ color: rgba(11,18,32,.70); font-size: 13px; }
 
 .fileList{
   margin: 0;
@@ -419,7 +372,7 @@ p{ margin:0; }
   padding: 12px;
   border-radius: 16px;
   border: 1px solid rgba(2,6,23,.10);
-  background: rgba(255,255,255,.92);
+  background: rgba(255,255,255,.98);
   box-shadow: var(--sh-0);
   transition: transform .10s var(--ease), box-shadow .16s var(--ease), border-color .16s var(--ease);
 }
@@ -441,14 +394,14 @@ p{ margin:0; }
 .thumbImg{ width:100%; height:100%; object-fit:cover; }
 .thumbPdf{
   font-size: 11px;
-  font-weight: 950;
+  font-weight: 900;
   color: rgba(11,18,32,.68);
   letter-spacing: .06em;
 }
 
 .fileInfo{ min-width:0; flex:1; }
 .fileName{
-  font-weight: 950;
+  font-weight: 900;
   letter-spacing:-0.01em;
   overflow:hidden;
   text-overflow: ellipsis;
@@ -466,7 +419,7 @@ p{ margin:0; }
   border-radius: 10px;
   padding: 8px 10px;
   cursor:pointer;
-  font-weight: 950;
+  font-weight: 900;
   font-size: 12px;
   transition: border-color .16s var(--ease), background .16s var(--ease), transform .10s var(--ease), box-shadow .16s var(--ease);
   box-shadow: var(--sh-0);
@@ -482,11 +435,11 @@ p{ margin:0; }
    Progress
 ========================= */
 .progressWrap{
-  margin-top: 12px;
+  margin-top: 14px;
   padding: 12px;
   border: 1px solid rgba(2,6,23,.10);
-  background: rgba(255,255,255,.75);
-  border-radius: 18px;
+  background: rgba(2,6,23,.02);
+  border-radius: 16px;
 }
 .progressTop{
   display:flex;
@@ -495,8 +448,8 @@ p{ margin:0; }
   gap: 10px;
   margin-bottom: 8px;
 }
-.progressLabel{ font-weight: 950; }
-.progressPct{ color: rgba(11,18,32,.55); font-weight: 950; }
+.progressLabel{ font-weight: 900; }
+.progressPct{ color: rgba(11,18,32,.52); font-weight: 900; }
 .progressBar{
   height: 10px;
   border-radius: 999px;
@@ -518,39 +471,15 @@ p{ margin:0; }
 }
 
 /* =========================
-   Actions
+   Actions (clean, minimal)
 ========================= */
 .actionWrap{
-  margin-top: 12px;
-  padding-top: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
   border-top: 1px solid rgba(2,6,23,.08);
 }
 
-.actionSteps{
-  display:flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-.stepPill{
-  display:inline-flex;
-  gap: 8px;
-  align-items:center;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.86);
-  font-size: 12px;
-  font-weight: 900;
-  color: rgba(11,18,32,.72);
-}
-.stepDot{
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(37,99,235,1);
-  box-shadow: 0 0 0 4px rgba(37,99,235,.14);
-}
+.actionSteps{ display:none; } /* Smallpdf-style: hide the pills */
 
 .actionBar{
   display:grid;
@@ -561,14 +490,15 @@ p{ margin:0; }
 .fineprint{
   margin-top: 12px;
   font-size: 12px;
-  color: rgba(11,18,32,.60);
+  color: rgba(11,18,32,.58);
+  text-align: center;
 }
 .fineprint a{ text-decoration: underline; text-underline-offset: 2px; }
 
 /* =========================
-   Sections
+   Sections (below fold)
 ========================= */
-.section{ padding: 14px 0; }
+.section{ padding: 18px 0; }
 .section .container{
   background: rgba(255,255,255,.92);
   border: 1px solid rgba(15,23,42,.10);
@@ -592,7 +522,7 @@ p{ margin:0; }
 }
 .sectionHead p{
   margin: 0;
-  color: rgba(11,18,32,.70);
+  color: rgba(11,18,32,.68);
   font-size: 13px;
   line-height: 1.45;
 }
@@ -617,13 +547,13 @@ p{ margin:0; }
   border-radius: 12px;
   display:grid;
   place-items:center;
-  font-weight: 950;
-  background: rgba(37,99,235,.12);
+  font-weight: 900;
+  background: rgba(37,99,235,.10);
   border: 1px solid rgba(37,99,235,.18);
   color: #1d4ed8;
   margin-bottom: 10px;
 }
-.card .t{ font-weight: 950; }
+.card .t{ font-weight: 900; }
 .card .d{ margin-top: 6px; color: rgba(11,18,32,.70); font-size: 13px; }
 
 /* FAQ */
@@ -637,7 +567,7 @@ details{
 }
 summary{
   cursor:pointer;
-  font-weight: 950;
+  font-weight: 900;
   list-style:none;
 }
 summary::-webkit-details-marker{ display:none; }
@@ -657,14 +587,15 @@ details p{
   justify-content: space-between;
   align-items:center;
   gap: 12px;
-  color: rgba(11,18,32,.62);
+  color: rgba(11,18,32,.58);
   font-size: 13px;
 }
 .footer__links{ display:flex; gap: 12px; }
-.footer__links a{ color: rgba(11,18,32,.62); text-decoration: underline; text-underline-offset: 2px; }
+.footer__links a{ color: rgba(11,18,32,.58); text-decoration: underline; text-underline-offset: 2px; }
 
 /* =========================
-   Modal
+   Modal (keep your existing styling)
+   (Your v12 modal CSS is already good; leaving as-is)
 ========================= */
 .modalOverlay{
   position: fixed;
@@ -700,14 +631,14 @@ details p{
   gap: 12px;
   background: linear-gradient(180deg, rgba(37,99,235,.08), rgba(255,255,255,0));
 }
-.modalTitle{ font-weight: 950; letter-spacing: -0.02em; font-size: 14px; }
+.modalTitle{ font-weight: 900; letter-spacing: -0.02em; font-size: 14px; }
 .modalClose{
   border: 1px solid rgba(2,6,23,.12);
   background: #fff;
   border-radius: 12px;
   padding: 8px 10px;
   cursor:pointer;
-  font-weight: 950;
+  font-weight: 900;
   font-size: 12px;
   box-shadow: var(--sh-0);
 }
@@ -727,14 +658,14 @@ details p{
 }
 .modalSummaryKicker{
   font-size: 12px;
-  font-weight: 950;
+  font-weight: 900;
   color: rgba(107,114,128,.98);
   text-transform: uppercase;
   letter-spacing: .06em;
 }
 .modalSummaryMain{
   font-size: 14px;
-  font-weight: 950;
+  font-weight: 900;
   color: rgba(11,18,32,.95);
   overflow:hidden;
   text-overflow: ellipsis;
@@ -743,7 +674,7 @@ details p{
 }
 .modalSummaryAmt{
   font-size: 16px;
-  font-weight: 950;
+  font-weight: 900;
   white-space: nowrap;
   color: rgba(11,18,32,.95);
 }
@@ -764,10 +695,10 @@ details p{
   background: rgba(37,99,235,.08);
   box-shadow: 0 12px 30px rgba(37,99,235,.12);
 }
-.priceName{ font-weight: 950; font-size: 13px; }
+.priceName{ font-weight: 900; font-size: 13px; }
 .priceDesc{ font-size: 12px; color: rgba(75,85,99,.95); }
-.priceAmt{ font-weight: 950; font-size: 13px; white-space: nowrap; }
-.priceAmt label{ display:inline-flex; align-items:center; gap: 8px; font-weight: 950; cursor:pointer; }
+.priceAmt{ font-weight: 900; font-size: 13px; white-space: nowrap; }
+.priceAmt label{ display:inline-flex; align-items:center; gap: 8px; font-weight: 900; cursor:pointer; }
 .priceAmt input[type="checkbox"]{ width: 16px; height: 16px; accent-color: var(--primary); }
 
 .modalNote{ margin-top: 10px; font-size: 12px; color: rgba(107,114,128,.98); line-height: 1.45; }
@@ -784,22 +715,14 @@ details p{
 /* =========================
    Responsive
 ========================= */
-@media (min-width: 980px){
-  .stage__inner{
-    grid-template-columns: 1.05fr .95fr;
-    gap: 18px;
-  }
-}
-
 @media (max-width: 980px){
   .nav{ display:none; }
-  .trustGrid{ grid-template-columns: 1fr; }
   .grid3{ grid-template-columns: 1fr; }
   .actionBar{ grid-template-columns: 1fr; }
   .fileList{ grid-template-columns: 1fr; }
 
   .dropzone__inner{
-    grid-template-columns: 52px 1fr;
+    grid-template-columns: 64px 1fr;
     grid-template-rows: auto auto;
   }
   .dzActions{

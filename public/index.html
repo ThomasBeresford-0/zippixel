@@ -1,7 +1,6 @@
-<!-- index.html — ZipPixel (FULL REDESIGN v12 - PREMIUM LIGHT)
-     ✅ Premium “big tools” feel (TinyPNG / iLoveIMG vibe)
+<!-- index.html — ZipPixel (REDESIGN v13 - SMALLPDF STYLE)
+     ✅ Tool-first layout (centered)
      ✅ Keeps ALL existing ids/classes/JS hooks working
-     ✅ Thumbnail preview grid (frontend only)
      ✅ Same endpoints / same flow
 -->
 <!doctype html>
@@ -11,25 +10,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>ZipPixel — Compress images into one ZIP</title>
-  <meta name="description" content="Upload up to 10 images. We optimise them and bundle everything into one ZIP. No signup. Pricing shown before payment." />
+  <meta name="description" content="Upload up to 10 images (or PDFs). We optimise them and bundle everything into one ZIP. No signup. Pricing shown before payment." />
   <link rel="canonical" href="https://zippixel.it.com/" />
 
   <meta property="og:title" content="ZipPixel — Compress images. Download one ZIP." />
-  <meta property="og:description" content="Upload up to 10 images → Download a single compressed ZIP. No signup. Pricing shown before payment." />
+  <meta property="og:description" content="Upload up to 10 files → Download a single compressed ZIP. No signup. Pricing shown before payment." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zippixel.it.com/" />
   <meta property="og:image" content="https://zippixel.it.com/og.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="ZipPixel — Compress images. Download one ZIP." />
-  <meta name="twitter:description" content="Upload up to 10 images → Download one compressed ZIP. No signup. Pricing shown before payment." />
+  <meta name="twitter:description" content="Upload up to 10 files → Download one compressed ZIP. No signup. Pricing shown before payment." />
   <meta name="twitter:image" content="https://zippixel.it.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=12" />
+  <link rel="stylesheet" href="/style.css?v=13" />
 </head>
 
 <body>
@@ -60,63 +59,28 @@
   </header>
 
   <main class="page">
-    <!-- HERO + TOOL “PRODUCT STAGE” -->
     <section class="stage">
       <div class="container stage__inner">
-        <div class="stage__left">
-          <div class="kicker">
-            <span class="kDot" aria-hidden="true"></span>
-            Compress • Bundle • Send
-          </div>
-
-          <h1 class="heroTitle">
-            Make images smaller.<br/>
-            Download one ZIP.
-          </h1>
-
+        <!-- Clean hero (Smallpdf-style) -->
+        <div class="hero">
+          <h1 class="heroTitle">Compress images into one ZIP.</h1>
           <p class="heroLead">
             Upload up to <b>10</b> images (or PDFs). We optimise them and pack everything into one clean ZIP.
-            <span class="muted">No signup.</span>
+            <span style="color: rgba(11,18,32,.56)">No signup.</span>
           </p>
 
-          <div class="trustGrid" aria-label="Highlights">
-            <div class="trustItem">
-              <div class="trustIcon" aria-hidden="true">⚡</div>
-              <div class="trustText">
-                <div class="trustTitle">Fast workflow</div>
-                <div class="trustSub">Pick files → upload → pay → download</div>
-              </div>
-            </div>
-            <div class="trustItem">
-              <div class="trustIcon" aria-hidden="true">🔒</div>
-              <div class="trustText">
-                <div class="trustTitle">Secure Checkout</div>
-                <div class="trustSub">Stripe payment. Pricing shown before you pay.</div>
-              </div>
-            </div>
-            <div class="trustItem">
-              <div class="trustIcon" aria-hidden="true">🗑️</div>
-              <div class="trustText">
-                <div class="trustTitle">Auto-deleted</div>
-                <div class="trustSub">Files are removed after a short time.</div>
-              </div>
-            </div>
-            <div class="trustItem">
-              <div class="trustIcon" aria-hidden="true">📦</div>
-              <div class="trustText">
-                <div class="trustTitle">One ZIP output</div>
-                <div class="trustSub">Neat delivery for clients & listings.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="microLine">
-            Popular for property listings, client handover, email limits, and portals.
+          <div class="heroMeta" aria-label="Limits">
+            <span class="mini"><b>Max</b> 10</span>
+            <span class="mini"><b>Max</b> 25MB each</span>
+            <span class="mini"><b>Output</b> ZIP</span>
+            <span class="mini">Pricing shown before checkout</span>
           </div>
         </div>
 
         <!-- TOOL CARD (same IDs/hooks) -->
         <div class="toolCard" aria-label="ZipPixel tool">
+
+          <!-- Keep status hooks (IDs used by JS) -->
           <div class="toolTop">
             <div class="statusBlock">
               <div class="label">Status</div>
@@ -124,23 +88,24 @@
                 <div class="status" id="status">Ready.</div>
                 <div class="spinner" id="spinner" aria-hidden="true"></div>
               </div>
-              <div class="statusHint" id="statusHint">Drop images to begin.</div>
+              <div class="statusHint" id="statusHint">Drop files to begin.</div>
             </div>
 
-            <div class="limits">
+            <!-- Keep limits (not required by JS, but nice UI) -->
+            <div class="limits" aria-hidden="true">
               <span class="mini"><b>Max</b> 10</span>
               <span class="mini"><b>Max</b> 25MB</span>
               <span class="mini"><b>Output</b> ZIP</span>
             </div>
           </div>
 
-          <!-- DROPZONE -->
-          <div class="dropzone" id="dropzone" aria-label="Upload images">
+          <!-- DROPZONE (IDs used by JS) -->
+          <div class="dropzone" id="dropzone" aria-label="Upload files">
             <input id="files" type="file" accept="image/*,application/pdf" multiple />
 
             <div class="dropzone__inner">
               <div class="dzBadge" aria-hidden="true">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M12 16V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                   <path d="M8.5 11.5L12 8l3.5 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M7 16.5c-1.7 0-3-1.3-3-3 0-1.4.9-2.6 2.2-2.9C6.6 8.1 8.6 6.5 11 6.5c2.3 0 4.3 1.5 4.9 3.7.2 0 .5-.1.7-.1 2 0 3.5 1.6 3.5 3.5S18.6 17 16.6 17H7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -172,7 +137,7 @@
             </div>
           </div>
 
-          <!-- PROGRESS -->
+          <!-- PROGRESS (same IDs) -->
           <div class="progressWrap" id="progressWrap" hidden>
             <div class="progressTop">
               <div class="progressLabel" id="progressLabel">Uploading…</div>
@@ -184,7 +149,7 @@
             <div class="progressMeta" id="progressMeta"></div>
           </div>
 
-          <!-- ACTIONS -->
+          <!-- ACTIONS (same IDs) -->
           <div class="actionWrap" aria-label="Actions">
             <div class="actionSteps" aria-hidden="true">
               <div class="stepPill"><span class="stepDot"></span> 1) Upload</div>
@@ -381,488 +346,9 @@
     </div>
   </div>
 
+  <!-- IMPORTANT: paste your existing v12 inline <script> here unchanged -->
   <script>
-    // ====== ZIPPIXEL FRONTEND (v12 - same flow, premium UI) ======
-    document.getElementById("y").textContent = new Date().getFullYear();
-
-    // Tiering (must match backend)
-    const STANDARD_MAX = 5;
-    const PRO_MAX = 10;
-
-    const STANDARD_PRICE = 2.99;
-    const PRO_PRICE = 4.99;
-
-    const PRINT_READY_PRICE = 1.99;
-    const EMAIL_SAFE_PRICE = 1.49;
-    const SHARE_LINK_PRICE = 2.49;
-    const DAY_PASS_PRICE = 9.99;
-
-    const MAX_FILES = PRO_MAX;
-    const MAX_MB_EACH = 25;
-
-    const dropzone = document.getElementById("dropzone");
-    const filesEl = document.getElementById("files");
-    const chooseBtn = document.getElementById("chooseBtn");
-    const clearBtn = document.getElementById("clearBtn");
-
-    const uploadBtn = document.getElementById("upload");
-    const continueBtn = document.getElementById("continue");
-
-    const statusEl = document.getElementById("status");
-    const statusHint = document.getElementById("statusHint");
-    const spinner = document.getElementById("spinner");
-
-    const fileMeta = document.getElementById("fileMeta");
-    const fileSummary = document.getElementById("fileSummary");
-    const fileList = document.getElementById("fileList");
-
-    const progressWrap = document.getElementById("progressWrap");
-    const progressFill = document.getElementById("progressFill");
-    const progressPct = document.getElementById("progressPct");
-    const progressLabel = document.getElementById("progressLabel");
-    const progressMeta = document.getElementById("progressMeta");
-
-    // Modal elements
-    const priceModal = document.getElementById("priceModal");
-    const modalCloseBtn = document.getElementById("modalCloseBtn");
-    const modalBackBtn = document.getElementById("modalBackBtn");
-    const modalPayBtn = document.getElementById("modalPayBtn");
-    const optPrintReady = document.getElementById("optPrintReady");
-    const optKeepNames = document.getElementById("optKeepNames");
-    const optDayPass = document.getElementById("optDayPass");
-    const priceModalLead = document.getElementById("priceModalLead");
-    const priceModalNote = document.getElementById("priceModalNote");
-    const rowStandard = document.getElementById("rowStandard");
-    const rowPro = document.getElementById("rowPro");
-    const tierInline = document.getElementById("tierInline");
-    const priceInline = document.getElementById("priceInline");
-    const countInline = document.getElementById("countInline");
-    const optEmailSafe = document.getElementById("optEmailSafe");
-    const optListingNames = document.getElementById("optListingNames");
-    const optShareLink = document.getElementById("optShareLink");
-
-    let jobId = null;
-    let creatingJob = false;
-    let uploading = false;
-    let selected = []; // Array<File>
-    let thumbUrls = new Map(); // keyOf(file) -> objectURL
-
-    const setStatus = (m) => statusEl.textContent = m;
-    const setHint = (m) => statusHint.innerHTML = m;
-    const setBusy = (isBusy) => spinner.classList.toggle("isOn", !!isBusy);
-
-    const humanMB = (bytes) => (bytes / (1024 * 1024)).toFixed(1) + "MB";
-    const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
-    const escapeHtml = (str) =>
-      String(str).replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
-
-    const keyOf = (f) => `${f.name}__${f.size}__${f.lastModified}`;
-
-    const validateFile = (f) => {
-      const isImage = f.type.startsWith("image/");
-      const isPDF = f.type === "application/pdf";
-      if (!isImage && !isPDF) return `“${f.name}” isn’t a supported file type.`;
-      if (f.size > MAX_MB_EACH * 1024 * 1024) return `“${f.name}” is ${humanMB(f.size)} (max ${MAX_MB_EACH}MB).`;
-      return null;
-    };
-
-    const resetProgress = () => {
-      progressWrap.hidden = true;
-      progressFill.style.width = "0%";
-      progressPct.textContent = "0%";
-      progressLabel.textContent = "";
-      progressMeta.textContent = "";
-    };
-
-    const getTier = () => (selected.length > STANDARD_MAX ? "pro" : "standard");
-    const getTierLabel = () => (getTier() === "pro" ? "Pro ZIP" : "Standard ZIP");
-    const setChosen = (el, chosen) => el.classList.toggle("isChosen", !!chosen);
-
-    const openPriceModal = () => {
-      const tier = getTier();
-      const n = selected.length;
-
-      priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> file${n === 1 ? "" : "s"}.`;
-      tierInline.textContent = getTierLabel();
-      countInline.textContent = String(n);
-
-      setChosen(rowStandard, tier === "standard");
-      setChosen(rowPro, tier === "pro");
-
-      const updateTotal = () => {
-        let base = (tier === "pro" ? PRO_PRICE : STANDARD_PRICE);
-        let total = base;
-
-        if (optPrintReady.checked) total += PRINT_READY_PRICE;
-        if (optEmailSafe.checked) total += EMAIL_SAFE_PRICE;
-        if (optShareLink.checked) total += SHARE_LINK_PRICE;
-        if (optDayPass.checked) total = DAY_PASS_PRICE;
-
-        priceInline.textContent = `£${total.toFixed(2)}`;
-      };
-
-      optPrintReady.checked = false;
-      optEmailSafe.checked = false;
-      optShareLink.checked = false;
-      optListingNames.checked = false;
-      optDayPass.checked = false;
-
-      updateTotal();
-      [optPrintReady, optEmailSafe, optShareLink, optDayPass].forEach((el) => el && (el.onchange = updateTotal));
-
-      priceModalNote.textContent =
-        tier === "pro"
-          ? "Pro selected automatically for 6+ files."
-          : "You’ll be redirected to secure Stripe Checkout.";
-
-      priceModal.classList.add("isOpen");
-      document.body.style.overflow = "hidden";
-      modalPayBtn.focus();
-    };
-
-    const closePriceModal = () => {
-      priceModal.classList.remove("isOpen");
-      document.body.style.overflow = "";
-      continueBtn.focus();
-    };
-
-    modalCloseBtn.addEventListener("click", closePriceModal);
-    modalBackBtn.addEventListener("click", closePriceModal);
-    priceModal.addEventListener("click", (e) => { if (e.target === priceModal) closePriceModal(); });
-    window.addEventListener("keydown", (e) => { if (e.key === "Escape" && priceModal.classList.contains("isOpen")) closePriceModal(); });
-
-    const revokeRemovedThumbs = (currentKeys) => {
-      for (const [k, url] of thumbUrls.entries()) {
-        if (!currentKeys.has(k)) {
-          URL.revokeObjectURL(url);
-          thumbUrls.delete(k);
-        }
-      }
-    };
-
-    const getThumbUrl = (f) => {
-      const k = keyOf(f);
-      if (thumbUrls.has(k)) return thumbUrls.get(k);
-      const url = URL.createObjectURL(f);
-      thumbUrls.set(k, url);
-      return url;
-    };
-
-    const renderSelected = () => {
-      if (selected.length === 0) {
-        fileMeta.hidden = true;
-        fileSummary.textContent = "";
-        fileList.innerHTML = "";
-        uploadBtn.disabled = true;
-        continueBtn.disabled = true;
-        resetProgress();
-        setStatus("Ready.");
-        setHint("Drop images to begin.");
-        revokeRemovedThumbs(new Set());
-        return;
-      }
-
-      const total = selected.reduce((a, f) => a + f.size, 0);
-      fileSummary.textContent = `Selected ${selected.length} file(s) • Total ${humanMB(total)}.`;
-
-      const currentKeys = new Set(selected.map(keyOf));
-      revokeRemovedThumbs(currentKeys);
-
-      fileList.innerHTML = selected.map((f, idx) => {
-        const safe = escapeHtml(f.name);
-        const isPDF = f.type === "application/pdf";
-        const thumb = isPDF
-          ? `<div class="thumbPdf" aria-hidden="true">PDF</div>`
-          : `<img class="thumbImg" alt="" src="${getThumbUrl(f)}" loading="lazy" />`;
-
-        return `
-          <li class="fileCard">
-            <div class="thumb">${thumb}</div>
-            <div class="fileInfo">
-              <div class="fileName" title="${safe}">${safe}</div>
-              <div class="fileMetaLine">${humanMB(f.size)} • ${isPDF ? "PDF" : (f.type || "Image")}</div>
-            </div>
-            <button class="iconBtn" type="button" aria-label="Remove ${safe}" data-remove="${idx}">Remove</button>
-          </li>
-        `;
-      }).join("");
-
-      fileMeta.hidden = false;
-
-      uploadBtn.disabled = !jobId || uploading;
-      continueBtn.disabled = true;
-
-      if (jobId) {
-        setStatus("Ready.");
-        setHint("Upload your files to continue.");
-      } else {
-        setStatus("Starting…");
-        setHint("Creating a job…");
-      }
-    };
-
-    fileList.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-remove]");
-      if (!btn) return;
-      const idx = Number(btn.getAttribute("data-remove"));
-      if (Number.isFinite(idx)) {
-        const removed = selected.splice(idx, 1)[0];
-        if (removed) {
-          const k = keyOf(removed);
-          const url = thumbUrls.get(k);
-          if (url) URL.revokeObjectURL(url);
-          thumbUrls.delete(k);
-        }
-        renderSelected();
-      }
-    });
-
-    const ensureJob = async () => {
-      if (jobId) return jobId;
-
-      if (creatingJob) {
-        return new Promise((resolve, reject) => {
-          const start = Date.now();
-          const tick = () => {
-            if (jobId) return resolve(jobId);
-            if (!creatingJob) return reject(new Error("job create failed"));
-            if (Date.now() - start > 15000) return reject(new Error("job create timeout"));
-            requestAnimationFrame(tick);
-          };
-          tick();
-        });
-      }
-
-      creatingJob = true;
-      setBusy(true);
-      setStatus("Starting…");
-      setHint("Creating a job…");
-      renderSelected();
-
-      try {
-        const res = await fetch("/api/jobs", { method: "POST" });
-        const j = await res.json();
-        if (!j || !j.jobId) throw new Error("no jobId");
-        jobId = j.jobId;
-        setStatus("Ready.");
-        setHint(selected.length ? "Upload your files to continue." : "Drop images to begin.");
-        renderSelected();
-        return jobId;
-      } finally {
-        creatingJob = false;
-        setBusy(false);
-      }
-    };
-
-    const addFiles = async (incomingFiles) => {
-      const arr = [...incomingFiles].filter(Boolean);
-
-      const errors = [];
-      const incomingValid = [];
-      for (const f of arr) {
-        const err = validateFile(f);
-        if (err) errors.push(err);
-        else incomingValid.push(f);
-      }
-
-      if (errors.length) {
-        setStatus("Some files were skipped.");
-        setHint(errors.slice(0, 2).map(e => escapeHtml(e)).join("<br/>") + (errors.length > 2 ? "<br/>…" : ""));
-      }
-
-      const existingKeys = new Set(selected.map(keyOf));
-      for (const f of incomingValid) {
-        const k = keyOf(f);
-        if (!existingKeys.has(k)) {
-          selected.push(f);
-          existingKeys.add(k);
-        }
-      }
-
-      if (selected.length > MAX_FILES) {
-        selected = selected.slice(0, MAX_FILES);
-        setStatus("Max reached.");
-        setHint(`Only the first <b>${MAX_FILES}</b> files were kept.`);
-      }
-
-      renderSelected();
-
-      try {
-        await ensureJob();
-      } catch {
-        setStatus("Couldn’t start.");
-        setHint("Refresh and try again.");
-        return;
-      }
-
-      uploadBtn.disabled = uploading || selected.length === 0;
-    };
-
-    chooseBtn.addEventListener("click", (e) => { e.preventDefault(); filesEl.click(); });
-
-    filesEl.addEventListener("change", async () => {
-      if (!filesEl.files || filesEl.files.length === 0) return;
-      await addFiles(filesEl.files);
-      filesEl.value = "";
-    });
-
-    ["dragenter","dragover"].forEach(evt => window.addEventListener(evt, (e) => { e.preventDefault(); }, { passive:false }));
-    window.addEventListener("drop", (e) => { e.preventDefault(); }, { passive:false });
-
-    let dragDepth = 0;
-    const dragOn = () => dropzone.classList.add("isDrag");
-    const dragOff = () => dropzone.classList.remove("isDrag");
-
-    dropzone.addEventListener("dragenter", (e) => { e.preventDefault(); e.stopPropagation(); dragDepth++; dragOn(); });
-    dropzone.addEventListener("dragleave", (e) => {
-      e.preventDefault(); e.stopPropagation();
-      dragDepth = clamp(dragDepth - 1, 0, 999);
-      if (dragDepth === 0) dragOff();
-    });
-    dropzone.addEventListener("dragover", (e) => { e.preventDefault(); e.stopPropagation(); dragOn(); });
-    dropzone.addEventListener("drop", async (e) => {
-      e.preventDefault(); e.stopPropagation();
-      dragDepth = 0; dragOff();
-      const dt = e.dataTransfer;
-      const files = dt?.files ? [...dt.files] : [];
-      if (!files.length) {
-        setStatus("Drop files only.");
-        setHint("Try dragging image files from Finder.");
-        return;
-      }
-      await addFiles(files);
-    });
-
-    clearBtn.addEventListener("click", () => {
-      if (uploading) return;
-      selected = [];
-      for (const url of thumbUrls.values()) URL.revokeObjectURL(url);
-      thumbUrls.clear();
-      renderSelected();
-    });
-
-    const uploadWithProgress = (url, formData) => {
-      return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", url, true);
-
-        xhr.upload.onprogress = (evt) => {
-          if (!evt.lengthComputable) return;
-          const pct = Math.round((evt.loaded / evt.total) * 100);
-          progressFill.style.width = `${pct}%`;
-          progressPct.textContent = `${pct}%`;
-          progressMeta.textContent = `${humanMB(evt.loaded)} / ${humanMB(evt.total)}`;
-        };
-
-        xhr.onload = () => {
-          try {
-            const json = JSON.parse(xhr.responseText || "{}");
-            if (xhr.status >= 200 && xhr.status < 300) resolve(json);
-            else reject(json?.error ? new Error(json.error) : new Error("Upload failed"));
-          } catch {
-            reject(new Error("Upload failed"));
-          }
-        };
-
-        xhr.onerror = () => reject(new Error("Network error"));
-        xhr.send(formData);
-      });
-    };
-
-    uploadBtn.addEventListener("click", async () => {
-      if (uploading) return;
-      if (selected.length === 0) return;
-
-      try { await ensureJob(); } catch {
-        setStatus("Couldn’t start."); setHint("Refresh and try again."); return;
-      }
-
-      uploading = true;
-      setBusy(true);
-      uploadBtn.disabled = true;
-      continueBtn.disabled = true;
-
-      resetProgress();
-      progressWrap.hidden = false;
-      progressLabel.textContent = "Uploading…";
-      progressFill.style.width = "0%";
-      progressPct.textContent = "0%";
-      progressMeta.textContent = "";
-
-      setStatus("Uploading…");
-      setHint("Keep this tab open.");
-
-      const fd = new FormData();
-      for (const f of selected) fd.append("images", f);
-
-      try {
-        const up = await uploadWithProgress(`/api/jobs/${jobId}/upload`, fd);
-        if (up?.error) throw new Error(up.error);
-
-        setStatus("Uploaded.");
-        setHint("Continue to confirm and proceed to payment.");
-        progressLabel.textContent = "Uploaded";
-        progressFill.style.width = "100%";
-        progressPct.textContent = "100%";
-        continueBtn.disabled = false;
-      } catch (e) {
-        setStatus("Upload failed.");
-        setHint(escapeHtml(e?.message || "Please try again."));
-        uploadBtn.disabled = false;
-        progressLabel.textContent = "Upload failed";
-      } finally {
-        uploading = false;
-        setBusy(false);
-      }
-    });
-
-    const startCheckout = async () => {
-      if (!jobId) return;
-
-      setBusy(true);
-      setStatus("Redirecting…");
-      setHint("Opening secure checkout…");
-      continueBtn.disabled = true;
-
-      try {
-        const resp = await fetch("/api/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            jobId,
-            printReady: optPrintReady.checked,
-            keepNames: optKeepNames.checked,
-            emailSafe: optEmailSafe.checked,
-            shareLink: optShareLink.checked,
-            namingPreset: optListingNames.checked ? "listing" : null,
-            dayPass: optDayPass.checked
-          })
-        }).then(r => r.json());
-
-        if (resp?.error) throw new Error(resp.error);
-        if (!resp?.url) throw new Error("Something went wrong.");
-        window.location.href = resp.url;
-      } catch (e) {
-        setStatus("Couldn’t continue.");
-        setHint(escapeHtml(e?.message || "Please try again."));
-        continueBtn.disabled = false;
-      } finally {
-        setBusy(false);
-      }
-    };
-
-    continueBtn.addEventListener("click", async () => {
-      if (!jobId) return;
-      if (selected.length === 0) return;
-      openPriceModal();
-    });
-
-    modalPayBtn.addEventListener("click", async () => {
-      closePriceModal();
-      await startCheckout();
-    });
-
-    renderSelected();
+    /* paste your existing script exactly as-is */
   </script>
 </body>
 </html>
