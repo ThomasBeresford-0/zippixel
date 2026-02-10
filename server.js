@@ -1,4 +1,4 @@
-// server.js — ZipPixel (v13 MONEY MODE / RENDER SAFE)
+// server.js — ZipPixel (RENDER-SAFE MONEY MODE v13)
 require("dotenv").config();
 
 const express = require("express");
@@ -22,53 +22,47 @@ const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 const app = express();
 
-/* ======================================================
-   BASIC CONFIG
-====================================================== */
 const PORT = process.env.PORT || 4242;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 const PUBLIC_DIR = path.join(__dirname, "public");
 
-/* ======================================================
-   PRICING
-====================================================== */
+// ================= PRICING =================
 const STANDARD_PRICE_GBP_PENCE = Number(process.env.STANDARD_PRICE_GBP_PENCE || 299);
 const SHARE_LINK_UPSELL_PENCE = 249;
 
-/* ======================================================
-   STRIPE
-====================================================== */
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_dummy");
+// ================= STRIPE =================
+if (!process.env.STRIPE_SECRET_KEY) {
+  console.error("❌ STRIPE_SECRET_KEY missing");
+  process.exit(1);
+}
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-/* ======================================================
-   R2 (DO NOT CRASH ON BOOT)
-====================================================== */
-const R2_BUCKET = process.env.CF_R2_BUCKET;
+// ================= R2 =================
+const REQUIRED_R2_ENVS = [
+  "CF_ACCOUNT_ID",
+  "CF_R2_BUCKET",
+  "CF_R2_ACCESS_KEY_ID",
+  "CF_R2_SECRET_ACCESS_KEY",
+];
 
-const hasR2 =
-  process.env.CF_ACCOUNT_ID &&
-  process.env.CF_R2_ACCESS_KEY_ID &&
-  process.env.CF_R2_SECRET_ACCESS_KEY &&
-  R2_BUCKET;
+for (const k of REQUIRED_R2_ENVS) {
+  if (!process.env[k]) {
+    console.error(`❌ Missing env: ${k}`);
+    process.exit(1);
+  }
+}
 
-const r2 = hasR2
-  ? new S3Client({
-      region: "auto",
-      endpoint: `https://${process.env.CF_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-      credentials: {
-        accessKeyId: process.env.CF_R2_ACCESS_KEY_ID,
-        secretAccessKey: process.env.CF_R2_SECRET_ACCESS_KEY,
-      },
-    })
-  : null;
+const r2 = new S3Client({
+  region: "auto",
+  endpoint: `https://${process.env.CF_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.CF_R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.CF_R2_SECRET_ACCESS_KEY,
+  },
+});
 
-const requireR2 = () => {
-  if (!r2) throw new Error("R2 not configured");
-};
-
-/* ======================================================
-   JOB STORE (IN-MEMORY MVP)
-====================================================== */
+// ================= JOB STORE =================
+// MVP: in-memory (OK for now)
 const jobs = new Map();
 
 const newId = () => `job_${crypto.randomBytes(8).toString("hex")}`;
@@ -105,41 +99,29 @@ const makeUniqueName = (desired, used) => {
   return candidate;
 };
 
-/* ======================================================
-   PAYMENT CHECK (SAFE)
-====================================================== */
+// ================= PAYMENT CHECK =================
 async function ensurePaid(job) {
   if (job.status === "PAID") return true;
 
-  if (job.checkoutSessionId && process.env.STRIPE_SECRET_KEY) {
-    const session = await stripe.checkout.sessions.retrieve(job.checkoutSessionId);
-    if (session.payment_status === "paid") {
-      job.status = "PAID";
-      return true;
-    }
+  if (!job.checkoutSessionId) return false;
+
+  const session = await stripe.checkout.sessions.retrieve(job.checkoutSessionId);
+  if (session.payment_status === "paid") {
+    job.status = "PAID";
+    return true;
   }
   return false;
 }
 
-/* ======================================================
-   SECURITY / MIDDLEWARE
-====================================================== */
+// ================= SECURITY =================
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(rateLimit({ windowMs: 60_000, max: 120 }));
 
-// Stripe webhook MUST come before express.json
+// Stripe webhook MUST be raw
 app.post("/webhook", express.raw({ type: "application/json" }), webhookHandler);
-
 app.use(express.json({ limit: "1mb" }));
 
-/* ======================================================
-   HEALTH (RENDER NEEDS THIS)
-====================================================== */
-app.get("/health", (_, res) => res.json({ ok: true }));
-
-/* ======================================================
-   STATIC
-====================================================== */
+// ================= STATIC =================
 app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
 
 ["/", "/success", "/cancel", "/privacy", "/terms", "/pricing"].forEach((route) => {
@@ -150,9 +132,7 @@ app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
   );
 });
 
-/* ======================================================
-   JOB CREATE
-====================================================== */
+// ================= JOB CREATE =================
 app.post("/api/jobs", (_, res) => {
   const jobId = newId();
   jobs.set(jobId, {
@@ -168,14 +148,10 @@ app.post("/api/jobs", (_, res) => {
   res.json({ jobId });
 });
 
-/* ======================================================
-   PRESIGNED UPLOAD
-====================================================== */
+// ================= PRESIGNED UPLOAD =================
 app.post("/api/upload-url", async (req, res) => {
   try {
-    requireR2();
-
-    const { jobId, filename, type } = req.body;
+    const { jobId, filename, type } = req.body || {};
     getJob(jobId);
 
     const key = `${jobId}/${Date.now()}_${sanitizeName(filename)}`;
@@ -183,7 +159,7 @@ app.post("/api/upload-url", async (req, res) => {
     const url = await getSignedUrl(
       r2,
       new PutObjectCommand({
-        Bucket: R2_BUCKET,
+        Bucket: process.env.CF_R2_BUCKET,
         Key: key,
         ContentType: type || "application/octet-stream",
       }),
@@ -196,23 +172,19 @@ app.post("/api/upload-url", async (req, res) => {
   }
 });
 
-/* ======================================================
-   REGISTER FILES
-====================================================== */
+// ================= REGISTER FILES =================
 app.post("/api/jobs/:jobId/register", (req, res) => {
   try {
     const job = getJob(req.params.jobId);
-    job.files = req.body.files || [];
+    job.files = Array.isArray(req.body.files) ? req.body.files : [];
     job.status = "UPLOADED";
-    res.json({ ok: true });
+    res.json({ ok: true, count: job.files.length });
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
 });
 
-/* ======================================================
-   CHECKOUT
-====================================================== */
+// ================= CHECKOUT =================
 app.post("/api/checkout", async (req, res) => {
   try {
     const { jobId, shareLink } = req.body;
@@ -251,17 +223,14 @@ app.post("/api/checkout", async (req, res) => {
   }
 });
 
-/* ======================================================
-   SHARE META
-====================================================== */
+// ================= SHARE META =================
 app.get("/api/share/:token", async (req, res) => {
   const job = [...jobs.values()].find((j) => j.shareToken === req.params.token);
   if (!job) return res.status(404).json({ error: "Not found" });
-  if (!(await ensurePaid(job))) return res.status(404).json({ error: "Not found" });
 
-  if (job.shareExpiresAt && Date.now() > job.shareExpiresAt) {
+  if (!(await ensurePaid(job))) return res.status(404).json({ error: "Not found" });
+  if (job.shareExpiresAt && Date.now() > job.shareExpiresAt)
     return res.status(410).json({ error: "Expired" });
-  }
 
   res.json({
     jobId: job.jobId,
@@ -271,20 +240,19 @@ app.get("/api/share/:token", async (req, res) => {
   });
 });
 
-/* ======================================================
-   DOWNLOAD
-====================================================== */
+// ================= DOWNLOAD =================
 app.get("/api/download/:jobId", async (req, res) => {
   try {
-    requireR2();
-
     const job = getJob(req.params.jobId);
     if (!(await ensurePaid(job))) return res.status(402).send("Not paid");
 
     job.downloadCount++;
 
     res.setHeader("Content-Type", "application/zip");
-    res.setHeader("Content-Disposition", `attachment; filename="zippixel.zip"`);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="zippixel_${Date.now()}.zip"`
+    );
 
     const archive = archiver("zip", { zlib: { level: 9 } });
     archive.pipe(res);
@@ -294,7 +262,7 @@ app.get("/api/download/:jobId", async (req, res) => {
     for (const f of job.files) {
       const obj = await r2.send(
         new GetObjectCommand({
-          Bucket: R2_BUCKET,
+          Bucket: process.env.CF_R2_BUCKET,
           Key: f.key,
         })
       );
@@ -310,12 +278,11 @@ app.get("/api/download/:jobId", async (req, res) => {
   }
 });
 
-/* ======================================================
-   SHARE PAGE
-====================================================== */
+// ================= SHARE PAGE =================
 app.get("/s/:token", async (req, res) => {
   const job = [...jobs.values()].find((j) => j.shareToken === req.params.token);
   if (!job) return res.status(404).send("Not found");
+
   if (!(await ensurePaid(job))) return res.status(404).send("Not found");
   if (job.shareExpiresAt && Date.now() > job.shareExpiresAt)
     return res.status(410).send("Link expired");
@@ -323,31 +290,21 @@ app.get("/s/:token", async (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, "share.html"));
 });
 
-/* ======================================================
-   WEBHOOK
-====================================================== */
+// ================= WEBHOOK =================
 function webhookHandler(req, res) {
   try {
-    const event = stripe.webhooks.constructEvent(
+    stripe.webhooks.constructEvent(
       req.body,
       req.headers["stripe-signature"],
       process.env.STRIPE_WEBHOOK_SECRET
     );
-
-    if (event.type === "checkout.session.completed") {
-      // confirmed lazily by ensurePaid
-    }
-
     res.json({ received: true });
   } catch (e) {
     res.status(400).send(e.message);
   }
 }
 
-/* ======================================================
-   START
-====================================================== */
+// ================= START =================
 app.listen(PORT, () => {
   console.log(`🚀 ZipPixel running at ${BASE_URL}`);
-  console.log(`R2 configured: ${!!r2}`);
 });
