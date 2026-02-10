@@ -248,13 +248,20 @@
 
     try {
       const res = await fetch("/api/jobs", { method: "POST" });
+      if (!res.ok) throw new Error("Failed to create job");
       const j = await res.json();
-      if (!j || !j.jobId) throw new Error("No jobId returned");
+      if (!j?.jobId) throw new Error("No jobId returned");
+
       jobId = j.jobId;
       setStatus("Ready.");
       setHint(selected.length ? "Upload your files to continue." : "Drop files to begin.");
       renderSelected();
       return jobId;
+    } catch (err) {
+      setStatus("Couldn’t start.");
+      setHint("Refresh and try again.");
+      renderSelected();
+      throw err;
     } finally {
       creatingJob = false;
       setBusy(false);
@@ -421,7 +428,6 @@
       if (up?.error) throw new Error(up.error);
 
       setStatus("Uploaded.");
-      // Seed the upsell *before* checkout
       setHint(`Uploaded. Continue to confirm and proceed to payment.<br/><span style="color: rgba(11,18,32,.56)">Tip: add a shareable link at checkout to send this to a client.</span>`);
       if (progressLabel) progressLabel.textContent = "Uploaded";
       if (progressFill) progressFill.style.width = "100%";
@@ -473,27 +479,59 @@
     if (optPrintReady) optPrintReady.checked = false;
     if (optEmailSafe) optEmailSafe.checked = false;
     if (optShareLink) optShareLink.checked = true;
+    if (optKeepNames) optKeepNames.checked = false;
     if (optListingNames) optListingNames.checked = false;
     if (optDayPass) optDayPass.checked = false;
+
+    // Mutually exclusive naming (avoid “keep names didn’t work” confusion)
+    const normalizeNaming = () => {
+      if (optListingNames?.checked) {
+        if (optKeepNames) optKeepNames.checked = false;
+      }
+      if (optKeepNames?.checked) {
+        if (optListingNames) optListingNames.checked = false;
+      }
+    };
+
+    // Day pass: disable other paid toggles (UX clarity)
+    const setPaidDisabled = (disabled) => {
+      [optPrintReady, optEmailSafe, optShareLink].forEach((el) => {
+        if (!el) return;
+        el.disabled = disabled;
+      });
+    };
 
     // If day pass is checked, auto-uncheck other paid add-ons (keeps totals clean)
     const normalizePaidOptions = () => {
       if (!optDayPass) return;
-      if (optDayPass.checked) {
+      const on = !!optDayPass.checked;
+
+      setPaidDisabled(on);
+
+      if (on) {
         if (optPrintReady) optPrintReady.checked = false;
         if (optEmailSafe) optEmailSafe.checked = false;
         if (optShareLink) optShareLink.checked = true; // keep share link on (it’s the point)
       }
     };
 
+    normalizeNaming();
     normalizePaidOptions();
     updateTotal();
 
+    // Bind change handlers
     [optPrintReady, optEmailSafe, optShareLink, optDayPass].forEach((el) => {
       if (!el) return;
       el.onchange = () => {
         normalizePaidOptions();
         updateTotal();
+      };
+    });
+
+    [optKeepNames, optListingNames].forEach((el) => {
+      if (!el) return;
+      el.onchange = () => {
+        normalizeNaming();
       };
     });
 
