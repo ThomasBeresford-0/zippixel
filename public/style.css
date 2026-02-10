@@ -392,11 +392,17 @@ p{ margin:0; }
   place-items:center;
 }
 .thumbImg{ width:100%; height:100%; object-fit:cover; }
+
+/* Generic badge (PDF + other file types use the same component) */
 .thumbPdf{
   font-size: 11px;
   font-weight: 900;
-  color: rgba(11,18,32,.68);
-  letter-spacing: .06em;
+  color: rgba(11,18,32,.74);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 0 6px;
+  text-align: center;
+  line-height: 1.1;
 }
 
 .fileInfo{ min-width:0; flex:1; }
@@ -494,6 +500,54 @@ p{ margin:0; }
   text-align: center;
 }
 .fineprint a{ text-decoration: underline; text-underline-offset: 2px; }
+
+/* =========================
+   Success page (v13)
+   - "Share link" box styling used by success.html
+========================= */
+.successActions{
+  margin-top: 14px;
+  display:grid;
+  gap: 12px;
+}
+
+.shareBox{
+  border: 1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.92);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: var(--sh-0);
+}
+.shareLabel{
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.shareRow{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+}
+.shareInput{
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(15,23,42,.14);
+  background: #fff;
+  font-weight: 800;
+  color: rgba(11,18,32,.92);
+}
+.shareInput:focus{
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+.shareHint{
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(11,18,32,.56);
+}
 
 /* =========================
    Sections (below fold)
@@ -750,6 +804,8 @@ details p{
     margin-top: 10px;
     pointer-events:auto;
   }
+
+  .shareRow{ flex-direction: column; align-items: stretch; }
 }
 
 /* =========================
@@ -1025,4 +1081,86 @@ details p{
   .modalOverlay{ padding: 12px; }
   .modalCard{ margin: 12px auto; max-height: calc(100vh - 24px); }
   .modalBody{ max-height: calc(100vh - 24px - 60px - 68px); }
+}
+
+/* =========================
+   Success page (compat layer)
+   - Supports success.html classnames you’re already using
+   - Aligns with v13 legalPage look
+========================= */
+
+/* Map success.html "legal" layout to v13 legal styles */
+.legal{
+  width: min(860px, 100%);
+  margin: 0 auto;
+}
+.legal__head{
+  text-align: center;
+  margin: 0 auto 14px;
+}
+.legal__title{
+  margin: 0 0 6px;
+  font-size: clamp(28px, 3.2vw, 40px);
+  letter-spacing: -0.045em;
+  line-height: 1.12;
+}
+.legal__meta{
+  margin: 0;
+  color: rgba(11,18,32,.60);
+  font-size: 13px;
+}
+.legal__card{
+  border: 1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.96);
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: var(--sh-2);
+}
+
+/* The “Payment confirmed” success block */
+.successBox{
+  display:flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(2,6,23,.10);
+  background: rgba(2,6,23,.02);
+}
+.successIcon{
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display:grid;
+  place-items:center;
+  font-size: 18px;
+  background: rgba(37,99,235,.10);
+  border: 1px solid rgba(37,99,235,.18);
+}
+.successTitle{
+  font-weight: 950;
+  letter-spacing: -0.02em;
+}
+.successDesc{
+  margin-top: 4px;
+  color: rgba(11,18,32,.66);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* Make actions stack nicely (success.html renders dynamic buttons) */
+.successActions{
+  margin-top: 14px;
+  display:grid;
+  gap: 10px;
+}
+.successActions .btn{
+  width: 100%;
+}
+
+/* On wider screens, keep main CTA first but don’t force full width */
+@media (min-width: 720px){
+  .successActions .btn{
+    width: auto;
+  }
 }

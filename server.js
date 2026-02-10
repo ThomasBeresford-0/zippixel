@@ -43,7 +43,9 @@ app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
 
 ["/", "/success", "/cancel", "/privacy", "/terms", "/pricing"].forEach((route) => {
   app.get(route, (req, res) =>
-    res.sendFile(path.join(PUBLIC_DIR, route === "/" ? "index.html" : `${route.slice(1)}.html`))
+    res.sendFile(
+      path.join(PUBLIC_DIR, route === "/" ? "index.html" : `${route.slice(1)}.html`)
+    )
   );
 });
 
@@ -78,7 +80,7 @@ const getJob = (id) => {
 
 const sanitizeName = (name) =>
   String(name || "file")
-    .replace(/[/\\?%*:|"<>]/g, "_") // Windows-invalid chars + slash
+    .replace(/[/\\?%*:|"<>]/g, "_")
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 160) || "file";
@@ -103,9 +105,41 @@ const makeUniqueName = (desired, used) => {
   return candidate;
 };
 
+// ====== PAID / READY HELPERS ======
+const STRIPE_CHECK_COOLDOWN_MS = 2000;
+
+async function ensurePaid(job) {
+  // Day pass counts as paid
+  if (job.dayPassUntil && job.dayPassUntil > Date.now()) {
+    job.status = "PAID";
+    return true;
+  }
+
+  if (job.status === "PAID") return true;
+
+  // If we have a session, check Stripe (cooldown to avoid repeated API calls)
+  if (job.checkoutSessionId) {
+    const now = Date.now();
+    if (job.lastStripeCheckAt && now - job.lastStripeCheckAt < STRIPE_CHECK_COOLDOWN_MS) {
+      return job.lastStripePaid === true;
+    }
+
+    job.lastStripeCheckAt = now;
+
+    const s = await stripe.checkout.sessions.retrieve(job.checkoutSessionId);
+    const paid = s.payment_status === "paid";
+
+    job.lastStripePaid = paid;
+    if (paid) job.status = "PAID";
+
+    return paid;
+  }
+
+  return false;
+}
+
 // ====== UPLOAD ======
 // Allow ANY file type. Enforce count & size limits.
-// Note: multer may set mimetype to application/octet-stream for unknown types — that's fine.
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, _, cb) => {
@@ -114,12 +148,13 @@ const upload = multer({
       cb(null, dir);
     },
     filename: (_, file, cb) => {
-      const safe = sanitizeName(file.originalname).replace(/[^a-z0-9.\-_ ]/gi, "_").replace(/\s/g, "_");
+      const safe = sanitizeName(file.originalname)
+        .replace(/[^a-z0-9.\-_ ]/gi, "_")
+        .replace(/\s/g, "_");
       cb(null, `${Date.now()}_${safe}`);
     },
   }),
   limits: { files: PRO_MAX, fileSize: 25 * 1024 * 1024 },
-  // Accept anything
   fileFilter: (_, __, cb) => cb(null, true),
 });
 
@@ -140,6 +175,10 @@ app.post("/api/jobs", (_, res) => {
     },
     shareToken: null,
     dayPassUntil: null,
+
+    // Stripe polling guard
+    lastStripeCheckAt: null,
+    lastStripePaid: false,
   });
   res.json({ jobId });
 });
@@ -149,8 +188,7 @@ app.post("/api/jobs/:jobId/upload", upload.array("images", PRO_MAX), (req, res) 
     const job = getJob(req.params.jobId);
     if (!req.files?.length) throw new Error("No files");
 
-    // Replace existing uploaded files for this job (prevents “append forever” if user re-uploads)
-    // If you prefer additive uploads, remove this block.
+    // Replace existing uploaded files for this job (prevents append-forever)
     if (job.files.length) {
       try {
         const dir = path.join(UPLOAD_DIR, req.params.jobId);
@@ -236,6 +274,7 @@ app.post("/api/checkout", async (req, res) => {
   }
 });
 
+// Paid-only info (legacy; keep if you want)
 app.get("/api/job/:jobId", (req, res) => {
   try {
     const job = getJob(req.params.jobId);
@@ -249,8 +288,40 @@ app.get("/api/job/:jobId", (req, res) => {
       options: job.options,
       shareToken: job.shareToken || null,
     });
-  } catch (e) {
+  } catch {
     res.status(404).json({ error: "Not found" });
+  }
+});
+
+// ====== READY (fast, no ZIP streaming) ======
+app.get("/api/ready/:jobId", async (req, res) => {
+  try {
+    const job = getJob(req.params.jobId);
+    const paid = await ensurePaid(job);
+
+    if (paid && job.options?.shareLink && !job.shareToken) {
+      job.shareToken = newShareToken();
+    }
+
+    res.json({
+      ready: paid,
+      paid,
+      shareToken: paid ? (job.shareToken || null) : null,
+    });
+  } catch {
+    res.status(404).json({ error: "Not found" });
+  }
+});
+
+// Optional fast probe (no streaming)
+app.head("/api/download/:jobId", async (req, res) => {
+  try {
+    const job = getJob(req.params.jobId);
+    const paid = await ensurePaid(job);
+    if (!paid) return res.status(402).end();
+    return res.status(200).end();
+  } catch {
+    return res.status(404).end();
   }
 });
 
@@ -259,16 +330,8 @@ app.get("/api/download/:jobId", async (req, res) => {
   try {
     const job = getJob(req.params.jobId);
 
-    if (job.dayPassUntil && job.dayPassUntil > Date.now()) {
-      job.status = "PAID";
-    }
-
-    if (job.status !== "PAID" && job.checkoutSessionId) {
-      const s = await stripe.checkout.sessions.retrieve(job.checkoutSessionId);
-      if (s.payment_status === "paid") job.status = "PAID";
-    }
-
-    if (job.status !== "PAID") return res.status(402).send("Not paid");
+    const paid = await ensurePaid(job);
+    if (!paid) return res.status(402).send("Not paid");
 
     if (job.options.shareLink && !job.shareToken) {
       job.shareToken = newShareToken();
@@ -289,11 +352,12 @@ app.get("/api/download/:jobId", async (req, res) => {
       const f = job.files[i];
       const isImage = (f.mimetype || "").startsWith("image/");
 
-      // Images: compress to JPEG as before
+      // Skip missing files rather than killing the whole download
+      if (!f?.path || !fs.existsSync(f.path)) continue;
+
       if (isImage) {
         const quality = job.options.printReady ? 95 : job.options.emailSafe ? 70 : 80;
 
-        // Derive filename
         let name = job.options.keepNames
           ? sanitizeName(f.originalname).replace(/\.[^.]+$/, ".jpg")
           : `image_${String(i + 1).padStart(2, "0")}.jpg`;
@@ -311,7 +375,6 @@ app.get("/api/download/:jobId", async (req, res) => {
 
         archive.append(buf, { name });
       } else {
-        // Non-images: include as-is (no conversion)
         const desired = sanitizeName(f.originalname);
         const name = makeUniqueName(desired, usedNames);
         archive.file(f.path, { name });
@@ -325,10 +388,18 @@ app.get("/api/download/:jobId", async (req, res) => {
 });
 
 // ====== SHARE LINK ======
-app.get("/s/:token", (req, res) => {
-  const job = [...jobs.values()].find((j) => j.shareToken === req.params.token);
-  if (!job || job.status !== "PAID") return res.status(404).send("Not found");
-  res.redirect(`/api/download/${job.jobId}`);
+app.get("/s/:token", async (req, res) => {
+  try {
+    const job = [...jobs.values()].find((j) => j.shareToken === req.params.token);
+    if (!job) return res.status(404).send("Not found");
+
+    const paid = await ensurePaid(job);
+    if (!paid) return res.status(404).send("Not found");
+
+    res.redirect(`/api/download/${job.jobId}`);
+  } catch {
+    res.status(404).send("Not found");
+  }
 });
 
 // ====== WEBHOOK ======
@@ -345,7 +416,9 @@ function webhookHandler(req, res) {
       if (jobId && jobs.has(jobId)) {
         const job = jobs.get(jobId);
         job.status = "PAID";
-        if (job.options.shareLink) job.shareToken = newShareToken();
+        job.lastStripePaid = true;
+        job.lastStripeCheckAt = Date.now();
+        if (job.options.shareLink && !job.shareToken) job.shareToken = newShareToken();
       }
     }
 

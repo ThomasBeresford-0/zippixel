@@ -12,7 +12,6 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <!-- Match the main app CSS version -->
   <link rel="stylesheet" href="/style.css?v=13" />
 </head>
 
@@ -30,6 +29,7 @@
       </a>
 
       <nav class="nav" aria-label="Site">
+        <a href="/">Tool</a>
         <a href="/pricing">Pricing</a>
         <a href="/#faq">FAQ</a>
         <a href="/privacy">Privacy</a>
@@ -37,40 +37,36 @@
       </nav>
 
       <div class="top__cta">
-        <a class="btn btn--soft btn--sm" href="/">Home</a>
+        <a class="btn btn--soft btn--sm" href="/">Back to tool</a>
       </div>
     </div>
   </header>
 
   <main class="page">
     <section class="legalPage">
-      <div class="container legalWrap">
-        <div class="legalHead">
-          <div class="kicker">Payment</div>
-          <h1 class="legalTitle">No worries.</h1>
-          <p class="legalSub">You can return to ZipPixel and continue anytime.</p>
+      <div class="container">
+        <div class="legalHeader">
+          <div class="legalKicker">Payment</div>
+          <h1 class="legalTitle">Checkout cancelled.</h1>
+          <p class="legalMeta">Nothing was charged. You can try again whenever you’re ready.</p>
         </div>
 
         <div class="legalCard">
-          <div class="noticeRow">
-            <div class="noticeIcon" aria-hidden="true">↩️</div>
-            <div class="noticeBody">
-              <div class="noticeTitle">Checkout cancelled</div>
-              <div class="noticeText">
-                Nothing was completed here. Head back and try again when you’re ready.
-              </div>
-            </div>
+          <p class="legalIntro">
+            If you clicked back, closed the tab, or changed your mind — all good.
+            Head back to the tool to upload your files and continue.
+          </p>
+
+          <div class="legalActions">
+            <a class="btn btn--primary" href="/">Try again</a>
+            <a class="btn btn--soft" href="/pricing">View pricing</a>
+            <a class="btn btn--ghost" href="/#faq">Read FAQ</a>
           </div>
 
-          <div class="noticeActions">
-            <a class="btn btn--primary" href="/">Back to ZipPixel</a>
-            <a class="btn btn--soft" href="/#faq">Read FAQ</a>
-          </div>
-
-          <div class="fineprint">
+          <p style="margin-top:14px; color: rgba(11,18,32,.68); font-size: 13px; line-height: 1.6;">
             If something didn’t work as expected, email
             <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
-          </div>
+          </p>
         </div>
       </div>
     </section>

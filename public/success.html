@@ -8,12 +8,10 @@
   <meta name="description" content="Your ZIP is ready. Download your compressed files." />
   <link rel="canonical" href="https://zippixel.it.com/success" />
 
-  <!-- Favicons (match your current files) -->
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <!-- Match v13 system -->
   <link rel="stylesheet" href="/style.css?v=13" />
 </head>
 
@@ -61,17 +59,7 @@
           </div>
         </div>
 
-        <div class="successActions" id="actions">
-          <div id="shareBlock" style="display:none; margin-top:14px;">
-            <div style="font-weight:800; margin-bottom:6px;">Shareable link</div>
-            <input
-              id="shareLink"
-              type="text"
-              readonly
-              style="width:100%; padding:10px; border-radius:10px; border:1px solid #ccc;"
-            />
-          </div>
-        </div>
+        <div class="successActions" id="actions"></div>
 
         <div class="fineprint" id="hint">
           If it says “Not ready yet”, don’t worry — we’ll retry automatically for ~30 seconds.
@@ -104,61 +92,91 @@
     const setActions = (html) => { actions.innerHTML = html; };
 
     const downloadUrl = jobId ? `/api/download/${encodeURIComponent(jobId)}` : "#";
-    const jobInfoUrl = jobId ? `/api/job/${encodeURIComponent(jobId)}` : "#";
+    const readyUrl = jobId ? `/api/ready/${encodeURIComponent(jobId)}` : "#";
 
-    // Missing jobId (edge case)
+    const safeCopy = async (text) => {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch {
+        try {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.setAttribute("readonly", "true");
+          ta.style.position = "fixed";
+          ta.style.left = "-9999px";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          return true;
+        } catch {
+          return false;
+        }
+      }
+    };
+
+    const supportHtml = `Support: <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>`;
+
+    // Edge case: missing jobId
     if (!jobId) {
       sub.textContent = "We couldn’t find your job.";
       desc.textContent = "Open ZipPixel and try again. If this keeps happening, email support.";
-      hint.innerHTML = `Support: <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>`;
+      hint.innerHTML = supportHtml;
       setActions(`
         <a class="btn btn--primary" href="/">Go to ZipPixel</a>
         <a class="btn btn--soft" href="/privacy">Privacy</a>
       `);
     } else {
-      // Strategy:
-      // 1) Probe the download endpoint with a tiny GET (Range: bytes=0-0).
-      //    This avoids relying on HEAD support and avoids downloading the whole ZIP.
-      // 2) If not ready, retry with backoff for ~30 seconds.
-      // 3) Always allow manual retry.
-
       const maxMs = 30000;
       const start = Date.now();
       let attempt = 0;
 
-      const renderReady = async () => {
+      const renderReady = (shareToken) => {
         sub.textContent = "Your ZIP is ready.";
-        desc.textContent = "Download your compressed ZIP below.";
+        desc.textContent = shareToken
+          ? "Download the ZIP, or copy a shareable link to send it to a client."
+          : "Download your ZIP below.";
 
-        let extra = "";
-
-        try {
-          const r = await fetch(jobInfoUrl, { cache: "no-store" });
-          if (r.ok) {
-            const job = await r.json();
-
-            if (job.options?.shareLink && job.shareToken) {
-              const link = `${location.origin}/s/${job.shareToken}`;
-              extra = `
-                <div class="shareBox">
-                  <div class="shareLabel">Shareable link</div>
-                  <div class="shareRow">
-                    <input class="shareInput" value="${link}" readonly />
-                    <button class="btn btn--soft btn--sm" onclick="navigator.clipboard.writeText('${link}')">Copy</button>
-                  </div>
-                </div>
-              `;
-            }
-          }
-        } catch {}
+        let shareHtml = "";
+        if (shareToken) {
+          const link = `${location.origin}/s/${shareToken}`;
+          shareHtml = `
+            <div style="margin-top:14px;">
+              <div style="font-weight:900; margin-bottom:6px;">Shareable link</div>
+              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <input id="shareInput" value="${link.replace(/"/g, "&quot;")}" readonly
+                  style="flex:1; min-width: 220px; padding:10px; border-radius:10px; border:1px solid rgba(15,23,42,.18); background:#fff;" />
+                <button class="btn btn--soft btn--sm" id="copyBtn" type="button">Copy</button>
+              </div>
+              <div class="fineprint" id="copyHint" style="margin-top:8px;">
+                Anyone with the link can download the ZIP.
+              </div>
+            </div>
+          `;
+        }
 
         setActions(`
-          <a class="btn btn--primary" href="${downloadUrl}">Download ZIP</a>
-          ${extra}
-          <a class="btn btn--soft" href="/">Back to ZipPixel</a>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <a class="btn btn--primary" href="${downloadUrl}">Download ZIP</a>
+            <a class="btn btn--soft" href="/" style="">Back to ZipPixel</a>
+            <a class="btn btn--ghost" href="${downloadUrl}" style="">Download again</a>
+          </div>
+          ${shareHtml}
         `);
 
-        hint.textContent = "Tip: Save the ZIP somewhere safe. Files are auto-deleted.";
+        if (shareToken) {
+          const link = `${location.origin}/s/${shareToken}`;
+          const copyBtn = document.getElementById("copyBtn");
+          const copyHint = document.getElementById("copyHint");
+
+          copyBtn?.addEventListener("click", async () => {
+            const ok = await safeCopy(link);
+            if (copyHint) copyHint.textContent = ok ? "Copied ✅" : "Couldn’t copy — select the link and copy manually.";
+          });
+        }
+
+        hint.textContent = "Tip: Save the ZIP somewhere safe. Files are auto-deleted after a short time.";
       };
 
       const renderWaiting = (msg) => {
@@ -171,10 +189,22 @@
         document.getElementById("retryBtn").onclick = () => poll(true);
       };
 
+      const renderNotPaid = () => {
+        sub.textContent = "Payment not confirmed yet.";
+        desc.textContent = "If you just paid, it can take a moment. If you cancelled, head back and try again.";
+        hint.innerHTML = supportHtml;
+        setActions(`
+          <a class="btn btn--primary" href="/">Back to ZipPixel</a>
+          <a class="btn btn--soft" href="/pricing">View pricing</a>
+          <button class="btn btn--ghost" id="retryBtn3" type="button">Check again</button>
+        `);
+        document.getElementById("retryBtn3").onclick = () => poll(true);
+      };
+
       const renderFailed = () => {
         sub.textContent = "Still not ready.";
-        desc.textContent = "If this doesn’t resolve, refresh once. If it still fails, email support and we’ll sort it.";
-        hint.innerHTML = `Support: <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>`;
+        desc.textContent = "Refresh once. If it still fails, email support and we’ll sort it.";
+        hint.innerHTML = supportHtml;
         setActions(`
           <a class="btn btn--primary" href="${downloadUrl}">Try download</a>
           <button class="btn btn--soft" id="retryBtn2" type="button">Check again</button>
@@ -182,21 +212,18 @@
         document.getElementById("retryBtn2").onclick = () => poll(true);
       };
 
-      const isReady = async () => {
+      const checkReady = async () => {
         try {
-          const r = await fetch(downloadUrl, {
-            method: "GET",
-            cache: "no-store",
-            headers: { "Range": "bytes=0-0" }
-          });
-
-          // If paid & ready, server will respond 200 (or 206 if it respects Range)
-          if (r.status === 200 || r.status === 206) return true;
-
-          // 402 = not paid (rare here but could happen), treat as not ready
-          return false;
+          const r = await fetch(readyUrl, { cache: "no-store" });
+          if (!r.ok) return { ready: false, paid: false, shareToken: null };
+          const j = await r.json();
+          return {
+            ready: !!j.ready,
+            paid: !!j.paid,
+            shareToken: j.shareToken || null
+          };
         } catch {
-          return false;
+          return { ready: false, paid: false, shareToken: null };
         }
       };
 
@@ -208,8 +235,15 @@
 
         if (manual) renderWaiting("Checking…");
 
-        const ready = await isReady();
-        if (ready) return renderReady();
+        const st = await checkReady();
+
+        if (st.ready) return renderReady(st.shareToken);
+
+        // If we're beyond a few seconds and Stripe still says unpaid, show a clearer state
+        if (waited > 6000 && st.paid === false) {
+          // Keep polling in the background, but don't lie to the user
+          renderNotPaid();
+        }
 
         if (waited >= maxMs) return renderFailed();
 

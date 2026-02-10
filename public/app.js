@@ -174,8 +174,6 @@
       } else if (isImageFile(f)) {
         thumb = `<img class="thumbImg" alt="" src="${getThumbUrl(f)}" loading="lazy" />`;
       } else {
-        // Generic file badge (no new CSS required; uses existing thumbPdf style if present)
-        // If you want a separate look later, we can add a .thumbFile class in CSS.
         const badge = getExt(f.name) || "FILE";
         thumb = `<div class="thumbPdf" aria-hidden="true">${escapeHtml(badge)}</div>`;
       }
@@ -423,7 +421,8 @@
       if (up?.error) throw new Error(up.error);
 
       setStatus("Uploaded.");
-      setHint("Continue to confirm and proceed to payment.");
+      // Seed the upsell *before* checkout
+      setHint(`Uploaded. Continue to confirm and proceed to payment.<br/><span style="color: rgba(11,18,32,.56)">Tip: add a shareable link at checkout to send this to a client.</span>`);
       if (progressLabel) progressLabel.textContent = "Uploaded";
       if (progressFill) progressFill.style.width = "100%";
       if (progressPct) progressPct.textContent = "100%";
@@ -454,25 +453,49 @@
     setChosen(rowPro, tier === "pro");
 
     const updateTotal = () => {
+      // Day pass overrides totals
+      if (optDayPass?.checked) {
+        if (priceInline) priceInline.textContent = `£${DAY_PASS_PRICE.toFixed(2)}`;
+        return;
+      }
+
       let base = (tier === "pro" ? PRO_PRICE : STANDARD_PRICE);
       let total = base;
 
       if (optPrintReady?.checked) total += PRINT_READY_PRICE;
       if (optEmailSafe?.checked) total += EMAIL_SAFE_PRICE;
       if (optShareLink?.checked) total += SHARE_LINK_PRICE;
-      if (optDayPass?.checked) total = DAY_PASS_PRICE;
 
       if (priceInline) priceInline.textContent = `£${total.toFixed(2)}`;
     };
 
+    // Defaults (money lever): Share link ON by default
     if (optPrintReady) optPrintReady.checked = false;
     if (optEmailSafe) optEmailSafe.checked = false;
-    if (optShareLink) optShareLink.checked = false;
+    if (optShareLink) optShareLink.checked = true;
     if (optListingNames) optListingNames.checked = false;
     if (optDayPass) optDayPass.checked = false;
 
+    // If day pass is checked, auto-uncheck other paid add-ons (keeps totals clean)
+    const normalizePaidOptions = () => {
+      if (!optDayPass) return;
+      if (optDayPass.checked) {
+        if (optPrintReady) optPrintReady.checked = false;
+        if (optEmailSafe) optEmailSafe.checked = false;
+        if (optShareLink) optShareLink.checked = true; // keep share link on (it’s the point)
+      }
+    };
+
+    normalizePaidOptions();
     updateTotal();
-    [optPrintReady, optEmailSafe, optShareLink, optDayPass].forEach((el) => el && (el.onchange = updateTotal));
+
+    [optPrintReady, optEmailSafe, optShareLink, optDayPass].forEach((el) => {
+      if (!el) return;
+      el.onchange = () => {
+        normalizePaidOptions();
+        updateTotal();
+      };
+    });
 
     if (priceModalNote) {
       priceModalNote.textContent =

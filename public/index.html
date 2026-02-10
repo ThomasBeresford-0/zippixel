@@ -1,7 +1,8 @@
-<!-- index.html — ZipPixel (REDESIGN v13 - SMALLPDF STYLE)
+<!-- index.html — ZipPixel (REDESIGN v13.1 - SMALLPDF STYLE)
      ✅ Tool-first layout (centered)
      ✅ Keeps ALL existing ids/classes/JS hooks working
      ✅ Same endpoints / same flow
+     ✅ Updated for ANY file types (not just images)
 -->
 <!doctype html>
 <html lang="en">
@@ -14,14 +15,14 @@
   <link rel="canonical" href="https://zippixel.it.com/" />
 
   <meta property="og:title" content="ZipPixel — Compress files. Download one ZIP." />
-  <meta property="og:description" content="Upload up to 10 files → Download a single compressed ZIP. No signup. Pricing shown before payment." />
+  <meta property="og:description" content="Upload up to 10 files → Download a single ZIP. No signup. Pricing shown before payment." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zippixel.it.com/" />
   <meta property="og:image" content="https://zippixel.it.com/og.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="ZipPixel — Compress files. Download one ZIP." />
-  <meta name="twitter:description" content="Upload up to 10 files → Download one compressed ZIP. No signup. Pricing shown before payment." />
+  <meta name="twitter:description" content="Upload up to 10 files → Download one ZIP. No signup. Pricing shown before payment." />
   <meta name="twitter:image" content="https://zippixel.it.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -65,7 +66,7 @@
         <div class="hero">
           <h1 class="heroTitle">Compress files into one ZIP.</h1>
           <p class="heroLead">
-            Upload up to <b>10</b> files. We optimise what we can and pack everything into one clean ZIP.
+            Upload up to <b>10</b> files. We optimise what we can (images), and bundle everything into one clean ZIP.
             <span style="color: rgba(11,18,32,.56)">No signup.</span>
           </p>
 
@@ -125,6 +126,7 @@
 
             <div class="dzFine">
               Tip: keep it client-ready — include only what you actually need to send.
+              <span style="color: rgba(11,18,32,.56)">Files are automatically deleted after a short time.</span>
             </div>
 
             <!-- Selected files / preview (same IDs) -->
@@ -187,7 +189,7 @@
           <div class="card">
             <div class="k">2</div>
             <div class="t">We optimise</div>
-            <div class="d">We compress when possible and bundle everything cleanly.</div>
+            <div class="d">Images are optimised. Other files are bundled as-is.</div>
           </div>
           <div class="card">
             <div class="k">3</div>
@@ -213,7 +215,7 @@
           </details>
           <details>
             <summary>What formats do you support?</summary>
-            <p>Anys: any file type. If it can be uploaded, it can be bundled into your ZIP.</p>
+            <p>Any file type. Images are optimised; everything else is bundled into your ZIP.</p>
           </details>
           <details>
             <summary>When do I see pricing?</summary>
@@ -279,7 +281,7 @@
           <div class="priceRow">
             <div class="priceLeft">
               <div class="priceName">Print-ready quality</div>
-              <div class="priceDesc">Higher quality for brochures & print (images/PDFs only)</div>
+              <div class="priceDesc">Higher quality for brochures & print (images only)</div>
             </div>
             <div class="priceAmt">
               <label><input type="checkbox" id="optPrintReady" /> +£1.99</label>
@@ -289,7 +291,7 @@
           <div class="priceRow">
             <div class="priceLeft">
               <div class="priceName">Email-safe compression</div>
-              <div class="priceDesc">Extra compression for inbox limits (where possible)</div>
+              <div class="priceDesc">Extra compression for inbox limits (images only)</div>
             </div>
             <div class="priceAmt">
               <label><input type="checkbox" id="optEmailSafe" /> +£1.49</label>
@@ -347,7 +349,6 @@
     </div>
   </div>
 
-<script src="/app.js?v=13" defer></script>
-
+  <script src="/app.js?v=13" defer></script>
 </body>
 </html>
