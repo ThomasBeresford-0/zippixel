@@ -1,12 +1,17 @@
+<!-- privacy.html — ZipPixel (REDESIGN v13 - SMALLPDF STYLE)
+     ✅ Matches tool + pricing styling (v13)
+     ✅ Clear, professional, consistent with backend behavior
+     ✅ Fixed "Last updated" (no changing every page load)
+-->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Success | ZipPixel</title>
-  <meta name="description" content="Your ZIP is ready. Download your compressed files." />
-  <link rel="canonical" href="https://zippixel.it.com/success" />
+  <title>Privacy — ZipPixel</title>
+  <meta name="description" content="ZipPixel Privacy Policy. How we handle uploads, retention, payments, and basic service logs." />
+  <link rel="canonical" href="https://zippixel.it.com/privacy" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
@@ -29,43 +34,115 @@
       </a>
 
       <nav class="nav" aria-label="Site">
-        <a href="/#how">How</a>
+        <a href="/">Tool</a>
+        <a href="/pricing">Pricing</a>
         <a href="/#faq">FAQ</a>
-        <a href="/privacy">Privacy</a>
+        <a href="/privacy" aria-current="page">Privacy</a>
         <a href="/terms">Terms</a>
       </nav>
 
       <div class="top__cta">
-        <a class="btn btn--soft" href="/">Home</a>
+        <a class="btn btn--primary btn--sm" href="/">Open tool</a>
       </div>
     </div>
   </header>
 
-  <main class="section">
-    <div class="container legal">
-      <div class="legal__head">
-        <h1 class="legal__title">You’re all set.</h1>
-        <p class="legal__meta" id="sub">Preparing your download…</p>
-      </div>
+  <main class="page">
+    <section class="legalPage">
+      <div class="container">
+        <div class="legalHeader">
+          <div class="legalKicker">Legal</div>
+          <h1 class="legalTitle">Privacy Policy</h1>
+          <p class="legalMeta">Last updated: <span id="lastUpdated"></span></p>
+        </div>
 
-      <div class="legal__card">
-        <div class="successBox">
-          <div class="successIcon" aria-hidden="true">✅</div>
-          <div>
-            <div class="successTitle">Payment confirmed</div>
-            <div class="successDesc" id="desc">
-              We’re getting your ZIP ready. This usually takes a few seconds.
-            </div>
+        <article class="legalCard">
+          <p class="legalIntro">
+            ZipPixel is built to do one thing: process your uploaded files and generate a ZIP you can download.
+            We don’t sell personal data and we don’t run ads.
+          </p>
+
+          <h2>Who we are</h2>
+          <p>
+            ZipPixel (“we”, “us”) is the controller for any personal data processed through this website.
+            Questions? Email <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
+          </p>
+
+          <h2>What we collect</h2>
+          <ul>
+            <li><b>Uploaded files</b> — the files you choose to upload for processing.</li>
+            <li><b>Basic technical logs</b> — limited request and error information to keep the service reliable and prevent abuse.</li>
+            <li><b>Payment confirmation</b> — payments are processed by Stripe. We receive confirmation that payment succeeded (we do not store full card details).</li>
+          </ul>
+
+          <h2>How we use information</h2>
+          <ul>
+            <li>To process your files and generate your ZIP.</li>
+            <li>To provide access to downloads you’ve paid for (including optional share links).</li>
+            <li>To detect abuse, reduce fraud, and keep the service stable.</li>
+          </ul>
+
+          <h2>Legal basis</h2>
+          <ul>
+            <li><b>Contract</b> — to provide the service you requested (processing files and providing downloads after payment).</li>
+            <li><b>Legitimate interests</b> — to protect ZipPixel from abuse, maintain reliability, and improve service stability (minimal logging only).</li>
+          </ul>
+
+          <h2>How your files are handled</h2>
+          <ul>
+            <li>Your uploaded files are stored <b>temporarily</b> so we can create your ZIP.</li>
+            <li>Files and generated data are <b>automatically deleted</b> after a short period (typically within <b>around 1 hour</b>).</li>
+            <li>Once deleted, downloads and share links will no longer work — so download promptly after purchase.</li>
+            <li>We do not use your files for advertising, and we do not use them to train models.</li>
+          </ul>
+
+          <h2>Share links</h2>
+          <p>
+            If you choose the optional shareable download link, anyone with that link can download the ZIP
+            while it’s available. Treat share links like a password and only share with people you trust.
+          </p>
+
+          <h2>Cookies</h2>
+          <p>
+            ZipPixel does not use tracking cookies for advertising.
+            We may use essential cookies only when needed to run the service.
+          </p>
+
+          <h2>Third parties</h2>
+          <p>We use trusted providers to operate ZipPixel:</p>
+          <ul>
+            <li><b>Stripe</b> for payments.</li>
+            <li><b>Hosting / infrastructure</b> providers to run the site and process uploads.</li>
+          </ul>
+          <p>
+            These providers process data only to deliver the service and according to their own privacy and security terms.
+          </p>
+
+          <h2>Security</h2>
+          <p>
+            We take reasonable measures to protect data during upload and processing.
+            No online service can guarantee 100% security, but ZipPixel is intentionally minimal to reduce risk.
+          </p>
+
+          <h2>Your choices</h2>
+          <ul>
+            <li>You can choose not to upload files.</li>
+            <li>You can close the tab and return later, but files are temporary and may be deleted automatically.</li>
+            <li>If you believe we’ve retained something unexpectedly, contact support and we’ll investigate.</li>
+          </ul>
+
+          <h2>Contact</h2>
+          <p>
+            Questions? Email <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
+          </p>
+
+          <div class="legalActions">
+            <a class="btn btn--primary" href="/">Back to ZipPixel</a>
+            <a class="btn btn--ghost" href="/terms">View Terms</a>
           </div>
-        </div>
-
-        <div class="successActions" id="actions"></div>
-
-        <div class="fineprint" id="hint">
-          If it says “Not ready yet”, don’t worry — we’ll retry automatically for ~30 seconds.
-        </div>
+        </article>
       </div>
-    </div>
+    </section>
   </main>
 
   <footer class="footer">
@@ -81,181 +158,10 @@
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
 
-    const qs = new URLSearchParams(location.search);
-    const jobId = (qs.get("jobId") || "").trim();
-
-    const actions = document.getElementById("actions");
-    const sub = document.getElementById("sub");
-    const desc = document.getElementById("desc");
-    const hint = document.getElementById("hint");
-
-    const setActions = (html) => { actions.innerHTML = html; };
-
-    const downloadUrl = jobId ? `/api/download/${encodeURIComponent(jobId)}` : "#";
-    const readyUrl = jobId ? `/api/ready/${encodeURIComponent(jobId)}` : "#";
-
-    const safeCopy = async (text) => {
-      try {
-        await navigator.clipboard.writeText(text);
-        return true;
-      } catch {
-        try {
-          const ta = document.createElement("textarea");
-          ta.value = text;
-          ta.setAttribute("readonly", "true");
-          ta.style.position = "fixed";
-          ta.style.left = "-9999px";
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand("copy");
-          document.body.removeChild(ta);
-          return true;
-        } catch {
-          return false;
-        }
-      }
-    };
-
-    const supportHtml = `Support: <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>`;
-
-    // Edge case: missing jobId
-    if (!jobId) {
-      sub.textContent = "We couldn’t find your job.";
-      desc.textContent = "Open ZipPixel and try again. If this keeps happening, email support.";
-      hint.innerHTML = supportHtml;
-      setActions(`
-        <a class="btn btn--primary" href="/">Go to ZipPixel</a>
-        <a class="btn btn--soft" href="/privacy">Privacy</a>
-      `);
-    } else {
-      const maxMs = 30000;
-      const start = Date.now();
-      let attempt = 0;
-
-      const renderReady = (shareToken) => {
-        sub.textContent = "Your ZIP is ready.";
-        desc.textContent = shareToken
-          ? "Download the ZIP, or copy a shareable link to send it to a client."
-          : "Download your ZIP below.";
-
-        let shareHtml = "";
-        if (shareToken) {
-          const link = `${location.origin}/s/${shareToken}`;
-          shareHtml = `
-            <div style="margin-top:14px;">
-              <div style="font-weight:900; margin-bottom:6px;">Shareable link</div>
-              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                <input id="shareInput" value="${link.replace(/"/g, "&quot;")}" readonly
-                  style="flex:1; min-width: 220px; padding:10px; border-radius:10px; border:1px solid rgba(15,23,42,.18); background:#fff;" />
-                <button class="btn btn--soft btn--sm" id="copyBtn" type="button">Copy</button>
-              </div>
-              <div class="fineprint" id="copyHint" style="margin-top:8px;">
-                Anyone with the link can download the ZIP.
-              </div>
-            </div>
-          `;
-        }
-
-        setActions(`
-          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-            <a class="btn btn--primary" href="${downloadUrl}">Download ZIP</a>
-            <a class="btn btn--soft" href="/" style="">Back to ZipPixel</a>
-            <a class="btn btn--ghost" href="${downloadUrl}" style="">Download again</a>
-          </div>
-          ${shareHtml}
-        `);
-
-        if (shareToken) {
-          const link = `${location.origin}/s/${shareToken}`;
-          const copyBtn = document.getElementById("copyBtn");
-          const copyHint = document.getElementById("copyHint");
-
-          copyBtn?.addEventListener("click", async () => {
-            const ok = await safeCopy(link);
-            if (copyHint) copyHint.textContent = ok ? "Copied ✅" : "Couldn’t copy — select the link and copy manually.";
-          });
-        }
-
-        hint.textContent = "Tip: Save the ZIP somewhere safe. Files are auto-deleted after a short time.";
-      };
-
-      const renderWaiting = (msg) => {
-        sub.textContent = "Preparing your download…";
-        desc.textContent = msg || "This usually takes a few seconds.";
-        setActions(`
-          <button class="btn btn--primary" id="retryBtn" type="button">Check again</button>
-          <a class="btn btn--soft" href="/">Back to ZipPixel</a>
-        `);
-        document.getElementById("retryBtn").onclick = () => poll(true);
-      };
-
-      const renderNotPaid = () => {
-        sub.textContent = "Payment not confirmed yet.";
-        desc.textContent = "If you just paid, it can take a moment. If you cancelled, head back and try again.";
-        hint.innerHTML = supportHtml;
-        setActions(`
-          <a class="btn btn--primary" href="/">Back to ZipPixel</a>
-          <a class="btn btn--soft" href="/pricing">View pricing</a>
-          <button class="btn btn--ghost" id="retryBtn3" type="button">Check again</button>
-        `);
-        document.getElementById("retryBtn3").onclick = () => poll(true);
-      };
-
-      const renderFailed = () => {
-        sub.textContent = "Still not ready.";
-        desc.textContent = "Refresh once. If it still fails, email support and we’ll sort it.";
-        hint.innerHTML = supportHtml;
-        setActions(`
-          <a class="btn btn--primary" href="${downloadUrl}">Try download</a>
-          <button class="btn btn--soft" id="retryBtn2" type="button">Check again</button>
-        `);
-        document.getElementById("retryBtn2").onclick = () => poll(true);
-      };
-
-      const checkReady = async () => {
-        try {
-          const r = await fetch(readyUrl, { cache: "no-store" });
-          if (!r.ok) return { ready: false, paid: false, shareToken: null };
-          const j = await r.json();
-          return {
-            ready: !!j.ready,
-            paid: !!j.paid,
-            shareToken: j.shareToken || null
-          };
-        } catch {
-          return { ready: false, paid: false, shareToken: null };
-        }
-      };
-
-      const sleep = (ms) => new Promise(res => setTimeout(res, ms));
-
-      const poll = async (manual = false) => {
-        attempt++;
-        const waited = Date.now() - start;
-
-        if (manual) renderWaiting("Checking…");
-
-        const st = await checkReady();
-
-        if (st.ready) return renderReady(st.shareToken);
-
-        // If we're beyond a few seconds and Stripe still says unpaid, show a clearer state
-        if (waited > 6000 && st.paid === false) {
-          // Keep polling in the background, but don't lie to the user
-          renderNotPaid();
-        }
-
-        if (waited >= maxMs) return renderFailed();
-
-        const delay = Math.min(2500, 800 + attempt * 350);
-        renderWaiting(`Not ready yet. Retrying in ${(delay/1000).toFixed(1)}s…`);
-        await sleep(delay);
-        return poll(false);
-      };
-
-      renderWaiting("Checking your download…");
-      poll(false);
-    }
+    // IMPORTANT: fixed date (do not change on every page load)
+    // Update this string when you actually update the policy.
+    const LAST_UPDATED = "10 Feb 2026";
+    document.getElementById("lastUpdated").textContent = LAST_UPDATED;
   </script>
 </body>
 </html>

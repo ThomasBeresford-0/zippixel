@@ -1148,19 +1148,7 @@ details p{
   line-height: 1.55;
 }
 
-/* Make actions stack nicely (success.html renders dynamic buttons) */
-.successActions{
-  margin-top: 14px;
-  display:grid;
-  gap: 10px;
-}
-.successActions .btn{
-  width: 100%;
+.legal__card .btn{
+  max-width: 420px;
 }
 
-/* On wider screens, keep main CTA first but don’t force full width */
-@media (min-width: 720px){
-  .successActions .btn{
-    width: auto;
-  }
-}

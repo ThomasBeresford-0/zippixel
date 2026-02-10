@@ -1,7 +1,7 @@
 <!-- pricing.html — ZipPixel (REDESIGN v13 - SMALLPDF STYLE)
-     ✅ Clean, centered pricing layout
-     ✅ Matches the new tool page look
-     ✅ Uses shared header/footer styles
+     ✅ Matches tool + modal pricing (v13)
+     ✅ Exact backend prices + upsells
+     ✅ Clear, client-ready copy (no confusion)
 -->
 <!doctype html>
 <html lang="en">
@@ -10,14 +10,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Pricing — ZipPixel</title>
-  <meta name="description" content="ZipPixel pricing: £2.99 for up to 5 files, £4.99 for up to 10 files. No subscription. No signup." />
+  <meta name="description" content="ZipPixel pricing: £2.99 (up to 5 files) or £4.99 (up to 10 files). Optional upgrades available. No signup." />
   <link rel="canonical" href="https://zippixel.it.com/pricing" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <!-- Match the new system -->
   <link rel="stylesheet" href="/style.css?v=13" />
 </head>
 
@@ -56,14 +55,14 @@
           <h1 class="pricingTitle">Simple pricing.</h1>
           <p class="pricingLead">
             Pay once. Download instantly. No accounts.
-            <span class="pricingLeadMuted">Pricing shown before you pay.</span>
+            <span class="pricingLeadMuted">You’ll see the full total before Stripe Checkout.</span>
           </p>
 
           <div class="pricingNotice" role="note" aria-label="Auto-selected at checkout">
             <div class="pricingNoticeTitle">Auto-selected at checkout</div>
             <div class="pricingNoticeText">
-              We choose <b>Standard</b> or <b>Pro</b> based on how many files you upload.
-              You’ll always see the total before Stripe Checkout.
+              ZipPixel selects <b>Standard</b> or <b>Pro</b> automatically based on how many files you upload.
+              Limits: <b>max 10 files</b>, <b>max 25MB each</b>.
             </div>
           </div>
         </div>
@@ -120,9 +119,58 @@
           </article>
         </div>
 
-        <div class="pricingFooter">
-          Optional upgrades (print-ready, email-safe, share link, day pass) are shown before you pay.
+        <!-- Optional upgrades (matches modal + backend) -->
+        <div class="section" style="padding-top: 14px;">
+          <div class="container" style="width: 100%;">
+            <div class="sectionHead">
+              <h2>Optional upgrades</h2>
+              <p>Shown in checkout before you pay.</p>
+            </div>
+
+            <div class="grid3" style="margin-top: 12px;">
+              <div class="card" aria-label="Print-ready quality">
+                <div class="k">+</div>
+                <div class="t">Print-ready quality</div>
+                <div class="d">
+                  Higher quality output for brochures & print where applicable.
+                  <b>+£1.99</b>
+                </div>
+              </div>
+
+              <div class="card" aria-label="Email-safe compression">
+                <div class="k">+</div>
+                <div class="t">Email-safe compression</div>
+                <div class="d">
+                  Extra compression to help meet inbox limits where possible.
+                  <b>+£1.49</b>
+                </div>
+              </div>
+
+              <div class="card" aria-label="Shareable download link">
+                <div class="k">+</div>
+                <div class="t">Shareable download link</div>
+                <div class="d">
+                  Send a link instead of the ZIP. Anyone with the link can download.
+                  <b>+£2.49</b>
+                </div>
+              </div>
+            </div>
+
+            <div class="pricingNotice" role="note" aria-label="Day pass note" style="margin-top: 12px;">
+              <div class="pricingNoticeTitle">24-hour day pass</div>
+              <div class="pricingNoticeText">
+                Need more than one ZIP today? The <b>24-hour pass (£9.99)</b> replaces per-ZIP pricing for the next 24 hours.
+                You’ll see it clearly in checkout before paying.
+              </div>
+            </div>
+
+            <div class="pricingFooter" style="margin-top: 12px;">
+              Files are stored temporarily to create your ZIP, then automatically deleted.
+              Download promptly after purchase.
+            </div>
+          </div>
         </div>
+
       </div>
     </section>
   </main>
