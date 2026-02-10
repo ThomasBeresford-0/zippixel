@@ -1,8 +1,7 @@
-<!-- index.html — ZipPixel (FULL REDESIGN v8)
-     ✅ Removes useless Start button
-     ✅ Choose files button moved INTO the dropzone (no floating CTA)
-     ✅ Product-first layout: headline + tool as ONE experience
-     ✅ Keeps ALL your existing ids/classes/JS hooks working
+<!-- index.html — ZipPixel (FULL REDESIGN v9 DROP-IN)
+     ✅ TRUE DROP-IN: keeps ALL existing ids/classes/JS hooks working
+     ✅ Inspired by TinyPNG / iLoveIMG style: centered tool, clean stage, preview-first
+     ✅ Keeps pricing modal + options + steps flow
 -->
 <!doctype html>
 <html lang="en">
@@ -29,21 +28,11 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=8" />
-
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"SoftwareApplication",
-    "name":"ZipPixel",
-    "applicationCategory":"MultimediaApplication",
-    "operatingSystem":"Web",
-    "description":"Compress images and download a single optimised ZIP. No signup. Pricing shown before payment."
-  }
-  </script>
+  <link rel="stylesheet" href="/style.css?v=9" />
 </head>
 
 <body>
+  <!-- Minimal top bar (trust + links) -->
   <header class="top">
     <div class="container top__inner">
       <a class="brand" href="/" aria-label="ZipPixel home">
@@ -65,18 +54,16 @@
         <a href="/terms">Terms</a>
       </nav>
 
-      <div class="navDivider" aria-hidden="true"></div>
-
-      <!-- Start button removed (full redesign) -->
       <div class="top__cta" aria-hidden="true"></div>
     </div>
   </header>
 
   <main>
+    <!-- Product stage -->
     <section class="hero">
       <div class="container hero__grid">
 
-        <!-- Product-first hero copy (centered, tighter) -->
+        <!-- Copy (kept, but refined) -->
         <div class="hero__copy">
           <div class="hero__copyInner">
             <div class="heroKicker">Compress. Bundle. Send.</div>
@@ -84,7 +71,7 @@
             <h1>Compress images.<br/>Download one ZIP.</h1>
 
             <p class="lead">
-              Upload up to <b>10</b> images. We optimise them and bundle everything into one clean ZIP.
+              Upload up to <b>10</b> files. We optimise them and bundle everything into one clean ZIP.
               <span class="muted">No signup.</span>
             </p>
 
@@ -102,7 +89,7 @@
           </div>
         </div>
 
-        <!-- Tool card -->
+        <!-- Tool card (same IDs/structure your JS expects) -->
         <div class="toolCard" aria-label="ZipPixel tool">
           <div class="toolCard__top">
             <div class="statusBlock">
@@ -111,15 +98,11 @@
                 <div class="status" id="status">Ready.</div>
                 <div class="spinner" id="spinner" aria-hidden="true"></div>
               </div>
-              <div class="statusHint" id="statusHint">
-                Drop images to begin.
-              </div>
+              <div class="statusHint" id="statusHint">Drop images to begin.</div>
             </div>
-
-            <!-- Removed floating Choose button from here -->
-            <div class="toolCard__cta" aria-hidden="true"></div>
           </div>
 
+          <!-- strip -->
           <div class="toolTopStrip" aria-label="Limits and checkout">
             <div class="toolTopStripLeft">
               <span class="tinyPill"><b>Max</b> 10 files</span>
@@ -132,7 +115,7 @@
             </div>
           </div>
 
-          <!-- DROPZONE -->
+          <!-- DROPZONE (same IDs) -->
           <div class="dropzone" id="dropzone" aria-label="Upload images">
             <input id="files" type="file" accept="image/*,application/pdf" multiple />
 
@@ -150,22 +133,23 @@
                 <div class="dzSub">Up to 10 files · 25MB each · Output: one ZIP</div>
               </div>
 
-              <!-- PRIMARY action lives inside dropzone -->
               <div class="dzActions">
                 <button class="btn btn--primary btn--sm" id="chooseBtn" type="button">Choose files</button>
               </div>
             </div>
 
             <div class="fileMeta" id="fileMeta" hidden>
-              <div class="fileSummary" id="fileSummary"></div>
-              <ol class="fileList" id="fileList"></ol>
-              <div class="fileActions">
-                <button class="btn btn--ghost btn--sm" id="clearBtn" type="button">Clear</button>
+              <div class="fileSummaryRow">
+                <div class="fileSummary" id="fileSummary"></div>
+                <div class="fileActions">
+                  <button class="btn btn--ghost btn--sm" id="clearBtn" type="button">Clear</button>
+                </div>
               </div>
+              <ol class="fileList" id="fileList"></ol>
             </div>
           </div>
 
-          <!-- UPLOAD PROGRESS -->
+          <!-- UPLOAD PROGRESS (same IDs) -->
           <div class="progressWrap" id="progressWrap" hidden>
             <div class="progressTop">
               <div class="progressLabel" id="progressLabel">Uploading…</div>
@@ -177,13 +161,13 @@
             <div class="progressMeta" id="progressMeta"></div>
           </div>
 
-          <!-- ACTIONS -->
+          <!-- Steps (same IDs) -->
           <div class="steps" aria-label="Steps">
             <div class="step">
               <div class="step__k">1</div>
               <div class="step__body">
                 <div class="step__t">Upload</div>
-                <div class="step__d">Send selected images.</div>
+                <div class="step__d">Send selected files.</div>
               </div>
               <button class="btn btn--soft btn--block" id="upload" disabled>Upload</button>
             </div>
@@ -206,6 +190,7 @@
       </div>
     </section>
 
+    <!-- Rest sections unchanged -->
     <section class="section" id="how">
       <div class="container">
         <div class="sectionHead">
@@ -304,7 +289,7 @@
     </div>
   </footer>
 
-  <!-- PRICE MODAL (only shown when user clicks Continue) -->
+  <!-- PRICE MODAL (unchanged IDs for your JS) -->
   <div class="modalOverlay" id="priceModal" role="dialog" aria-modal="true" aria-labelledby="priceModalTitle">
     <div class="modalCard" role="document">
       <div class="modalTop">
@@ -313,9 +298,7 @@
       </div>
 
       <div class="modalBody">
-        <p class="modalLead" id="priceModalLead">
-          You’ve uploaded <b>0</b> images.
-        </p>
+        <p class="modalLead" id="priceModalLead">You’ve uploaded <b>0</b> images.</p>
 
         <div class="modalSummary" aria-label="Checkout summary">
           <div class="modalSummaryLeft">
@@ -350,10 +333,7 @@
               <div class="priceDesc">Higher image quality for brochures & print</div>
             </div>
             <div class="priceAmt">
-              <label>
-                <input type="checkbox" id="optPrintReady" />
-                +£1.99
-              </label>
+              <label><input type="checkbox" id="optPrintReady" /> +£1.99</label>
             </div>
           </div>
 
@@ -363,10 +343,7 @@
               <div class="priceDesc">Extra compression for Gmail & Outlook limits</div>
             </div>
             <div class="priceAmt">
-              <label>
-                <input type="checkbox" id="optEmailSafe" />
-                +£1.49
-              </label>
+              <label><input type="checkbox" id="optEmailSafe" /> +£1.49</label>
             </div>
           </div>
 
@@ -376,10 +353,7 @@
               <div class="priceDesc">Preserve file names exactly as uploaded</div>
             </div>
             <div class="priceAmt">
-              <label>
-                <input type="checkbox" id="optKeepNames" />
-                Free
-              </label>
+              <label><input type="checkbox" id="optKeepNames" /> Free</label>
             </div>
           </div>
 
@@ -389,10 +363,7 @@
               <div class="priceDesc">listing_01.jpg, listing_02.jpg…</div>
             </div>
             <div class="priceAmt">
-              <label>
-                <input type="checkbox" id="optListingNames" />
-                Free
-              </label>
+              <label><input type="checkbox" id="optListingNames" /> Free</label>
             </div>
           </div>
 
@@ -402,10 +373,7 @@
               <div class="priceDesc">Send a link instead of the ZIP file</div>
             </div>
             <div class="priceAmt">
-              <label>
-                <input type="checkbox" id="optShareLink" />
-                +£2.49
-              </label>
+              <label><input type="checkbox" id="optShareLink" /> +£2.49</label>
             </div>
           </div>
 
@@ -415,17 +383,12 @@
               <div class="priceDesc">Compress unlimited ZIPs today</div>
             </div>
             <div class="priceAmt">
-              <label>
-                <input type="checkbox" id="optDayPass" />
-                £9.99
-              </label>
+              <label><input type="checkbox" id="optDayPass" /> £9.99</label>
             </div>
           </div>
         </div>
 
-        <div class="modalNote" id="priceModalNote">
-          You’ll be redirected to secure Stripe Checkout.
-        </div>
+        <div class="modalNote" id="priceModalNote">You’ll be redirected to secure Stripe Checkout.</div>
       </div>
 
       <div class="modalFoot">
