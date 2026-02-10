@@ -1,3 +1,8 @@
+<!-- pricing.html — ZipPixel (REDESIGN v13 - SMALLPDF STYLE)
+     ✅ Clean, centered pricing layout
+     ✅ Matches the new tool page look
+     ✅ Uses shared header/footer styles
+-->
 <!doctype html>
 <html lang="en">
 <head>
@@ -12,8 +17,8 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <!-- IMPORTANT: match your new system -->
-  <link rel="stylesheet" href="/style.css?v=11" />
+  <!-- Match the new system -->
+  <link rel="stylesheet" href="/style.css?v=13" />
 </head>
 
 <body>
@@ -31,32 +36,34 @@
 
       <nav class="nav" aria-label="Site">
         <a href="/">Tool</a>
-        <a href="/pricing">Pricing</a>
+        <a href="/pricing" aria-current="page">Pricing</a>
         <a href="/#faq">FAQ</a>
         <a href="/privacy">Privacy</a>
         <a href="/terms">Terms</a>
       </nav>
 
       <div class="top__cta">
-        <a class="btn btn--soft btn--sm" href="/">Open tool</a>
+        <a class="btn btn--primary btn--sm" href="/">Open tool</a>
       </div>
     </div>
   </header>
 
   <main class="page">
-    <section class="section pricingPage">
-      <div class="container pricingWrap">
-        <div class="pricingHero">
-          <div>
-            <div class="kicker">Pricing</div>
-            <h1 class="pricingTitle">Simple pricing.</h1>
-            <p class="pricingSub">Pay once. Download instantly. No accounts.</p>
-          </div>
+    <section class="pricingPage">
+      <div class="container">
+        <div class="pricingHeader">
+          <div class="pricingKicker">Pricing</div>
+          <h1 class="pricingTitle">Simple pricing.</h1>
+          <p class="pricingLead">
+            Pay once. Download instantly. No accounts.
+            <span class="pricingLeadMuted">Pricing shown before you pay.</span>
+          </p>
 
-          <div class="pricingNote">
-            <div class="pricingNoteTitle">Auto-selected at checkout</div>
-            <div class="pricingNoteText">
-              We choose Standard or Pro based on how many files you upload — and you’ll see the total before payment.
+          <div class="pricingNotice" role="note" aria-label="Auto-selected at checkout">
+            <div class="pricingNoticeTitle">Auto-selected at checkout</div>
+            <div class="pricingNoticeText">
+              We choose <b>Standard</b> or <b>Pro</b> based on how many files you upload.
+              You’ll always see the total before Stripe Checkout.
             </div>
           </div>
         </div>
@@ -64,55 +71,57 @@
         <div class="pricingGrid" aria-label="Pricing tiers">
           <!-- Standard -->
           <article class="priceCard" aria-label="Standard ZIP">
-            <div class="priceTop">
+            <div class="priceCardTop">
               <div>
                 <div class="priceName">Standard ZIP</div>
                 <div class="priceDesc">Great for small batches.</div>
               </div>
-              <div class="priceTag">Up to 5 images</div>
+              <div class="pricePill">Up to 5 files</div>
             </div>
 
-            <div class="priceAmt">
-              <span class="priceCurrency">£</span><span class="priceValue">2.99</span>
+            <div class="priceAmount" aria-label="Price £2.99">
+              <span class="priceCurrency">£</span>
+              <span class="priceValue">2.99</span>
+              <span class="priceSuffix">per ZIP</span>
             </div>
 
             <ul class="priceList">
-              <li>Optimised JPEG output</li>
+              <li>Optimised output</li>
               <li>One clean ZIP download</li>
               <li>No signup</li>
             </ul>
 
-            <a class="btn btn--soft btn--block" href="/">Compress up to 5 →</a>
+            <a class="btn btn--soft btn--block" href="/">Compress up to 5</a>
           </article>
 
           <!-- Pro -->
           <article class="priceCard priceCard--featured" aria-label="Pro ZIP">
-            <div class="priceTop">
+            <div class="priceCardTop">
               <div>
                 <div class="priceName">Pro ZIP</div>
                 <div class="priceDesc">Best for listings & client handover.</div>
               </div>
-              <div class="priceTag priceTag--pro">Up to 10 images</div>
+              <div class="pricePill pricePill--pro">Up to 10 files</div>
             </div>
 
-            <div class="priceAmt">
-              <span class="priceCurrency">£</span><span class="priceValue">4.99</span>
+            <div class="priceAmount" aria-label="Price £4.99">
+              <span class="priceCurrency">£</span>
+              <span class="priceValue">4.99</span>
+              <span class="priceSuffix">per ZIP</span>
             </div>
 
             <ul class="priceList">
-              <li>Optimised JPEG output</li>
+              <li>Optimised output</li>
               <li>One clean ZIP download</li>
               <li>No signup</li>
             </ul>
 
-            <a class="btn btn--primary btn--block" href="/">Compress up to 10 →</a>
+            <a class="btn btn--primary btn--block" href="/">Compress up to 10</a>
           </article>
         </div>
 
-        <div class="pricingFoot">
-          <div class="pricingFootLine">
-            Optional upgrades (print-ready, email-safe, share link, day pass) are shown before you pay.
-          </div>
+        <div class="pricingFooter">
+          Optional upgrades (print-ready, email-safe, share link, day pass) are shown before you pay.
         </div>
       </div>
     </section>
