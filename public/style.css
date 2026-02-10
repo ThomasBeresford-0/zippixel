@@ -603,12 +603,18 @@ details p{
   background: rgba(2,6,23,.44);
   backdrop-filter: blur(10px);
   display: none;
-  align-items: center;
+
+  /* FIX: stop modal being cut off */
+  align-items: flex-start;
   justify-content: center;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+
   z-index: 999;
   padding: 18px;
 }
 .modalOverlay.isOpen{ display:flex; }
+
 
 .modalCard{
   width: min(640px, 100%);
@@ -619,6 +625,12 @@ details p{
   overflow: hidden;
   transform: translateY(10px);
   animation: modalIn .14s var(--ease) forwards;
+
+  /* FIX: keep card inside viewport */
+  margin: 18px auto;
+  max-height: calc(100vh - 36px);
+  display: flex;
+  flex-direction: column;
 }
 @keyframes modalIn{ to { transform: translateY(0); } }
 
@@ -642,7 +654,14 @@ details p{
   font-size: 12px;
   box-shadow: var(--sh-0);
 }
-.modalBody{ padding: 14px 16px 6px; }
+.modalBody{
+  padding: 14px 16px 6px;
+
+  /* FIX: if content is long, scroll inside modal */
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  max-height: calc(100vh - 36px - 60px - 68px);
+}
 .modalLead{ margin: 0; color: rgba(11,18,32,.86); font-size: 14px; line-height: 1.45; }
 
 .modalSummary{
@@ -1000,4 +1019,10 @@ details p{
   display:flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+@media (max-width: 520px){
+  .modalOverlay{ padding: 12px; }
+  .modalCard{ margin: 12px auto; max-height: calc(100vh - 24px); }
+  .modalBody{ max-height: calc(100vh - 24px - 60px - 68px); }
 }
