@@ -1,7 +1,8 @@
-<!-- index.html — ZipPixel (FULL REDESIGN v9 DROP-IN)
-     ✅ TRUE DROP-IN: keeps ALL existing ids/classes/JS hooks working
-     ✅ Inspired by TinyPNG / iLoveIMG style: centered tool, clean stage, preview-first
-     ✅ Keeps pricing modal + options + steps flow
+<!-- index.html — ZipPixel (FULL REDESIGN v11 - LIGHT / BIG BOYS)
+     ✅ FULL visual redesign (no dark background)
+     ✅ Keeps ALL existing ids/classes/JS hooks working
+     ✅ Adds thumbnail grid previews (frontend only)
+     ✅ Cleaner “big tools” layout: centered tool, minimal nav, crisp UI
 -->
 <!doctype html>
 <html lang="en">
@@ -9,18 +10,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>ZipPixel — Compress Images & Download One ZIP</title>
+  <title>ZipPixel — Compress images into one ZIP</title>
   <meta name="description" content="Upload up to 10 images. We optimise them and bundle everything into one ZIP. No signup. Pricing shown before payment." />
   <link rel="canonical" href="https://zippixel.it.com/" />
 
-  <meta property="og:title" content="ZipPixel — Compress Images. Download One ZIP." />
-  <meta property="og:description" content="Upload up to 10 images → Download a single compressed ZIP instantly. No signup. Pricing shown before payment." />
+  <meta property="og:title" content="ZipPixel — Compress images. Download one ZIP." />
+  <meta property="og:description" content="Upload up to 10 images → Download a single compressed ZIP. No signup. Pricing shown before payment." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zippixel.it.com/" />
   <meta property="og:image" content="https://zippixel.it.com/og.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="ZipPixel — Compress Images. Download One ZIP." />
+  <meta name="twitter:title" content="ZipPixel — Compress images. Download one ZIP." />
   <meta name="twitter:description" content="Upload up to 10 images → Download one compressed ZIP. No signup. Pricing shown before payment." />
   <meta name="twitter:image" content="https://zippixel.it.com/og.png" />
 
@@ -28,11 +29,11 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=9" />
+  <link rel="stylesheet" href="/style.css?v=11" />
 </head>
 
 <body>
-  <!-- Minimal top bar (trust + links) -->
+  <!-- Clean light header -->
   <header class="top">
     <div class="container top__inner">
       <a class="brand" href="/" aria-label="ZipPixel home">
@@ -46,52 +47,37 @@
       </a>
 
       <nav class="nav" aria-label="Site">
-        <a href="#how">How</a>
-        <a href="#use">Use cases</a>
-        <a href="#faq">FAQ</a>
         <a href="/pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
         <a href="/privacy">Privacy</a>
         <a href="/terms">Terms</a>
       </nav>
-
-      <div class="top__cta" aria-hidden="true"></div>
     </div>
   </header>
 
-  <main>
-    <!-- Product stage -->
+  <main class="page">
+    <!-- Hero -->
     <section class="hero">
-      <div class="container hero__grid">
-
-        <!-- Copy (kept, but refined) -->
+      <div class="container hero__inner">
         <div class="hero__copy">
-          <div class="hero__copyInner">
-            <div class="heroKicker">Compress. Bundle. Send.</div>
+          <div class="kicker">Compress • Bundle • Send</div>
+          <h1>Compress images into one clean ZIP.</h1>
+          <p class="lead">
+            Upload up to <b>10</b> files. We optimise them and bundle everything into one tidy download.
+            <span class="muted">No signup.</span>
+          </p>
 
-            <h1>Compress images.<br/>Download one ZIP.</h1>
-
-            <p class="lead">
-              Upload up to <b>10</b> files. We optimise them and bundle everything into one clean ZIP.
-              <span class="muted">No signup.</span>
-            </p>
-
-            <div class="microLine">
-              Built for client handover, listings and inbox limits.
-              <span class="muted">Pricing is shown before payment.</span>
-            </div>
-
-            <div class="heroBadges" aria-label="Highlights">
-              <span class="badge"><span class="badgeDot" aria-hidden="true"></span> One ZIP output</span>
-              <span class="badge"><span class="badgeIcon" aria-hidden="true">✓</span> Secure Stripe</span>
-              <span class="badge"><span class="badgeIcon" aria-hidden="true">🗑</span> Auto-deleted</span>
-              <span class="badge"><span class="badgeIcon" aria-hidden="true">⚡</span> Fast</span>
-            </div>
+          <div class="trustRow" aria-label="Highlights">
+            <span class="trustPill">One ZIP output</span>
+            <span class="trustPill">Secure Stripe checkout</span>
+            <span class="trustPill">Auto-deleted after a short time</span>
+            <span class="trustPill">Fast</span>
           </div>
         </div>
 
-        <!-- Tool card (same IDs/structure your JS expects) -->
+        <!-- Tool card (same IDs your JS expects) -->
         <div class="toolCard" aria-label="ZipPixel tool">
-          <div class="toolCard__top">
+          <div class="toolHeader">
             <div class="statusBlock">
               <div class="label">Status</div>
               <div class="statusRow">
@@ -100,22 +86,15 @@
               </div>
               <div class="statusHint" id="statusHint">Drop images to begin.</div>
             </div>
-          </div>
 
-          <!-- strip -->
-          <div class="toolTopStrip" aria-label="Limits and checkout">
-            <div class="toolTopStripLeft">
-              <span class="tinyPill"><b>Max</b> 10 files</span>
-              <span class="tinyPill"><b>Max</b> 25MB each</span>
-              <span class="tinyPill"><b>Output</b> ZIP</span>
-            </div>
-            <div class="toolTopStripRight">
-              <a class="linkSoft tinyPill" href="/pricing" aria-label="View pricing">Pricing</a>
-              <span class="tinyPill" aria-label="Stripe checkout">Secure checkout</span>
+            <div class="limits">
+              <span class="mini"><b>Max</b> 10</span>
+              <span class="mini"><b>Max</b> 25MB</span>
+              <span class="mini"><b>Output</b> ZIP</span>
             </div>
           </div>
 
-          <!-- DROPZONE (same IDs) -->
+          <!-- Dropzone (same IDs) -->
           <div class="dropzone" id="dropzone" aria-label="Upload images">
             <input id="files" type="file" accept="image/*,application/pdf" multiple />
 
@@ -130,7 +109,7 @@
 
               <div class="dzText">
                 <div class="dzTitle">Drop images here</div>
-                <div class="dzSub">Up to 10 files · 25MB each · Output: one ZIP</div>
+                <div class="dzSub">or click to choose • up to 10 files • one ZIP</div>
               </div>
 
               <div class="dzActions">
@@ -138,18 +117,19 @@
               </div>
             </div>
 
+            <!-- Selected files / preview (same IDs) -->
             <div class="fileMeta" id="fileMeta" hidden>
-              <div class="fileSummaryRow">
+              <div class="fileMetaTop">
                 <div class="fileSummary" id="fileSummary"></div>
-                <div class="fileActions">
-                  <button class="btn btn--ghost btn--sm" id="clearBtn" type="button">Clear</button>
-                </div>
+                <button class="btn btn--ghost btn--sm" id="clearBtn" type="button">Clear</button>
               </div>
+
+              <!-- now becomes a thumbnail grid -->
               <ol class="fileList" id="fileList"></ol>
             </div>
           </div>
 
-          <!-- UPLOAD PROGRESS (same IDs) -->
+          <!-- Progress (same IDs) -->
           <div class="progressWrap" id="progressWrap" hidden>
             <div class="progressTop">
               <div class="progressLabel" id="progressLabel">Uploading…</div>
@@ -161,86 +141,42 @@
             <div class="progressMeta" id="progressMeta"></div>
           </div>
 
-          <!-- Steps (same IDs) -->
-          <div class="steps" aria-label="Steps">
-            <div class="step">
-              <div class="step__k">1</div>
-              <div class="step__body">
-                <div class="step__t">Upload</div>
-                <div class="step__d">Send selected files.</div>
-              </div>
-              <button class="btn btn--soft btn--block" id="upload" disabled>Upload</button>
-            </div>
-
-            <div class="step">
-              <div class="step__k">2</div>
-              <div class="step__body">
-                <div class="step__t">Download</div>
-                <div class="step__d">Confirm and proceed to payment.</div>
-              </div>
-              <button class="btn btn--primary btn--block" id="continue" disabled>Continue</button>
-            </div>
+          <!-- Actions (same IDs, “big tools” style) -->
+          <div class="actionBar" aria-label="Actions">
+            <button class="btn btn--soft btn--block" id="upload" disabled>Upload</button>
+            <button class="btn btn--primary btn--block" id="continue" disabled>Continue</button>
           </div>
 
           <div class="fineprint">
             By continuing you agree to our <a href="/terms">Terms</a>. Read our <a href="/privacy">Privacy</a>.
           </div>
         </div>
-
       </div>
     </section>
 
-    <!-- Rest sections unchanged -->
+    <!-- Below-the-fold stays simple and bright -->
     <section class="section" id="how">
       <div class="container">
         <div class="sectionHead">
           <h2>How it works</h2>
-          <p>Two quick steps. No accounts. No clutter.</p>
+          <p>Upload → we optimise → you download one ZIP.</p>
         </div>
 
         <div class="grid3">
           <div class="card">
             <div class="k">1</div>
-            <div class="t">Add images</div>
-            <div class="d">Drop up to 10 files.</div>
+            <div class="t">Add files</div>
+            <div class="d">Drop up to 10 images (or PDFs).</div>
           </div>
           <div class="card">
             <div class="k">2</div>
-            <div class="t">We optimise</div>
-            <div class="d">Smaller files, clean output. Great for email and portals.</div>
+            <div class="t">We compress</div>
+            <div class="d">Smaller files for email, portals, and fast sharing.</div>
           </div>
           <div class="card">
             <div class="k">3</div>
             <div class="t">Download one ZIP</div>
-            <div class="d">One tidy bundle ready to send or archive.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="use">
-      <div class="container">
-        <div class="sectionHead">
-          <h2>Use cases</h2>
-          <p>Where smaller files make everything faster.</p>
-        </div>
-
-        <div class="grid2">
-          <div class="card card--flat">
-            <div class="t">Property / Airbnb photos</div>
-            <div class="d">Send one ZIP to owners, agents or portals.</div>
-          </div>
-          <div class="card card--flat">
-            <div class="t">E-commerce listings</div>
-            <div class="d">Faster uploads and fewer timeouts.</div>
-          </div>
-          <div class="card card--flat">
-            <div class="t">Client handover</div>
-            <div class="d">Deliver neatly without massive attachments.</div>
-          </div>
-          <div class="card card--flat">
-            <div class="t">Web & newsletters</div>
-            <div class="d">Smaller images = faster pages and better deliverability.</div>
+            <div class="d">A single bundle — neat and client-ready.</div>
           </div>
         </div>
       </div>
@@ -260,19 +196,15 @@
           </details>
           <details>
             <summary>What formats do you support?</summary>
-            <p>Most common image formats (JPG, PNG, WebP, HEIC/HEIF, AVIF) and PDFs.</p>
-          </details>
-          <details>
-            <summary>How many images can I add?</summary>
-            <p>Up to 10 per job (max 25MB each).</p>
+            <p>Most common image formats and PDFs.</p>
           </details>
           <details>
             <summary>When do I see pricing?</summary>
-            <p>After you upload — you’ll see the total before you go to Stripe Checkout.</p>
+            <p>After you upload — you’ll see the total before Stripe Checkout.</p>
           </details>
           <details>
             <summary>What happens to my files?</summary>
-            <p>They’re only used to generate your ZIP and are automatically deleted after a short time.</p>
+            <p>They’re only used to generate your ZIP and deleted after a short time.</p>
           </details>
         </div>
       </div>
@@ -289,7 +221,7 @@
     </div>
   </footer>
 
-  <!-- PRICE MODAL (unchanged IDs for your JS) -->
+  <!-- PRICE MODAL (unchanged IDs so your checkout flow still works) -->
   <div class="modalOverlay" id="priceModal" role="dialog" aria-modal="true" aria-labelledby="priceModalTitle">
     <div class="modalCard" role="document">
       <div class="modalTop">
@@ -330,7 +262,7 @@
           <div class="priceRow">
             <div class="priceLeft">
               <div class="priceName">Print-ready quality</div>
-              <div class="priceDesc">Higher image quality for brochures & print</div>
+              <div class="priceDesc">Higher quality for brochures & print</div>
             </div>
             <div class="priceAmt">
               <label><input type="checkbox" id="optPrintReady" /> +£1.99</label>
@@ -340,7 +272,7 @@
           <div class="priceRow">
             <div class="priceLeft">
               <div class="priceName">Email-safe compression</div>
-              <div class="priceDesc">Extra compression for Gmail & Outlook limits</div>
+              <div class="priceDesc">Extra compression for inbox limits</div>
             </div>
             <div class="priceAmt">
               <label><input type="checkbox" id="optEmailSafe" /> +£1.49</label>
@@ -350,7 +282,7 @@
           <div class="priceRow">
             <div class="priceLeft">
               <div class="priceName">Keep original filenames</div>
-              <div class="priceDesc">Preserve file names exactly as uploaded</div>
+              <div class="priceDesc">Preserve names exactly as uploaded</div>
             </div>
             <div class="priceAmt">
               <label><input type="checkbox" id="optKeepNames" /> Free</label>
@@ -370,7 +302,7 @@
           <div class="priceRow">
             <div class="priceLeft">
               <div class="priceName">Shareable download link</div>
-              <div class="priceDesc">Send a link instead of the ZIP file</div>
+              <div class="priceDesc">Send a link instead of the ZIP</div>
             </div>
             <div class="priceAmt">
               <label><input type="checkbox" id="optShareLink" /> +£2.49</label>
@@ -399,7 +331,7 @@
   </div>
 
   <script>
-    // ====== ZIPPIXEL FRONTEND (FULL RAMBO) ======
+    // ====== ZIPPIXEL FRONTEND (v11 - same flow, better UI) ======
     document.getElementById("y").textContent = new Date().getFullYear();
 
     // Tiering (must match backend)
@@ -447,7 +379,6 @@
     const optPrintReady = document.getElementById("optPrintReady");
     const optKeepNames = document.getElementById("optKeepNames");
     const optDayPass = document.getElementById("optDayPass");
-    const savingsLine = document.getElementById("savingsLine");
     const priceModalLead = document.getElementById("priceModalLead");
     const priceModalNote = document.getElementById("priceModalNote");
     const rowStandard = document.getElementById("rowStandard");
@@ -463,6 +394,7 @@
     let creatingJob = false;
     let uploading = false;
     let selected = []; // Array<File>
+    let thumbUrls = new Map(); // keyOf(file) -> objectURL
 
     const setStatus = (m) => statusEl.textContent = m;
     const setHint = (m) => statusHint.innerHTML = m;
@@ -470,7 +402,6 @@
 
     const humanMB = (bytes) => (bytes / (1024 * 1024)).toFixed(1) + "MB";
     const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
-
     const escapeHtml = (str) =>
       String(str).replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
 
@@ -480,7 +411,6 @@
     const validateFile = (f) => {
       const isImage = f.type.startsWith("image/");
       const isPDF = f.type === "application/pdf";
-
       if (!isImage && !isPDF) return `“${f.name}” isn’t a supported file type.`;
       if (f.size > MAX_MB_EACH * 1024 * 1024) return `“${f.name}” is ${humanMB(f.size)} (max ${MAX_MB_EACH}MB).`;
       return null;
@@ -496,7 +426,6 @@
 
     const getTier = () => (selected.length > STANDARD_MAX ? "pro" : "standard");
     const getTierLabel = () => (getTier() === "pro" ? "Pro ZIP" : "Standard ZIP");
-
     const setChosen = (el, chosen) => el.classList.toggle("isChosen", !!chosen);
 
     const openPriceModal = () => {
@@ -504,13 +433,8 @@
       const n = selected.length;
 
       priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> file${n === 1 ? "" : "s"}.`;
-
       tierInline.textContent = getTierLabel();
       countInline.textContent = String(n);
-
-      optPrintReady.checked = false;
-      optKeepNames.checked = false;
-      optDayPass.checked = false;
 
       setChosen(rowStandard, tier === "standard");
       setChosen(rowPro, tier === "pro");
@@ -522,12 +446,12 @@
         if (optPrintReady.checked) total += PRINT_READY_PRICE;
         if (optEmailSafe.checked) total += EMAIL_SAFE_PRICE;
         if (optShareLink.checked) total += SHARE_LINK_PRICE;
-
         if (optDayPass.checked) total = DAY_PASS_PRICE;
 
         priceInline.textContent = `£${total.toFixed(2)}`;
       };
 
+      // reset checks
       optPrintReady.checked = false;
       optEmailSafe.checked = false;
       optShareLink.checked = false;
@@ -535,14 +459,10 @@
       optDayPass.checked = false;
 
       updateTotal();
-
       [optPrintReady, optEmailSafe, optShareLink, optDayPass].forEach((el) => el && (el.onchange = updateTotal));
-      if (optListingNames) optListingNames.onchange = () => {};
 
       priceModalNote.textContent =
-        tier === "pro"
-          ? "Pro selected automatically for 6+ files."
-          : "You’ll be redirected to secure Stripe Checkout.";
+        tier === "pro" ? "Pro selected automatically for 6+ files." : "You’ll be redirected to secure Stripe Checkout.";
 
       priceModal.classList.add("isOpen");
       document.body.style.overflow = "hidden";
@@ -557,14 +477,25 @@
 
     modalCloseBtn.addEventListener("click", closePriceModal);
     modalBackBtn.addEventListener("click", closePriceModal);
+    priceModal.addEventListener("click", (e) => { if (e.target === priceModal) closePriceModal(); });
+    window.addEventListener("keydown", (e) => { if (e.key === "Escape" && priceModal.classList.contains("isOpen")) closePriceModal(); });
 
-    priceModal.addEventListener("click", (e) => {
-      if (e.target === priceModal) closePriceModal();
-    });
+    const revokeRemovedThumbs = (currentKeys) => {
+      for (const [k, url] of thumbUrls.entries()) {
+        if (!currentKeys.has(k)) {
+          URL.revokeObjectURL(url);
+          thumbUrls.delete(k);
+        }
+      }
+    };
 
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && priceModal.classList.contains("isOpen")) closePriceModal();
-    });
+    const getThumbUrl = (f) => {
+      const k = keyOf(f);
+      if (thumbUrls.has(k)) return thumbUrls.get(k);
+      const url = URL.createObjectURL(f);
+      thumbUrls.set(k, url);
+      return url;
+    };
 
     const renderSelected = () => {
       if (selected.length === 0) {
@@ -576,20 +507,30 @@
         resetProgress();
         setStatus("Ready.");
         setHint("Drop images to begin.");
+        revokeRemovedThumbs(new Set());
         return;
       }
 
       const total = selected.reduce((a, f) => a + f.size, 0);
-      fileSummary.textContent = `Selected ${selected.length} image(s) • Total ${humanMB(total)}.`;
+      fileSummary.textContent = `Selected ${selected.length} file(s) • Total ${humanMB(total)}.`;
+
+      const currentKeys = new Set(selected.map(keyOf));
+      revokeRemovedThumbs(currentKeys);
 
       fileList.innerHTML = selected.map((f, idx) => {
         const safe = escapeHtml(f.name);
+        const isPDF = f.type === "application/pdf";
+        const thumb = isPDF
+          ? `<div class="thumbPdf" aria-hidden="true">PDF</div>`
+          : `<img class="thumbImg" alt="" src="${getThumbUrl(f)}" loading="lazy" />`;
+
         return `
-          <li>
-            <span class="fileLeft">
-              <span class="fileName">${safe}</span>
-              <span class="fileSize">${humanMB(f.size)}</span>
-            </span>
+          <li class="fileCard">
+            <div class="thumb">${thumb}</div>
+            <div class="fileInfo">
+              <div class="fileName" title="${safe}">${safe}</div>
+              <div class="fileMetaLine">${humanMB(f.size)} • ${isPDF ? "PDF" : (f.type || "Image")}</div>
+            </div>
             <button class="iconBtn" type="button" aria-label="Remove ${safe}" data-remove="${idx}">Remove</button>
           </li>
         `;
@@ -602,7 +543,7 @@
 
       if (jobId) {
         setStatus("Ready.");
-        setHint("Upload your images to continue.");
+        setHint("Upload your files to continue.");
       } else {
         setStatus("Starting…");
         setHint("Creating a job…");
@@ -614,7 +555,13 @@
       if (!btn) return;
       const idx = Number(btn.getAttribute("data-remove"));
       if (Number.isFinite(idx)) {
-        selected.splice(idx, 1);
+        const removed = selected.splice(idx, 1)[0];
+        if (removed) {
+          const k = keyOf(removed);
+          const url = thumbUrls.get(k);
+          if (url) URL.revokeObjectURL(url);
+          thumbUrls.delete(k);
+        }
         renderSelected();
       }
     });
@@ -647,7 +594,7 @@
         if (!j || !j.jobId) throw new Error("no jobId");
         jobId = j.jobId;
         setStatus("Ready.");
-        setHint(selected.length ? "Upload your images to continue." : "Drop images to begin.");
+        setHint(selected.length ? "Upload your files to continue." : "Drop images to begin.");
         renderSelected();
         return jobId;
       } finally {
@@ -684,14 +631,14 @@
       if (selected.length > MAX_FILES) {
         selected = selected.slice(0, MAX_FILES);
         setStatus("Max reached.");
-        setHint(`Only the first <b>${MAX_FILES}</b> images were kept.`);
+        setHint(`Only the first <b>${MAX_FILES}</b> files were kept.`);
       }
 
       renderSelected();
 
       try {
         await ensureJob();
-      } catch (e) {
+      } catch {
         setStatus("Couldn’t start.");
         setHint("Refresh and try again.");
         return;
@@ -700,7 +647,8 @@
       uploadBtn.disabled = uploading || selected.length === 0;
     };
 
-    chooseBtn.addEventListener("click", () => filesEl.click());
+    // Button triggers input safely
+    chooseBtn.addEventListener("click", (e) => { e.preventDefault(); filesEl.click(); });
 
     filesEl.addEventListener("change", async () => {
       if (!filesEl.files || filesEl.files.length === 0) return;
@@ -708,41 +656,28 @@
       filesEl.value = "";
     });
 
-    ["dragenter","dragover"].forEach(evt => {
-      window.addEventListener(evt, (e) => { e.preventDefault(); }, { passive:false });
-    });
+    // Drag/drop
+    ["dragenter","dragover"].forEach(evt => window.addEventListener(evt, (e) => { e.preventDefault(); }, { passive:false }));
     window.addEventListener("drop", (e) => { e.preventDefault(); }, { passive:false });
 
     let dragDepth = 0;
     const dragOn = () => dropzone.classList.add("isDrag");
     const dragOff = () => dropzone.classList.remove("isDrag");
 
-    dropzone.addEventListener("dragenter", (e) => {
-      e.preventDefault(); e.stopPropagation();
-      dragDepth++;
-      dragOn();
-    });
-
+    dropzone.addEventListener("dragenter", (e) => { e.preventDefault(); e.stopPropagation(); dragDepth++; dragOn(); });
     dropzone.addEventListener("dragleave", (e) => {
       e.preventDefault(); e.stopPropagation();
       dragDepth = clamp(dragDepth - 1, 0, 999);
       if (dragDepth === 0) dragOff();
     });
-
-    dropzone.addEventListener("dragover", (e) => {
-      e.preventDefault(); e.stopPropagation();
-      dragOn();
-    });
-
+    dropzone.addEventListener("dragover", (e) => { e.preventDefault(); e.stopPropagation(); dragOn(); });
     dropzone.addEventListener("drop", async (e) => {
       e.preventDefault(); e.stopPropagation();
-      dragDepth = 0;
-      dragOff();
-
+      dragDepth = 0; dragOff();
       const dt = e.dataTransfer;
       const files = dt?.files ? [...dt.files] : [];
       if (!files.length) {
-        setStatus("Drop images only.");
+        setStatus("Drop files only.");
         setHint("Try dragging image files from Finder.");
         return;
       }
@@ -752,6 +687,8 @@
     clearBtn.addEventListener("click", () => {
       if (uploading) return;
       selected = [];
+      for (const url of thumbUrls.values()) URL.revokeObjectURL(url);
+      thumbUrls.clear();
       renderSelected();
     });
 
@@ -787,12 +724,8 @@
       if (uploading) return;
       if (selected.length === 0) return;
 
-      try {
-        await ensureJob();
-      } catch (e) {
-        setStatus("Couldn’t start.");
-        setHint("Refresh and try again.");
-        return;
+      try { await ensureJob(); } catch {
+        setStatus("Couldn’t start."); setHint("Refresh and try again."); return;
       }
 
       uploading = true;
@@ -822,7 +755,6 @@
         progressLabel.textContent = "Uploaded";
         progressFill.style.width = "100%";
         progressPct.textContent = "100%";
-
         continueBtn.disabled = false;
       } catch (e) {
         setStatus("Upload failed.");
