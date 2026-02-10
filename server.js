@@ -59,6 +59,21 @@ app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
 });
 
 app.get("/health", (_, res) => res.json({ ok: true }));
+app.get("/api/test-email", async (req, res) => {
+  try {
+    await mailer.sendMail({
+      from: `"ZipPixel" <${process.env.SMTP_USER}>`,
+      to: process.env.SMTP_USER,
+      subject: "ZipPixel email test",
+      text: "If you received this, email is working.",
+    });
+
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 
 // ====== JOB STORAGE ======
 const UPLOAD_DIR = path.join(__dirname, "uploads");
