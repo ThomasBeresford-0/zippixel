@@ -1,3 +1,9 @@
+<!-- index.html — ZipPixel (FULL REDESIGN v8)
+     ✅ Removes useless Start button
+     ✅ Choose files button moved INTO the dropzone (no floating CTA)
+     ✅ Product-first layout: headline + tool as ONE experience
+     ✅ Keeps ALL your existing ids/classes/JS hooks working
+-->
 <!doctype html>
 <html lang="en">
 <head>
@@ -23,7 +29,7 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=5" />
+  <link rel="stylesheet" href="/style.css?v=8" />
 
   <script type="application/ld+json">
   {
@@ -61,40 +67,42 @@
 
       <div class="navDivider" aria-hidden="true"></div>
 
-      <div class="top__cta">
-
-        <button class="btn btn--primary" onclick="document.getElementById('dropzone').scrollIntoView({behavior:'smooth',block:'center'})">
-          Start
-        </button>
-      </div>
+      <!-- Start button removed (full redesign) -->
+      <div class="top__cta" aria-hidden="true"></div>
     </div>
   </header>
 
   <main>
     <section class="hero">
       <div class="container hero__grid">
-      <div class="hero__copy">
-        <div class="hero__copyInner">
-          <h1>Compress images.<br/>Download one ZIP.</h1>
 
-          <p class="lead">
-            Upload up to <b>10</b> images. We optimise them and bundle everything into one clean ZIP.
-            <span class="muted">No signup.</span>
-          </p>
+        <!-- Product-first hero copy (centered, tighter) -->
+        <div class="hero__copy">
+          <div class="hero__copyInner">
+            <div class="heroKicker">Compress. Bundle. Send.</div>
 
-          <div class="microLine">
-            Built for client handover, listings and inbox limits.
-            <span class="muted">Pricing is shown before payment.</span>
-          </div>
+            <h1>Compress images.<br/>Download one ZIP.</h1>
 
-          <div class="heroBadges" aria-label="Highlights">
-            <span class="badge"><span class="badgeDot" aria-hidden="true"></span> Fast ZIP output</span>
-            <span class="badge"><span class="badgeIcon" aria-hidden="true">⭳</span> One file to send</span>
-            <span class="badge"><span class="badgeIcon" aria-hidden="true">✓</span> Secure Stripe checkout</span>
-            <span class="badge"><span class="badgeIcon" aria-hidden="true">🗑</span> Auto-deleted files</span>
+            <p class="lead">
+              Upload up to <b>10</b> images. We optimise them and bundle everything into one clean ZIP.
+              <span class="muted">No signup.</span>
+            </p>
+
+            <div class="microLine">
+              Built for client handover, listings and inbox limits.
+              <span class="muted">Pricing is shown before payment.</span>
+            </div>
+
+            <div class="heroBadges" aria-label="Highlights">
+              <span class="badge"><span class="badgeDot" aria-hidden="true"></span> One ZIP output</span>
+              <span class="badge"><span class="badgeIcon" aria-hidden="true">✓</span> Secure Stripe</span>
+              <span class="badge"><span class="badgeIcon" aria-hidden="true">🗑</span> Auto-deleted</span>
+              <span class="badge"><span class="badgeIcon" aria-hidden="true">⚡</span> Fast</span>
+            </div>
           </div>
         </div>
-      </div>
+
+        <!-- Tool card -->
         <div class="toolCard" aria-label="ZipPixel tool">
           <div class="toolCard__top">
             <div class="statusBlock">
@@ -104,13 +112,12 @@
                 <div class="spinner" id="spinner" aria-hidden="true"></div>
               </div>
               <div class="statusHint" id="statusHint">
-                Drop files to begin.
+                Drop images to begin.
               </div>
             </div>
 
-            <div class="toolCard__cta">
-              <button class="btn btn--soft btn--lg" id="chooseBtn" type="button">Choose files</button>
-            </div>
+            <!-- Removed floating Choose button from here -->
+            <div class="toolCard__cta" aria-hidden="true"></div>
           </div>
 
           <div class="toolTopStrip" aria-label="Limits and checkout">
@@ -127,7 +134,8 @@
 
           <!-- DROPZONE -->
           <div class="dropzone" id="dropzone" aria-label="Upload images">
-          <input id="files" type="file" accept="image/*,application/pdf" multiple />
+            <input id="files" type="file" accept="image/*,application/pdf" multiple />
+
             <div class="dropzone__inner">
               <div class="dzIcon" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -136,9 +144,15 @@
                   <path d="M7 16.5c-1.7 0-3-1.3-3-3 0-1.4.9-2.6 2.2-2.9C6.6 8.1 8.6 6.5 11 6.5c2.3 0 4.3 1.5 4.9 3.7.2 0 .5-.1.7-.1 2 0 3.5 1.6 3.5 3.5S18.6 17 16.6 17H7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
               </div>
+
               <div class="dzText">
-                <div class="dzTitle">Drop files to compress</div>
-                <div class="dzSub">or click to choose · Max 10 files · Max 25MB each</div>
+                <div class="dzTitle">Drop images here</div>
+                <div class="dzSub">Up to 10 files · 25MB each · Output: one ZIP</div>
+              </div>
+
+              <!-- PRIMARY action lives inside dropzone -->
+              <div class="dzActions">
+                <button class="btn btn--primary btn--sm" id="chooseBtn" type="button">Choose files</button>
               </div>
             </div>
 
@@ -188,6 +202,7 @@
             By continuing you agree to our <a href="/terms">Terms</a>. Read our <a href="/privacy">Privacy</a>.
           </div>
         </div>
+
       </div>
     </section>
 
@@ -260,7 +275,7 @@
           </details>
           <details>
             <summary>What formats do you support?</summary>
-          <p>Most common image formats (JPG, PNG, WebP, HEIC/HEIF, AVIF) and PDFs.</p>
+            <p>Most common image formats (JPG, PNG, WebP, HEIC/HEIF, AVIF) and PDFs.</p>
           </details>
           <details>
             <summary>How many images can I add?</summary>
@@ -302,7 +317,6 @@
           You’ve uploaded <b>0</b> images.
         </p>
 
-        <!-- Clear summary: what they will be charged (only revealed here) -->
         <div class="modalSummary" aria-label="Checkout summary">
           <div class="modalSummaryLeft">
             <div class="modalSummaryKicker">You’ll pay</div>
@@ -310,6 +324,7 @@
           </div>
           <div class="modalSummaryAmt" id="priceInline">£0.00</div>
         </div>
+
         <div class="priceGrid" aria-label="Pricing tiers">
           <div class="priceRow" id="rowStandard">
             <div class="priceLeft">
@@ -328,94 +343,85 @@
           </div>
         </div>
 
-      <div class="priceGrid" aria-label="Optional upgrades">
-
-        <!-- Print ready -->
-        <div class="priceRow">
-          <div class="priceLeft">
-            <div class="priceName">Print-ready quality</div>
-            <div class="priceDesc">Higher image quality for brochures & print</div>
+        <div class="priceGrid" aria-label="Optional upgrades">
+          <div class="priceRow">
+            <div class="priceLeft">
+              <div class="priceName">Print-ready quality</div>
+              <div class="priceDesc">Higher image quality for brochures & print</div>
+            </div>
+            <div class="priceAmt">
+              <label>
+                <input type="checkbox" id="optPrintReady" />
+                +£1.99
+              </label>
+            </div>
           </div>
-          <div class="priceAmt">
-            <label>
-              <input type="checkbox" id="optPrintReady" />
-              +£1.99
-            </label>
+
+          <div class="priceRow">
+            <div class="priceLeft">
+              <div class="priceName">Email-safe compression</div>
+              <div class="priceDesc">Extra compression for Gmail & Outlook limits</div>
+            </div>
+            <div class="priceAmt">
+              <label>
+                <input type="checkbox" id="optEmailSafe" />
+                +£1.49
+              </label>
+            </div>
+          </div>
+
+          <div class="priceRow">
+            <div class="priceLeft">
+              <div class="priceName">Keep original filenames</div>
+              <div class="priceDesc">Preserve file names exactly as uploaded</div>
+            </div>
+            <div class="priceAmt">
+              <label>
+                <input type="checkbox" id="optKeepNames" />
+                Free
+              </label>
+            </div>
+          </div>
+
+          <div class="priceRow">
+            <div class="priceLeft">
+              <div class="priceName">Property listing filenames</div>
+              <div class="priceDesc">listing_01.jpg, listing_02.jpg…</div>
+            </div>
+            <div class="priceAmt">
+              <label>
+                <input type="checkbox" id="optListingNames" />
+                Free
+              </label>
+            </div>
+          </div>
+
+          <div class="priceRow">
+            <div class="priceLeft">
+              <div class="priceName">Shareable download link</div>
+              <div class="priceDesc">Send a link instead of the ZIP file</div>
+            </div>
+            <div class="priceAmt">
+              <label>
+                <input type="checkbox" id="optShareLink" />
+                +£2.49
+              </label>
+            </div>
+          </div>
+
+          <div class="priceRow">
+            <div class="priceLeft">
+              <div class="priceName">Unlimited 24-hour pass</div>
+              <div class="priceDesc">Compress unlimited ZIPs today</div>
+            </div>
+            <div class="priceAmt">
+              <label>
+                <input type="checkbox" id="optDayPass" />
+                £9.99
+              </label>
+            </div>
           </div>
         </div>
-
-        <!-- Email safe -->
-        <div class="priceRow">
-          <div class="priceLeft">
-            <div class="priceName">Email-safe compression</div>
-            <div class="priceDesc">Extra compression for Gmail & Outlook limits</div>
-          </div>
-          <div class="priceAmt">
-            <label>
-              <input type="checkbox" id="optEmailSafe" />
-              +£1.49
-            </label>
-          </div>
-        </div>
-
-        <!-- Keep filenames -->
-        <div class="priceRow">
-          <div class="priceLeft">
-            <div class="priceName">Keep original filenames</div>
-            <div class="priceDesc">Preserve file names exactly as uploaded</div>
-          </div>
-          <div class="priceAmt">
-            <label>
-              <input type="checkbox" id="optKeepNames" />
-              Free
-            </label>
-          </div>
-        </div>
-
-        <!-- Smart naming -->
-        <div class="priceRow">
-          <div class="priceLeft">
-            <div class="priceName">Property listing filenames</div>
-            <div class="priceDesc">listing_01.jpg, listing_02.jpg…</div>
-          </div>
-          <div class="priceAmt">
-            <label>
-              <input type="checkbox" id="optListingNames" />
-              Free
-            </label>
-          </div>
-        </div>
-
-        <!-- Share link -->
-        <div class="priceRow">
-          <div class="priceLeft">
-            <div class="priceName">Shareable download link</div>
-            <div class="priceDesc">Send a link instead of the ZIP file</div>
-          </div>
-          <div class="priceAmt">
-            <label>
-              <input type="checkbox" id="optShareLink" />
-              +£2.49
-            </label>
-          </div>
-        </div>
-
-        <!-- Day pass -->
-        <div class="priceRow">
-          <div class="priceLeft">
-            <div class="priceName">Unlimited 24-hour pass</div>
-            <div class="priceDesc">Compress unlimited ZIPs today</div>
-          </div>
-          <div class="priceAmt">
-            <label>
-              <input type="checkbox" id="optDayPass" />
-              £9.99
-            </label>
-          </div>
-        </div>
-
-      </div>
-
 
         <div class="modalNote" id="priceModalNote">
           You’ll be redirected to secure Stripe Checkout.
@@ -444,8 +450,6 @@
     const EMAIL_SAFE_PRICE = 1.49;
     const SHARE_LINK_PRICE = 2.49;
     const DAY_PASS_PRICE = 9.99;
-
-
 
     const MAX_FILES = PRO_MAX;
     const MAX_MB_EACH = 25;
@@ -492,7 +496,6 @@
     const optListingNames = document.getElementById("optListingNames");
     const optShareLink = document.getElementById("optShareLink");
 
-
     let jobId = null;
     let creatingJob = false;
     let uploading = false;
@@ -515,17 +518,10 @@
       const isImage = f.type.startsWith("image/");
       const isPDF = f.type === "application/pdf";
 
-      if (!isImage && !isPDF) {
-        return `“${f.name}” isn’t a supported file type.`;
-      }
-
-      if (f.size > MAX_MB_EACH * 1024 * 1024) {
-        return `“${f.name}” is ${humanMB(f.size)} (max ${MAX_MB_EACH}MB).`;
-      }
-
+      if (!isImage && !isPDF) return `“${f.name}” isn’t a supported file type.`;
+      if (f.size > MAX_MB_EACH * 1024 * 1024) return `“${f.name}” is ${humanMB(f.size)} (max ${MAX_MB_EACH}MB).`;
       return null;
     };
-
 
     const resetProgress = () => {
       progressWrap.hidden = true;
@@ -538,78 +534,57 @@
     const getTier = () => (selected.length > STANDARD_MAX ? "pro" : "standard");
     const getTierLabel = () => (getTier() === "pro" ? "Pro ZIP" : "Standard ZIP");
 
-    const setChosen = (el, chosen) => {
-      el.classList.toggle("isChosen", !!chosen);
-    };
+    const setChosen = (el, chosen) => el.classList.toggle("isChosen", !!chosen);
 
     const openPriceModal = () => {
-  const tier = getTier();
-  const n = selected.length;
+      const tier = getTier();
+      const n = selected.length;
 
-  priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> file${n === 1 ? "" : "s"}.`;
+      priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> file${n === 1 ? "" : "s"}.`;
 
-  tierInline.textContent = getTierLabel();
-  countInline.textContent = String(n);
+      tierInline.textContent = getTierLabel();
+      countInline.textContent = String(n);
 
-  optPrintReady.checked = false;
-  optKeepNames.checked = false;
-  optDayPass.checked = false;
+      optPrintReady.checked = false;
+      optKeepNames.checked = false;
+      optDayPass.checked = false;
 
-  setChosen(rowStandard, tier === "standard");
-  setChosen(rowPro, tier === "pro");
+      setChosen(rowStandard, tier === "standard");
+      setChosen(rowPro, tier === "pro");
 
-  const updateTotal = () => {
-    let base =
-      tier === "pro"
-        ? PRO_PRICE
-        : STANDARD_PRICE;
+      const updateTotal = () => {
+        let base = (tier === "pro" ? PRO_PRICE : STANDARD_PRICE);
+        let total = base;
 
-    let total = base;
+        if (optPrintReady.checked) total += PRINT_READY_PRICE;
+        if (optEmailSafe.checked) total += EMAIL_SAFE_PRICE;
+        if (optShareLink.checked) total += SHARE_LINK_PRICE;
 
-    if (optPrintReady.checked) total += PRINT_READY_PRICE;
-    if (optEmailSafe.checked) total += EMAIL_SAFE_PRICE;
-    if (optShareLink.checked) total += SHARE_LINK_PRICE;
+        if (optDayPass.checked) total = DAY_PASS_PRICE;
 
-    if (optDayPass.checked) {
-      total = DAY_PASS_PRICE;
-    }
+        priceInline.textContent = `£${total.toFixed(2)}`;
+      };
 
-    priceInline.textContent = `£${total.toFixed(2)}`;
-  };
+      optPrintReady.checked = false;
+      optEmailSafe.checked = false;
+      optShareLink.checked = false;
+      optListingNames.checked = false;
+      optDayPass.checked = false;
 
-  optPrintReady.checked = false;
-  optEmailSafe.checked = false;
-  optShareLink.checked = false;
-  optListingNames.checked = false;
-  optDayPass.checked = false;
+      updateTotal();
 
+      [optPrintReady, optEmailSafe, optShareLink, optDayPass].forEach((el) => el && (el.onchange = updateTotal));
+      if (optListingNames) optListingNames.onchange = () => {};
 
-  updateTotal();
+      priceModalNote.textContent =
+        tier === "pro"
+          ? "Pro selected automatically for 6+ files."
+          : "You’ll be redirected to secure Stripe Checkout.";
 
-  [
-  optPrintReady,
-  optEmailSafe,
-  optShareLink,
-  optDayPass,
-].forEach((el) => el && (el.onchange = updateTotal));
-
-if (optListingNames) {
-  optListingNames.onchange = () => {};
-}
-
-
-  priceModalNote.textContent =
-    tier === "pro"
-      ? "Pro selected automatically for 6+ files."
-      : "You’ll be redirected to secure Stripe Checkout.";
-
-  priceModal.classList.add("isOpen");
-  document.body.style.overflow = "hidden";
-  modalPayBtn.focus();
-};
-
-
-
+      priceModal.classList.add("isOpen");
+      document.body.style.overflow = "hidden";
+      modalPayBtn.focus();
+    };
 
     const closePriceModal = () => {
       priceModal.classList.remove("isOpen");
@@ -905,21 +880,19 @@ if (optListingNames) {
       setHint("Opening secure checkout…");
       continueBtn.disabled = true;
 
-      const tier = getTier(); // "standard" or "pro"
-
       try {
         const resp = await fetch("/api/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-          jobId,
-          printReady: optPrintReady.checked,
-          keepNames: optKeepNames.checked,
-          emailSafe: optEmailSafe.checked,
-          shareLink: optShareLink.checked,
-          namingPreset: optListingNames.checked ? "listing" : null,
-          dayPass: optDayPass.checked
-        })
+            jobId,
+            printReady: optPrintReady.checked,
+            keepNames: optKeepNames.checked,
+            emailSafe: optEmailSafe.checked,
+            shareLink: optShareLink.checked,
+            namingPreset: optListingNames.checked ? "listing" : null,
+            dayPass: optDayPass.checked
+          })
         }).then(r => r.json());
 
         if (resp?.error) throw new Error(resp.error);
