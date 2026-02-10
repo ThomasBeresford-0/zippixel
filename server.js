@@ -9,107 +9,85 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const Stripe = require("stripe");
+const nodemailer = require("nodemailer");
+
+const mailer = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT || 587),
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
+
 
 const app = express();
 
 const PORT = process.env.PORT || 4242;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
-// ====== PRICING (tiered) ======
-const STANDARD_MAX = 5; // 1–5 files
-const PRO_MAX = 10;     // 6–10 files
+// ====== PRICING ======
+const STANDARD_MAX = 5;
+const PRO_MAX = 10;
 
 const STANDARD_PRICE_GBP_PENCE = Number(process.env.STANDARD_PRICE_GBP_PENCE || 299);
-const PRO_PRICE_GBP_PENCE = Number(
-  process.env.PRO_PRICE_GBP_PENCE || process.env.PRICE_GBP_PENCE || 499
-);
+const PRO_PRICE_GBP_PENCE = Number(process.env.PRO_PRICE_GBP_PENCE || 499);
 
-if (!process.env.STRIPE_SECRET_KEY) console.warn("⚠️ STRIPE_SECRET_KEY missing");
-if (!process.env.STRIPE_WEBHOOK_SECRET) console.warn("⚠️ STRIPE_WEBHOOK_SECRET missing");
+const PRINT_READY_UPSELL_PENCE = 199;
+const EMAIL_SAFE_UPSELL_PENCE = 149;
+const SHARE_LINK_UPSELL_PENCE = 249;
+const DAY_PASS_PRICE_PENCE = 999;
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-// --- Security headers ---
+
+// ====== SECURITY ======
 app.use(helmet({ contentSecurityPolicy: false }));
-
-// --- Basic rate limiting ---
-app.use(
-  rateLimit({
-    windowMs: 60 * 1000,
-    max: 120,
-    standardHeaders: true,
-    legacyHeaders: false,
-  })
-);
-
-// ====== STRIPE WEBHOOK (RAW BODY) ======
+app.use(rateLimit({ windowMs: 60_000, max: 120 }));
 app.post("/webhook", express.raw({ type: "application/json" }), webhookHandler);
-
-// Normal JSON for everything else
 app.use(express.json());
 
-// ====== STATIC SITE ======
+// ====== STATIC ======
 const PUBLIC_DIR = path.join(__dirname, "public");
 app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
 
-app.get("/robots.txt", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "robots.txt")));
-app.get("/sitemap.xml", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "sitemap.xml")));
-app.get("/favicon.ico", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "favicon.ico")));
+["/", "/success", "/cancel", "/privacy", "/terms", "/pricing"].forEach((route) => {
+  app.get(route, (req, res) =>
+    res.sendFile(path.join(PUBLIC_DIR, route === "/" ? "index.html" : `${route.slice(1)}.html`))
+  );
+});
 
-app.get("/", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "index.html")));
-app.get("/success", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "success.html")));
-app.get("/cancel", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "cancel.html")));
-app.get("/privacy", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "privacy.html")));
-app.get("/terms", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "terms.html")));
-app.get("/pricing", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "pricing.html")));
+app.get("/health", (_, res) => res.json({ ok: true }));
 
-app.get("/health", (req, res) => res.json({ ok: true }));
-
-// ====== UPLOADS / JOBS ======
+// ====== JOB STORAGE ======
 const UPLOAD_DIR = path.join(__dirname, "uploads");
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
-const jobs = new Map(); // jobId -> job
+const jobs = new Map();
 
 setInterval(() => {
   const now = Date.now();
-  for (const [jobId, job] of jobs.entries()) {
+  for (const [id, job] of jobs) {
     if (now - job.createdAt > 60 * 60 * 1000) {
       try {
-        for (const f of job.files || []) {
-          if (f.path && fs.existsSync(f.path)) fs.unlinkSync(f.path);
-        }
-        const jobDir = path.join(UPLOAD_DIR, jobId);
-        if (fs.existsSync(jobDir)) fs.rmSync(jobDir, { recursive: true, force: true });
+        fs.rmSync(path.join(UPLOAD_DIR, id), { recursive: true, force: true });
       } catch {}
-      jobs.delete(jobId);
+      jobs.delete(id);
     }
   }
-}, 5 * 60 * 1000);
+}, 300_000);
 
-function newId(prefix) {
-  return `${prefix}_${crypto.randomBytes(8).toString("hex")}`;
-}
+const newId = () => `job_${crypto.randomBytes(8).toString("hex")}`;
+const newShareToken = () => crypto.randomBytes(16).toString("hex");
 
-function getJob(jobId) {
-  const job = jobs.get(jobId);
-  if (!job) throw new Error("Job not found.");
+const getJob = (id) => {
+  const job = jobs.get(id);
+  if (!job) throw new Error("Job not found");
   return job;
-}
+};
 
-// ====== MULTER (images + PDFs only) ======
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = path.join(UPLOAD_DIR, req.params.jobId);
-    fs.mkdirSync(dir, { recursive: true });
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    const safe = file.originalname.replace(/[^a-z0-9.\-_]/gi, "_");
-    cb(null, `${Date.now()}_${safe}`);
-  },
-});
-
+// ====== UPLOAD ======
 const allowedMimes = new Set([
   "image/jpeg",
   "image/png",
@@ -121,79 +99,131 @@ const allowedMimes = new Set([
   "application/pdf",
 ]);
 
-const MAX_MB_EACH = Number(process.env.MAX_MB_EACH || 25);
-
 const upload = multer({
-  storage,
-  limits: { files: PRO_MAX, fileSize: MAX_MB_EACH * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    if (!allowedMimes.has(file.mimetype)) {
-      return cb(new Error("Only image or PDF uploads are allowed."));
-    }
-    cb(null, true);
-  },
+  storage: multer.diskStorage({
+    destination: (req, _, cb) => {
+      const dir = path.join(UPLOAD_DIR, req.params.jobId);
+      fs.mkdirSync(dir, { recursive: true });
+      cb(null, dir);
+    },
+    filename: (_, file, cb) => {
+      const safe = file.originalname.replace(/[^a-z0-9.\-_]/gi, "_");
+      cb(null, `${Date.now()}_${safe}`);
+    },
+  }),
+  limits: { files: PRO_MAX, fileSize: 25 * 1024 * 1024 },
+  fileFilter: (_, file, cb) =>
+    allowedMimes.has(file.mimetype)
+      ? cb(null, true)
+      : cb(new Error("Invalid file type")),
 });
 
 // ====== API ======
-app.post("/api/jobs", (req, res) => {
-  const jobId = newId("job");
-  jobs.set(jobId, { status: "CREATED", createdAt: Date.now(), files: [] });
+app.post("/api/jobs", (_, res) => {
+  const jobId = newId();
+  jobs.set(jobId, {
+    jobId,
+    createdAt: Date.now(),
+    status: "CREATED",
+    files: [],
+    options: {
+      printReady: false,
+      keepNames: false,
+      emailSafe: false,
+      shareLink: false,
+      namingPreset: null,
+    },
+    shareToken: null,
+    dayPassUntil: null,
+  });
   res.json({ jobId });
 });
 
 app.post("/api/jobs/:jobId/upload", upload.array("images", PRO_MAX), (req, res) => {
   try {
     const job = getJob(req.params.jobId);
-    if (!req.files?.length) return res.status(400).json({ error: "No files" });
+    if (!req.files?.length) throw new Error("No files");
 
-    for (const f of req.files) {
-      job.files.push({ path: f.path, originalname: f.originalname, mimetype: f.mimetype });
-    }
+    req.files.forEach((f) =>
+      job.files.push({
+        path: f.path,
+        originalname: f.originalname,
+        mimetype: f.mimetype,
+      })
+    );
 
     job.status = "UPLOADED";
-    res.json({ ok: true, fileCount: job.files.length });
+    res.json({ ok: true, count: job.files.length });
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
 });
 
+// ====== CHECKOUT ======
 app.post("/api/checkout", async (req, res) => {
   try {
-    const { jobId, tier } = req.body || {};
+    const {
+      jobId,
+      printReady,
+      keepNames,
+      emailSafe,
+      shareLink,
+      namingPreset,
+      dayPass,
+    } = req.body;
+
     const job = getJob(jobId);
-
-    if (!job.files.length) return res.status(400).json({ error: "Upload files first." });
-
     const count = job.files.length;
-    const computedTier = count > STANDARD_MAX ? "pro" : "standard";
-    const safeTier = tier === "standard" && count > STANDARD_MAX ? "pro" : computedTier;
+    if (!count) throw new Error("No files");
 
-    const unitAmount = safeTier === "pro" ? PRO_PRICE_GBP_PENCE : STANDARD_PRICE_GBP_PENCE;
+    const tier = count > STANDARD_MAX ? "pro" : "standard";
+
+    let total =
+      tier === "pro" ? PRO_PRICE_GBP_PENCE : STANDARD_PRICE_GBP_PENCE;
+
+    if (printReady) total += PRINT_READY_UPSELL_PENCE;
+    if (emailSafe) total += EMAIL_SAFE_UPSELL_PENCE;
+    if (shareLink) total += SHARE_LINK_UPSELL_PENCE;
+    if (dayPass) total = DAY_PASS_PRICE_PENCE;
+
+    job.options = {
+      printReady: !!printReady,
+      keepNames: !!keepNames,
+      emailSafe: !!emailSafe,
+      shareLink: !!shareLink,
+      namingPreset: namingPreset || null,
+    };
+
+    job.dayPassUntil = dayPass
+      ? Date.now() + 24 * 60 * 60 * 1000
+      : null;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      metadata: { jobId, tier: safeTier, fileCount: String(count) },
+      metadata: {
+        jobId,
+        tier,
+        printReady: String(!!printReady),
+        emailSafe: String(!!emailSafe),
+        shareLink: String(!!shareLink),
+        dayPass: String(!!dayPass),
+      },
       line_items: [
         {
           price_data: {
             currency: "gbp",
-            unit_amount: unitAmount,
-            product_data: {
-              name:
-                safeTier === "pro"
-                  ? `ZipPixel – Pro ZIP (up to ${PRO_MAX} files)`
-                  : `ZipPixel – Standard ZIP (up to ${STANDARD_MAX} files)`,
-            },
+            unit_amount: total,
+            product_data: { name: "ZipPixel Download" },
           },
           quantity: 1,
         },
       ],
-      success_url: `${BASE_URL}/success?jobId=${encodeURIComponent(jobId)}`,
+      success_url: `${BASE_URL}/success?jobId=${jobId}`,
       cancel_url: `${BASE_URL}/cancel`,
     });
 
-    job.status = "CHECKOUT_CREATED";
     job.checkoutSessionId = session.id;
+    job.status = "CHECKOUT_CREATED";
 
     res.json({ url: session.url });
   } catch (e) {
@@ -201,35 +231,80 @@ app.post("/api/checkout", async (req, res) => {
   }
 });
 
+app.get("/api/job/:jobId", (req, res) => {
+  try {
+    const job = getJob(req.params.jobId);
+
+    if (job.status !== "PAID") {
+      return res.status(403).json({ error: "Not paid" });
+    }
+
+    res.json({
+      jobId: job.jobId,
+      options: job.options,
+      shareToken: job.shareToken || null,
+    });
+  } catch (e) {
+    res.status(404).json({ error: "Not found" });
+  }
+});
+
+
+// ====== DOWNLOAD ======
 app.get("/api/download/:jobId", async (req, res) => {
   try {
     const job = getJob(req.params.jobId);
 
-    if (job.status !== "PAID" && job.checkoutSessionId) {
-      try {
-        const s = await stripe.checkout.sessions.retrieve(job.checkoutSessionId);
-        if (s.payment_status === "paid") job.status = "PAID";
-      } catch {}
+    if (job.dayPassUntil && job.dayPassUntil > Date.now()) {
+      job.status = "PAID";
     }
 
-    if (job.status !== "PAID") return res.status(402).send("Not paid.");
+    if (job.status !== "PAID" && job.checkoutSessionId) {
+      const s = await stripe.checkout.sessions.retrieve(job.checkoutSessionId);
+      if (s.payment_status === "paid") job.status = "PAID";
+    }
+
+    if (job.status !== "PAID") return res.status(402).send("Not paid");
+
+    if (job.options.shareLink && !job.shareToken) {
+      job.shareToken = newShareToken();
+    }
 
     res.setHeader("Content-Type", "application/zip");
-    res.setHeader("Content-Disposition", `attachment; filename="zippixel_bundle.zip"`);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="zippixel_${Date.now()}.zip"`
+    );
 
     const archive = archiver("zip", { zlib: { level: 9 } });
-    archive.on("error", () => res.status(500).end("ZIP error"));
     archive.pipe(res);
 
-    for (const f of job.files) {
-      const base = path.basename(f.originalname || "file").replace(/[^a-z0-9.\-_]/gi, "_");
+    for (let i = 0; i < job.files.length; i++) {
+      const f = job.files[i];
 
       if (f.mimetype.startsWith("image/")) {
-        const out = base.replace(/\.[^.]+$/, ".jpg");
-        const buf = await sharp(f.path).rotate().jpeg({ quality: 80, mozjpeg: true }).toBuffer();
-        archive.append(buf, { name: out });
+        const quality = job.options.printReady
+          ? 95
+          : job.options.emailSafe
+          ? 70
+          : 80;
+
+        let name = job.options.keepNames
+          ? f.originalname.replace(/\.[^.]+$/, ".jpg")
+          : `image_${String(i + 1).padStart(2, "0")}.jpg`;
+
+        if (job.options.namingPreset === "listing") {
+          name = `listing_${String(i + 1).padStart(2, "0")}.jpg`;
+        }
+
+        const buf = await sharp(f.path)
+          .rotate()
+          .jpeg({ quality, mozjpeg: true })
+          .toBuffer();
+
+        archive.append(buf, { name });
       } else {
-        archive.file(f.path, { name: base });
+        archive.file(f.path, { name: f.originalname });
       }
     }
 
@@ -239,25 +314,68 @@ app.get("/api/download/:jobId", async (req, res) => {
   }
 });
 
-// ====== STRIPE WEBHOOK ======
+// ====== SHARE LINK ======
+app.get("/s/:token", (req, res) => {
+  const job = [...jobs.values()].find((j) => j.shareToken === req.params.token);
+  if (!job || job.status !== "PAID") return res.status(404).send("Not found");
+  res.redirect(`/api/download/${job.jobId}`);
+});
+
+// ====== WEBHOOK ======
 function webhookHandler(req, res) {
-  const sig = req.headers["stripe-signature"];
-  let event;
-
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
-  } catch (err) {
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
+    const event = stripe.webhooks.constructEvent(
+      req.body,
+      req.headers["stripe-signature"],
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
 
-  if (event.type === "checkout.session.completed") {
-    const jobId = event.data.object?.metadata?.jobId;
-    if (jobId && jobs.has(jobId)) {
-      jobs.get(jobId).status = "PAID";
+    if (event.type === "checkout.session.completed") {
+      const jobId = event.data.object.metadata?.jobId;
+      if (jobId && jobs.has(jobId)) {
+        const job = jobs.get(jobId);
+        job.status = "PAID";
+        // Send download email
+      (async () => {
+        try {
+          if (!process.env.SMTP_USER) return;
+
+          const downloadLink = `${BASE_URL}/success?jobId=${job.jobId}`;
+          const shareLink =
+            job.shareToken ? `${BASE_URL}/s/${job.shareToken}` : null;
+
+          await mailer.sendMail({
+            from: "ZipPixel <support@zippixel.it.com>",
+            to: event.data.object.customer_details?.email,
+            subject: "Your ZipPixel download is ready",
+            html: `
+              <h2>Your ZIP is ready</h2>
+              <p>Download your files here:</p>
+              <p><a href="${downloadLink}">${downloadLink}</a></p>
+              ${
+                shareLink
+                  ? `<p><strong>Shareable link:</strong><br/><a href="${shareLink}">${shareLink}</a></p>`
+                  : ""
+              }
+              <p style="margin-top:24px;font-size:13px;color:#666;">
+                Files are auto-deleted after a short time.
+              </p>
+            `,
+          });
+        } catch (err) {
+          console.error("Email send failed:", err.message);
+        }
+      })();
+        if (job.options.shareLink) job.shareToken = newShareToken();
+      }
     }
-  }
 
-  res.json({ received: true });
+    res.json({ received: true });
+  } catch (e) {
+    res.status(400).send(e.message);
+  }
 }
 
-app.listen(PORT, () => console.log(`ZipPixel running at ${BASE_URL}`));
+app.listen(PORT, () =>
+  console.log(`🚀 ZipPixel running at ${BASE_URL}`)
+);

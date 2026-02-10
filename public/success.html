@@ -62,7 +62,15 @@
         </div>
 
         <div class="successActions" id="actions">
-          <!-- buttons injected -->
+          <div id="shareBlock" style="display:none; margin-top:14px;">
+            <div style="font-weight:800; margin-bottom:6px;">Shareable link</div>
+            <input
+              id="shareLink"
+              type="text"
+              readonly
+              style="width:100%; padding:10px; border-radius:10px; border:1px solid #ccc;"
+            />
+          </div>
         </div>
 
         <div class="fineprint" id="hint">
@@ -99,6 +107,22 @@
     const setActions = (html) => { actions.innerHTML = html; };
 
     const downloadUrl = jobId ? `/api/download/${encodeURIComponent(jobId)}` : "#";
+    const jobInfoUrl = jobId ? `/api/job/${encodeURIComponent(jobId)}` : "#";
+    const shareBlock = document.getElementById("shareBlock");
+    const shareLinkInput = document.getElementById("shareLink");
+
+    const loadShareLink = async () => {
+      try {
+        const r = await fetch(`/api/job/${encodeURIComponent(jobId)}`);
+        if (!r.ok) return;
+        const job = await r.json();
+
+        if (job.options?.shareLink && job.shareToken) {
+          shareLinkInput.value = `${location.origin}/s/${job.shareToken}`;
+          shareBlock.style.display = "block";
+        }
+      } catch {}
+    };
 
     // Missing jobId (edge case)
     if (!jobId) {
@@ -119,15 +143,40 @@
       const start = Date.now();
       let attempt = 0;
 
-      const renderReady = () => {
-        sub.textContent = "Your ZIP is ready.";
-        desc.textContent = "Download your compressed ZIP below.";
-        hint.textContent = "Tip: If the download doesn’t start, try again once.";
-        setActions(`
-          <a class="btn btn--primary" href="${downloadUrl}">Download ZIP</a>
-          <a class="btn btn--soft" href="/">Back to ZipPixel</a>
-        `);
-      };
+      const renderReady = async () => {
+  sub.textContent = "Your ZIP is ready.";
+  desc.textContent = "Download your compressed ZIP below.";
+
+  let extra = "";
+
+  try {
+    const r = await fetch(jobInfoUrl, { cache: "no-store" });
+    if (r.ok) {
+      const job = await r.json();
+
+      if (job.options?.shareLink && job.shareToken) {
+        const link = `${location.origin}/s/${job.shareToken}`;
+        extra = `
+          <div class="shareBox">
+            <div class="shareLabel">Shareable link</div>
+            <div class="shareRow">
+              <input class="shareInput" value="${link}" readonly />
+              <button class="btn btn--soft btn--sm" onclick="navigator.clipboard.writeText('${link}')">Copy</button>
+            </div>
+          </div>
+        `;
+      }
+    }
+  } catch {}
+
+  setActions(`
+    <a class="btn btn--primary" href="${downloadUrl}">Download ZIP</a>
+    ${extra}
+    <a class="btn btn--soft" href="/">Back to ZipPixel</a>
+  `);
+
+  hint.textContent = "Tip: Save the ZIP somewhere safe. Files are auto-deleted.";
+};
 
       const renderWaiting = (msg) => {
         sub.textContent = "Preparing your download…";

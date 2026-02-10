@@ -551,7 +551,6 @@
           </div>
           <div class="modalSummaryAmt" id="priceInline">£0.00</div>
         </div>
-
         <div class="priceGrid" aria-label="Pricing tiers">
           <div class="priceRow" id="rowStandard">
             <div class="priceLeft">
@@ -569,6 +568,95 @@
             <div class="priceAmt">£4.99</div>
           </div>
         </div>
+
+      <div class="priceGrid" aria-label="Optional upgrades">
+
+        <!-- Print ready -->
+        <div class="priceRow">
+          <div class="priceLeft">
+            <div class="priceName">Print-ready quality</div>
+            <div class="priceDesc">Higher image quality for brochures & print</div>
+          </div>
+          <div class="priceAmt">
+            <label>
+              <input type="checkbox" id="optPrintReady" />
+              +£1.99
+            </label>
+          </div>
+        </div>
+
+        <!-- Email safe -->
+        <div class="priceRow">
+          <div class="priceLeft">
+            <div class="priceName">Email-safe compression</div>
+            <div class="priceDesc">Extra compression for Gmail & Outlook limits</div>
+          </div>
+          <div class="priceAmt">
+            <label>
+              <input type="checkbox" id="optEmailSafe" />
+              +£1.49
+            </label>
+          </div>
+        </div>
+
+        <!-- Keep filenames -->
+        <div class="priceRow">
+          <div class="priceLeft">
+            <div class="priceName">Keep original filenames</div>
+            <div class="priceDesc">Preserve file names exactly as uploaded</div>
+          </div>
+          <div class="priceAmt">
+            <label>
+              <input type="checkbox" id="optKeepNames" />
+              Free
+            </label>
+          </div>
+        </div>
+
+        <!-- Smart naming -->
+        <div class="priceRow">
+          <div class="priceLeft">
+            <div class="priceName">Property listing filenames</div>
+            <div class="priceDesc">listing_01.jpg, listing_02.jpg…</div>
+          </div>
+          <div class="priceAmt">
+            <label>
+              <input type="checkbox" id="optListingNames" />
+              Free
+            </label>
+          </div>
+        </div>
+
+        <!-- Share link -->
+        <div class="priceRow">
+          <div class="priceLeft">
+            <div class="priceName">Shareable download link</div>
+            <div class="priceDesc">Send a link instead of the ZIP file</div>
+          </div>
+          <div class="priceAmt">
+            <label>
+              <input type="checkbox" id="optShareLink" />
+              +£2.49
+            </label>
+          </div>
+        </div>
+
+        <!-- Day pass -->
+        <div class="priceRow">
+          <div class="priceLeft">
+            <div class="priceName">Unlimited 24-hour pass</div>
+            <div class="priceDesc">Compress unlimited ZIPs today</div>
+          </div>
+          <div class="priceAmt">
+            <label>
+              <input type="checkbox" id="optDayPass" />
+              £9.99
+            </label>
+          </div>
+        </div>
+
+      </div>
+
 
         <div class="modalNote" id="priceModalNote">
           You’ll be redirected to secure Stripe Checkout.
@@ -590,8 +678,15 @@
     const STANDARD_MAX = 5;
     const PRO_MAX = 10;
 
-    const STANDARD_PRICE_LABEL = "£2.99";
-    const PRO_PRICE_LABEL = "£4.99";
+    const STANDARD_PRICE = 2.99;
+    const PRO_PRICE = 4.99;
+
+    const PRINT_READY_PRICE = 1.99;
+    const EMAIL_SAFE_PRICE = 1.49;
+    const SHARE_LINK_PRICE = 2.49;
+    const DAY_PASS_PRICE = 9.99;
+
+
 
     const MAX_FILES = PRO_MAX;
     const MAX_MB_EACH = 25;
@@ -623,6 +718,10 @@
     const modalCloseBtn = document.getElementById("modalCloseBtn");
     const modalBackBtn = document.getElementById("modalBackBtn");
     const modalPayBtn = document.getElementById("modalPayBtn");
+    const optPrintReady = document.getElementById("optPrintReady");
+    const optKeepNames = document.getElementById("optKeepNames");
+    const optDayPass = document.getElementById("optDayPass");
+    const savingsLine = document.getElementById("savingsLine");
     const priceModalLead = document.getElementById("priceModalLead");
     const priceModalNote = document.getElementById("priceModalNote");
     const rowStandard = document.getElementById("rowStandard");
@@ -630,6 +729,10 @@
     const tierInline = document.getElementById("tierInline");
     const priceInline = document.getElementById("priceInline");
     const countInline = document.getElementById("countInline");
+    const optEmailSafe = document.getElementById("optEmailSafe");
+    const optListingNames = document.getElementById("optListingNames");
+    const optShareLink = document.getElementById("optShareLink");
+
 
     let jobId = null;
     let creatingJob = false;
@@ -675,38 +778,79 @@
 
     const getTier = () => (selected.length > STANDARD_MAX ? "pro" : "standard");
     const getTierLabel = () => (getTier() === "pro" ? "Pro ZIP" : "Standard ZIP");
-    const getTierPriceLabel = () => (getTier() === "pro" ? PRO_PRICE_LABEL : STANDARD_PRICE_LABEL);
 
     const setChosen = (el, chosen) => {
       el.classList.toggle("isChosen", !!chosen);
     };
 
     const openPriceModal = () => {
-      const tier = getTier();
-      const n = selected.length;
+  const tier = getTier();
+  const n = selected.length;
 
-      priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> file${n === 1 ? "" : "s"}.`;
+  priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> file${n === 1 ? "" : "s"}.`;
 
-      // Update the “you’ll pay” summary
-      tierInline.textContent = getTierLabel();
-      priceInline.textContent = getTierPriceLabel();
-      countInline.textContent = String(n);
+  tierInline.textContent = getTierLabel();
+  countInline.textContent = String(n);
 
-      setChosen(rowStandard, tier === "standard");
-      setChosen(rowPro, tier === "pro");
+  optPrintReady.checked = false;
+  optKeepNames.checked = false;
+  optDayPass.checked = false;
 
-      if (tier === "pro") {
-        priceModalNote.textContent = "Pro is selected because you have 6+ images. Remove images to pay Standard.";
-      } else {
-        priceModalNote.textContent = "You’ll be redirected to secure Stripe Checkout.";
-      }
+  setChosen(rowStandard, tier === "standard");
+  setChosen(rowPro, tier === "pro");
 
-      priceModal.classList.add("isOpen");
-      document.body.style.overflow = "hidden";
+  const updateTotal = () => {
+    let base =
+      tier === "pro"
+        ? PRO_PRICE
+        : STANDARD_PRICE;
 
-      // focus
-      modalPayBtn.focus();
-    };
+    let total = base;
+
+    if (optPrintReady.checked) total += PRINT_READY_PRICE;
+    if (optEmailSafe.checked) total += EMAIL_SAFE_PRICE;
+    if (optShareLink.checked) total += SHARE_LINK_PRICE;
+
+    if (optDayPass.checked) {
+      total = DAY_PASS_PRICE;
+    }
+
+    priceInline.textContent = `£${total.toFixed(2)}`;
+  };
+
+  optPrintReady.checked = false;
+  optEmailSafe.checked = false;
+  optShareLink.checked = false;
+  optListingNames.checked = false;
+  optDayPass.checked = false;
+
+
+  updateTotal();
+
+  [
+  optPrintReady,
+  optEmailSafe,
+  optShareLink,
+  optDayPass,
+].forEach((el) => el && (el.onchange = updateTotal));
+
+if (optListingNames) {
+  optListingNames.onchange = () => {};
+}
+
+
+  priceModalNote.textContent =
+    tier === "pro"
+      ? "Pro selected automatically for 6+ files."
+      : "You’ll be redirected to secure Stripe Checkout.";
+
+  priceModal.classList.add("isOpen");
+  document.body.style.overflow = "hidden";
+  modalPayBtn.focus();
+};
+
+
+
 
     const closePriceModal = () => {
       priceModal.classList.remove("isOpen");
@@ -1008,7 +1152,15 @@
         const resp = await fetch("/api/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ jobId, tier })
+          body: JSON.stringify({
+          jobId,
+          printReady: optPrintReady.checked,
+          keepNames: optKeepNames.checked,
+          emailSafe: optEmailSafe.checked,
+          shareLink: optShareLink.checked,
+          namingPreset: optListingNames.checked ? "listing" : null,
+          dayPass: optDayPass.checked
+        })
         }).then(r => r.json());
 
         if (resp?.error) throw new Error(resp.error);
