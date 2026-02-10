@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Success | ZipPixel</title>
-  <meta name="description" content="Your ZIP is ready. Download your compressed images." />
+  <meta name="description" content="Your ZIP is ready. Download your compressed files." />
   <link rel="canonical" href="https://zippixel.it.com/success" />
 
   <!-- Favicons (match your current files) -->
@@ -13,7 +13,8 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css" />
+  <!-- Match v13 system -->
+  <link rel="stylesheet" href="/style.css?v=13" />
 </head>
 
 <body>
@@ -21,17 +22,16 @@
     <div class="container top__inner">
       <a class="brand" href="/" aria-label="ZipPixel home">
         <span class="brand__logo" aria-hidden="true">
-          <img src="/apple-touch-icon.png" alt="" width="34" height="34" />
+          <img src="/favicon.svg?v=1" alt="ZipPixel" width="34" height="34" />
         </span>
         <span class="brand__text">
           <span class="brand__name">ZipPixel</span>
-          <span class="brand__sub">Compress images → one ZIP</span>
+          <span class="brand__sub">Compress files → one ZIP</span>
         </span>
       </a>
 
       <nav class="nav" aria-label="Site">
         <a href="/#how">How</a>
-        <a href="/#use">Use cases</a>
         <a href="/#faq">FAQ</a>
         <a href="/privacy">Privacy</a>
         <a href="/terms">Terms</a>
@@ -101,28 +101,10 @@
     const desc = document.getElementById("desc");
     const hint = document.getElementById("hint");
 
-    const escapeHtml = (str) =>
-      String(str).replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
-
     const setActions = (html) => { actions.innerHTML = html; };
 
     const downloadUrl = jobId ? `/api/download/${encodeURIComponent(jobId)}` : "#";
     const jobInfoUrl = jobId ? `/api/job/${encodeURIComponent(jobId)}` : "#";
-    const shareBlock = document.getElementById("shareBlock");
-    const shareLinkInput = document.getElementById("shareLink");
-
-    const loadShareLink = async () => {
-      try {
-        const r = await fetch(`/api/job/${encodeURIComponent(jobId)}`);
-        if (!r.ok) return;
-        const job = await r.json();
-
-        if (job.options?.shareLink && job.shareToken) {
-          shareLinkInput.value = `${location.origin}/s/${job.shareToken}`;
-          shareBlock.style.display = "block";
-        }
-      } catch {}
-    };
 
     // Missing jobId (edge case)
     if (!jobId) {
@@ -135,8 +117,9 @@
       `);
     } else {
       // Strategy:
-      // 1) Attempt a "HEAD" ping on the download endpoint (fast).
-      // 2) If not ready, retry with exponential-ish backoff for ~30 seconds.
+      // 1) Probe the download endpoint with a tiny GET (Range: bytes=0-0).
+      //    This avoids relying on HEAD support and avoids downloading the whole ZIP.
+      // 2) If not ready, retry with backoff for ~30 seconds.
       // 3) Always allow manual retry.
 
       const maxMs = 30000;
@@ -144,39 +127,39 @@
       let attempt = 0;
 
       const renderReady = async () => {
-  sub.textContent = "Your ZIP is ready.";
-  desc.textContent = "Download your compressed ZIP below.";
+        sub.textContent = "Your ZIP is ready.";
+        desc.textContent = "Download your compressed ZIP below.";
 
-  let extra = "";
+        let extra = "";
 
-  try {
-    const r = await fetch(jobInfoUrl, { cache: "no-store" });
-    if (r.ok) {
-      const job = await r.json();
+        try {
+          const r = await fetch(jobInfoUrl, { cache: "no-store" });
+          if (r.ok) {
+            const job = await r.json();
 
-      if (job.options?.shareLink && job.shareToken) {
-        const link = `${location.origin}/s/${job.shareToken}`;
-        extra = `
-          <div class="shareBox">
-            <div class="shareLabel">Shareable link</div>
-            <div class="shareRow">
-              <input class="shareInput" value="${link}" readonly />
-              <button class="btn btn--soft btn--sm" onclick="navigator.clipboard.writeText('${link}')">Copy</button>
-            </div>
-          </div>
-        `;
-      }
-    }
-  } catch {}
+            if (job.options?.shareLink && job.shareToken) {
+              const link = `${location.origin}/s/${job.shareToken}`;
+              extra = `
+                <div class="shareBox">
+                  <div class="shareLabel">Shareable link</div>
+                  <div class="shareRow">
+                    <input class="shareInput" value="${link}" readonly />
+                    <button class="btn btn--soft btn--sm" onclick="navigator.clipboard.writeText('${link}')">Copy</button>
+                  </div>
+                </div>
+              `;
+            }
+          }
+        } catch {}
 
-  setActions(`
-    <a class="btn btn--primary" href="${downloadUrl}">Download ZIP</a>
-    ${extra}
-    <a class="btn btn--soft" href="/">Back to ZipPixel</a>
-  `);
+        setActions(`
+          <a class="btn btn--primary" href="${downloadUrl}">Download ZIP</a>
+          ${extra}
+          <a class="btn btn--soft" href="/">Back to ZipPixel</a>
+        `);
 
-  hint.textContent = "Tip: Save the ZIP somewhere safe. Files are auto-deleted.";
-};
+        hint.textContent = "Tip: Save the ZIP somewhere safe. Files are auto-deleted.";
+      };
 
       const renderWaiting = (msg) => {
         sub.textContent = "Preparing your download…";
@@ -185,7 +168,7 @@
           <button class="btn btn--primary" id="retryBtn" type="button">Check again</button>
           <a class="btn btn--soft" href="/">Back to ZipPixel</a>
         `);
-        document.getElementById("retryBtn").onclick = () => poll();
+        document.getElementById("retryBtn").onclick = () => poll(true);
       };
 
       const renderFailed = () => {
@@ -199,13 +182,19 @@
         document.getElementById("retryBtn2").onclick = () => poll(true);
       };
 
-      // A fast "is it ready" check: HEAD request
-      // - If server returns 200 -> ready
-      // - If 402/409/etc -> not ready (depends on your backend)
       const isReady = async () => {
         try {
-          const r = await fetch(downloadUrl, { method: "HEAD", cache: "no-store" });
-          return r.ok;
+          const r = await fetch(downloadUrl, {
+            method: "GET",
+            cache: "no-store",
+            headers: { "Range": "bytes=0-0" }
+          });
+
+          // If paid & ready, server will respond 200 (or 206 if it respects Range)
+          if (r.status === 200 || r.status === 206) return true;
+
+          // 402 = not paid (rare here but could happen), treat as not ready
+          return false;
         } catch {
           return false;
         }
@@ -217,23 +206,19 @@
         attempt++;
         const waited = Date.now() - start;
 
-        if (manual) {
-          renderWaiting("Checking…");
-        }
+        if (manual) renderWaiting("Checking…");
 
         const ready = await isReady();
         if (ready) return renderReady();
 
         if (waited >= maxMs) return renderFailed();
 
-        // backoff: 800ms → 1200 → 1800 → 2500…
         const delay = Math.min(2500, 800 + attempt * 350);
         renderWaiting(`Not ready yet. Retrying in ${(delay/1000).toFixed(1)}s…`);
         await sleep(delay);
         return poll(false);
       };
 
-      // initial UI
       renderWaiting("Checking your download…");
       poll(false);
     }
