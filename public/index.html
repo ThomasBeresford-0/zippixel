@@ -1,8 +1,8 @@
-<!-- index.html — ZipPixel (FULL REDESIGN v13 - “BIG TOOL” DARK)
-     ✅ PDF24 / “tool-first” vibe: dark header + centered hero + trust ticks + big upload panel
-     ✅ Keeps ALL existing ids/classes/JS hooks working (DO NOT rename IDs)
-     ✅ Leaves your JS exactly as-is (same endpoints / same flow)
-     ✅ Adds only safe wrapper elements + aria polish
+<!-- index.html — ZipPixel (PRO TOOL REDESIGN v14 - “UTILITY MACHINE”)
+     Goal: PDF24/iLovePDF vibe — fast, obvious, conversion-focused.
+     ✅ No inline CSS (professional)
+     ✅ Keeps your existing IDs/JS hooks working
+     ✅ Pricing still opens ONLY after clicking Continue
 -->
 <!doctype html>
 <html lang="en">
@@ -29,404 +29,25 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=12" />
-
-  <!-- Critical “tool-dark” skin (keeps your existing classes/IDs; just changes look) -->
-  <style>
-    :root{
-      --bg:#0a0a0b;
-      --panel:#101114;
-      --panel2:#0f1012;
-      --text:#f4f4f5;
-      --muted:#a1a1aa;
-      --muted2:#71717a;
-      --border:rgba(255,255,255,.10);
-      --border2:rgba(255,255,255,.08);
-      --shadow:0 28px 90px rgba(0,0,0,.55);
-      --accent:#f59e0b; /* PDF24-ish */
-      --accentText:#111827;
-      --ok:#34d399;
-      --focus:0 0 0 3px rgba(245,158,11,.25);
-      --radius:18px;
-    }
-
-    html,body{height:100%}
-    body{
-      margin:0;
-      background:radial-gradient(1200px 700px at 50% -140px, rgba(245,158,11,.10), transparent 60%),
-                 radial-gradient(900px 520px at 20% 0, rgba(52,211,153,.06), transparent 55%),
-                 var(--bg);
-      color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      -webkit-font-smoothing:antialiased;
-      text-rendering:optimizeLegibility;
-    }
-
-    a{color:inherit}
-    .container{max-width:1100px;margin:0 auto;padding:0 24px}
-
-    /* TOP BAR (keep .top/.brand/.nav/.top__cta) */
-    .top{
-      position:sticky; top:0; z-index:50;
-      backdrop-filter:saturate(150%) blur(10px);
-      background:rgba(10,10,11,.75);
-      border-bottom:1px solid var(--border2);
-    }
-    .top__inner{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:14px 0;
-      gap:16px;
-    }
-    .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
-    .brand__logo{
-      width:40px;height:40px;border-radius:12px;
-      background:rgba(255,255,255,.06);
-      border:1px solid var(--border2);
-      display:grid;place-items:center;
-      box-shadow:0 0 0 1px rgba(255,255,255,.03) inset;
-    }
-    .brand__logo img{display:block}
-    .brand__text{display:flex;flex-direction:column;line-height:1.05}
-    .brand__name{font-weight:700;letter-spacing:-.02em}
-    .brand__sub{font-size:12px;color:var(--muted)}
-    .nav{display:flex;gap:18px;align-items:center}
-    .nav a{font-size:13px;color:var(--muted);text-decoration:none}
-    .nav a:hover{color:var(--text)}
-    .top__cta{display:flex;gap:10px;align-items:center}
-
-    /* Buttons (keep your .btn variants) */
-    .btn{border:1px solid var(--border2); background:rgba(255,255,255,.06); color:var(--text);
-      border-radius:999px; padding:10px 14px; font-weight:600; cursor:pointer}
-    .btn:focus{outline:none; box-shadow:var(--focus)}
-    .btn--sm{padding:9px 12px;font-size:13px}
-    .btn--ghost{background:transparent}
-    .btn--primary{
-      background:var(--accent);
-      border-color:rgba(245,158,11,.55);
-      color:var(--accentText);
-      box-shadow:0 12px 30px rgba(245,158,11,.18);
-    }
-    .btn--primary:hover{filter:brightness(1.03)}
-    .btn--soft{background:rgba(255,255,255,.08)}
-    .btn--block{width:100%}
-
-    /* PAGE / STAGE */
-    .page{padding-bottom:44px}
-    .stage{padding:44px 0 20px}
-    .stage__inner{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:26px;
-      align-items:start;
-    }
-
-    /* Centered hero like PDF24 */
-    .stage__left{
-      max-width:760px;
-      margin:0 auto;
-      text-align:center;
-    }
-    .kicker{
-      display:inline-flex;align-items:center;gap:10px;
-      padding:8px 12px;
-      border-radius:999px;
-      border:1px solid var(--border2);
-      background:rgba(255,255,255,.04);
-      color:var(--muted);
-      font-size:13px;
-    }
-    .kDot{
-      width:8px;height:8px;border-radius:999px;
-      background:var(--ok);
-      box-shadow:0 0 0 3px rgba(52,211,153,.15);
-    }
-    .heroTitle{
-      margin:18px 0 0;
-      font-size:46px;
-      line-height:1.03;
-      letter-spacing:-.035em;
-    }
-    .heroLead{
-      margin:12px auto 0;
-      max-width:620px;
-      color:rgba(244,244,245,.86);
-      font-size:16.5px;
-      line-height:1.55;
-    }
-    .muted{color:var(--muted)}
-
-    /* PDF24 trust ticks row */
-    .trustGrid{
-      margin:18px auto 0;
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px 18px;
-      justify-content:center;
-      align-items:center;
-      color:rgba(244,244,245,.82);
-      font-size:13px;
-    }
-    .trustItem{
-      display:flex;align-items:center;gap:8px;
-      padding:0;
-      border:none;background:transparent;
-      min-width:auto;
-    }
-    .trustIcon{color:var(--ok)}
-    .trustText{display:flex;flex-direction:row;gap:6px}
-    .trustTitle{font-weight:600}
-    .trustSub{color:var(--muted);font-weight:500}
-
-    .microLine{margin-top:14px;color:var(--muted2);font-size:12.5px}
-
-    /* TOOL CARD — big central panel */
-    .toolCard{
-      max-width:900px;
-      margin:0 auto;
-      border-radius:var(--radius);
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--border2);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-
-    .toolTop{
-      display:flex;flex-wrap:wrap;gap:16px;
-      justify-content:space-between;
-      align-items:flex-start;
-      padding:18px 18px 0;
-    }
-    .statusBlock .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
-    .statusRow{display:flex;align-items:center;gap:10px;margin-top:6px}
-    .status{font-weight:700}
-    .spinner{
-      width:14px;height:14px;border-radius:999px;
-      border:2px solid rgba(255,255,255,.25);
-      border-top-color:var(--accent);
-      display:none;
-      animation:spin .9s linear infinite;
-    }
-    .spinner.isOn{display:inline-block}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .statusHint{margin-top:6px;color:var(--muted);font-size:13px}
-
-    .limits{display:flex;gap:10px;flex-wrap:wrap}
-    .mini{
-      font-size:12px;color:rgba(244,244,245,.86);
-      border:1px solid var(--border2);
-      background:rgba(255,255,255,.04);
-      padding:7px 10px;border-radius:999px;
-    }
-    .mini b{color:var(--muted);font-weight:700}
-
-    /* Dropzone */
-    .dropzone{padding:16px 18px 0}
-    #files{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
-    .dropzone__inner{
-      border-radius:16px;
-      border:1px dashed rgba(255,255,255,.20);
-      background:linear-gradient(180deg, rgba(15,16,18,.85), rgba(15,16,18,.55));
-      padding:26px 18px;
-      display:flex;
-      gap:18px;
-      align-items:center;
-      justify-content:space-between;
-      cursor:pointer;
-    }
-    .dropzone.isDrag .dropzone__inner{
-      border-color:rgba(245,158,11,.65);
-      box-shadow:0 0 0 3px rgba(245,158,11,.18) inset;
-    }
-    .dzBadge{
-      width:44px;height:44px;border-radius:999px;
-      border:1px solid var(--border2);
-      background:rgba(255,255,255,.05);
-      display:grid;place-items:center;
-      color:rgba(244,244,245,.88);
-      flex:0 0 auto;
-    }
-    .dzText{display:flex;flex-direction:column;gap:4px;flex:1}
-    .dzTitle{font-size:18px;font-weight:800;letter-spacing:-.02em}
-    .dzSub{font-size:13px;color:var(--muted)}
-    .dzActions{flex:0 0 auto}
-    .dzFine{margin:10px 4px 0;color:var(--muted2);font-size:12.5px}
-
-    /* File list becomes a proper “tool list” */
-    .fileMeta{margin-top:14px;padding:0 2px 2px}
-    .fileMetaTop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
-    .fileSummary{color:rgba(244,244,245,.86);font-size:13px}
-    .fileList{list-style:none;padding:0;margin:0;display:grid;gap:10px}
-    .fileCard{
-      display:flex;align-items:center;gap:12px;
-      border-radius:14px;
-      border:1px solid var(--border2);
-      background:rgba(255,255,255,.04);
-      padding:10px 12px;
-    }
-    .thumb{width:48px;height:38px;border-radius:10px;overflow:hidden;border:1px solid var(--border2);background:rgba(255,255,255,.05);display:grid;place-items:center}
-    .thumbImg{width:100%;height:100%;object-fit:cover;display:block}
-    .thumbPdf{font-weight:800;color:rgba(244,244,245,.86);font-size:12px}
-    .fileInfo{min-width:0;flex:1}
-    .fileName{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .fileMetaLine{margin-top:2px;color:var(--muted);font-size:12px}
-    .iconBtn{
-      border:1px solid var(--border2);
-      background:transparent;
-      color:rgba(244,244,245,.86);
-      border-radius:999px;
-      padding:8px 10px;
-      cursor:pointer;
-      font-weight:700;
-      font-size:12px;
-    }
-    .iconBtn:hover{background:rgba(255,255,255,.06)}
-    .iconBtn:focus{outline:none;box-shadow:var(--focus)}
-
-    /* Progress */
-    .progressWrap{padding:16px 18px 0}
-    .progressTop{display:flex;justify-content:space-between;align-items:center}
-    .progressLabel{color:rgba(244,244,245,.86);font-weight:700}
-    .progressPct{color:rgba(244,244,245,.86);font-weight:800}
-    .progressBar{
-      margin-top:10px;
-      height:10px;border-radius:999px;
-      border:1px solid var(--border2);
-      background:rgba(255,255,255,.04);
-      overflow:hidden;
-    }
-    .progressFill{
-      height:100%;
-      width:0%;
-      background:linear-gradient(90deg, rgba(245,158,11,.85), rgba(245,158,11,1));
-    }
-    .progressMeta{margin-top:8px;color:var(--muted);font-size:12px}
-
-    /* Actions */
-    .actionWrap{padding:16px 18px 18px}
-    .actionSteps{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
-    .stepPill{
-      border:1px solid var(--border2);
-      background:rgba(255,255,255,.04);
-      color:rgba(244,244,245,.86);
-      padding:8px 10px;border-radius:999px;font-size:12.5px;font-weight:700;
-      display:flex;gap:8px;align-items:center;
-    }
-    .stepDot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.25)}
-    .actionBar{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .fineprint{margin-top:12px;color:var(--muted2);font-size:12.5px;text-align:center}
-    .fineprint a{color:rgba(244,244,245,.86)}
-    .fineprint a:hover{color:var(--text)}
-
-    /* Sections below */
-    .section{padding:36px 0 0}
-    .sectionHead{text-align:center;max-width:740px;margin:0 auto}
-    .sectionHead h2{margin:0;font-size:28px;letter-spacing:-.02em}
-    .sectionHead p{margin:8px 0 0;color:var(--muted)}
-    .grid3{margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-    .card{
-      border-radius:16px;border:1px solid var(--border2);
-      background:rgba(255,255,255,.04);
-      padding:16px;
-    }
-    .card .k{
-      width:34px;height:34px;border-radius:999px;
-      display:grid;place-items:center;
-      border:1px solid var(--border2);
-      background:rgba(255,255,255,.05);
-      font-weight:900;
-    }
-    .card .t{margin-top:10px;font-weight:800}
-    .card .d{margin-top:6px;color:var(--muted);font-size:13px;line-height:1.45}
-    .faq{margin-top:16px;display:grid;gap:10px;max-width:820px;margin-left:auto;margin-right:auto}
-    details{
-      border-radius:16px;border:1px solid var(--border2);
-      background:rgba(255,255,255,.04);
-      padding:14px 16px;
-    }
-    summary{cursor:pointer;font-weight:800}
-    details p{margin:10px 0 0;color:var(--muted);line-height:1.5}
-
-    /* Footer */
-    .footer{margin-top:44px;border-top:1px solid var(--border2);background:rgba(10,10,11,.65)}
-    .footer__inner{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 0;color:var(--muted)}
-    .footer__links{display:flex;gap:12px}
-    .footer__links a{text-decoration:none;color:var(--muted)}
-    .footer__links a:hover{color:var(--text)}
-
-    /* Modal (keeps ids) */
-    .modalOverlay{
-      position:fixed;inset:0;display:none;align-items:center;justify-content:center;
-      background:rgba(0,0,0,.62);padding:22px;z-index:999;
-    }
-    .modalOverlay.isOpen{display:flex}
-    .modalCard{
-      width:min(720px, 100%);
-      border-radius:18px;
-      border:1px solid var(--border2);
-      background:linear-gradient(180deg, rgba(16,17,20,.98), rgba(16,17,20,.94));
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .modalTop{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 16px;border-bottom:1px solid var(--border2)}
-    .modalTitle{font-weight:900;letter-spacing:-.02em}
-    .modalClose{background:transparent;border:1px solid var(--border2);color:var(--text);border-radius:999px;padding:8px 10px;cursor:pointer}
-    .modalClose:focus{outline:none;box-shadow:var(--focus)}
-    .modalBody{padding:16px}
-    .modalLead{margin:0 0 12px;color:rgba(244,244,245,.86)}
-    .modalSummary{
-      display:flex;justify-content:space-between;align-items:center;gap:12px;
-      border-radius:16px;border:1px solid var(--border2);background:rgba(255,255,255,.04);padding:14px;
-    }
-    .modalSummaryKicker{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
-    .modalSummaryMain{margin-top:4px;font-weight:800}
-    .modalSummaryAmt{font-weight:950;font-size:20px}
-    .priceGrid{margin-top:12px;display:grid;gap:10px}
-    .priceRow{
-      display:flex;justify-content:space-between;align-items:center;gap:12px;
-      border-radius:16px;border:1px solid var(--border2);background:rgba(255,255,255,.04);padding:14px;
-    }
-    .priceLeft{display:flex;flex-direction:column}
-    .priceName{font-weight:900}
-    .priceDesc{margin-top:4px;color:var(--muted);font-size:13px}
-    .priceAmt{font-weight:900}
-    .priceRow.isChosen{border-color:rgba(245,158,11,.55);box-shadow:0 0 0 3px rgba(245,158,11,.14) inset}
-    .modalNote{margin-top:12px;color:var(--muted);font-size:13px}
-    .modalFoot{display:flex;justify-content:flex-end;gap:10px;padding:14px 16px;border-top:1px solid var(--border2)}
-    .modalBackBtn{background:transparent}
-    .modalPayBtn{background:var(--accent);border-color:rgba(245,158,11,.55);color:var(--accentText)}
-
-    /* Responsive */
-    @media (max-width: 860px){
-      .grid3{grid-template-columns:1fr}
-      .nav{display:none}
-      .heroTitle{font-size:40px}
-      .dropzone__inner{flex-direction:column;align-items:center;text-align:center}
-      .dzText{align-items:center}
-      .actionBar{grid-template-columns:1fr}
-      .toolTop{padding:16px 16px 0}
-      .dropzone{padding:14px 16px 0}
-      .progressWrap{padding:14px 16px 0}
-      .actionWrap{padding:14px 16px 16px}
-    }
-  </style>
+  <link rel="stylesheet" href="/style.css?v=14" />
 </head>
 
 <body>
+  <!-- Top bar: dense utility header -->
   <header class="top">
     <div class="container top__inner">
       <a class="brand" href="/" aria-label="ZipPixel home">
         <span class="brand__logo" aria-hidden="true">
-          <img src="/favicon.svg?v=1" alt="ZipPixel" width="22" height="22" />
+          <img src="/favicon.svg?v=1" alt="ZipPixel" width="20" height="20" />
         </span>
         <span class="brand__text">
           <span class="brand__name">ZipPixel</span>
-          <span class="brand__sub">Compress images → one ZIP</span>
+          <span class="brand__sub">Compress → One ZIP</span>
         </span>
       </a>
 
       <nav class="nav" aria-label="Site">
         <a href="/pricing">Pricing</a>
-        <a href="#how">How</a>
         <a href="#faq">FAQ</a>
         <a href="/privacy">Privacy</a>
         <a href="/terms">Terms</a>
@@ -439,113 +60,62 @@
   </header>
 
   <main class="page">
-    <!-- HERO + TOOL (tool-first, centered like PDF24) -->
-    <section class="stage">
-      <div class="container stage__inner">
-        <div class="stage__left">
-          <div class="kicker">
-            <span class="kDot" aria-hidden="true"></span>
-            Compress • Bundle • Send
+    <div class="container toolShell">
+
+      <!-- Left: the machine -->
+      <section class="machine" aria-label="ZipPixel tool">
+        <div class="machine__head">
+          <div class="machine__titleWrap">
+            <h1 class="machine__title">Compress images into one ZIP</h1>
+            <p class="machine__sub">
+              Drop files → upload → confirm price → pay → download.
+            </p>
           </div>
 
-          <h1 class="heroTitle">
-            Compress images<br/>
-            into one ZIP.
-          </h1>
-
-          <p class="heroLead">
-            Upload up to <b>10</b> images (or PDFs). We optimise them and pack everything into one clean ZIP.
-            <span class="muted"> No signup.</span>
-          </p>
-
-          <!-- Keep .trustGrid/.trustItem etc (your existing HTML expected these) -->
-          <div class="trustGrid" aria-label="Highlights">
-            <div class="trustItem">
-              <div class="trustIcon" aria-hidden="true">✓</div>
-              <div class="trustText">
-                <div class="trustTitle">Free</div>
-                <div class="trustSub">to try</div>
-              </div>
+          <!-- This status area stays because your JS updates it via ids -->
+          <div class="machine__status" aria-live="polite">
+            <div class="label">Status</div>
+            <div class="statusRow">
+              <div class="status" id="status">Ready.</div>
+              <div class="spinner" id="spinner" aria-hidden="true"></div>
             </div>
-            <div class="trustItem">
-              <div class="trustIcon" aria-hidden="true">✓</div>
-              <div class="trustText">
-                <div class="trustTitle">Online</div>
-                <div class="trustSub">no installs</div>
-              </div>
-            </div>
-            <div class="trustItem">
-              <div class="trustIcon" aria-hidden="true">✓</div>
-              <div class="trustText">
-                <div class="trustTitle">No clutter</div>
-                <div class="trustSub">2 steps</div>
-              </div>
-            </div>
-            <div class="trustItem">
-              <div class="trustIcon" aria-hidden="true">✓</div>
-              <div class="trustText">
-                <div class="trustTitle">Secure</div>
-                <div class="trustSub">Stripe</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="microLine">
-            Popular for property listings, client handover, email limits, and portals.
+            <div class="statusHint" id="statusHint">Drop images to begin.</div>
           </div>
         </div>
 
-        <!-- TOOL CARD (same IDs/hooks) -->
-        <div class="toolCard" aria-label="ZipPixel tool">
-          <div class="toolTop">
-            <div class="statusBlock">
-              <div class="label">Status</div>
-              <div class="statusRow">
-                <div class="status" id="status">Ready.</div>
-                <div class="spinner" id="spinner" aria-hidden="true"></div>
-              </div>
-              <div class="statusHint" id="statusHint">Drop images to begin.</div>
-            </div>
-
-            <div class="limits" aria-label="Limits">
-              <span class="mini"><b>Max</b> 10</span>
-              <span class="mini"><b>Max</b> 25MB</span>
-              <span class="mini"><b>Output</b> ZIP</span>
-            </div>
-          </div>
-
-          <!-- DROPZONE (same IDs/hooks) -->
+        <!-- Core panel -->
+        <div class="panel">
+          <!-- Dropzone (IDs must remain) -->
           <div class="dropzone" id="dropzone" aria-label="Upload images">
             <input id="files" type="file" accept="image/*,application/pdf" multiple />
 
-            <!-- Make the whole panel clickable like PDF24 -->
             <div class="dropzone__inner" role="button" tabindex="0" aria-label="Choose or drop files">
-              <div class="dzBadge" aria-hidden="true">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <div class="dzIcon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M12 16V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                   <path d="M8.5 11.5L12 8l3.5 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M7 16.5c-1.7 0-3-1.3-3-3 0-1.4.9-2.6 2.2-2.9C6.6 8.1 8.6 6.5 11 6.5c2.3 0 4.3 1.5 4.9 3.7.2 0 .5-.1.7-.1 2 0 3.5 1.6 3.5 3.5S18.6 17 16.6 17H7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
               </div>
 
-              <div class="dzText">
-                <div class="dzTitle">Choose files</div>
-                <div class="dzSub">…or drop files here • up to 10 • one ZIP</div>
+              <div class="dzBody">
+                <div class="dzTitle">Drop files here</div>
+                <div class="dzSub">or click to choose • up to 10 • images + PDFs</div>
               </div>
 
-              <div class="dzActions">
+              <div class="dzRight">
                 <button class="btn btn--primary btn--sm" id="chooseBtn" type="button">Choose files</button>
               </div>
             </div>
 
             <div class="dzFine">
-              Tip: keep it client-ready — select your best shots first.
+              Max 10 files. Max 25MB each. Output: one ZIP.
             </div>
 
-            <!-- Selected files / preview (same IDs) -->
-            <div class="fileMeta" id="fileMeta" hidden>
-              <div class="fileMetaTop">
-                <div class="fileSummary" id="fileSummary"></div>
+            <!-- Review area (JS toggles hidden) -->
+            <div class="review" id="fileMeta" hidden>
+              <div class="review__top">
+                <div class="review__summary" id="fileSummary"></div>
                 <button class="btn btn--ghost btn--sm" id="clearBtn" type="button">Clear</button>
               </div>
 
@@ -553,7 +123,7 @@
             </div>
           </div>
 
-          <!-- PROGRESS (same IDs) -->
+          <!-- Progress (JS toggles hidden) -->
           <div class="progressWrap" id="progressWrap" hidden>
             <div class="progressTop">
               <div class="progressLabel" id="progressLabel">Uploading…</div>
@@ -565,82 +135,62 @@
             <div class="progressMeta" id="progressMeta"></div>
           </div>
 
-          <!-- ACTIONS (same IDs) -->
-          <div class="actionWrap" aria-label="Actions">
-            <div class="actionSteps" aria-hidden="true">
-              <div class="stepPill"><span class="stepDot"></span> 1) Upload</div>
-              <div class="stepPill"><span class="stepDot"></span> 2) Continue</div>
-            </div>
-
-            <div class="actionBar">
-              <button class="btn btn--soft btn--block" id="upload" disabled>Upload</button>
+          <!-- Actions: only one “primary” at a time via disabled/visual rules -->
+          <div class="actions" aria-label="Actions">
+            <div class="actions__row">
+              <button class="btn btn--primary btn--block" id="upload" disabled>Upload</button>
               <button class="btn btn--primary btn--block" id="continue" disabled>Continue</button>
             </div>
 
-            <div class="fineprint">
-              By continuing you agree to our <a href="/terms">Terms</a>. Read our <a href="/privacy">Privacy</a>.
+            <div class="actions__fine">
+              Pricing is shown after you click Continue. Payment handled by Stripe.
+            </div>
+
+            <div class="actions__legal">
+              By continuing you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy</a>.
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- How -->
-    <section class="section" id="how">
-      <div class="container">
-        <div class="sectionHead">
-          <h2>How it works</h2>
-          <p>Two steps. No accounts. No clutter.</p>
+      <!-- Right: utility info / FAQ (kept light, dense) -->
+      <aside class="side" aria-label="Info">
+        <div class="sideCard">
+          <div class="sideTitle">Best for</div>
+          <ul class="sideList">
+            <li>Property listings</li>
+            <li>Client handover packs</li>
+            <li>Email size limits</li>
+            <li>Portals & uploads</li>
+          </ul>
         </div>
 
-        <div class="grid3">
-          <div class="card">
-            <div class="k">1</div>
-            <div class="t">Add files</div>
-            <div class="d">Drop up to 10 images (or PDFs).</div>
-          </div>
-          <div class="card">
-            <div class="k">2</div>
-            <div class="t">We optimise</div>
-            <div class="d">Smaller files, clean output. Great for email & portals.</div>
-          </div>
-          <div class="card">
-            <div class="k">3</div>
-            <div class="t">Download one ZIP</div>
-            <div class="d">One tidy bundle ready to send or archive.</div>
-          </div>
-        </div>
-      </div>
-    </section>
+        <div class="sideCard" id="faq">
+          <div class="sideTitle">FAQ</div>
 
-    <!-- FAQ -->
-    <section class="section" id="faq">
-      <div class="container">
-        <div class="sectionHead">
-          <h2>FAQ</h2>
-          <p>Quick answers.</p>
-        </div>
-
-        <div class="faq">
           <details>
             <summary>Do I need an account?</summary>
-            <p>No signup — upload, pay, download.</p>
+            <p>No signup — upload, confirm price, pay, download.</p>
           </details>
+
           <details>
             <summary>What formats do you support?</summary>
-            <p>Most common image formats and PDFs.</p>
+            <p>Common image formats and PDFs.</p>
           </details>
+
           <details>
             <summary>When do I see pricing?</summary>
-            <p>After you upload — you’ll see the total before Stripe Checkout.</p>
+            <p>After upload — when you click Continue, you’ll see the total before Stripe.</p>
           </details>
+
           <details>
             <summary>What happens to my files?</summary>
             <p>They’re only used to generate your ZIP and deleted after a short time.</p>
           </details>
         </div>
-      </div>
-    </section>
+      </aside>
+
+    </div>
   </main>
 
   <footer class="footer">
@@ -653,7 +203,7 @@
     </div>
   </footer>
 
-  <!-- PRICE MODAL (unchanged IDs) -->
+  <!-- PRICE MODAL (UNCHANGED IDs / JS hooks) -->
   <div class="modalOverlay" id="priceModal" role="dialog" aria-modal="true" aria-labelledby="priceModalTitle">
     <div class="modalCard" role="document">
       <div class="modalTop">
@@ -762,6 +312,7 @@
     </div>
   </div>
 
+  <!-- KEEP YOUR EXISTING SCRIPT EXACTLY AS-IS BELOW THIS LINE -->
   <script>
     // ====== ZIPPIXEL FRONTEND (v12 - same flow, premium UI) ======
     document.getElementById("y").textContent = new Date().getFullYear();
@@ -1081,11 +632,10 @@
 
     chooseBtn.addEventListener("click", (e) => { e.preventDefault(); filesEl.click(); });
 
-    // Make the whole dropzone inner clickable + keyboardable (without breaking existing hooks)
     const dzInner = dropzone.querySelector(".dropzone__inner");
     if (dzInner) {
       dzInner.addEventListener("click", (e) => {
-        if (e.target && (e.target.closest("#chooseBtn"))) return; // button already handles
+        if (e.target && (e.target.closest("#chooseBtn"))) return;
         filesEl.click();
       });
       dzInner.addEventListener("keydown", (e) => {
