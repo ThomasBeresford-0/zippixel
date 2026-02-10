@@ -311,3 +311,87 @@ p{ margin:0; }
   .nav{ display:none; }
   .actionBar{ grid-template-columns:1fr; }
 }
+
+/* =========================
+   WIDESCREEN OVERRIDE (v13.1)
+   Make the hero + tool use the screen on desktop
+========================= */
+
+/* Give the container more room on big screens */
+:root{
+  --container: 1280px; /* was 1120 */
+}
+
+/* Desktop: go back to a wide, 2-column layout */
+@media (min-width: 1024px){
+  .stage{
+    padding: 44px 0 24px;
+  }
+
+  .stage__inner{
+    grid-template-columns: 1.15fr 0.85fr; /* left copy, right tool */
+    gap: 26px;
+    align-items: start;
+  }
+
+  /* Stop centering the hero block */
+  .stage__left{
+    max-width: none;
+    margin: 0;
+    text-align: left;
+    padding-top: 6px;
+  }
+
+  /* Trust row aligns left and doesn’t look like a centered caption */
+  .trustGrid{
+    justify-content: flex-start;
+  }
+
+  /* Tool card: full column width, not a capped “demo card” */
+  .toolCard{
+    max-width: none;
+    width: 100%;
+    margin: 0;
+  }
+
+  /* Make the dropzone feel “big tool” not small widget */
+  .dropzone__inner{
+    padding: 28px 22px;
+  }
+
+  /* Buttons area should feel wide */
+  .actionBar{
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Extra-wide screens: let the tool breathe even more */
+@media (min-width: 1280px){
+  .stage__inner{
+    grid-template-columns: 1.25fr 0.75fr;
+  }
+
+  .heroTitle{
+    font-size: clamp(46px, 4vw, 64px);
+  }
+
+  .toolCard{
+    border-radius: 26px;
+  }
+}
+
+/* Optional: if the dropzone feels cramped, widen internal spacing */
+@media (min-width: 1024px){
+  .toolTop{
+    padding: 20px 20px 0;
+  }
+  .dropzone{
+    padding: 18px 20px 0;
+  }
+  .progressWrap{
+    padding: 18px 20px 0;
+  }
+  .actionWrap{
+    padding: 18px 20px 20px;
+  }
+}
