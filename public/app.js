@@ -72,8 +72,8 @@
   let jobId = null;
   let creatingJob = false;
   let uploading = false;
-  let selected = [];         // Array<File>
-  const thumbUrls = new Map(); // keyOf(file) -> objectURL
+  let selected = [];            // Array<File>
+  const thumbUrls = new Map();  // keyOf(file) -> objectURL (images only)
 
   // ====== HELPERS ======
   const setStatus = (m) => { if (statusEl) statusEl.textContent = m; };
@@ -86,11 +86,29 @@
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
   const keyOf = (f) => `${f.name}__${f.size}__${f.lastModified}`;
 
+  const isImageFile = (f) => (f?.type || "").startsWith("image/");
+  const isPdfFile = (f) => (f?.type || "") === "application/pdf";
+
+  const getExt = (name) => {
+    const base = String(name || "").trim();
+    const idx = base.lastIndexOf(".");
+    if (idx <= 0 || idx === base.length - 1) return "";
+    return base.slice(idx + 1).toUpperCase();
+  };
+
+  const getTypeLabel = (f) => {
+    if (isImageFile(f)) return (f.type ? f.type.split("/")[1]?.toUpperCase() : "IMAGE") || "IMAGE";
+    if (isPdfFile(f)) return "PDF";
+    const ext = getExt(f.name);
+    return ext || (f.type ? f.type.toUpperCase() : "FILE");
+  };
+
+  // Allow ANY file type; only enforce size limit
   const validateFile = (f) => {
-    const isImage = f.type.startsWith("image/");
-    const isPDF = f.type === "application/pdf";
-    if (!isImage && !isPDF) return `“${f.name}” isn’t a supported file type.`;
-    if (f.size > MAX_MB_EACH * 1024 * 1024) return `“${f.name}” is ${humanMB(f.size)} (max ${MAX_MB_EACH}MB).`;
+    if (!f) return "Invalid file.";
+    if (f.size > MAX_MB_EACH * 1024 * 1024) {
+      return `“${f.name}” is ${humanMB(f.size)} (max ${MAX_MB_EACH}MB).`;
+    }
     return null;
   };
 
@@ -148,17 +166,28 @@
 
     fileList.innerHTML = selected.map((f, idx) => {
       const safe = escapeHtml(f.name);
-      const isPDF = f.type === "application/pdf";
-      const thumb = isPDF
-        ? `<div class="thumbPdf" aria-hidden="true">PDF</div>`
-        : `<img class="thumbImg" alt="" src="${getThumbUrl(f)}" loading="lazy" />`;
+      const typeLabel = escapeHtml(getTypeLabel(f));
+
+      let thumb = "";
+      if (isPdfFile(f)) {
+        thumb = `<div class="thumbPdf" aria-hidden="true">PDF</div>`;
+      } else if (isImageFile(f)) {
+        thumb = `<img class="thumbImg" alt="" src="${getThumbUrl(f)}" loading="lazy" />`;
+      } else {
+        // Generic file badge (no new CSS required; uses existing thumbPdf style if present)
+        // If you want a separate look later, we can add a .thumbFile class in CSS.
+        const badge = getExt(f.name) || "FILE";
+        thumb = `<div class="thumbPdf" aria-hidden="true">${escapeHtml(badge)}</div>`;
+      }
+
+      const metaLine = `${humanMB(f.size)} • ${typeLabel}`;
 
       return `
         <li class="fileCard">
           <div class="thumb">${thumb}</div>
           <div class="fileInfo">
             <div class="fileName" title="${safe}">${safe}</div>
-            <div class="fileMetaLine">${humanMB(f.size)} • ${escapeHtml(isPDF ? "PDF" : (f.type || "Image"))}</div>
+            <div class="fileMetaLine">${metaLine}</div>
           </div>
           <button class="iconBtn" type="button" aria-label="Remove ${safe}" data-remove="${idx}">Remove</button>
         </li>
@@ -316,7 +345,7 @@
     const files = dt?.files ? [...dt.files] : [];
     if (!files.length) {
       setStatus("Drop files only.");
-      setHint("Try dragging image files from Finder.");
+      setHint("Try dragging files from Finder.");
       return;
     }
     await addFiles(files);
@@ -386,7 +415,8 @@
     setHint("Keep this tab open.");
 
     const fd = new FormData();
-    for (const f of selected) fd.append("images", f); // backend expects "images"
+    // IMPORTANT: keep backend field name as-is to avoid breaking server.js
+    for (const f of selected) fd.append("images", f);
 
     try {
       const up = await uploadWithProgress(`/api/jobs/${jobId}/upload`, fd);

@@ -9,18 +9,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>ZipPixel — Compress images into one ZIP</title>
-  <meta name="description" content="Upload up to 10 images (or PDFs). We optimise them and bundle everything into one ZIP. No signup. Pricing shown before payment." />
+  <title>ZipPixel — Compress files into one ZIP</title>
+  <meta name="description" content="Upload up to 10 files. We optimise what we can and bundle everything into one clean ZIP. No signup. Pricing shown before payment." />
   <link rel="canonical" href="https://zippixel.it.com/" />
 
-  <meta property="og:title" content="ZipPixel — Compress images. Download one ZIP." />
+  <meta property="og:title" content="ZipPixel — Compress files. Download one ZIP." />
   <meta property="og:description" content="Upload up to 10 files → Download a single compressed ZIP. No signup. Pricing shown before payment." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zippixel.it.com/" />
   <meta property="og:image" content="https://zippixel.it.com/og.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="ZipPixel — Compress images. Download one ZIP." />
+  <meta name="twitter:title" content="ZipPixel — Compress files. Download one ZIP." />
   <meta name="twitter:description" content="Upload up to 10 files → Download one compressed ZIP. No signup. Pricing shown before payment." />
   <meta name="twitter:image" content="https://zippixel.it.com/og.png" />
 
@@ -40,7 +40,7 @@
         </span>
         <span class="brand__text">
           <span class="brand__name">ZipPixel</span>
-          <span class="brand__sub">Compress images → one ZIP</span>
+          <span class="brand__sub">Compress files → one ZIP</span>
         </span>
       </a>
 
@@ -63,9 +63,9 @@
       <div class="container stage__inner">
         <!-- Clean hero (Smallpdf-style) -->
         <div class="hero">
-          <h1 class="heroTitle">Compress images into one ZIP.</h1>
+          <h1 class="heroTitle">Compress files into one ZIP.</h1>
           <p class="heroLead">
-            Upload up to <b>10</b> images (or PDFs). We optimise them and pack everything into one clean ZIP.
+            Upload up to <b>10</b> files. We optimise what we can and pack everything into one clean ZIP.
             <span style="color: rgba(11,18,32,.56)">No signup.</span>
           </p>
 
@@ -101,7 +101,8 @@
 
           <!-- DROPZONE (IDs used by JS) -->
           <div class="dropzone" id="dropzone" aria-label="Upload files">
-            <input id="files" type="file" accept="image/*,application/pdf" multiple />
+            <!-- IMPORTANT: allow ANY file type -->
+            <input id="files" type="file" multiple />
 
             <div class="dropzone__inner">
               <div class="dzBadge" aria-hidden="true">
@@ -123,7 +124,7 @@
             </div>
 
             <div class="dzFine">
-              Tip: keep it client-ready — select your best shots first.
+              Tip: keep it client-ready — include only what you actually need to send.
             </div>
 
             <!-- Selected files / preview (same IDs) -->
@@ -181,17 +182,17 @@
           <div class="card">
             <div class="k">1</div>
             <div class="t">Add files</div>
-            <div class="d">Drop up to 10 images (or PDFs).</div>
+            <div class="d">Drop up to 10 files of any type.</div>
           </div>
           <div class="card">
             <div class="k">2</div>
             <div class="t">We optimise</div>
-            <div class="d">Smaller files, clean output. Great for email & portals.</div>
+            <div class="d">We compress when possible and bundle everything cleanly.</div>
           </div>
           <div class="card">
             <div class="k">3</div>
             <div class="t">Download one ZIP</div>
-            <div class="d">One tidy bundle ready to send or archive.</div>
+            <div class="d">One tidy bundle ready to send, store, or archive.</div>
           </div>
         </div>
       </div>
@@ -212,7 +213,7 @@
           </details>
           <details>
             <summary>What formats do you support?</summary>
-            <p>Most common image formats and PDFs.</p>
+            <p>Anys: any file type. If it can be uploaded, it can be bundled into your ZIP.</p>
           </details>
           <details>
             <summary>When do I see pricing?</summary>
@@ -246,12 +247,12 @@
       </div>
 
       <div class="modalBody">
-        <p class="modalLead" id="priceModalLead">You’ve uploaded <b>0</b> images.</p>
+        <p class="modalLead" id="priceModalLead">You’ve uploaded <b>0</b> files.</p>
 
         <div class="modalSummary" aria-label="Checkout summary">
           <div class="modalSummaryLeft">
             <div class="modalSummaryKicker">You’ll pay</div>
-            <div class="modalSummaryMain"><span id="tierInline">Standard ZIP</span> • <span id="countInline">0</span> images</div>
+            <div class="modalSummaryMain"><span id="tierInline">Standard ZIP</span> • <span id="countInline">0</span> files</div>
           </div>
           <div class="modalSummaryAmt" id="priceInline">£0.00</div>
         </div>
@@ -260,7 +261,7 @@
           <div class="priceRow" id="rowStandard">
             <div class="priceLeft">
               <div class="priceName">Standard ZIP</div>
-              <div class="priceDesc">Up to 5 images</div>
+              <div class="priceDesc">Up to 5 files</div>
             </div>
             <div class="priceAmt">£2.99</div>
           </div>
@@ -268,7 +269,7 @@
           <div class="priceRow" id="rowPro">
             <div class="priceLeft">
               <div class="priceName">Pro ZIP</div>
-              <div class="priceDesc">Up to 10 images</div>
+              <div class="priceDesc">Up to 10 files</div>
             </div>
             <div class="priceAmt">£4.99</div>
           </div>
@@ -278,7 +279,7 @@
           <div class="priceRow">
             <div class="priceLeft">
               <div class="priceName">Print-ready quality</div>
-              <div class="priceDesc">Higher quality for brochures & print</div>
+              <div class="priceDesc">Higher quality for brochures & print (images/PDFs only)</div>
             </div>
             <div class="priceAmt">
               <label><input type="checkbox" id="optPrintReady" /> +£1.99</label>
@@ -288,7 +289,7 @@
           <div class="priceRow">
             <div class="priceLeft">
               <div class="priceName">Email-safe compression</div>
-              <div class="priceDesc">Extra compression for inbox limits</div>
+              <div class="priceDesc">Extra compression for inbox limits (where possible)</div>
             </div>
             <div class="priceAmt">
               <label><input type="checkbox" id="optEmailSafe" /> +£1.49</label>

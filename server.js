@@ -12,8 +12,6 @@ const path = require("path");
 const crypto = require("crypto");
 const Stripe = require("stripe");
 
-
-
 const app = express();
 
 const PORT = process.env.PORT || 4242;
@@ -33,7 +31,6 @@ const DAY_PASS_PRICE_PENCE = 999;
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-
 // ====== SECURITY ======
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(rateLimit({ windowMs: 60_000, max: 120 }));
@@ -51,7 +48,6 @@ app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
 });
 
 app.get("/health", (_, res) => res.json({ ok: true }));
-
 
 // ====== JOB STORAGE ======
 const UPLOAD_DIR = path.join(__dirname, "uploads");
@@ -80,18 +76,36 @@ const getJob = (id) => {
   return job;
 };
 
-// ====== UPLOAD ======
-const allowedMimes = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-  "image/heic",
-  "image/heif",
-  "image/avif",
-  "application/pdf",
-]);
+const sanitizeName = (name) =>
+  String(name || "file")
+    .replace(/[/\\?%*:|"<>]/g, "_") // Windows-invalid chars + slash
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 160) || "file";
 
+// Make filenames unique inside the ZIP (avoid collisions)
+const makeUniqueName = (desired, used) => {
+  let base = desired;
+  let ext = "";
+  const dot = desired.lastIndexOf(".");
+  if (dot > 0 && dot < desired.length - 1) {
+    base = desired.slice(0, dot);
+    ext = desired.slice(dot);
+  }
+
+  let candidate = `${base}${ext}`;
+  let n = 2;
+  while (used.has(candidate)) {
+    candidate = `${base} (${n})${ext}`;
+    n++;
+  }
+  used.add(candidate);
+  return candidate;
+};
+
+// ====== UPLOAD ======
+// Allow ANY file type. Enforce count & size limits.
+// Note: multer may set mimetype to application/octet-stream for unknown types — that's fine.
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, _, cb) => {
@@ -100,15 +114,13 @@ const upload = multer({
       cb(null, dir);
     },
     filename: (_, file, cb) => {
-      const safe = file.originalname.replace(/[^a-z0-9.\-_]/gi, "_");
+      const safe = sanitizeName(file.originalname).replace(/[^a-z0-9.\-_ ]/gi, "_").replace(/\s/g, "_");
       cb(null, `${Date.now()}_${safe}`);
     },
   }),
   limits: { files: PRO_MAX, fileSize: 25 * 1024 * 1024 },
-  fileFilter: (_, file, cb) =>
-    allowedMimes.has(file.mimetype)
-      ? cb(null, true)
-      : cb(new Error("Invalid file type")),
+  // Accept anything
+  fileFilter: (_, __, cb) => cb(null, true),
 });
 
 // ====== API ======
@@ -137,11 +149,22 @@ app.post("/api/jobs/:jobId/upload", upload.array("images", PRO_MAX), (req, res) 
     const job = getJob(req.params.jobId);
     if (!req.files?.length) throw new Error("No files");
 
+    // Replace existing uploaded files for this job (prevents “append forever” if user re-uploads)
+    // If you prefer additive uploads, remove this block.
+    if (job.files.length) {
+      try {
+        const dir = path.join(UPLOAD_DIR, req.params.jobId);
+        fs.rmSync(dir, { recursive: true, force: true });
+        fs.mkdirSync(dir, { recursive: true });
+      } catch {}
+      job.files = [];
+    }
+
     req.files.forEach((f) =>
       job.files.push({
         path: f.path,
-        originalname: f.originalname,
-        mimetype: f.mimetype,
+        originalname: sanitizeName(f.originalname),
+        mimetype: f.mimetype || "application/octet-stream",
       })
     );
 
@@ -155,15 +178,7 @@ app.post("/api/jobs/:jobId/upload", upload.array("images", PRO_MAX), (req, res) 
 // ====== CHECKOUT ======
 app.post("/api/checkout", async (req, res) => {
   try {
-    const {
-      jobId,
-      printReady,
-      keepNames,
-      emailSafe,
-      shareLink,
-      namingPreset,
-      dayPass,
-    } = req.body;
+    const { jobId, printReady, keepNames, emailSafe, shareLink, namingPreset, dayPass } = req.body;
 
     const job = getJob(jobId);
     const count = job.files.length;
@@ -171,8 +186,7 @@ app.post("/api/checkout", async (req, res) => {
 
     const tier = count > STANDARD_MAX ? "pro" : "standard";
 
-    let total =
-      tier === "pro" ? PRO_PRICE_GBP_PENCE : STANDARD_PRICE_GBP_PENCE;
+    let total = tier === "pro" ? PRO_PRICE_GBP_PENCE : STANDARD_PRICE_GBP_PENCE;
 
     if (printReady) total += PRINT_READY_UPSELL_PENCE;
     if (emailSafe) total += EMAIL_SAFE_UPSELL_PENCE;
@@ -187,9 +201,7 @@ app.post("/api/checkout", async (req, res) => {
       namingPreset: namingPreset || null,
     };
 
-    job.dayPassUntil = dayPass
-      ? Date.now() + 24 * 60 * 60 * 1000
-      : null;
+    job.dayPassUntil = dayPass ? Date.now() + 24 * 60 * 60 * 1000 : null;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -242,7 +254,6 @@ app.get("/api/job/:jobId", (req, res) => {
   }
 });
 
-
 // ====== DOWNLOAD ======
 app.get("/api/download/:jobId", async (req, res) => {
   try {
@@ -264,31 +275,34 @@ app.get("/api/download/:jobId", async (req, res) => {
     }
 
     res.setHeader("Content-Type", "application/zip");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="zippixel_${Date.now()}.zip"`
-    );
+    res.setHeader("Content-Disposition", `attachment; filename="zippixel_${Date.now()}.zip"`);
 
     const archive = archiver("zip", { zlib: { level: 9 } });
+    archive.on("error", (err) => {
+      try { res.status(500).send(err.message); } catch {}
+    });
     archive.pipe(res);
+
+    const usedNames = new Set();
 
     for (let i = 0; i < job.files.length; i++) {
       const f = job.files[i];
+      const isImage = (f.mimetype || "").startsWith("image/");
 
-      if (f.mimetype.startsWith("image/")) {
-        const quality = job.options.printReady
-          ? 95
-          : job.options.emailSafe
-          ? 70
-          : 80;
+      // Images: compress to JPEG as before
+      if (isImage) {
+        const quality = job.options.printReady ? 95 : job.options.emailSafe ? 70 : 80;
 
+        // Derive filename
         let name = job.options.keepNames
-          ? f.originalname.replace(/\.[^.]+$/, ".jpg")
+          ? sanitizeName(f.originalname).replace(/\.[^.]+$/, ".jpg")
           : `image_${String(i + 1).padStart(2, "0")}.jpg`;
 
         if (job.options.namingPreset === "listing") {
           name = `listing_${String(i + 1).padStart(2, "0")}.jpg`;
         }
+
+        name = makeUniqueName(name, usedNames);
 
         const buf = await sharp(f.path)
           .rotate()
@@ -297,7 +311,10 @@ app.get("/api/download/:jobId", async (req, res) => {
 
         archive.append(buf, { name });
       } else {
-        archive.file(f.path, { name: f.originalname });
+        // Non-images: include as-is (no conversion)
+        const desired = sanitizeName(f.originalname);
+        const name = makeUniqueName(desired, usedNames);
+        archive.file(f.path, { name });
       }
     }
 
@@ -338,6 +355,4 @@ function webhookHandler(req, res) {
   }
 }
 
-app.listen(PORT, () =>
-  console.log(`🚀 ZipPixel running at ${BASE_URL}`)
-);
+app.listen(PORT, () => console.log(`🚀 ZipPixel running at ${BASE_URL}`));
