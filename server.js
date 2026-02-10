@@ -15,8 +15,6 @@ const {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
-  ListObjectsV2Command,
-  DeleteObjectsCommand,
 } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
@@ -45,7 +43,7 @@ const r2 = new S3Client({
   },
 });
 
-// ====== JOB STORE (IN-MEMORY MVP) ======
+// ====== JOB STORE ======
 const jobs = new Map();
 
 const newId = () => `job_${crypto.randomBytes(8).toString("hex")}`;
@@ -108,7 +106,9 @@ app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
 
 ["/", "/success", "/cancel", "/privacy", "/terms", "/pricing"].forEach((route) => {
   app.get(route, (_, res) =>
-    res.sendFile(path.join(PUBLIC_DIR, route === "/" ? "index.html" : `${route.slice(1)}.html`))
+    res.sendFile(
+      path.join(PUBLIC_DIR, route === "/" ? "index.html" : `${route.slice(1)}.html`)
+    )
   );
 });
 
@@ -210,6 +210,29 @@ app.get("/api/share/:token", async (req, res) => {
   });
 });
 
+// ====== EXTEND SHARE EXPIRY (30 DAYS) ======
+app.post("/api/share/:token/extend", async (req, res) => {
+  const job = [...jobs.values()].find((j) => j.shareToken === req.params.token);
+  if (!job) return res.status(404).json({ error: "Not found" });
+
+  if (!(await ensurePaid(job))) {
+    return res.status(403).json({ error: "Not paid" });
+  }
+
+  const now = Date.now();
+  const base =
+    job.shareExpiresAt && job.shareExpiresAt > now
+      ? job.shareExpiresAt
+      : now;
+
+  job.shareExpiresAt = base + 30 * 24 * 60 * 60 * 1000;
+
+  res.json({
+    ok: true,
+    expiresAt: job.shareExpiresAt,
+  });
+});
+
 // ====== DOWNLOAD ======
 app.get("/api/download/:jobId", async (req, res) => {
   const job = getJob(req.params.jobId);
@@ -265,7 +288,7 @@ function webhookHandler(req, res) {
     );
 
     if (event.type === "checkout.session.completed") {
-      // Status confirmed on-demand by ensurePaid()
+      // Status confirmed lazily via ensurePaid()
     }
 
     res.json({ received: true });
