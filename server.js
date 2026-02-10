@@ -74,7 +74,11 @@ app.get("/test-email", async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error("Email test failed:", err);
-    res.status(500).json({ error: "Email failed" });
+    res.status(500).json({
+    message: err.message,
+    code: err.code,
+    response: err.response,
+  });
   }
 });
 
