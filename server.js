@@ -1,4 +1,6 @@
 // server.js
+require("dotenv").config();
+
 const express = require("express");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
@@ -59,6 +61,23 @@ app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
 });
 
 app.get("/health", (_, res) => res.json({ ok: true }));
+// ====== EMAIL TEST ======
+app.get("/test-email", async (req, res) => {
+  try {
+    await mailer.sendMail({
+      from: "ZipPixel <support@zippixel.it.com>",
+      to: process.env.SMTP_USER,
+      subject: "ZipPixel email test",
+      text: "If you received this, SMTP is working.",
+    });
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Email test failed:", err);
+    res.status(500).json({ error: "Email failed" });
+  }
+});
+
 app.get("/api/test-email", async (req, res) => {
   try {
     await mailer.sendMail({
