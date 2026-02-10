@@ -31,26 +31,6 @@ const DAY_PASS_PRICE_PENCE = 999;
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-// ====== SECURITY ======
-app.use(helmet({ contentSecurityPolicy: false }));
-app.use(rateLimit({ windowMs: 60_000, max: 120 }));
-app.post("/webhook", express.raw({ type: "application/json" }), webhookHandler);
-app.use(express.json());
-
-// ====== STATIC ======
-const PUBLIC_DIR = path.join(__dirname, "public");
-app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
-
-["/", "/success", "/cancel", "/privacy", "/terms", "/pricing"].forEach((route) => {
-  app.get(route, (req, res) =>
-    res.sendFile(
-      path.join(PUBLIC_DIR, route === "/" ? "index.html" : `${route.slice(1)}.html`)
-    )
-  );
-});
-
-app.get("/health", (_, res) => res.json({ ok: true }));
-
 // ====== JOB STORAGE ======
 const UPLOAD_DIR = path.join(__dirname, "uploads");
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -138,6 +118,29 @@ async function ensurePaid(job) {
   return false;
 }
 
+// ====== SECURITY ======
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(rateLimit({ windowMs: 60_000, max: 120 }));
+
+// IMPORTANT: Stripe webhook needs raw body BEFORE express.json
+app.post("/webhook", express.raw({ type: "application/json" }), webhookHandler);
+
+app.use(express.json());
+
+// ====== STATIC ======
+const PUBLIC_DIR = path.join(__dirname, "public");
+app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
+
+["/", "/success", "/cancel", "/privacy", "/terms", "/pricing"].forEach((route) => {
+  app.get(route, (req, res) =>
+    res.sendFile(
+      path.join(PUBLIC_DIR, route === "/" ? "index.html" : `${route.slice(1)}.html`)
+    )
+  );
+});
+
+app.get("/health", (_, res) => res.json({ ok: true }));
+
 // ====== UPLOAD ======
 // Allow ANY file type. Enforce count & size limits.
 const upload = multer({
@@ -157,6 +160,33 @@ const upload = multer({
   limits: { files: PRO_MAX, fileSize: 25 * 1024 * 1024 },
   fileFilter: (_, __, cb) => cb(null, true),
 });
+
+// ✅ FIX: clear old files BEFORE multer writes new ones (and do it non-blocking)
+async function clearJobDir(jobId) {
+  const dir = path.join(UPLOAD_DIR, jobId);
+  await fs.promises.rm(dir, { recursive: true, force: true });
+  await fs.promises.mkdir(dir, { recursive: true });
+}
+
+async function prepareUpload(req, res, next) {
+  try {
+    const job = getJob(req.params.jobId);
+
+    // Replace existing uploaded files for this job (prevents append-forever)
+    // and ensures we DON'T delete the directory after multer writes.
+    if (job.files.length) {
+      await clearJobDir(req.params.jobId);
+      job.files = [];
+    } else {
+      // Ensure directory exists even on first upload
+      await fs.promises.mkdir(path.join(UPLOAD_DIR, req.params.jobId), { recursive: true });
+    }
+
+    next();
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+}
 
 // ====== API ======
 app.post("/api/jobs", (_, res) => {
@@ -183,35 +213,30 @@ app.post("/api/jobs", (_, res) => {
   res.json({ jobId });
 });
 
-app.post("/api/jobs/:jobId/upload", upload.array("images", PRO_MAX), (req, res) => {
-  try {
-    const job = getJob(req.params.jobId);
-    if (!req.files?.length) throw new Error("No files");
+app.post(
+  "/api/jobs/:jobId/upload",
+  prepareUpload,
+  upload.array("images", PRO_MAX),
+  (req, res) => {
+    try {
+      const job = getJob(req.params.jobId);
+      if (!req.files?.length) throw new Error("No files");
 
-    // Replace existing uploaded files for this job (prevents append-forever)
-    if (job.files.length) {
-      try {
-        const dir = path.join(UPLOAD_DIR, req.params.jobId);
-        fs.rmSync(dir, { recursive: true, force: true });
-        fs.mkdirSync(dir, { recursive: true });
-      } catch {}
-      job.files = [];
+      req.files.forEach((f) =>
+        job.files.push({
+          path: f.path,
+          originalname: sanitizeName(f.originalname),
+          mimetype: f.mimetype || "application/octet-stream",
+        })
+      );
+
+      job.status = "UPLOADED";
+      res.json({ ok: true, count: job.files.length });
+    } catch (e) {
+      res.status(400).json({ error: e.message });
     }
-
-    req.files.forEach((f) =>
-      job.files.push({
-        path: f.path,
-        originalname: sanitizeName(f.originalname),
-        mimetype: f.mimetype || "application/octet-stream",
-      })
-    );
-
-    job.status = "UPLOADED";
-    res.json({ ok: true, count: job.files.length });
-  } catch (e) {
-    res.status(400).json({ error: e.message });
   }
-});
+);
 
 // ====== CHECKOUT ======
 app.post("/api/checkout", async (req, res) => {
@@ -342,7 +367,9 @@ app.get("/api/download/:jobId", async (req, res) => {
 
     const archive = archiver("zip", { zlib: { level: 9 } });
     archive.on("error", (err) => {
-      try { res.status(500).send(err.message); } catch {}
+      try {
+        res.status(500).send(err.message);
+      } catch {}
     });
     archive.pipe(res);
 
@@ -368,10 +395,7 @@ app.get("/api/download/:jobId", async (req, res) => {
 
         name = makeUniqueName(name, usedNames);
 
-        const buf = await sharp(f.path)
-          .rotate()
-          .jpeg({ quality, mozjpeg: true })
-          .toBuffer();
+        const buf = await sharp(f.path).rotate().jpeg({ quality, mozjpeg: true }).toBuffer();
 
         archive.append(buf, { name });
       } else {
