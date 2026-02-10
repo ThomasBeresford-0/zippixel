@@ -1,5 +1,6 @@
 // public/app.js — ZipPixel frontend (v13)
-// Matches: v13 index.html IDs + server.js (/api/jobs, /api/jobs/:jobId/upload, /api/checkout)
+// Matches: v13 index.html IDs + UPDATED server.js routes:
+// /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/checkout
 
 (() => {
   // ====== YEAR ======
@@ -74,6 +75,9 @@
   let uploading = false;
   let selected = [];            // Array<File>
   const thumbUrls = new Map();  // keyOf(file) -> objectURL (images only)
+
+  // New: store uploaded metadata for register call
+  let uploadedMeta = [];        // [{ key, originalname, mimetype }]
 
   // ====== HELPERS ======
   const setStatus = (m) => { if (statusEl) statusEl.textContent = m; };
@@ -220,6 +224,11 @@
       if (url) URL.revokeObjectURL(url);
       thumbUrls.delete(k);
     }
+
+    // Any selection change invalidates previous upload metadata
+    uploadedMeta = [];
+    continueBtn.disabled = true;
+
     renderSelected();
   });
 
@@ -300,6 +309,10 @@
       setHint(`Only the first <b>${MAX_FILES}</b> files were kept.`);
     }
 
+    // Any selection change invalidates previous upload metadata
+    uploadedMeta = [];
+    continueBtn.disabled = true;
+
     renderSelected();
 
     try {
@@ -360,38 +373,62 @@
   clearBtn?.addEventListener("click", () => {
     if (uploading) return;
     selected = [];
+    uploadedMeta = [];
     for (const url of thumbUrls.values()) URL.revokeObjectURL(url);
     thumbUrls.clear();
     renderSelected();
   });
 
-  // ====== UPLOAD WITH PROGRESS ======
-  const uploadWithProgress = (url, formData) => {
+  // ====== UPLOAD (DIRECT TO R2) ======
+  // Uses /api/upload-url (get presigned PUT URL) then PUT file bytes to R2
+  const putWithProgress = (url, file, onProgress) => {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-      xhr.open("POST", url, true);
+      xhr.open("PUT", url, true);
 
       xhr.upload.onprogress = (evt) => {
         if (!evt.lengthComputable) return;
-        const pct = Math.round((evt.loaded / evt.total) * 100);
-        if (progressFill) progressFill.style.width = `${pct}%`;
-        if (progressPct) progressPct.textContent = `${pct}%`;
-        if (progressMeta) progressMeta.textContent = `${humanMB(evt.loaded)} / ${humanMB(evt.total)}`;
+        onProgress?.(evt.loaded, evt.total);
       };
 
       xhr.onload = () => {
-        try {
-          const json = JSON.parse(xhr.responseText || "{}");
-          if (xhr.status >= 200 && xhr.status < 300) resolve(json);
-          else reject(json?.error ? new Error(json.error) : new Error("Upload failed"));
-        } catch {
-          reject(new Error("Upload failed"));
-        }
+        // R2 PUT usually returns 200/201 with empty body
+        if (xhr.status >= 200 && xhr.status < 300) resolve(true);
+        else reject(new Error(`Upload failed (${xhr.status})`));
       };
 
       xhr.onerror = () => reject(new Error("Network error"));
-      xhr.send(formData);
+      xhr.send(file);
     });
+  };
+
+  // Weighted progress across many files (by total bytes)
+  const makeProgressReporter = (totalBytes) => {
+    let uploadedBytes = 0;
+
+    const setOverall = (bytesSoFar) => {
+      const pct = totalBytes ? Math.round((bytesSoFar / totalBytes) * 100) : 0;
+      if (progressFill) progressFill.style.width = `${pct}%`;
+      if (progressPct) progressPct.textContent = `${pct}%`;
+      if (progressMeta) progressMeta.textContent = `${humanMB(bytesSoFar)} / ${humanMB(totalBytes)}`;
+    };
+
+    // Initialize
+    setOverall(0);
+
+    return {
+      // call between files to “commit” completed file bytes
+      commitFile: (fileSize) => {
+        uploadedBytes += fileSize;
+        setOverall(uploadedBytes);
+      },
+      // call during current file upload
+      currentFile: (loaded, total) => {
+        const bytesSoFar = uploadedBytes + loaded;
+        setOverall(bytesSoFar);
+      },
+      done: () => setOverall(totalBytes),
+    };
   };
 
   uploadBtn.addEventListener("click", async () => {
@@ -419,16 +456,66 @@
     setStatus("Uploading…");
     setHint("Keep this tab open.");
 
-    const fd = new FormData();
-    // IMPORTANT: keep backend field name as-is to avoid breaking server.js
-    for (const f of selected) fd.append("images", f);
+    // If you re-upload (same job) we just overwrite metadata; server-side can cleanup old objects later
+    uploadedMeta = [];
+
+    const totalBytes = selected.reduce((a, f) => a + f.size, 0);
+    const prog = makeProgressReporter(totalBytes);
 
     try {
-      const up = await uploadWithProgress(`/api/jobs/${jobId}/upload`, fd);
-      if (up?.error) throw new Error(up.error);
+      // Upload sequentially (simple + reliable). If you want, we can add parallel 3-at-a-time later.
+      for (let i = 0; i < selected.length; i++) {
+        const f = selected[i];
+
+        if (progressLabel) {
+          progressLabel.textContent = `Uploading ${i + 1}/${selected.length}…`;
+        }
+
+        // 1) Get presigned URL for this file
+        const presign = await fetch("/api/upload-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jobId,
+            filename: f.name,
+            type: f.type || "application/octet-stream",
+          }),
+        }).then((r) => r.json());
+
+        if (presign?.error) throw new Error(presign.error);
+        if (!presign?.url || !presign?.key) throw new Error("Failed to prepare upload");
+
+        // 2) PUT the bytes directly to R2
+        await putWithProgress(presign.url, f, (loaded, total) => {
+          prog.currentFile(loaded, total);
+        });
+
+        // 3) Record metadata for register step
+        uploadedMeta.push({
+          key: presign.key,
+          originalname: f.name,
+          mimetype: f.type || "application/octet-stream",
+        });
+
+        // commit this file’s bytes as done
+        prog.commitFile(f.size);
+      }
+
+      prog.done();
+
+      // 4) Tell server “these are the uploaded files for this job”
+      const reg = await fetch(`/api/jobs/${jobId}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ files: uploadedMeta }),
+      }).then((r) => r.json());
+
+      if (reg?.error) throw new Error(reg.error);
 
       setStatus("Uploaded.");
-      setHint(`Uploaded. Continue to confirm and proceed to payment.<br/><span style="color: rgba(11,18,32,.56)">Tip: add a shareable link at checkout to send this to a client.</span>`);
+      setHint(
+        `Uploaded. Continue to confirm and proceed to payment.<br/><span style="color: rgba(11,18,32,.56)">Tip: add a shareable link at checkout to send this to a client.</span>`
+      );
       if (progressLabel) progressLabel.textContent = "Uploaded";
       if (progressFill) progressFill.style.width = "100%";
       if (progressPct) progressPct.textContent = "100%";
@@ -563,6 +650,14 @@
   continueBtn.addEventListener("click", async () => {
     if (!jobId) return;
     if (selected.length === 0) return;
+
+    // Require an upload to have completed for current selection
+    if (!uploadedMeta.length) {
+      setStatus("Upload first.");
+      setHint("Please upload your files before continuing.");
+      return;
+    }
+
     openPriceModal();
   });
 

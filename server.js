@@ -4,13 +4,22 @@ require("dotenv").config();
 const express = require("express");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
-const multer = require("multer");
 const sharp = require("sharp");
 const archiver = require("archiver");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const Stripe = require("stripe");
+
+// R2 (S3-compatible)
+const {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+  ListObjectsV2Command,
+  DeleteObjectsCommand,
+} = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 const app = express();
 
@@ -31,23 +40,29 @@ const DAY_PASS_PRICE_PENCE = 999;
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
+// ====== R2 SETUP ======
+const R2_BUCKET = process.env.CF_R2_BUCKET;
+
+const r2 = new S3Client({
+  region: "auto",
+  endpoint: `https://${process.env.CF_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.CF_R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.CF_R2_SECRET_ACCESS_KEY,
+  },
+});
+
+const requireR2Env = () => {
+  const missing = [];
+  if (!process.env.CF_ACCOUNT_ID) missing.push("CF_ACCOUNT_ID");
+  if (!process.env.CF_R2_ACCESS_KEY_ID) missing.push("CF_R2_ACCESS_KEY_ID");
+  if (!process.env.CF_R2_SECRET_ACCESS_KEY) missing.push("CF_R2_SECRET_ACCESS_KEY");
+  if (!process.env.CF_R2_BUCKET) missing.push("CF_R2_BUCKET");
+  if (missing.length) throw new Error(`Missing env: ${missing.join(", ")}`);
+};
+
 // ====== JOB STORAGE ======
-const UPLOAD_DIR = path.join(__dirname, "uploads");
-fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-
 const jobs = new Map();
-
-setInterval(() => {
-  const now = Date.now();
-  for (const [id, job] of jobs) {
-    if (now - job.createdAt > 60 * 60 * 1000) {
-      try {
-        fs.rmSync(path.join(UPLOAD_DIR, id), { recursive: true, force: true });
-      } catch {}
-      jobs.delete(id);
-    }
-  }
-}, 300_000);
 
 const newId = () => `job_${crypto.randomBytes(8).toString("hex")}`;
 const newShareToken = () => crypto.randomBytes(16).toString("hex");
@@ -84,6 +99,51 @@ const makeUniqueName = (desired, used) => {
   used.add(candidate);
   return candidate;
 };
+
+// Optional: clean up old jobs + their R2 objects
+async function deleteJobObjectsFromR2(jobId) {
+  try {
+    requireR2Env();
+    const prefix = `${jobId}/`;
+    let token;
+
+    while (true) {
+      const listed = await r2.send(
+        new ListObjectsV2Command({
+          Bucket: R2_BUCKET,
+          Prefix: prefix,
+          ContinuationToken: token,
+        })
+      );
+
+      const objects = (listed.Contents || []).map((o) => ({ Key: o.Key }));
+      if (objects.length) {
+        await r2.send(
+          new DeleteObjectsCommand({
+            Bucket: R2_BUCKET,
+            Delete: { Objects: objects, Quiet: true },
+          })
+        );
+      }
+
+      if (!listed.IsTruncated) break;
+      token = listed.NextContinuationToken;
+    }
+  } catch {
+    // swallow cleanup errors
+  }
+}
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, job] of jobs) {
+    if (now - job.createdAt > 60 * 60 * 1000) {
+      jobs.delete(id);
+      // fire-and-forget cleanup (best effort)
+      deleteJobObjectsFromR2(id);
+    }
+  }
+}, 300_000);
 
 // ====== PAID / READY HELPERS ======
 const STRIPE_CHECK_COOLDOWN_MS = 2000;
@@ -125,7 +185,7 @@ app.use(rateLimit({ windowMs: 60_000, max: 120 }));
 // IMPORTANT: Stripe webhook needs raw body BEFORE express.json
 app.post("/webhook", express.raw({ type: "application/json" }), webhookHandler);
 
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 
 // ====== STATIC ======
 const PUBLIC_DIR = path.join(__dirname, "public");
@@ -141,53 +201,6 @@ app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
 
 app.get("/health", (_, res) => res.json({ ok: true }));
 
-// ====== UPLOAD ======
-// Allow ANY file type. Enforce count & size limits.
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: (req, _, cb) => {
-      const dir = path.join(UPLOAD_DIR, req.params.jobId);
-      fs.mkdirSync(dir, { recursive: true });
-      cb(null, dir);
-    },
-    filename: (_, file, cb) => {
-      const safe = sanitizeName(file.originalname)
-        .replace(/[^a-z0-9.\-_ ]/gi, "_")
-        .replace(/\s/g, "_");
-      cb(null, `${Date.now()}_${safe}`);
-    },
-  }),
-  limits: { files: PRO_MAX, fileSize: 25 * 1024 * 1024 },
-  fileFilter: (_, __, cb) => cb(null, true),
-});
-
-// ✅ FIX: clear old files BEFORE multer writes new ones (and do it non-blocking)
-async function clearJobDir(jobId) {
-  const dir = path.join(UPLOAD_DIR, jobId);
-  await fs.promises.rm(dir, { recursive: true, force: true });
-  await fs.promises.mkdir(dir, { recursive: true });
-}
-
-async function prepareUpload(req, res, next) {
-  try {
-    const job = getJob(req.params.jobId);
-
-    // Replace existing uploaded files for this job (prevents append-forever)
-    // and ensures we DON'T delete the directory after multer writes.
-    if (job.files.length) {
-      await clearJobDir(req.params.jobId);
-      job.files = [];
-    } else {
-      // Ensure directory exists even on first upload
-      await fs.promises.mkdir(path.join(UPLOAD_DIR, req.params.jobId), { recursive: true });
-    }
-
-    next();
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
-}
-
 // ====== API ======
 app.post("/api/jobs", (_, res) => {
   const jobId = newId();
@@ -195,7 +208,7 @@ app.post("/api/jobs", (_, res) => {
     jobId,
     createdAt: Date.now(),
     status: "CREATED",
-    files: [],
+    files: [], // [{ key, originalname, mimetype }]
     options: {
       printReady: false,
       keepNames: false,
@@ -213,30 +226,69 @@ app.post("/api/jobs", (_, res) => {
   res.json({ jobId });
 });
 
-app.post(
-  "/api/jobs/:jobId/upload",
-  prepareUpload,
-  upload.array("images", PRO_MAX),
-  (req, res) => {
-    try {
-      const job = getJob(req.params.jobId);
-      if (!req.files?.length) throw new Error("No files");
+/**
+ * NEW: Ask server for a presigned upload URL for R2.
+ * Frontend will PUT the bytes to the returned `url`, then call register endpoint below.
+ */
+app.post("/api/upload-url", async (req, res) => {
+  try {
+    requireR2Env();
 
-      req.files.forEach((f) =>
-        job.files.push({
-          path: f.path,
-          originalname: sanitizeName(f.originalname),
-          mimetype: f.mimetype || "application/octet-stream",
-        })
-      );
+    const { jobId, filename, type } = req.body || {};
+    if (!jobId || !filename) throw new Error("Missing jobId/filename");
 
-      job.status = "UPLOADED";
-      res.json({ ok: true, count: job.files.length });
-    } catch (e) {
-      res.status(400).json({ error: e.message });
-    }
+    // Ensure job exists
+    getJob(jobId);
+
+    const safeName = sanitizeName(filename).replace(/\s/g, "_");
+    const key = `${jobId}/${Date.now()}_${safeName}`;
+
+    const cmd = new PutObjectCommand({
+      Bucket: R2_BUCKET,
+      Key: key,
+      ContentType: type || "application/octet-stream",
+    });
+
+    const url = await getSignedUrl(r2, cmd, { expiresIn: 60 });
+    res.json({ url, key });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
   }
-);
+});
+
+/**
+ * NEW: Register uploaded files (metadata only).
+ * Body:
+ * {
+ *   files: [{ key, originalname, mimetype }]
+ * }
+ */
+app.post("/api/jobs/:jobId/register", (req, res) => {
+  try {
+    const job = getJob(req.params.jobId);
+    const files = req.body?.files;
+
+    if (!Array.isArray(files) || !files.length) throw new Error("No files");
+    if (files.length > PRO_MAX) throw new Error("Too many files");
+
+    // Replace existing files for the job
+    job.files = files.map((f) => ({
+      key: String(f.key || ""),
+      originalname: sanitizeName(f.originalname || "file"),
+      mimetype: String(f.mimetype || "application/octet-stream"),
+    }));
+
+    // Basic validation
+    if (job.files.some((f) => !f.key || !f.key.startsWith(`${job.jobId}/`))) {
+      throw new Error("Invalid file key(s)");
+    }
+
+    job.status = "UPLOADED";
+    res.json({ ok: true, count: job.files.length });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
 
 // ====== CHECKOUT ======
 app.post("/api/checkout", async (req, res) => {
@@ -353,6 +405,8 @@ app.head("/api/download/:jobId", async (req, res) => {
 // ====== DOWNLOAD ======
 app.get("/api/download/:jobId", async (req, res) => {
   try {
+    requireR2Env();
+
     const job = getJob(req.params.jobId);
 
     const paid = await ensurePaid(job);
@@ -379,8 +433,7 @@ app.get("/api/download/:jobId", async (req, res) => {
       const f = job.files[i];
       const isImage = (f.mimetype || "").startsWith("image/");
 
-      // Skip missing files rather than killing the whole download
-      if (!f?.path || !fs.existsSync(f.path)) continue;
+      if (!f?.key) continue;
 
       if (isImage) {
         const quality = job.options.printReady ? 95 : job.options.emailSafe ? 70 : 80;
@@ -395,13 +448,34 @@ app.get("/api/download/:jobId", async (req, res) => {
 
         name = makeUniqueName(name, usedNames);
 
-        const buf = await sharp(f.path).rotate().jpeg({ quality, mozjpeg: true }).toBuffer();
+        const obj = await r2.send(
+          new GetObjectCommand({
+            Bucket: R2_BUCKET,
+            Key: f.key,
+          })
+        );
 
-        archive.append(buf, { name });
+        // Stream: R2 -> sharp -> zip (no buffering)
+        const outStream = sharp()
+          .rotate()
+          .jpeg({ quality, mozjpeg: true });
+
+        // obj.Body is a readable stream
+        obj.Body.pipe(outStream);
+
+        archive.append(outStream, { name });
       } else {
         const desired = sanitizeName(f.originalname);
         const name = makeUniqueName(desired, usedNames);
-        archive.file(f.path, { name });
+
+        const obj = await r2.send(
+          new GetObjectCommand({
+            Bucket: R2_BUCKET,
+            Key: f.key,
+          })
+        );
+
+        archive.append(obj.Body, { name });
       }
     }
 
