@@ -1,7 +1,7 @@
-<!-- privacy.html — ZipPixel (REDESIGN v13 - SMALLPDF STYLE)
-     ✅ Matches tool + pricing styling (v13)
-     ✅ Clear, professional, consistent with backend behavior
-     ✅ Fixed "Last updated" (no changing every page load)
+<!-- privacy.html — ZipPixel (v14 - MONEY MODE)
+     ✅ Matches tool + pricing styling (v14)
+     ✅ Truthful to current backend behavior
+     ✅ No misleading retention promises
 -->
 <!doctype html>
 <html lang="en">
@@ -17,7 +17,7 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=13" />
+  <link rel="stylesheet" href="/style.css?v=14" />
 </head>
 
 <body>
@@ -64,14 +64,15 @@
 
           <h2>Who we are</h2>
           <p>
-            ZipPixel (“we”, “us”) is the controller for any personal data processed through this website.
+            ZipPixel (“we”, “us”) is the controller for personal data processed through this website.
             Questions? Email <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
           </p>
 
           <h2>What we collect</h2>
           <ul>
             <li><b>Uploaded files</b> — the files you choose to upload for processing.</li>
-            <li><b>Basic technical logs</b> — limited request and error information to keep the service reliable and prevent abuse.</li>
+            <li><b>Download metadata</b> — job identifiers and basic counters (e.g. download count) to operate the service.</li>
+            <li><b>Basic technical logs</b> — limited request/error information to keep the service reliable and prevent abuse.</li>
             <li><b>Payment confirmation</b> — payments are processed by Stripe. We receive confirmation that payment succeeded (we do not store full card details).</li>
           </ul>
 
@@ -88,31 +89,44 @@
             <li><b>Legitimate interests</b> — to protect ZipPixel from abuse, maintain reliability, and improve service stability (minimal logging only).</li>
           </ul>
 
-          <h2>How your files are handled</h2>
+          <h2>File storage and retention</h2>
           <ul>
-            <li>Your uploaded files are stored <b>temporarily</b> so we can create your ZIP.</li>
-            <li>Files and generated data are <b>automatically deleted</b> after a short period (typically within <b>around 1 hour</b>).</li>
-            <li>Once deleted, downloads and share links will no longer work — so download promptly after purchase.</li>
+            <li>Your files are stored so we can generate your ZIP and provide the download you purchased.</li>
+            <li>ZipPixel is designed for <b>temporary storage</b>. We aim to delete uploaded files after a short period.</li>
+            <li>
+              However, retention can vary depending on operational needs (for example, reliability, abuse prevention, and
+              failed/abandoned sessions). You should <b>download promptly</b> after purchase.
+            </li>
             <li>We do not use your files for advertising, and we do not use them to train models.</li>
           </ul>
 
           <h2>Share links</h2>
           <p>
-            If you choose the optional shareable download link, anyone with that link can download the ZIP
-            while it’s available. Treat share links like a password and only share with people you trust.
+            If you choose the optional shareable download link, anyone with that link can download the ZIP while it’s available.
+            Treat share links like a password and only share with people you trust.
+          </p>
+          <ul>
+            <li>Share links are time-limited (currently up to <b>7 days</b> from purchase).</li>
+            <li>If files are deleted or the link expires, the share link will stop working.</li>
+          </ul>
+
+          <h2>Payments</h2>
+          <p>
+            Payments are handled by <b>Stripe</b>. We do not receive or store your full card details.
+            Stripe may collect and process personal data according to their privacy policy.
           </p>
 
           <h2>Cookies</h2>
           <p>
-            ZipPixel does not use tracking cookies for advertising.
-            We may use essential cookies only when needed to run the service.
+            ZipPixel does not use advertising or tracking cookies.
+            We may use essential cookies or local storage when needed to operate the service (for example, to maintain basic functionality).
           </p>
 
           <h2>Third parties</h2>
           <p>We use trusted providers to operate ZipPixel:</p>
           <ul>
             <li><b>Stripe</b> for payments.</li>
-            <li><b>Hosting / infrastructure</b> providers to run the site and process uploads.</li>
+            <li><b>Hosting / infrastructure</b> providers to run the site and store files temporarily.</li>
           </ul>
           <p>
             These providers process data only to deliver the service and according to their own privacy and security terms.
@@ -127,7 +141,7 @@
           <h2>Your choices</h2>
           <ul>
             <li>You can choose not to upload files.</li>
-            <li>You can close the tab and return later, but files are temporary and may be deleted automatically.</li>
+            <li>You can close the tab and return later, but files are temporary and links may expire.</li>
             <li>If you believe we’ve retained something unexpectedly, contact support and we’ll investigate.</li>
           </ul>
 

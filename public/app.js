@@ -1,26 +1,17 @@
-// public/app.js — ZipPixel frontend (v13)
-// Matches: v13 index.html IDs + UPDATED server.js routes:
+// public/app.js — ZipPixel frontend (v14 MONEY MODE)
+// Matches: v14 index.html IDs + server.js v14 routes:
 // /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/checkout
-
 (() => {
   // ====== YEAR ======
   const y = document.getElementById("y");
   if (y) y.textContent = new Date().getFullYear();
 
-  // ====== PRICING (must match backend logic) ======
-  const STANDARD_MAX = 5;
-  const PRO_MAX = 10;
-
-  const STANDARD_PRICE = 2.99;
-  const PRO_PRICE = 4.99;
-
-  const PRINT_READY_PRICE = 1.99;
-  const EMAIL_SAFE_PRICE = 1.49;
-  const SHARE_LINK_PRICE = 2.49;
-  const DAY_PASS_PRICE = 9.99;
-
-  const MAX_FILES = PRO_MAX;
+  // ====== PRICING (must match backend v14) ======
+  const MAX_FILES = 10;
   const MAX_MB_EACH = 25;
+
+  const BASE_PRICE = 2.99;       // £2.99 per ZIP (up to 10 files)
+  const SHARE_LINK_PRICE = 2.49; // +£2.49
 
   // ====== DOM ======
   const dropzone = document.getElementById("dropzone");
@@ -51,20 +42,22 @@
   const modalBackBtn = document.getElementById("modalBackBtn");
   const modalPayBtn = document.getElementById("modalPayBtn");
 
-  const optPrintReady = document.getElementById("optPrintReady");
-  const optKeepNames = document.getElementById("optKeepNames");
-  const optEmailSafe = document.getElementById("optEmailSafe");
-  const optListingNames = document.getElementById("optListingNames");
+  // Only paid option in v14
   const optShareLink = document.getElementById("optShareLink");
-  const optDayPass = document.getElementById("optDayPass");
 
-  const priceModalLead = document.getElementById("priceModalLead");
-  const priceModalNote = document.getElementById("priceModalNote");
+  // Legacy IDs (present but hidden in your v14 index.html)
+  const optPrintReady = document.getElementById("optPrintReady");
+  const optEmailSafe = document.getElementById("optEmailSafe");
+  const optKeepNames = document.getElementById("optKeepNames");
+  const optListingNames = document.getElementById("optListingNames");
+  const optDayPass = document.getElementById("optDayPass");
   const rowStandard = document.getElementById("rowStandard");
   const rowPro = document.getElementById("rowPro");
   const tierInline = document.getElementById("tierInline");
   const priceInline = document.getElementById("priceInline");
   const countInline = document.getElementById("countInline");
+  const priceModalLead = document.getElementById("priceModalLead");
+  const priceModalNote = document.getElementById("priceModalNote");
 
   // If this page doesn’t have the tool, bail quietly
   if (!dropzone || !filesEl || !chooseBtn || !uploadBtn || !continueBtn) return;
@@ -73,10 +66,10 @@
   let jobId = null;
   let creatingJob = false;
   let uploading = false;
+
   let selected = [];            // Array<File>
   const thumbUrls = new Map();  // keyOf(file) -> objectURL (images only)
 
-  // New: store uploaded metadata for register call
   let uploadedMeta = [];        // [{ key, originalname, mimetype }]
 
   // ====== HELPERS ======
@@ -107,7 +100,7 @@
     return ext || (f.type ? f.type.toUpperCase() : "FILE");
   };
 
-  // Allow ANY file type; only enforce size limit
+  // Any file type; enforce size limit only
   const validateFile = (f) => {
     if (!f) return "Invalid file.";
     if (f.size > MAX_MB_EACH * 1024 * 1024) {
@@ -125,10 +118,6 @@
     if (progressMeta) progressMeta.textContent = "";
   };
 
-  const getTier = () => (selected.length > STANDARD_MAX ? "pro" : "standard");
-  const getTierLabel = () => (getTier() === "pro" ? "Pro ZIP" : "Standard ZIP");
-  const setChosen = (el, chosen) => el && el.classList.toggle("isChosen", !!chosen);
-
   const revokeRemovedThumbs = (currentKeys) => {
     for (const [k, url] of thumbUrls.entries()) {
       if (!currentKeys.has(k)) {
@@ -144,6 +133,24 @@
     const url = URL.createObjectURL(f);
     thumbUrls.set(k, url);
     return url;
+  };
+
+  const calcTotal = () => {
+    const share = !!optShareLink?.checked;
+    const total = BASE_PRICE + (share ? SHARE_LINK_PRICE : 0);
+    return total;
+  };
+
+  // Hard-disable legacy options so users never get “promised” something backend doesn’t charge for.
+  const disableLegacyOptions = () => {
+    [optPrintReady, optEmailSafe, optKeepNames, optListingNames, optDayPass].forEach((el) => {
+      if (!el) return;
+      el.checked = false;
+      el.disabled = true;
+    });
+    if (rowPro) rowPro.style.display = "none";
+    if (rowStandard) rowStandard.classList.add("isChosen");
+    if (tierInline) tierInline.textContent = "ZIP Download";
   };
 
   const renderSelected = () => {
@@ -199,11 +206,12 @@
     fileMeta.hidden = false;
 
     uploadBtn.disabled = !jobId || uploading;
-    continueBtn.disabled = true;
+    // Continue only after successful upload of current selection
+    continueBtn.disabled = !uploadedMeta.length;
 
     if (jobId) {
       setStatus("Ready.");
-      setHint("Upload your files to continue.");
+      setHint(uploadedMeta.length ? "Continue to checkout." : "Upload your files to continue.");
     } else {
       setStatus("Starting…");
       setHint("Creating a job…");
@@ -225,7 +233,7 @@
       thumbUrls.delete(k);
     }
 
-    // Any selection change invalidates previous upload metadata
+    // Selection change invalidates previous upload metadata
     uploadedMeta = [];
     continueBtn.disabled = true;
 
@@ -309,7 +317,6 @@
       setHint(`Only the first <b>${MAX_FILES}</b> files were kept.`);
     }
 
-    // Any selection change invalidates previous upload metadata
     uploadedMeta = [];
     continueBtn.disabled = true;
 
@@ -380,7 +387,6 @@
   });
 
   // ====== UPLOAD (DIRECT TO R2) ======
-  // Uses /api/upload-url (get presigned PUT URL) then PUT file bytes to R2
   const putWithProgress = (url, file, onProgress) => {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
@@ -392,7 +398,6 @@
       };
 
       xhr.onload = () => {
-        // R2 PUT usually returns 200/201 with empty body
         if (xhr.status >= 200 && xhr.status < 300) resolve(true);
         else reject(new Error(`Upload failed (${xhr.status})`));
       };
@@ -402,7 +407,6 @@
     });
   };
 
-  // Weighted progress across many files (by total bytes)
   const makeProgressReporter = (totalBytes) => {
     let uploadedBytes = 0;
 
@@ -413,16 +417,13 @@
       if (progressMeta) progressMeta.textContent = `${humanMB(bytesSoFar)} / ${humanMB(totalBytes)}`;
     };
 
-    // Initialize
     setOverall(0);
 
     return {
-      // call between files to “commit” completed file bytes
       commitFile: (fileSize) => {
         uploadedBytes += fileSize;
         setOverall(uploadedBytes);
       },
-      // call during current file upload
       currentFile: (loaded, total) => {
         const bytesSoFar = uploadedBytes + loaded;
         setOverall(bytesSoFar);
@@ -456,14 +457,12 @@
     setStatus("Uploading…");
     setHint("Keep this tab open.");
 
-    // If you re-upload (same job) we just overwrite metadata; server-side can cleanup old objects later
     uploadedMeta = [];
 
     const totalBytes = selected.reduce((a, f) => a + f.size, 0);
     const prog = makeProgressReporter(totalBytes);
 
     try {
-      // Upload sequentially (simple + reliable). If you want, we can add parallel 3-at-a-time later.
       for (let i = 0; i < selected.length; i++) {
         const f = selected[i];
 
@@ -471,7 +470,6 @@
           progressLabel.textContent = `Uploading ${i + 1}/${selected.length}…`;
         }
 
-        // 1) Get presigned URL for this file
         const presign = await fetch("/api/upload-url", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -485,25 +483,21 @@
         if (presign?.error) throw new Error(presign.error);
         if (!presign?.url || !presign?.key) throw new Error("Failed to prepare upload");
 
-        // 2) PUT the bytes directly to R2
         await putWithProgress(presign.url, f, (loaded, total) => {
           prog.currentFile(loaded, total);
         });
 
-        // 3) Record metadata for register step
         uploadedMeta.push({
           key: presign.key,
           originalname: f.name,
           mimetype: f.type || "application/octet-stream",
         });
 
-        // commit this file’s bytes as done
         prog.commitFile(f.size);
       }
 
       prog.done();
 
-      // 4) Tell server “these are the uploaded files for this job”
       const reg = await fetch(`/api/jobs/${jobId}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -514,7 +508,7 @@
 
       setStatus("Uploaded.");
       setHint(
-        `Uploaded. Continue to confirm and proceed to payment.<br/><span style="color: rgba(11,18,32,.56)">Tip: add a shareable link at checkout to send this to a client.</span>`
+        `Uploaded. Continue to checkout.<br/><span style="color: rgba(11,18,32,.56)">Tip: add a shareable link if you’re sending this to someone.</span>`
       );
       if (progressLabel) progressLabel.textContent = "Uploaded";
       if (progressFill) progressFill.style.width = "100%";
@@ -535,98 +529,29 @@
   const openPriceModal = () => {
     if (!priceModal) return;
 
-    const tier = getTier();
+    disableLegacyOptions();
+
     const n = selected.length;
-
     if (priceModalLead) priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> file${n === 1 ? "" : "s"}.`;
-    if (tierInline) tierInline.textContent = getTierLabel();
     if (countInline) countInline.textContent = String(n);
+    if (tierInline) tierInline.textContent = "ZIP Download";
 
-    setChosen(rowStandard, tier === "standard");
-    setChosen(rowPro, tier === "pro");
+    // Default money lever: share link ON by default (you can switch this off if you want)
+    if (optShareLink) optShareLink.checked = true;
 
     const updateTotal = () => {
-      // Day pass overrides totals
-      if (optDayPass?.checked) {
-        if (priceInline) priceInline.textContent = `£${DAY_PASS_PRICE.toFixed(2)}`;
-        return;
-      }
-
-      let base = (tier === "pro" ? PRO_PRICE : STANDARD_PRICE);
-      let total = base;
-
-      if (optPrintReady?.checked) total += PRINT_READY_PRICE;
-      if (optEmailSafe?.checked) total += EMAIL_SAFE_PRICE;
-      if (optShareLink?.checked) total += SHARE_LINK_PRICE;
-
+      const total = calcTotal();
       if (priceInline) priceInline.textContent = `£${total.toFixed(2)}`;
     };
 
-    // Defaults (money lever): Share link ON by default
-    if (optPrintReady) optPrintReady.checked = false;
-    if (optEmailSafe) optEmailSafe.checked = false;
-    if (optShareLink) optShareLink.checked = true;
-    if (optKeepNames) optKeepNames.checked = false;
-    if (optListingNames) optListingNames.checked = false;
-    if (optDayPass) optDayPass.checked = false;
+    if (optShareLink) {
+      optShareLink.addEventListener("change", updateTotal);
+    }
 
-    // Mutually exclusive naming (avoid “keep names didn’t work” confusion)
-    const normalizeNaming = () => {
-      if (optListingNames?.checked) {
-        if (optKeepNames) optKeepNames.checked = false;
-      }
-      if (optKeepNames?.checked) {
-        if (optListingNames) optListingNames.checked = false;
-      }
-    };
-
-    // Day pass: disable other paid toggles (UX clarity)
-    const setPaidDisabled = (disabled) => {
-      [optPrintReady, optEmailSafe, optShareLink].forEach((el) => {
-        if (!el) return;
-        el.disabled = disabled;
-      });
-    };
-
-    // If day pass is checked, auto-uncheck other paid add-ons (keeps totals clean)
-    const normalizePaidOptions = () => {
-      if (!optDayPass) return;
-      const on = !!optDayPass.checked;
-
-      setPaidDisabled(on);
-
-      if (on) {
-        if (optPrintReady) optPrintReady.checked = false;
-        if (optEmailSafe) optEmailSafe.checked = false;
-        if (optShareLink) optShareLink.checked = true; // keep share link on (it’s the point)
-      }
-    };
-
-    normalizeNaming();
-    normalizePaidOptions();
     updateTotal();
 
-    // Bind change handlers
-    [optPrintReady, optEmailSafe, optShareLink, optDayPass].forEach((el) => {
-      if (!el) return;
-      el.onchange = () => {
-        normalizePaidOptions();
-        updateTotal();
-      };
-    });
-
-    [optKeepNames, optListingNames].forEach((el) => {
-      if (!el) return;
-      el.onchange = () => {
-        normalizeNaming();
-      };
-    });
-
     if (priceModalNote) {
-      priceModalNote.textContent =
-        tier === "pro"
-          ? "Pro selected automatically for 6+ files."
-          : "You’ll be redirected to secure Stripe Checkout.";
+      priceModalNote.textContent = "You’ll be redirected to secure Stripe Checkout.";
     }
 
     priceModal.classList.add("isOpen");
@@ -644,14 +569,14 @@
   modalCloseBtn?.addEventListener("click", closePriceModal);
   modalBackBtn?.addEventListener("click", closePriceModal);
   priceModal?.addEventListener("click", (e) => { if (e.target === priceModal) closePriceModal(); });
-  window.addEventListener("keydown", (e) => { if (e.key === "Escape" && priceModal?.classList.contains("isOpen")) closePriceModal(); });
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && priceModal?.classList.contains("isOpen")) closePriceModal();
+  });
 
-  // Continue => open modal
-  continueBtn.addEventListener("click", async () => {
+  continueBtn.addEventListener("click", () => {
     if (!jobId) return;
     if (selected.length === 0) return;
 
-    // Require an upload to have completed for current selection
     if (!uploadedMeta.length) {
       setStatus("Upload first.");
       setHint("Please upload your files before continuing.");
@@ -676,13 +601,8 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           jobId,
-          printReady: !!optPrintReady?.checked,
-          keepNames: !!optKeepNames?.checked,
-          emailSafe: !!optEmailSafe?.checked,
           shareLink: !!optShareLink?.checked,
-          namingPreset: optListingNames?.checked ? "listing" : null,
-          dayPass: !!optDayPass?.checked
-        })
+        }),
       }).then(r => r.json());
 
       if (resp?.error) throw new Error(resp.error);

@@ -1,6 +1,6 @@
-<!-- success.html — ZipPixel (v13)
-     ✅ Uses /api/ready/:jobId (Option A)
-     ✅ Matches v13 CSS (legalPage / legalHeader / legalCard)
+<!-- success.html — ZipPixel (v14)
+     ✅ Uses /api/status/:jobId (webhook-driven PAID state)
+     ✅ Matches v14 CSS (legalPage / legalHeader / legalCard)
      ✅ Avoids UI bouncing between states while polling
 -->
 <!doctype html>
@@ -17,7 +17,7 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=13" />
+  <link rel="stylesheet" href="/style.css?v=14" />
 </head>
 
 <body>
@@ -53,18 +53,18 @@
         <div class="legalHeader">
           <div class="legalKicker">Payment</div>
           <h1 class="legalTitle">You’re all set.</h1>
-          <p class="legalMeta" id="sub">Preparing your download…</p>
+          <p class="legalMeta" id="sub">Confirming payment…</p>
         </div>
 
         <article class="legalCard">
           <p class="legalIntro" id="desc">
-            We’re getting your ZIP ready. This usually takes a few seconds.
+            We’re confirming your payment and preparing your ZIP.
           </p>
 
           <div class="successActions" id="actions" aria-live="polite"></div>
 
           <p class="fineprint" id="hint">
-            If it says “Not ready yet”, don’t worry — we’ll retry automatically for ~30 seconds.
+            If this takes more than ~30 seconds, use “Check again”.
           </p>
         </article>
       </div>
@@ -97,7 +97,7 @@
     const supportHtml = `Support: <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>`;
 
     const downloadUrl = jobId ? `/api/download/${encodeURIComponent(jobId)}` : "#";
-    const readyUrl = jobId ? `/api/ready/${encodeURIComponent(jobId)}` : "#";
+    const statusUrl = jobId ? `/api/status/${encodeURIComponent(jobId)}` : "#";
 
     const safeCopy = async (text) => {
       try {
@@ -135,14 +135,14 @@
       const start = Date.now();
       let attempt = 0;
 
-      // Track UI mode so we don't “bounce” between states while polling
-      let mode = "waiting"; // waiting | notPaid | ready | failed
+      // waiting | notPaid | ready | failed
+      let mode = "waiting";
 
       const renderWaiting = (msg) => {
         mode = "waiting";
-        sub.textContent = "Preparing your download…";
+        sub.textContent = "Confirming payment…";
         desc.textContent = msg || "This usually takes a few seconds.";
-        hint.textContent = "If it says “Not ready yet”, don’t worry — we’ll retry automatically for ~30 seconds.";
+        hint.textContent = "If this takes more than ~30 seconds, use “Check again”.";
 
         setActions(`
           <button class="btn btn--primary" id="retryBtn" type="button">Check again</button>
@@ -203,7 +203,7 @@
                 <input class="shareInput" id="shareInput" value="${safe}" readonly />
                 <button class="btn btn--soft btn--sm" id="copyBtn" type="button">Copy</button>
               </div>
-              <div class="shareHint" id="copyHint">Anyone with the link can download the ZIP.</div>
+              <div class="shareHint" id="copyHint">Anyone with the link can download while it remains available.</div>
             </div>
           `;
         }
@@ -225,17 +225,22 @@
           });
         }
 
-        hint.textContent = "Tip: Save the ZIP somewhere safe. Files are auto-deleted after a short time.";
+        hint.textContent = "Tip: Download promptly and store the ZIP somewhere safe.";
       };
 
-      const checkReady = async () => {
+      const checkStatus = async () => {
         try {
-          const r = await fetch(readyUrl, { cache: "no-store" });
-          if (!r.ok) return { ready: false, paid: false, shareToken: null };
+          const r = await fetch(statusUrl, { cache: "no-store" });
+          if (!r.ok) return { ok: false, paid: false, status: "UNKNOWN", shareToken: null };
           const j = await r.json();
-          return { ready: !!j.ready, paid: !!j.paid, shareToken: j.shareToken || null };
+          return {
+            ok: !!j.ok,
+            paid: !!j.paid,
+            status: j.status || "UNKNOWN",
+            shareToken: j.shareToken || null
+          };
         } catch {
-          return { ready: false, paid: false, shareToken: null };
+          return { ok: false, paid: false, status: "UNKNOWN", shareToken: null };
         }
       };
 
@@ -245,30 +250,24 @@
         attempt++;
         const waited = Date.now() - start;
 
-        // Only re-render a "waiting" screen if we aren't already in a clearer state.
         if (manual) {
           renderWaiting("Checking…");
-        } else if (mode !== "notPaid" && mode !== "failed" && mode !== "ready") {
-          // first run or continued waiting
-          // (no-op: we already show waiting below)
         }
 
-        const st = await checkReady();
+        const st = await checkStatus();
 
-        if (st.ready) return renderReady(st.shareToken);
+        if (st.paid) return renderReady(st.shareToken);
 
-        if (waited > 6000 && st.paid === false) {
-          // show clearer state and keep polling without bouncing back to "waiting"
+        if (waited > 6000) {
           if (mode !== "notPaid") renderNotPaid();
         } else {
-          if (mode !== "waiting") renderWaiting("Checking your download…");
+          if (mode !== "waiting") renderWaiting("Checking your payment…");
         }
 
         if (waited >= maxMs) return renderFailed();
 
         const delay = Math.min(2500, 800 + attempt * 350);
 
-        // If we're in notPaid mode, don't spam the UI with “retrying in…”
         if (mode === "waiting") {
           renderWaiting(`Not ready yet. Retrying in ${(delay/1000).toFixed(1)}s…`);
         }
@@ -277,7 +276,7 @@
         return poll(false);
       };
 
-      renderWaiting("Checking your download…");
+      renderWaiting("Checking your payment…");
       poll(false);
     }
   </script>

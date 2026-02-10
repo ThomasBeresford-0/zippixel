@@ -1,8 +1,8 @@
-<!-- index.html — ZipPixel (REDESIGN v13.1 - SMALLPDF STYLE)
+<!-- index.html — ZipPixel (v14 - MONEY MODE)
      ✅ Tool-first layout (centered)
      ✅ Keeps ALL existing ids/classes/JS hooks working
-     ✅ Same endpoints / same flow
-     ✅ Updated for ANY file types (not just images)
+     ✅ Matches backend/server.js v14 pricing + routes
+     ✅ ANY file types (images optimised where possible; others bundled)
 -->
 <!doctype html>
 <html lang="en">
@@ -29,7 +29,7 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=13" />
+  <link rel="stylesheet" href="/style.css?v=14" />
 </head>
 
 <body>
@@ -71,17 +71,17 @@
           </p>
 
           <div class="heroMeta" aria-label="Limits">
-            <span class="mini"><b>Max</b> 10</span>
+            <span class="mini"><b>Max</b> 10 files</span>
             <span class="mini"><b>Max</b> 25MB each</span>
             <span class="mini"><b>Output</b> ZIP</span>
-            <span class="mini">Pricing shown before checkout</span>
+            <span class="mini"><b>£2.99</b> per ZIP</span>
           </div>
         </div>
 
-        <!-- TOOL CARD (same IDs/hooks) -->
+        <!-- TOOL CARD -->
         <div class="toolCard" aria-label="ZipPixel tool">
 
-          <!-- Keep status hooks (IDs used by JS) -->
+          <!-- Status hooks -->
           <div class="toolTop">
             <div class="statusBlock">
               <div class="label">Status</div>
@@ -92,7 +92,6 @@
               <div class="statusHint" id="statusHint">Drop files to begin.</div>
             </div>
 
-            <!-- Keep limits (not required by JS, but nice UI) -->
             <div class="limits" aria-hidden="true">
               <span class="mini"><b>Max</b> 10</span>
               <span class="mini"><b>Max</b> 25MB</span>
@@ -100,9 +99,8 @@
             </div>
           </div>
 
-          <!-- DROPZONE (IDs used by JS) -->
+          <!-- DROPZONE -->
           <div class="dropzone" id="dropzone" aria-label="Upload files">
-            <!-- IMPORTANT: allow ANY file type -->
             <input id="files" type="file" multiple />
 
             <div class="dropzone__inner">
@@ -126,10 +124,9 @@
 
             <div class="dzFine">
               Tip: keep it client-ready — include only what you actually need to send.
-              <span style="color: rgba(11,18,32,.56)">Files are automatically deleted after a short time.</span>
+              <span style="color: rgba(11,18,32,.56)">Files are stored temporarily and deleted automatically.</span>
             </div>
 
-            <!-- Selected files / preview (same IDs) -->
             <div class="fileMeta" id="fileMeta" hidden>
               <div class="fileMetaTop">
                 <div class="fileSummary" id="fileSummary"></div>
@@ -140,7 +137,7 @@
             </div>
           </div>
 
-          <!-- PROGRESS (same IDs) -->
+          <!-- PROGRESS -->
           <div class="progressWrap" id="progressWrap" hidden>
             <div class="progressTop">
               <div class="progressLabel" id="progressLabel">Uploading…</div>
@@ -152,7 +149,7 @@
             <div class="progressMeta" id="progressMeta"></div>
           </div>
 
-          <!-- ACTIONS (same IDs) -->
+          <!-- ACTIONS -->
           <div class="actionWrap" aria-label="Actions">
             <div class="actionSteps" aria-hidden="true">
               <div class="stepPill"><span class="stepDot"></span> 1) Upload</div>
@@ -188,13 +185,13 @@
           </div>
           <div class="card">
             <div class="k">2</div>
-            <div class="t">We optimise</div>
-            <div class="d">Images are optimised. Other files are bundled as-is.</div>
+            <div class="t">We bundle cleanly</div>
+            <div class="d">Images may be optimised. Everything is bundled into one ZIP.</div>
           </div>
           <div class="card">
             <div class="k">3</div>
-            <div class="t">Download one ZIP</div>
-            <div class="d">One tidy bundle ready to send, store, or archive.</div>
+            <div class="t">Pay & download</div>
+            <div class="d">Pay once via Stripe → download your ZIP instantly.</div>
           </div>
         </div>
       </div>
@@ -215,7 +212,7 @@
           </details>
           <details>
             <summary>What formats do you support?</summary>
-            <p>Any file type. Images are optimised; everything else is bundled into your ZIP.</p>
+            <p>Any file type. Images may be optimised; everything else is bundled into your ZIP.</p>
           </details>
           <details>
             <summary>When do I see pricing?</summary>
@@ -223,7 +220,7 @@
           </details>
           <details>
             <summary>What happens to my files?</summary>
-            <p>They’re only used to generate your ZIP and deleted after a short time.</p>
+            <p>They’re stored temporarily to create your ZIP, then deleted automatically.</p>
           </details>
         </div>
       </div>
@@ -240,7 +237,7 @@
     </div>
   </footer>
 
-  <!-- PRICE MODAL (unchanged IDs) -->
+  <!-- PRICE MODAL (same IDs; simplified to match v14 backend) -->
   <div class="modalOverlay" id="priceModal" role="dialog" aria-modal="true" aria-labelledby="priceModalTitle">
     <div class="modalCard" role="document">
       <div class="modalTop">
@@ -254,21 +251,25 @@
         <div class="modalSummary" aria-label="Checkout summary">
           <div class="modalSummaryLeft">
             <div class="modalSummaryKicker">You’ll pay</div>
-            <div class="modalSummaryMain"><span id="tierInline">Standard ZIP</span> • <span id="countInline">0</span> files</div>
+            <div class="modalSummaryMain">
+              <span id="tierInline">ZIP Download</span> • <span id="countInline">0</span> files
+            </div>
           </div>
           <div class="modalSummaryAmt" id="priceInline">£0.00</div>
         </div>
 
-        <div class="priceGrid" aria-label="Pricing tiers">
-          <div class="priceRow" id="rowStandard">
+        <!-- Keep these rows for layout consistency, but make them truthful -->
+        <div class="priceGrid" aria-label="Pricing">
+          <div class="priceRow isChosen" id="rowStandard">
             <div class="priceLeft">
-              <div class="priceName">Standard ZIP</div>
-              <div class="priceDesc">Up to 5 files</div>
+              <div class="priceName">ZIP Download</div>
+              <div class="priceDesc">Up to 10 files</div>
             </div>
             <div class="priceAmt">£2.99</div>
           </div>
 
-          <div class="priceRow" id="rowPro">
+          <!-- keep id rowPro present so older CSS/JS doesn’t break, but hide it -->
+          <div class="priceRow" id="rowPro" style="display:none">
             <div class="priceLeft">
               <div class="priceName">Pro ZIP</div>
               <div class="priceDesc">Up to 10 files</div>
@@ -280,6 +281,17 @@
         <div class="priceGrid" aria-label="Optional upgrades">
           <div class="priceRow">
             <div class="priceLeft">
+              <div class="priceName">Shareable download link</div>
+              <div class="priceDesc">Send a link instead of the ZIP (7 days)</div>
+            </div>
+            <div class="priceAmt">
+              <label><input type="checkbox" id="optShareLink" /> +£2.49</label>
+            </div>
+          </div>
+
+          <!-- Keep legacy option IDs in DOM so nothing breaks; hide + disable in JS -->
+          <div class="priceRow" style="display:none">
+            <div class="priceLeft">
               <div class="priceName">Print-ready quality</div>
               <div class="priceDesc">Higher quality for brochures & print (images only)</div>
             </div>
@@ -288,7 +300,7 @@
             </div>
           </div>
 
-          <div class="priceRow">
+          <div class="priceRow" style="display:none">
             <div class="priceLeft">
               <div class="priceName">Email-safe compression</div>
               <div class="priceDesc">Extra compression for inbox limits (images only)</div>
@@ -298,7 +310,7 @@
             </div>
           </div>
 
-          <div class="priceRow">
+          <div class="priceRow" style="display:none">
             <div class="priceLeft">
               <div class="priceName">Keep original filenames</div>
               <div class="priceDesc">Preserve names exactly as uploaded</div>
@@ -308,7 +320,7 @@
             </div>
           </div>
 
-          <div class="priceRow">
+          <div class="priceRow" style="display:none">
             <div class="priceLeft">
               <div class="priceName">Property listing filenames</div>
               <div class="priceDesc">listing_01.jpg, listing_02.jpg…</div>
@@ -318,17 +330,7 @@
             </div>
           </div>
 
-          <div class="priceRow">
-            <div class="priceLeft">
-              <div class="priceName">Shareable download link</div>
-              <div class="priceDesc">Send a link instead of the ZIP</div>
-            </div>
-            <div class="priceAmt">
-              <label><input type="checkbox" id="optShareLink" /> +£2.49</label>
-            </div>
-          </div>
-
-          <div class="priceRow">
+          <div class="priceRow" style="display:none">
             <div class="priceLeft">
               <div class="priceName">Unlimited 24-hour pass</div>
               <div class="priceDesc">Compress unlimited ZIPs today</div>
@@ -349,6 +351,6 @@
     </div>
   </div>
 
-  <script src="/app.js?v=13" defer></script>
+  <script src="/app.js?v=14" defer></script>
 </body>
 </html>

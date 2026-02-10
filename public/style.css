@@ -1,8 +1,9 @@
-/* style.css — ZipPixel (REDESIGN v13 - SMALLPDF STYLE)
+/* style.css — ZipPixel (v14 - SMALLPDF STYLE / MONEY MODE)
    Goal: Calm, centered, tool-first layout.
    - Big primary dropzone
    - Minimal hero clutter
    - Professional whitespace + typography
+   - v14: pricing is £2.99 ZIP + optional share link (+£2.49). UI aligned.
 */
 
 :root{
@@ -218,7 +219,6 @@ p{ margin:0; }
   padding: 18px;
 }
 
-/* Hide heavy “status header” visually, but keep IDs intact */
 .toolTop{
   display:flex;
   align-items:flex-start;
@@ -393,7 +393,6 @@ p{ margin:0; }
 }
 .thumbImg{ width:100%; height:100%; object-fit:cover; }
 
-/* Generic badge (PDF + other file types use the same component) */
 .thumbPdf{
   font-size: 11px;
   font-weight: 900;
@@ -485,7 +484,7 @@ p{ margin:0; }
   border-top: 1px solid rgba(2,6,23,.08);
 }
 
-.actionSteps{ display:none; } /* Smallpdf-style: hide the pills */
+.actionSteps{ display:none; }
 
 .actionBar{
   display:grid;
@@ -502,8 +501,7 @@ p{ margin:0; }
 .fineprint a{ text-decoration: underline; text-underline-offset: 2px; }
 
 /* =========================
-   Success page (v13)
-   - "Share link" box styling used by success.html
+   Success page
 ========================= */
 .successActions{
   margin-top: 14px;
@@ -648,8 +646,7 @@ details p{
 .footer__links a{ color: rgba(11,18,32,.58); text-decoration: underline; text-underline-offset: 2px; }
 
 /* =========================
-   Modal (keep your existing styling)
-   (Your v12 modal CSS is already good; leaving as-is)
+   Modal (keep your existing styling + viewport fixes)
 ========================= */
 .modalOverlay{
   position: fixed;
@@ -658,7 +655,6 @@ details p{
   backdrop-filter: blur(10px);
   display: none;
 
-  /* FIX: stop modal being cut off */
   align-items: flex-start;
   justify-content: center;
   overflow: auto;
@@ -668,7 +664,6 @@ details p{
   padding: 18px;
 }
 .modalOverlay.isOpen{ display:flex; }
-
 
 .modalCard{
   width: min(640px, 100%);
@@ -680,7 +675,6 @@ details p{
   transform: translateY(10px);
   animation: modalIn .14s var(--ease) forwards;
 
-  /* FIX: keep card inside viewport */
   margin: 18px auto;
   max-height: calc(100vh - 36px);
   display: flex;
@@ -711,7 +705,6 @@ details p{
 .modalBody{
   padding: 14px 16px 6px;
 
-  /* FIX: if content is long, scroll inside modal */
   overflow: auto;
   -webkit-overflow-scrolling: touch;
   max-height: calc(100vh - 36px - 60px - 68px);
@@ -808,12 +801,16 @@ details p{
   .shareRow{ flex-direction: column; align-items: stretch; }
 }
 
-/* =========================
-   Pricing page (v13)
-========================= */
-.pricingPage{
-  padding: 10px 0 26px;
+@media (max-width: 520px){
+  .modalOverlay{ padding: 12px; }
+  .modalCard{ margin: 12px auto; max-height: calc(100vh - 24px); }
+  .modalBody{ max-height: calc(100vh - 24px - 60px - 68px); }
 }
+
+/* =========================
+   Pricing page (still valid v14)
+========================= */
+.pricingPage{ padding: 10px 0 26px; }
 
 .pricingHeader{
   width: min(860px, 100%);
@@ -977,7 +974,6 @@ details p{
   font-size: 13px;
 }
 
-/* Responsive */
 @media (max-width: 980px){
   .pricingGrid{ grid-template-columns: 1fr; }
   .priceCard--featured{ transform: none; }
@@ -985,11 +981,9 @@ details p{
 }
 
 /* =========================
-   Legal pages (v13)
+   Legal pages
 ========================= */
-.legalPage{
-  padding: 10px 0 26px;
-}
+.legalPage{ padding: 10px 0 26px; }
 
 .legalHeader{
   width: min(860px, 100%);
@@ -1041,7 +1035,6 @@ details p{
   font-size: 14px;
 }
 
-/* Typography inside legal card */
 .legalCard h2{
   margin: 16px 0 8px;
   font-size: 15px;
@@ -1077,19 +1070,9 @@ details p{
   flex-wrap: wrap;
 }
 
-@media (max-width: 520px){
-  .modalOverlay{ padding: 12px; }
-  .modalCard{ margin: 12px auto; max-height: calc(100vh - 24px); }
-  .modalBody{ max-height: calc(100vh - 24px - 60px - 68px); }
-}
-
 /* =========================
    Success page (compat layer)
-   - Supports success.html classnames you’re already using
-   - Aligns with v13 legalPage look
 ========================= */
-
-/* Map success.html "legal" layout to v13 legal styles */
 .legal{
   width: min(860px, 100%);
   margin: 0 auto;
@@ -1117,7 +1100,6 @@ details p{
   box-shadow: var(--sh-2);
 }
 
-/* The “Payment confirmed” success block */
 .successBox{
   display:flex;
   gap: 12px;
@@ -1151,4 +1133,3 @@ details p{
 .legal__card .btn{
   max-width: 420px;
 }
-

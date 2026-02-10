@@ -1,7 +1,7 @@
-<!-- pricing.html — ZipPixel (REDESIGN v13 - SMALLPDF STYLE)
-     ✅ Matches tool + modal pricing (v13)
-     ✅ Exact backend prices + upsells
-     ✅ Clear, client-ready copy (no confusion)
+<!-- pricing.html — ZipPixel (v14 - MONEY MODE)
+     ✅ Matches server.js v14 pricing EXACTLY
+     ✅ £2.99 per ZIP + optional Share Link +£2.49
+     ✅ No confusing tiers or unsupported add-ons
 -->
 <!doctype html>
 <html lang="en">
@@ -10,14 +10,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Pricing — ZipPixel</title>
-  <meta name="description" content="ZipPixel pricing: £2.99 (up to 5 files) or £4.99 (up to 10 files). Optional upgrades available. No signup." />
+  <meta name="description" content="ZipPixel pricing: £2.99 per ZIP. Optional shareable link +£2.49. No signup. Pay once, download instantly." />
   <link rel="canonical" href="https://zippixel.it.com/pricing" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=13" />
+  <link rel="stylesheet" href="/style.css?v=14" />
 </head>
 
 <body>
@@ -52,30 +52,30 @@
       <div class="container">
         <div class="pricingHeader">
           <div class="pricingKicker">Pricing</div>
-          <h1 class="pricingTitle">Simple pricing.</h1>
+          <h1 class="pricingTitle">Pay once. Download instantly.</h1>
           <p class="pricingLead">
-            Pay once. Download instantly. No accounts.
+            No accounts. No subscriptions. Just one ZIP download when you need it.
             <span class="pricingLeadMuted">You’ll see the full total before Stripe Checkout.</span>
           </p>
 
-          <div class="pricingNotice" role="note" aria-label="Auto-selected at checkout">
-            <div class="pricingNoticeTitle">Auto-selected at checkout</div>
+          <div class="pricingNotice" role="note" aria-label="Limits">
+            <div class="pricingNoticeTitle">Limits</div>
             <div class="pricingNoticeText">
-              ZipPixel selects <b>Standard</b> or <b>Pro</b> automatically based on how many files you upload.
-              Limits: <b>max 10 files</b>, <b>max 25MB each</b>.
+              Max <b>10 files</b> per ZIP • Max <b>25MB</b> per file.
+              Files are stored temporarily to build your ZIP, then deleted.
             </div>
           </div>
         </div>
 
-        <div class="pricingGrid" aria-label="Pricing tiers">
-          <!-- Standard -->
-          <article class="priceCard" aria-label="Standard ZIP">
+        <div class="pricingGrid" aria-label="Pricing">
+          <!-- Primary -->
+          <article class="priceCard priceCard--featured" aria-label="ZIP Download">
             <div class="priceCardTop">
               <div>
-                <div class="priceName">Standard ZIP</div>
-                <div class="priceDesc">Great for small batches.</div>
+                <div class="priceName">ZIP Download</div>
+                <div class="priceDesc">Perfect for sending files fast.</div>
               </div>
-              <div class="pricePill">Up to 5 files</div>
+              <div class="pricePill pricePill--pro">Pay once</div>
             </div>
 
             <div class="priceAmount" aria-label="Price £2.99">
@@ -86,91 +86,56 @@
 
             <ul class="priceList">
               <li>One clean ZIP download</li>
-              <li>Optimised where possible</li>
               <li>No signup</li>
+              <li>Secure Stripe Checkout</li>
             </ul>
 
-            <a class="btn btn--soft btn--block" href="/">Compress up to 5</a>
+            <a class="btn btn--primary btn--block" href="/">Start compressing</a>
+
+            <div class="pricingFooter" style="margin-top: 10px;">
+              Tip: download promptly after purchase — files are temporary.
+            </div>
           </article>
 
-          <!-- Pro -->
-          <article class="priceCard priceCard--featured" aria-label="Pro ZIP">
+          <!-- Optional upgrade -->
+          <article class="priceCard" aria-label="Shareable download link">
             <div class="priceCardTop">
               <div>
-                <div class="priceName">Pro ZIP</div>
-                <div class="priceDesc">Best for client handover & bundles.</div>
+                <div class="priceName">Shareable Link</div>
+                <div class="priceDesc">Send a link instead of attaching a ZIP.</div>
               </div>
-              <div class="pricePill pricePill--pro">Up to 10 files</div>
+              <div class="pricePill">Optional</div>
             </div>
 
-            <div class="priceAmount" aria-label="Price £4.99">
-              <span class="priceCurrency">£</span>
-              <span class="priceValue">4.99</span>
-              <span class="priceSuffix">per ZIP</span>
+            <div class="priceAmount" aria-label="Upgrade +£2.49">
+              <span class="priceCurrency">+</span>
+              <span class="priceValue">£2.49</span>
+              <span class="priceSuffix">add-on</span>
             </div>
 
             <ul class="priceList">
-              <li>One clean ZIP download</li>
-              <li>Optimised where possible</li>
-              <li>No signup</li>
+              <li>Creates a shareable link after payment</li>
+              <li>Anyone with the link can download</li>
+              <li>Great for client handovers</li>
             </ul>
 
-            <a class="btn btn--primary btn--block" href="/">Compress up to 10</a>
+            <a class="btn btn--soft btn--block" href="/">Enable at checkout</a>
           </article>
         </div>
 
-        <!-- Optional upgrades (matches modal + backend) -->
-        <div class="section" style="padding-top: 14px;">
-          <div class="container" style="width: 100%;">
-            <div class="sectionHead">
-              <h2>Optional upgrades</h2>
-              <p>Shown in checkout before you pay.</p>
-            </div>
-
-            <div class="grid3" style="margin-top: 12px;">
-              <div class="card" aria-label="Print-ready quality">
-                <div class="k">+</div>
-                <div class="t">Print-ready quality</div>
-                <div class="d">
-                  Higher quality output for brochures & print where applicable.
-                  <b>+£1.99</b>
-                </div>
-              </div>
-
-              <div class="card" aria-label="Email-safe compression">
-                <div class="k">+</div>
-                <div class="t">Email-safe compression</div>
-                <div class="d">
-                  Extra compression to help meet inbox limits where possible.
-                  <b>+£1.49</b>
-                </div>
-              </div>
-
-              <div class="card" aria-label="Shareable download link">
-                <div class="k">+</div>
-                <div class="t">Shareable download link</div>
-                <div class="d">
-                  Send a link instead of the ZIP. Anyone with the link can download.
-                  <b>+£2.49</b>
-                </div>
-              </div>
-            </div>
-
-            <div class="pricingNotice" role="note" aria-label="Day pass note" style="margin-top: 12px;">
-              <div class="pricingNoticeTitle">24-hour day pass</div>
-              <div class="pricingNoticeText">
-                Need more than one ZIP today? The <b>24-hour pass (£9.99)</b> replaces per-ZIP pricing for the next 24 hours.
-                You’ll see it clearly in checkout before paying.
-              </div>
-            </div>
-
-            <div class="pricingFooter" style="margin-top: 12px;">
-              Files are stored temporarily to create your ZIP, then automatically deleted.
-              Download promptly after purchase.
-            </div>
+        <div class="pricingNotice" role="note" aria-label="How it works" style="margin-top: 16px;">
+          <div class="pricingNoticeTitle">How it works</div>
+          <div class="pricingNoticeText">
+            1) Upload your files<br/>
+            2) Confirm options at checkout<br/>
+            3) Pay securely via Stripe<br/>
+            4) Download your ZIP instantly
           </div>
         </div>
 
+        <div class="pricingFooter" style="margin-top: 12px;">
+          Questions? Email <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
+        </div>
       </div>
     </section>
   </main>
