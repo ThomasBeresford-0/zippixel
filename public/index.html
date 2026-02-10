@@ -23,252 +23,7 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=2" />
-
-  <!-- FULL RAMBO polish: small, surgical, professional additions without rewriting your CSS -->
-  <style>
-    /* Slightly tighter hero + better rhythm */
-    .hero{ padding: 56px 0 34px; }
-    .hero__copy{ padding-top: 6px; }
-    .heroBadges{
-      margin-top: 16px;
-      display:flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items:center;
-    }
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.72);
-      box-shadow: 0 10px 22px rgba(2,6,23,.06);
-      font-size: 12px;
-      color: rgba(11,18,32,.86);
-      font-weight: 800;
-      letter-spacing: -0.01em;
-      user-select:none;
-    }
-    .badgeDot{
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: rgba(37,99,235,.95);
-      box-shadow: 0 0 0 4px rgba(37,99,235,.10);
-    }
-    .badgeIcon{
-      width: 18px;height: 18px;
-      display:grid;place-items:center;
-      border-radius: 999px;
-      background: rgba(37,99,235,.10);
-      border: 1px solid rgba(37,99,235,.16);
-      color: rgba(29,78,216,1);
-      font-weight: 900;
-      font-size: 12px;
-      flex: 0 0 auto;
-    }
-
-    /* ToolCard: subtle top strip for trust */
-    .toolTopStrip{
-      margin: 10px 0 0;
-      display:flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items:center;
-      justify-content: space-between;
-      border: 1px solid rgba(15,23,42,.08);
-      background: rgba(15,23,42,.012);
-      border-radius: 16px;
-      padding: 10px 12px;
-    }
-    .toolTopStripLeft{
-      display:flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items:center;
-      color: rgba(75,85,99,.98);
-      font-size: 12px;
-      font-weight: 800;
-    }
-    .toolTopStripRight{
-      display:flex;
-      gap: 8px;
-      align-items:center;
-      color: rgba(75,85,99,.98);
-      font-size: 12px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-    .tinyPill{
-      display:inline-flex;
-      gap: 8px;
-      align-items:center;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.7);
-    }
-    .tinyPill b{ color: rgba(11,18,32,.92); }
-    .linkSoft{ text-decoration:none; }
-    .linkSoft:hover{ opacity:.9; }
-
-    /* Modal: professional, clearer summary, accessible focus ring */
-    .modalOverlay{
-      position: fixed;
-      inset: 0;
-      background: rgba(2,6,23,.58);
-      backdrop-filter: blur(10px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      padding: 18px;
-    }
-    .modalOverlay.isOpen{ display:flex; }
-    .modalCard{
-      width: min(560px, 100%);
-      background: #fff;
-      border: 1px solid rgba(2,6,23,.14);
-      border-radius: 18px;
-      box-shadow: 0 40px 110px rgba(2,6,23,.28);
-      overflow: hidden;
-      transform: translateY(6px);
-      animation: modalIn .14s ease-out forwards;
-    }
-    @keyframes modalIn{
-      to { transform: translateY(0); }
-    }
-    .modalTop{
-      padding: 14px 16px;
-      border-bottom: 1px solid rgba(2,6,23,.08);
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 12px;
-      background: linear-gradient(180deg, rgba(37,99,235,.06), rgba(255,255,255,0));
-    }
-    .modalTitle{
-      font-weight: 950;
-      letter-spacing: -0.02em;
-      font-size: 14px;
-    }
-    .modalClose{
-      border: 1px solid rgba(2,6,23,.12);
-      background: #fff;
-      border-radius: 12px;
-      padding: 8px 10px;
-      cursor:pointer;
-      font-weight: 900;
-      font-size: 12px;
-    }
-    .modalClose:focus,
-    .modalBackBtn:focus,
-    .modalPayBtn:focus{
-      outline: 3px solid rgba(37,99,235,.28);
-      outline-offset: 2px;
-    }
-    .modalBody{ padding: 14px 16px 6px; }
-    .modalLead{
-      margin: 0;
-      color: rgba(11,18,32,.86);
-      font-size: 14px;
-      line-height: 1.45;
-    }
-    .modalSummary{
-      margin-top: 12px;
-      border: 1px solid rgba(2,6,23,.10);
-      background: rgba(2,6,23,.02);
-      border-radius: 16px;
-      padding: 12px;
-      display:flex;
-      align-items:flex-start;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .modalSummaryLeft{
-      display:flex;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 0;
-    }
-    .modalSummaryKicker{
-      font-size: 12px;
-      font-weight: 900;
-      color: rgba(107,114,128,.98);
-      text-transform: uppercase;
-      letter-spacing: .03em;
-    }
-    .modalSummaryMain{
-      font-size: 14px;
-      font-weight: 950;
-      letter-spacing: -0.01em;
-      color: rgba(11,18,32,.95);
-      overflow:hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      max-width: 360px;
-    }
-    .modalSummaryAmt{
-      font-size: 16px;
-      font-weight: 950;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-      color: rgba(11,18,32,.95);
-    }
-    .priceGrid{
-      display:grid;
-      gap: 10px;
-      margin-top: 12px;
-    }
-    .priceRow{
-      display:flex;
-      align-items:flex-start;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 12px;
-      border-radius: 16px;
-      border: 1px solid rgba(2,6,23,.10);
-      background: rgba(2,6,23,.02);
-    }
-    .priceRow.isChosen{
-      border-color: rgba(37,99,235,.35);
-      background: rgba(37,99,235,.08);
-    }
-    .priceLeft{ display:flex; flex-direction: column; gap: 3px; }
-    .priceName{ font-weight: 950; font-size: 13px; letter-spacing: -0.01em; }
-    .priceDesc{ font-size: 12px; color: rgba(75,85,99,.95); }
-    .priceAmt{ font-weight: 950; font-size: 13px; white-space: nowrap; }
-    .modalNote{
-      margin-top: 10px;
-      font-size: 12px;
-      color: rgba(107,114,128,.98);
-      line-height: 1.45;
-    }
-    .modalFoot{
-      padding: 14px 16px;
-      border-top: 1px solid rgba(2,6,23,.08);
-      display:flex;
-      justify-content: flex-end;
-      gap: 10px;
-      flex-wrap: wrap;
-      background: rgba(2,6,23,.01);
-    }
-    .modalBackBtn{ }
-    .modalPayBtn{ }
-
-    /* More premium section headings */
-    .sectionHead{ max-width: 820px; }
-    .sectionHead p{ line-height: 1.45; }
-
-    @media (max-width: 980px){
-      .hero{ padding: 38px 0 24px; }
-      .toolTopStrip{ margin-top: 12px; }
-      .modalSummaryMain{ max-width: 240px; }
-    }
-  </style>
+  <link rel="stylesheet" href="/style.css?v=5" />
 
   <script type="application/ld+json">
   {
@@ -304,7 +59,10 @@
         <a href="/terms">Terms</a>
       </nav>
 
+      <div class="navDivider" aria-hidden="true"></div>
+
       <div class="top__cta">
+
         <button class="btn btn--primary" onclick="document.getElementById('dropzone').scrollIntoView({behavior:'smooth',block:'center'})">
           Start
         </button>
@@ -315,7 +73,8 @@
   <main>
     <section class="hero">
       <div class="container hero__grid">
-        <div class="hero__copy">
+      <div class="hero__copy">
+        <div class="hero__copyInner">
           <h1>Compress images.<br/>Download one ZIP.</h1>
 
           <p class="lead">
@@ -335,7 +94,7 @@
             <span class="badge"><span class="badgeIcon" aria-hidden="true">🗑</span> Auto-deleted files</span>
           </div>
         </div>
-
+      </div>
         <div class="toolCard" aria-label="ZipPixel tool">
           <div class="toolCard__top">
             <div class="statusBlock">
@@ -378,7 +137,7 @@
                 </svg>
               </div>
               <div class="dzText">
-                <div class="dzTitle">Drop images or PDFs here</div>
+                <div class="dzTitle">Drop files to compress</div>
                 <div class="dzSub">or click to choose · Max 10 files · Max 25MB each</div>
               </div>
             </div>
