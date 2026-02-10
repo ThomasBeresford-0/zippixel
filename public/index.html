@@ -1,8 +1,8 @@
-<!-- index.html — ZipPixel (FULL REDESIGN v11 - LIGHT / BIG BOYS)
-     ✅ FULL visual redesign (no dark background)
+<!-- index.html — ZipPixel (FULL REDESIGN v12 - PREMIUM LIGHT)
+     ✅ Premium “big tools” feel (TinyPNG / iLoveIMG vibe)
      ✅ Keeps ALL existing ids/classes/JS hooks working
-     ✅ Adds thumbnail grid previews (frontend only)
-     ✅ Cleaner “big tools” layout: centered tool, minimal nav, crisp UI
+     ✅ Thumbnail preview grid (frontend only)
+     ✅ Same endpoints / same flow
 -->
 <!doctype html>
 <html lang="en">
@@ -29,11 +29,10 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=11" />
+  <link rel="stylesheet" href="/style.css?v=12" />
 </head>
 
 <body>
-  <!-- Clean light header -->
   <header class="top">
     <div class="container top__inner">
       <a class="brand" href="/" aria-label="ZipPixel home">
@@ -48,36 +47,77 @@
 
       <nav class="nav" aria-label="Site">
         <a href="/pricing">Pricing</a>
+        <a href="#how">How</a>
         <a href="#faq">FAQ</a>
         <a href="/privacy">Privacy</a>
         <a href="/terms">Terms</a>
       </nav>
+
+      <div class="top__cta">
+        <a class="btn btn--ghost btn--sm" href="/pricing">View pricing</a>
+      </div>
     </div>
   </header>
 
   <main class="page">
-    <!-- Hero -->
-    <section class="hero">
-      <div class="container hero__inner">
-        <div class="hero__copy">
-          <div class="kicker">Compress • Bundle • Send</div>
-          <h1>Compress images into one clean ZIP.</h1>
-          <p class="lead">
-            Upload up to <b>10</b> files. We optimise them and bundle everything into one tidy download.
+    <!-- HERO + TOOL “PRODUCT STAGE” -->
+    <section class="stage">
+      <div class="container stage__inner">
+        <div class="stage__left">
+          <div class="kicker">
+            <span class="kDot" aria-hidden="true"></span>
+            Compress • Bundle • Send
+          </div>
+
+          <h1 class="heroTitle">
+            Make images smaller.<br/>
+            Download one ZIP.
+          </h1>
+
+          <p class="heroLead">
+            Upload up to <b>10</b> images (or PDFs). We optimise them and pack everything into one clean ZIP.
             <span class="muted">No signup.</span>
           </p>
 
-          <div class="trustRow" aria-label="Highlights">
-            <span class="trustPill">One ZIP output</span>
-            <span class="trustPill">Secure Stripe checkout</span>
-            <span class="trustPill">Auto-deleted after a short time</span>
-            <span class="trustPill">Fast</span>
+          <div class="trustGrid" aria-label="Highlights">
+            <div class="trustItem">
+              <div class="trustIcon" aria-hidden="true">⚡</div>
+              <div class="trustText">
+                <div class="trustTitle">Fast workflow</div>
+                <div class="trustSub">Pick files → upload → pay → download</div>
+              </div>
+            </div>
+            <div class="trustItem">
+              <div class="trustIcon" aria-hidden="true">🔒</div>
+              <div class="trustText">
+                <div class="trustTitle">Secure Checkout</div>
+                <div class="trustSub">Stripe payment. Pricing shown before you pay.</div>
+              </div>
+            </div>
+            <div class="trustItem">
+              <div class="trustIcon" aria-hidden="true">🗑️</div>
+              <div class="trustText">
+                <div class="trustTitle">Auto-deleted</div>
+                <div class="trustSub">Files are removed after a short time.</div>
+              </div>
+            </div>
+            <div class="trustItem">
+              <div class="trustIcon" aria-hidden="true">📦</div>
+              <div class="trustText">
+                <div class="trustTitle">One ZIP output</div>
+                <div class="trustSub">Neat delivery for clients & listings.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="microLine">
+            Popular for property listings, client handover, email limits, and portals.
           </div>
         </div>
 
-        <!-- Tool card (same IDs your JS expects) -->
+        <!-- TOOL CARD (same IDs/hooks) -->
         <div class="toolCard" aria-label="ZipPixel tool">
-          <div class="toolHeader">
+          <div class="toolTop">
             <div class="statusBlock">
               <div class="label">Status</div>
               <div class="statusRow">
@@ -94,12 +134,12 @@
             </div>
           </div>
 
-          <!-- Dropzone (same IDs) -->
+          <!-- DROPZONE -->
           <div class="dropzone" id="dropzone" aria-label="Upload images">
             <input id="files" type="file" accept="image/*,application/pdf" multiple />
 
             <div class="dropzone__inner">
-              <div class="dzIcon" aria-hidden="true">
+              <div class="dzBadge" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M12 16V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                   <path d="M8.5 11.5L12 8l3.5 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -108,13 +148,17 @@
               </div>
 
               <div class="dzText">
-                <div class="dzTitle">Drop images here</div>
-                <div class="dzSub">or click to choose • up to 10 files • one ZIP</div>
+                <div class="dzTitle">Drop files here</div>
+                <div class="dzSub">or click to choose • up to 10 • one ZIP</div>
               </div>
 
               <div class="dzActions">
                 <button class="btn btn--primary btn--sm" id="chooseBtn" type="button">Choose files</button>
               </div>
+            </div>
+
+            <div class="dzFine">
+              Tip: keep it client-ready — select your best shots first.
             </div>
 
             <!-- Selected files / preview (same IDs) -->
@@ -124,12 +168,11 @@
                 <button class="btn btn--ghost btn--sm" id="clearBtn" type="button">Clear</button>
               </div>
 
-              <!-- now becomes a thumbnail grid -->
               <ol class="fileList" id="fileList"></ol>
             </div>
           </div>
 
-          <!-- Progress (same IDs) -->
+          <!-- PROGRESS -->
           <div class="progressWrap" id="progressWrap" hidden>
             <div class="progressTop">
               <div class="progressLabel" id="progressLabel">Uploading…</div>
@@ -141,25 +184,32 @@
             <div class="progressMeta" id="progressMeta"></div>
           </div>
 
-          <!-- Actions (same IDs, “big tools” style) -->
-          <div class="actionBar" aria-label="Actions">
-            <button class="btn btn--soft btn--block" id="upload" disabled>Upload</button>
-            <button class="btn btn--primary btn--block" id="continue" disabled>Continue</button>
-          </div>
+          <!-- ACTIONS -->
+          <div class="actionWrap" aria-label="Actions">
+            <div class="actionSteps" aria-hidden="true">
+              <div class="stepPill"><span class="stepDot"></span> 1) Upload</div>
+              <div class="stepPill"><span class="stepDot"></span> 2) Continue</div>
+            </div>
 
-          <div class="fineprint">
-            By continuing you agree to our <a href="/terms">Terms</a>. Read our <a href="/privacy">Privacy</a>.
+            <div class="actionBar">
+              <button class="btn btn--soft btn--block" id="upload" disabled>Upload</button>
+              <button class="btn btn--primary btn--block" id="continue" disabled>Continue</button>
+            </div>
+
+            <div class="fineprint">
+              By continuing you agree to our <a href="/terms">Terms</a>. Read our <a href="/privacy">Privacy</a>.
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Below-the-fold stays simple and bright -->
+    <!-- How -->
     <section class="section" id="how">
       <div class="container">
         <div class="sectionHead">
           <h2>How it works</h2>
-          <p>Upload → we optimise → you download one ZIP.</p>
+          <p>Two steps. No accounts. No clutter.</p>
         </div>
 
         <div class="grid3">
@@ -170,18 +220,19 @@
           </div>
           <div class="card">
             <div class="k">2</div>
-            <div class="t">We compress</div>
-            <div class="d">Smaller files for email, portals, and fast sharing.</div>
+            <div class="t">We optimise</div>
+            <div class="d">Smaller files, clean output. Great for email & portals.</div>
           </div>
           <div class="card">
             <div class="k">3</div>
             <div class="t">Download one ZIP</div>
-            <div class="d">A single bundle — neat and client-ready.</div>
+            <div class="d">One tidy bundle ready to send or archive.</div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- FAQ -->
     <section class="section" id="faq">
       <div class="container">
         <div class="sectionHead">
@@ -221,7 +272,7 @@
     </div>
   </footer>
 
-  <!-- PRICE MODAL (unchanged IDs so your checkout flow still works) -->
+  <!-- PRICE MODAL (unchanged IDs) -->
   <div class="modalOverlay" id="priceModal" role="dialog" aria-modal="true" aria-labelledby="priceModalTitle">
     <div class="modalCard" role="document">
       <div class="modalTop">
@@ -331,7 +382,7 @@
   </div>
 
   <script>
-    // ====== ZIPPIXEL FRONTEND (v11 - same flow, better UI) ======
+    // ====== ZIPPIXEL FRONTEND (v12 - same flow, premium UI) ======
     document.getElementById("y").textContent = new Date().getFullYear();
 
     // Tiering (must match backend)
@@ -405,7 +456,6 @@
     const escapeHtml = (str) =>
       String(str).replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
 
-    // Dedupe: same name + size + lastModified
     const keyOf = (f) => `${f.name}__${f.size}__${f.lastModified}`;
 
     const validateFile = (f) => {
@@ -451,7 +501,6 @@
         priceInline.textContent = `£${total.toFixed(2)}`;
       };
 
-      // reset checks
       optPrintReady.checked = false;
       optEmailSafe.checked = false;
       optShareLink.checked = false;
@@ -462,7 +511,9 @@
       [optPrintReady, optEmailSafe, optShareLink, optDayPass].forEach((el) => el && (el.onchange = updateTotal));
 
       priceModalNote.textContent =
-        tier === "pro" ? "Pro selected automatically for 6+ files." : "You’ll be redirected to secure Stripe Checkout.";
+        tier === "pro"
+          ? "Pro selected automatically for 6+ files."
+          : "You’ll be redirected to secure Stripe Checkout.";
 
       priceModal.classList.add("isOpen");
       document.body.style.overflow = "hidden";
@@ -647,7 +698,6 @@
       uploadBtn.disabled = uploading || selected.length === 0;
     };
 
-    // Button triggers input safely
     chooseBtn.addEventListener("click", (e) => { e.preventDefault(); filesEl.click(); });
 
     filesEl.addEventListener("change", async () => {
@@ -656,7 +706,6 @@
       filesEl.value = "";
     });
 
-    // Drag/drop
     ["dragenter","dragover"].forEach(evt => window.addEventListener(evt, (e) => { e.preventDefault(); }, { passive:false }));
     window.addEventListener("drop", (e) => { e.preventDefault(); }, { passive:false });
 
