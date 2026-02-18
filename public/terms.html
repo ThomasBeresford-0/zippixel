@@ -1,8 +1,8 @@
-<!-- terms.html — ZipPixel (v14 - MONEY MODE)
-     ✅ Matches tool + pricing styling (v14)
-     ✅ Truthful to current backend behavior (temporary storage intent, not guaranteed deletion timing)
-     ✅ Stripe-friendly digital goods + access + refund wording
-     ✅ Fixed "Last updated" (no changing every page load)
+<!-- terms.html — ZipPixel (v15 FULL RAMBO)
+     ✅ Premium, tight, Stripe-friendly, digital-goods wording
+     ✅ Truthful: temporary storage intent, no guaranteed deletion timing
+     ✅ Clear responsibilities + fair-use + liability guardrails
+     ✅ Fixed “Last updated” string (manual update only)
 -->
 <!doctype html>
 <html lang="en">
@@ -14,11 +14,13 @@
   <meta name="description" content="ZipPixel Terms of Service. Rules for use, uploads, payments, and availability." />
   <link rel="canonical" href="https://zippixel.it.com/terms" />
 
+  <meta name="theme-color" content="#0b1220" />
+
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=14" />
+  <link rel="stylesheet" href="/style.css?v=15" />
 </head>
 
 <body>
@@ -58,18 +60,28 @@
         </div>
 
         <article class="legalCard">
+          <div class="successBox" style="margin-bottom: 12px;">
+            <div class="successIcon" aria-hidden="true">📄</div>
+            <div style="min-width:0;">
+              <div class="successTitle">Plain-English terms</div>
+              <div class="successDesc">
+                Use ZipPixel responsibly, only upload what you’re allowed to upload, and download promptly after paying.
+              </div>
+            </div>
+          </div>
+
           <p class="legalIntro">
             These Terms apply to your use of ZipPixel (the “Service”). By accessing or using the Service,
-            you agree to these Terms. If you don’t agree, don’t use the Service.
+            you agree to these Terms. If you don’t agree, do not use the Service.
           </p>
 
           <h2>1) Using the Service</h2>
           <ul>
-            <li>You must have the rights to upload and process any files you submit.</li>
-            <li>Don’t upload illegal, harmful, abusive, or infringing content.</li>
+            <li>You must have the rights and permissions to upload and process any files you submit.</li>
+            <li>Do not upload illegal, harmful, abusive, or infringing content.</li>
             <li>
-              Don’t misuse the Service (for example: attempting to bypass limits, overload the service,
-              probe for vulnerabilities, scrape excessively, or reverse engineer).
+              Do not misuse the Service (for example: bypass limits, overload the system, probe for vulnerabilities,
+              scrape excessively, or reverse engineer).
             </li>
           </ul>
 
@@ -82,34 +94,37 @@
           <h2>3) Your files and permission to process</h2>
           <p>
             You keep ownership of your files. You grant ZipPixel a limited, temporary permission to store and process your files
-            only to generate the ZIP output you request and to provide the download you purchased.
+            only to generate the ZIP output you request and to provide the download you purchased (including any optional share link).
           </p>
 
           <h2>4) Temporary storage, links, and retention</h2>
           <ul>
             <li>
-              Uploaded files are stored so we can generate your ZIP and provide download access (including any share link you purchase).
+              Uploaded files are stored so we can generate your ZIP and provide download access after payment.
             </li>
             <li>
-              ZipPixel is designed for <b>temporary storage</b>, and we aim to delete files after a short period.
-              However, retention can vary depending on operational needs (for example: reliability, abuse prevention, and failed/abandoned sessions).
+              ZipPixel is designed for <b>temporary storage</b>. We aim to delete files after a short period,
+              but we do not guarantee an exact deletion time.
+            </li>
+            <li>
+              Retention can vary due to operational needs (for example: reliability, abuse prevention, failed processing, or abandoned sessions).
             </li>
             <li><b>Download promptly</b> after purchase. If files are deleted or a link expires, downloads may stop working.</li>
           </ul>
 
           <h2>5) Payments and pricing</h2>
           <p>
-            Payments are processed by Stripe. ZipPixel does not store full card details.
+            Payments are processed by <b>Stripe</b>. ZipPixel does not store full card details.
             You’ll see the total price before completing checkout.
           </p>
 
-          <h2>6) Digital service and refunds</h2>
+          <h2>6) Digital service, delivery, and refunds</h2>
           <p>
-            ZipPixel provides a digital service that is typically available immediately after payment.
-            Because the service is delivered instantly (access to generate/download your ZIP), refunds are generally not provided once the download is available.
+            ZipPixel provides a digital service that is typically available immediately after payment (access to generate and download your ZIP).
+            Because delivery is instant, refunds are generally not provided once your download is available.
           </p>
           <p>
-            If something goes wrong (for example, you paid but couldn’t access your download), contact support and we’ll help.
+            If something goes wrong (for example: you paid but couldn’t access your download), contact support and we’ll help.
             Where appropriate, we may provide a refund or another remedy at our discretion.
           </p>
           <p>
@@ -180,7 +195,7 @@
     document.getElementById("y").textContent = new Date().getFullYear();
 
     // IMPORTANT: fixed date (do not change on every page load)
-    // Update this string when you actually update the terms.
+    // Update this string only when you actually update the terms.
     const LAST_UPDATED = "10 Feb 2026";
     document.getElementById("lastUpdated").textContent = LAST_UPDATED;
   </script>

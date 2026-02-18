@@ -1,7 +1,8 @@
-<!-- share.html — ZipPixel (v14)
-     ✅ Matches site styling (style.css?v=14)
+<!-- share.html — ZipPixel (v15 FULL RAMBO)
+     ✅ Matches style.css?v=15 (premium “download portal”)
      ✅ Uses /api/share/:token (paid + expiry enforced server-side)
-     ✅ Clean, trustworthy share/download page (conversion + brand)
+     ✅ Zero route changes. Zero backend changes.
+     ✅ Trust-first, client-ready, noindex/nofollow preserved.
 -->
 <!doctype html>
 <html lang="en">
@@ -13,11 +14,13 @@
   <meta name="description" content="Download files shared with ZipPixel." />
   <meta name="robots" content="noindex, nofollow" />
 
+  <meta name="theme-color" content="#0b1220" />
+
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=14" />
+  <link rel="stylesheet" href="/style.css?v=15" />
 </head>
 
 <body>
@@ -49,16 +52,24 @@
   <main class="page">
     <section class="legalPage">
       <div class="container">
+
         <div class="legalHeader">
           <div class="legalKicker">Download</div>
-          <h1 class="legalTitle">Files ready to download</h1>
+          <h1 class="legalTitle">Download portal</h1>
           <p class="legalMeta" id="meta">Loading…</p>
         </div>
 
         <article class="legalCard">
-          <p class="legalIntro" id="desc">
-            This link was created with ZipPixel. If it’s still valid, you can download the ZIP below.
-          </p>
+          <!-- Premium info box -->
+          <div class="successBox" aria-live="polite">
+            <div class="successIcon" aria-hidden="true">⬇</div>
+            <div style="min-width:0;">
+              <div class="successTitle" id="titleLine">Checking link</div>
+              <div class="successDesc" id="desc">
+                This link was created with ZipPixel. If it’s still valid, you can download the ZIP below.
+              </div>
+            </div>
+          </div>
 
           <div class="successActions" id="actions" aria-live="polite">
             <a id="downloadBtn" class="btn btn--primary btn--block" href="#" aria-disabled="true" style="opacity:.55; pointer-events:none;">
@@ -80,10 +91,15 @@
             Tip: After downloading, save the ZIP somewhere safe.
           </p>
 
-          <p class="fineprint" id="error" style="display:none; margin-top:10px; color: rgba(220,38,38,1); font-weight: 900;">
+          <p class="fineprint" id="error" style="display:none; margin-top:10px; color: rgba(220,38,38,1); font-weight: 950;">
             This link is no longer available.
           </p>
+
+          <div class="pricingFooter" style="margin-top: 12px;">
+            Powered by ZipPixel • Secure delivery • No signup
+          </div>
         </article>
+
       </div>
     </section>
   </main>
@@ -104,6 +120,7 @@
     const token = location.pathname.split("/").pop();
 
     const metaEl = document.getElementById("meta");
+    const titleLine = document.getElementById("titleLine");
     const descEl = document.getElementById("desc");
     const statEl = document.getElementById("stat");
     const statsBox = document.getElementById("statsBox");
@@ -159,15 +176,17 @@
       setDisabled(true);
 
       if (!token) {
-        metaEl.textContent = "This link is no longer available.";
-        descEl.textContent = "The link looks invalid. Ask the sender for a new one.";
+        metaEl.textContent = "Invalid link.";
+        titleLine.textContent = "Link not found";
+        descEl.textContent = "This link looks invalid. Ask the sender for a new one.";
         hintEl.textContent = "If you think this is a mistake, contact the person who sent you the link.";
         showError("Invalid link.");
         return;
       }
 
       metaEl.textContent = "Loading…";
-      descEl.textContent = "Checking link status…";
+      titleLine.textContent = "Checking link";
+      descEl.textContent = "Validating this download link…";
       statsBox.style.display = "none";
 
       try {
@@ -180,7 +199,8 @@
         const remainingMs = expiresAt ? (expiresAt - Date.now()) : null;
 
         if (expiresAt && remainingMs <= 0) {
-          metaEl.textContent = "This link has expired.";
+          metaEl.textContent = "Expired.";
+          titleLine.textContent = "This link has expired";
           descEl.textContent = "Ask the sender to generate a new link in ZipPixel.";
           hintEl.textContent = "Expired links can’t be reactivated.";
           showError("This link has expired.");
@@ -194,9 +214,11 @@
         if (expiresAt) {
           const days = Math.max(0, Math.ceil(remainingMs / (1000 * 60 * 60 * 24)));
           metaEl.textContent = `${fileLabel} • Expires in ${days} day${days === 1 ? "" : "s"}`;
+          titleLine.textContent = "Ready to download";
           descEl.textContent = `Download the ZIP before it expires (${fmtDateTime(expiresAt)}).`;
         } else {
           metaEl.textContent = fileLabel;
+          titleLine.textContent = "Ready to download";
           descEl.textContent = "Download the ZIP below.";
         }
 
@@ -212,7 +234,8 @@
 
         hintEl.textContent = "Tip: Download promptly and store the ZIP somewhere safe.";
       } catch (e) {
-        metaEl.textContent = "This link is no longer available.";
+        metaEl.textContent = "Unavailable.";
+        titleLine.textContent = "This link is no longer available";
         descEl.textContent = "The owner may have removed it, or it may have expired.";
         hintEl.textContent = "Ask the sender for a new link.";
         showError("The owner may have removed it, or the link has expired.");

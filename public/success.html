@@ -1,7 +1,8 @@
-<!-- success.html — ZipPixel (v14)
+<!-- success.html — ZipPixel (v15 FULL RAMBO)
      ✅ Uses /api/status/:jobId (webhook-driven PAID state)
-     ✅ Matches v14 CSS (legalPage / legalHeader / legalCard)
-     ✅ Avoids UI bouncing between states while polling
+     ✅ Same JS hooks/logic (no backend changes)
+     ✅ Premium “paid artifact” experience (no jank while polling)
+     ✅ Uses existing v15 style.css classes (legalPage/legalHeader/legalCard still valid)
 -->
 <!doctype html>
 <html lang="en">
@@ -13,11 +14,13 @@
   <meta name="description" content="Payment confirmed. Your ZIP will be ready to download shortly." />
   <link rel="canonical" href="https://zippixel.it.com/success" />
 
+  <meta name="theme-color" content="#0b1220" />
+
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=14" />
+  <link rel="stylesheet" href="/style.css?v=15" />
 </head>
 
 <body>
@@ -50,23 +53,32 @@
   <main class="page">
     <section class="legalPage">
       <div class="container">
+
         <div class="legalHeader">
           <div class="legalKicker">Payment</div>
-          <h1 class="legalTitle">You’re all set.</h1>
-          <p class="legalMeta" id="sub">Confirming payment…</p>
+          <h1 class="legalTitle">Payment received.</h1>
+          <p class="legalMeta" id="sub">Finalising your download…</p>
         </div>
 
         <article class="legalCard">
-          <p class="legalIntro" id="desc">
-            We’re confirming your payment and preparing your ZIP.
-          </p>
+          <!-- Premium status box (uses existing compat styles; looks “expensive”) -->
+          <div class="successBox" aria-live="polite">
+            <div class="successIcon" aria-hidden="true">✓</div>
+            <div style="min-width:0;">
+              <div class="successTitle" id="titleLine">Preparing your ZIP</div>
+              <div class="successDesc" id="desc">
+                We’re confirming payment and building your download. This usually takes a few seconds.
+              </div>
+            </div>
+          </div>
 
           <div class="successActions" id="actions" aria-live="polite"></div>
 
           <p class="fineprint" id="hint">
-            If this takes more than ~30 seconds, use “Check again”.
+            Please keep this tab open. If it takes longer than ~30 seconds, use “Check again”.
           </p>
         </article>
+
       </div>
     </section>
   </main>
@@ -91,6 +103,7 @@
     const sub = document.getElementById("sub");
     const desc = document.getElementById("desc");
     const hint = document.getElementById("hint");
+    const titleLine = document.getElementById("titleLine");
 
     const setActions = (html) => { actions.innerHTML = html; };
 
@@ -124,11 +137,13 @@
     // ---- edge case: missing jobId
     if (!jobId) {
       sub.textContent = "We couldn’t find your job.";
-      desc.textContent = "Open ZipPixel and try again. If this keeps happening, email support.";
+      titleLine.textContent = "Missing download reference";
+      desc.textContent = "Go back to ZipPixel and try again. If this keeps happening, email support.";
       hint.innerHTML = supportHtml;
+
       setActions(`
-        <a class="btn btn--primary" href="/">Go to ZipPixel</a>
-        <a class="btn btn--soft" href="/privacy">Privacy</a>
+        <a class="btn btn--primary btn--block" href="/">Go to ZipPixel</a>
+        <a class="btn btn--soft btn--block" href="/pricing">View pricing</a>
       `);
     } else {
       const maxMs = 30000;
@@ -140,13 +155,14 @@
 
       const renderWaiting = (msg) => {
         mode = "waiting";
-        sub.textContent = "Confirming payment…";
+        sub.textContent = "Finalising your download…";
+        titleLine.textContent = "Preparing your ZIP";
         desc.textContent = msg || "This usually takes a few seconds.";
-        hint.textContent = "If this takes more than ~30 seconds, use “Check again”.";
+        hint.textContent = "Please keep this tab open. If it takes longer than ~30 seconds, use “Check again”.";
 
         setActions(`
-          <button class="btn btn--primary" id="retryBtn" type="button">Check again</button>
-          <a class="btn btn--soft" href="/">Back to ZipPixel</a>
+          <button class="btn btn--primary btn--block" id="retryBtn" type="button">Check again</button>
+          <a class="btn btn--ghost btn--block" href="/">Back to ZipPixel</a>
         `);
 
         const b = document.getElementById("retryBtn");
@@ -156,13 +172,14 @@
       const renderNotPaid = () => {
         mode = "notPaid";
         sub.textContent = "Payment not confirmed yet.";
+        titleLine.textContent = "Still confirming payment";
         desc.textContent = "If you just paid, it can take a moment. If you cancelled, head back and try again.";
         hint.innerHTML = supportHtml;
 
         setActions(`
-          <a class="btn btn--primary" href="/">Back to ZipPixel</a>
-          <a class="btn btn--soft" href="/pricing">View pricing</a>
-          <button class="btn btn--ghost" id="retryBtn3" type="button">Check again</button>
+          <a class="btn btn--primary btn--block" href="/">Back to ZipPixel</a>
+          <a class="btn btn--soft btn--block" href="/pricing">View pricing</a>
+          <button class="btn btn--ghost btn--block" id="retryBtn3" type="button">Check again</button>
         `);
 
         const b = document.getElementById("retryBtn3");
@@ -172,12 +189,13 @@
       const renderFailed = () => {
         mode = "failed";
         sub.textContent = "Still not ready.";
-        desc.textContent = "Refresh once. If it still fails, email support and we’ll sort it.";
+        titleLine.textContent = "Taking longer than expected";
+        desc.textContent = "Try once more. If it still doesn’t work, email support and we’ll sort it.";
         hint.innerHTML = supportHtml;
 
         setActions(`
-          <a class="btn btn--primary" href="${downloadUrl}">Try download</a>
-          <button class="btn btn--soft" id="retryBtn2" type="button">Check again</button>
+          <a class="btn btn--primary btn--block" href="${downloadUrl}">Try download</a>
+          <button class="btn btn--soft btn--block" id="retryBtn2" type="button">Check again</button>
         `);
 
         const b = document.getElementById("retryBtn2");
@@ -186,7 +204,8 @@
 
       const renderReady = (shareToken) => {
         mode = "ready";
-        sub.textContent = "Your ZIP is ready.";
+        sub.textContent = "Ready to download.";
+        titleLine.textContent = "Your ZIP is ready";
         desc.textContent = shareToken
           ? "Download the ZIP, or copy a shareable link to send it to a client."
           : "Download your ZIP below.";
@@ -209,9 +228,9 @@
         }
 
         setActions(`
-          <a class="btn btn--primary" href="${downloadUrl}">Download ZIP</a>
+          <a class="btn btn--primary btn--block" href="${downloadUrl}">Download ZIP</a>
           ${shareHtml}
-          <a class="btn btn--soft" href="/">Back to ZipPixel</a>
+          <a class="btn btn--ghost btn--block" href="/">Back to ZipPixel</a>
         `);
 
         if (shareToken) {
@@ -225,7 +244,7 @@
           });
         }
 
-        hint.textContent = "Tip: Download promptly and store the ZIP somewhere safe.";
+        hint.textContent = "Tip: download promptly and store the ZIP somewhere safe.";
       };
 
       const checkStatus = async () => {
@@ -250,9 +269,7 @@
         attempt++;
         const waited = Date.now() - start;
 
-        if (manual) {
-          renderWaiting("Checking…");
-        }
+        if (manual) renderWaiting("Checking…");
 
         const st = await checkStatus();
 

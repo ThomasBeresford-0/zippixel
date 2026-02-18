@@ -1,7 +1,7 @@
-<!-- privacy.html — ZipPixel (v14 - MONEY MODE)
-     ✅ Matches tool + pricing styling (v14)
-     ✅ Truthful to current backend behavior
-     ✅ No misleading retention promises
+<!-- privacy.html — ZipPixel (v15 FULL RAMBO)
+     ✅ Premium, tight, non-amateur legal layout
+     ✅ Truthful to your current backend behavior (temporary storage + Stripe)
+     ✅ No over-promises on deletion timing
 -->
 <!doctype html>
 <html lang="en">
@@ -13,11 +13,13 @@
   <meta name="description" content="ZipPixel Privacy Policy. How we handle uploads, retention, payments, and basic service logs." />
   <link rel="canonical" href="https://zippixel.it.com/privacy" />
 
+  <meta name="theme-color" content="#0b1220" />
+
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=14" />
+  <link rel="stylesheet" href="/style.css?v=15" />
 </head>
 
 <body>
@@ -57,53 +59,64 @@
         </div>
 
         <article class="legalCard">
+          <div class="successBox" style="margin-bottom: 12px;">
+            <div class="successIcon" aria-hidden="true">🔒</div>
+            <div style="min-width:0;">
+              <div class="successTitle">Privacy, by design</div>
+              <div class="successDesc">
+                ZipPixel is built to process uploads and generate a ZIP. No ads. No data selling. Minimal logs only.
+              </div>
+            </div>
+          </div>
+
           <p class="legalIntro">
-            ZipPixel is built to do one thing: process your uploaded files and generate a ZIP you can download.
-            We don’t sell personal data and we don’t run ads.
+            This Privacy Policy explains what ZipPixel collects, why we collect it, and how long we keep it.
+            If you have questions, email <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
           </p>
 
           <h2>Who we are</h2>
           <p>
             ZipPixel (“we”, “us”) is the controller for personal data processed through this website.
-            Questions? Email <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
+            Contact: <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
           </p>
 
           <h2>What we collect</h2>
           <ul>
             <li><b>Uploaded files</b> — the files you choose to upload for processing.</li>
-            <li><b>Download metadata</b> — job identifiers and basic counters (e.g. download count) to operate the service.</li>
-            <li><b>Basic technical logs</b> — limited request/error information to keep the service reliable and prevent abuse.</li>
-            <li><b>Payment confirmation</b> — payments are processed by Stripe. We receive confirmation that payment succeeded (we do not store full card details).</li>
+            <li><b>Job identifiers</b> — IDs used to connect uploads, payment confirmation, and downloads.</li>
+            <li><b>Share-link data (optional)</b> — a token, expiry time, and basic counters to operate shareable links.</li>
+            <li><b>Basic technical logs</b> — limited request and error information to keep the service reliable and prevent abuse.</li>
+            <li><b>Payment confirmation</b> — payments are processed by Stripe; we receive confirmation that payment succeeded (we do not store full card details).</li>
           </ul>
 
           <h2>How we use information</h2>
           <ul>
             <li>To process your files and generate your ZIP.</li>
-            <li>To provide access to downloads you’ve paid for (including optional share links).</li>
-            <li>To detect abuse, reduce fraud, and keep the service stable.</li>
+            <li>To provide access to downloads you’ve paid for (including the optional share link).</li>
+            <li>To detect abuse, reduce fraud, and maintain service reliability.</li>
           </ul>
 
           <h2>Legal basis</h2>
           <ul>
-            <li><b>Contract</b> — to provide the service you requested (processing files and providing downloads after payment).</li>
-            <li><b>Legitimate interests</b> — to protect ZipPixel from abuse, maintain reliability, and improve service stability (minimal logging only).</li>
+            <li><b>Contract</b> — to provide the service you requested (processing files and delivering a ZIP after payment).</li>
+            <li><b>Legitimate interests</b> — to protect ZipPixel from abuse and keep the service stable (minimal logging only).</li>
           </ul>
 
           <h2>File storage and retention</h2>
           <ul>
-            <li>Your files are stored so we can generate your ZIP and provide the download you purchased.</li>
-            <li>ZipPixel is designed for <b>temporary storage</b>. We aim to delete uploaded files after a short period.</li>
+            <li>Your files are stored only as long as needed to generate your ZIP and provide access to the download you purchased.</li>
+            <li>ZipPixel is designed for <b>temporary storage</b>. You should <b>download promptly</b> after purchase.</li>
             <li>
-              However, retention can vary depending on operational needs (for example, reliability, abuse prevention, and
-              failed/abandoned sessions). You should <b>download promptly</b> after purchase.
+              Retention can vary depending on operational needs (for example: reliability, abuse prevention, failed processing, or abandoned sessions).
+              We avoid keeping files longer than necessary, but we do not guarantee an exact deletion time.
             </li>
             <li>We do not use your files for advertising, and we do not use them to train models.</li>
           </ul>
 
           <h2>Share links</h2>
           <p>
-            If you choose the optional shareable download link, anyone with that link can download the ZIP while it’s available.
-            Treat share links like a password and only share with people you trust.
+            If you choose the optional shareable download link, anyone with the link can download the ZIP while it remains available.
+            Treat the link like a password and only share it with people you trust.
           </p>
           <ul>
             <li>Share links are time-limited (currently up to <b>7 days</b> from purchase).</li>
@@ -119,11 +132,11 @@
           <h2>Cookies</h2>
           <p>
             ZipPixel does not use advertising or tracking cookies.
-            We may use essential cookies or local storage when needed to operate the service (for example, to maintain basic functionality).
+            We may use essential cookies or local storage where needed to operate the service (for example, basic functionality and session flow).
           </p>
 
           <h2>Third parties</h2>
-          <p>We use trusted providers to operate ZipPixel:</p>
+          <p>ZipPixel uses trusted providers to operate the service, including:</p>
           <ul>
             <li><b>Stripe</b> for payments.</li>
             <li><b>Hosting / infrastructure</b> providers to run the site and store files temporarily.</li>
@@ -141,8 +154,8 @@
           <h2>Your choices</h2>
           <ul>
             <li>You can choose not to upload files.</li>
-            <li>You can close the tab and return later, but files are temporary and links may expire.</li>
-            <li>If you believe we’ve retained something unexpectedly, contact support and we’ll investigate.</li>
+            <li>Files and links are temporary — download promptly after purchase.</li>
+            <li>If you believe something has been retained unexpectedly, contact support and we’ll investigate.</li>
           </ul>
 
           <h2>Contact</h2>
@@ -173,7 +186,7 @@
     document.getElementById("y").textContent = new Date().getFullYear();
 
     // IMPORTANT: fixed date (do not change on every page load)
-    // Update this string when you actually update the policy.
+    // Update this string only when you actually update the policy.
     const LAST_UPDATED = "10 Feb 2026";
     document.getElementById("lastUpdated").textContent = LAST_UPDATED;
   </script>
