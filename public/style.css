@@ -1,40 +1,32 @@
-/* style.css — ZipPixel (v15 - FULL RAMBO MONEY MODE)
-   ✅ Premium conversion-first redesign (TinyPNG/Smallpdf energy)
-   ✅ Keeps ALL existing ids/classes/JS hooks working
-   ✅ Adds new “rambo” classes (safe additions)
-   ✅ No mock UI, no fluff — tool sells itself
+/* style.css — ZipPixel (v16 - FULL RAMBO MONEY MODE)
+   Goal: Premium utility. Tool is the hero. Less “SaaS demo”, more “trusted download console”.
 */
 
-/* =========================
-   TOKENS
-========================= */
 :root{
-  --bg: #f7f8fc;
-  --panel: rgba(255,255,255,.92);
+  --bg: #f6f7fb;
+  --panel: #ffffff;
 
   --text: #0b1220;
-  --muted: rgba(11,18,32,.66);
-  --muted2: rgba(11,18,32,.52);
+  --muted: rgba(11,18,32,.62);
+  --muted2: rgba(11,18,32,.48);
 
   --border: rgba(15,23,42,.10);
   --border2: rgba(15,23,42,.16);
-  --dash: rgba(15,23,42,.28);
 
-  --primary: #2563eb;
-  --primary2:#1d4ed8;
-  --ring: rgba(37,99,235,.24);
+  --primary:#1d4ed8;
+  --primary2:#1e40af;
+  --ring: rgba(29,78,216,.22);
 
-  --r-sm: 10px;
-  --r: 12px;
-  --r-lg: 16px;
-  --r-xl: 20px;
-  --r-2xl: 26px;
+  --r: 14px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --r-2xl: 28px;
 
   --sh-0: 0 1px 0 rgba(2,6,23,.04);
-  --sh-1: 0 14px 44px rgba(2,6,23,.10);
-  --sh-2: 0 38px 120px rgba(2,6,23,.14);
+  --sh-1: 0 16px 50px rgba(2,6,23,.10);
+  --sh-2: 0 44px 140px rgba(2,6,23,.14);
 
-  --container: 1160px;
+  --container: 1120px;
   --ease: cubic-bezier(.2,.8,.2,1);
 }
 
@@ -45,8 +37,8 @@ body{
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   color: var(--text);
   background:
-    radial-gradient(900px 520px at 20% -10%, rgba(37,99,235,.14), transparent 60%),
-    radial-gradient(900px 520px at 80% -10%, rgba(29,78,216,.10), transparent 60%),
+    radial-gradient(1100px 560px at 50% -18%, rgba(29,78,216,.12), transparent 60%),
+    radial-gradient(900px 420px at 10% 12%, rgba(2,6,23,.06), transparent 55%),
     var(--bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -68,31 +60,16 @@ p{ margin:0; }
   border-radius: 12px;
 }
 
-/* a11y */
-.skipLink{
-  position:absolute;
-  left:-999px;
-  top: 12px;
-  background:#fff;
-  border:1px solid var(--border2);
-  border-radius: 12px;
-  padding: 10px 12px;
-  z-index: 999;
-  box-shadow: var(--sh-1);
-}
-.skipLink:focus{ left: 12px; }
-
 /* =========================
-   HEADER
+   Header (sharper, cleaner)
 ========================= */
 .top{
   position: sticky;
   top:0;
   z-index: 20;
-  background: rgba(247,248,252,.82);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(15,23,42,.06);
+  background: rgba(246,247,251,.86);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(15,23,42,.07);
 }
 .top__inner{
   display:flex;
@@ -102,19 +79,11 @@ p{ margin:0; }
   padding: 12px 0;
 }
 
-.brand{
-  display:flex;
-  align-items:center;
-  gap: 10px;
-  font-weight: 950;
-  letter-spacing: -0.02em;
-}
-.brand img{ border-radius: 10px; }
-
+.brand{ display:flex; align-items:center; gap: 10px; }
 .brand__logo{
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow:hidden;
   border: 1px solid rgba(15,23,42,.10);
   background: #fff;
@@ -131,25 +100,24 @@ p{ margin:0; }
   font-size: 13px;
   color: rgba(11,18,32,.72);
   padding: 8px 10px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid transparent;
-  transition: background .16s var(--ease), border-color .16s var(--ease), transform .10s var(--ease);
+  transition: background .16s var(--ease), border-color .16s var(--ease);
 }
 .nav a:hover{
   background: rgba(2,6,23,.03);
   border-color: rgba(15,23,42,.08);
-  transform: translateY(-1px);
 }
 
 /* =========================
-   BUTTONS
+   Buttons (less “puffy”, more “pro”)
 ========================= */
 .btn{
   appearance:none;
   border: 1px solid var(--border);
   background:#fff;
   color: var(--text);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 10px 14px;
   font-weight: 900;
   letter-spacing: -0.01em;
@@ -162,147 +130,82 @@ p{ margin:0; }
 .btn:disabled{ opacity:.45; cursor:not-allowed; box-shadow:none; }
 
 .btn--primary{
-  background: linear-gradient(180deg, rgba(37,99,235,1), rgba(29,78,216,1));
-  border-color: rgba(37,99,235,.35);
+  background: linear-gradient(180deg, rgba(29,78,216,1), rgba(30,64,175,1));
+  border-color: rgba(29,78,216,.40);
   color:#fff;
-  box-shadow: 0 18px 54px rgba(37,99,235,.18);
+  box-shadow: 0 18px 50px rgba(29,78,216,.20);
 }
-.btn--primary:hover{ box-shadow: 0 26px 72px rgba(37,99,235,.22); }
+.btn--primary:hover{ box-shadow: 0 24px 70px rgba(29,78,216,.24); }
 
 .btn--soft{
-  background: rgba(37,99,235,.10);
-  border-color: rgba(37,99,235,.22);
+  background: rgba(29,78,216,.10);
+  border-color: rgba(29,78,216,.22);
   color: rgba(20,45,120,1);
   box-shadow: none;
 }
-.btn--ghost{ background: transparent; box-shadow:none; color: rgba(11,18,32,.88); }
+.btn--ghost{ background: transparent; box-shadow:none; color: rgba(11,18,32,.86); }
 .btn--ghost:hover{ background: rgba(2,6,23,.03); }
 
-.btn--sm{ padding: 8px 10px; border-radius: 10px; font-weight: 900; }
+.btn--sm{ padding: 8px 10px; border-radius: 12px; }
 .btn--block{ width:100%; }
 
-/* optional big CTA (safe add) */
-.btn--xl{
-  padding: 12px 14px;
-  border-radius: 14px;
-  font-size: 14px;
-}
-
 /* =========================
-   PAGE BASICS
+   Layout
 ========================= */
-.page{ padding: 0; }
-.stage{ padding: 0; }
+.page{ padding: 34px 0 30px; }
+.stage{ padding: 6px 0 22px; }
 
-.section{ padding: 18px 0; }
-
-/* =========================
-   RAMBO HERO SECTION
-========================= */
-.heroRambo{
-  padding: 34px 0 18px;
-}
-.heroRambo__inner{
+.stage__inner{
   display:grid;
-  grid-template-columns: 1.05fr .95fr;
-  gap: 18px;
-  align-items: start;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  justify-items: center;
 }
 
-.heroLeft{
-  padding: 12px 0 0;
-}
-.heroLeft h1{
-  margin: 0 0 12px;
-  font-size: clamp(34px, 3.8vw, 54px);
-  letter-spacing: -0.055em;
-  line-height: 1.02;
-}
-.heroLeft .accent{
-  background: linear-gradient(90deg, rgba(37,99,235,1), rgba(29,78,216,1));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.heroSub{
-  font-size: 15px;
-  color: rgba(11,18,32,.74);
-  line-height: 1.6;
-  max-width: 56ch;
-}
-
-.heroTrust{
-  margin-top: 14px;
-  display:flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.heroTrust span{
-  font-size: 12px;
-  font-weight: 900;
-  color: rgba(11,18,32,.70);
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.86);
-  border-radius: 999px;
-  padding: 7px 10px;
-  box-shadow: var(--sh-0);
-}
-
-/* =========================
-   LEGACY HERO (still supported)
-========================= */
+/* Hero now feels “serious” */
 .hero{
   text-align: center;
-  max-width: 860px;
+  max-width: 920px;
   margin: 0 auto;
 }
 .heroTitle{
   margin: 0 0 10px;
-  font-size: clamp(30px, 3.6vw, 44px);
-  letter-spacing: -0.045em;
-  line-height: 1.08;
+  font-size: clamp(34px, 4.3vw, 54px);
+  letter-spacing: -0.055em;
+  line-height: 1.03;
 }
 .heroLead{
-  font-size: 15px;
-  color: rgba(11,18,32,.72);
+  font-size: 16px;
+  color: rgba(11,18,32,.70);
   line-height: 1.55;
+  max-width: 720px;
+  margin: 0 auto;
 }
 .heroMeta{
-  margin-top: 10px;
+  margin-top: 14px;
   display:flex;
   flex-wrap: wrap;
   gap: 8px;
   justify-content: center;
 }
-
 .mini{
   font-size: 12px;
   font-weight: 900;
-  color: rgba(11,18,32,.68);
+  color: rgba(11,18,32,.70);
   border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.84);
+  background: rgba(255,255,255,.90);
   border-radius: 999px;
-  padding: 6px 10px;
+  padding: 7px 11px;
 }
 
-/* =========================
-   TOOL CARD
-========================= */
+/* Tool card = premium console */
 .toolCard{
-  width: min(860px, 100%);
-  background: rgba(255,255,255,.96);
+  width: min(920px, 100%);
+  background: rgba(255,255,255,.98);
   border: 1px solid rgba(15,23,42,.10);
   border-radius: var(--r-2xl);
   box-shadow: var(--sh-2);
   padding: 18px;
-}
-.toolCard--rambo{
-  width: 100%;
-  background: rgba(255,255,255,.92);
-  border: 1px solid rgba(15,23,42,.10);
-  border-radius: 24px;
-  box-shadow: 0 34px 110px rgba(2,6,23,.14);
-  padding: 16px;
 }
 
 .toolTop{
@@ -334,7 +237,7 @@ p{ margin:0; }
 }
 .statusHint{
   margin-top: 6px;
-  color: rgba(11,18,32,.58);
+  color: rgba(11,18,32,.56);
   font-size: 13px;
   line-height: 1.40;
 }
@@ -343,42 +246,35 @@ p{ margin:0; }
   width: 14px;
   height: 14px;
   border-radius: 999px;
-  border: 2px solid rgba(37,99,235,.20);
-  border-top-color: rgba(37,99,235,.95);
+  border: 2px solid rgba(29,78,216,.20);
+  border-top-color: rgba(29,78,216,.95);
   display:none;
   animation: spin .8s linear infinite;
 }
 .spinner.isOn{ display:inline-block; }
 @keyframes spin{ to { transform: rotate(360deg); } }
 
-.limits{
-  display:flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content:flex-end;
-}
+.limits{ display:flex; gap: 8px; flex-wrap: wrap; justify-content:flex-end; }
 
-/* =========================
-   DROPZONE
-========================= */
+/* Dropzone becomes a “vault” */
 .dropzone{
   position: relative;
-  border-radius: 22px;
-  border: 2px dashed rgba(15,23,42,.22);
-  background: #fff;
+  border-radius: 24px;
+  border: 1px solid rgba(15,23,42,.14);
+  background:
+    linear-gradient(180deg, rgba(2,6,23,.02), rgba(255,255,255,1));
   padding: 22px;
   overflow:hidden;
-  transition: border-color .16s var(--ease), transform .10s var(--ease), box-shadow .16s var(--ease), background .16s var(--ease);
+  transition: border-color .16s var(--ease), transform .10s var(--ease), box-shadow .16s var(--ease);
 }
-
-.dropzone--rambo{
-  border-radius: 22px;
-  border: 2px dashed rgba(15,23,42,.22);
-  background:
-    radial-gradient(800px 220px at 50% 0%, rgba(37,99,235,.08), transparent 60%),
-    #fff;
+.dropzone:before{
+  content:"";
+  position:absolute;
+  inset: 10px;
+  border-radius: 20px;
+  border: 2px dashed rgba(15,23,42,.24);
+  pointer-events:none;
 }
-
 .dropzone input[type="file"]{
   position:absolute;
   inset:0;
@@ -388,39 +284,25 @@ p{ margin:0; }
 
 .dropzone__inner{
   display:grid;
-  grid-template-columns: 64px 1fr auto;
+  grid-template-columns: 68px 1fr auto;
   gap: 14px;
   align-items:center;
   pointer-events:none;
 }
 
 .dzBadge{
-  width: 64px;
-  height: 64px;
+  width: 68px;
+  height: 68px;
   border-radius: 18px;
   display:grid;
   place-items:center;
-  background: rgba(37,99,235,.10);
-  border: 1px solid rgba(37,99,235,.18);
+  background: rgba(29,78,216,.10);
+  border: 1px solid rgba(29,78,216,.22);
   color: #1d4ed8;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.70);
 }
 
-/* if you used dzIcon in the v15 HTML */
-.dzIcon{
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
-  display:grid;
-  place-items:center;
-  background: rgba(37,99,235,.10);
-  border: 1px solid rgba(37,99,235,.18);
-  color: #1d4ed8;
-  font-weight: 950;
-  font-size: 18px;
-}
-
-.dzText .dzTitle, .dzTitle{
+.dzTitle{
   font-weight: 950;
   letter-spacing:-0.02em;
   font-size: 16px;
@@ -441,20 +323,13 @@ p{ margin:0; }
 
 /* Drag state */
 .dropzone.isDrag{
-  border-color: rgba(37,99,235,.70);
-  background: rgba(37,99,235,.03);
+  border-color: rgba(29,78,216,.55);
   transform: translateY(-1px);
-  box-shadow: 0 22px 68px rgba(37,99,235,.16);
+  box-shadow: 0 24px 80px rgba(29,78,216,.18);
 }
-.dropzone--rambo.isDrag{
-  background:
-    radial-gradient(800px 220px at 50% 0%, rgba(37,99,235,.14), transparent 60%),
-    rgba(37,99,235,.02);
-}
+.dropzone.isDrag:before{ border-color: rgba(29,78,216,.55); }
 
-/* =========================
-   FILE PREVIEWS
-========================= */
+/* File previews */
 .fileMeta{
   margin-top: 14px;
   padding-top: 14px;
@@ -505,7 +380,6 @@ p{ margin:0; }
   place-items:center;
 }
 .thumbImg{ width:100%; height:100%; object-fit:cover; }
-
 .thumbPdf{
   font-size: 11px;
   font-weight: 950;
@@ -531,27 +405,7 @@ p{ margin:0; }
   color: rgba(11,18,32,.56);
 }
 
-.iconBtn{
-  border: 1px solid rgba(2,6,23,.12);
-  background: #fff;
-  border-radius: 10px;
-  padding: 8px 10px;
-  cursor:pointer;
-  font-weight: 950;
-  font-size: 12px;
-  transition: border-color .16s var(--ease), background .16s var(--ease), transform .10s var(--ease), box-shadow .16s var(--ease);
-  box-shadow: var(--sh-0);
-}
-.iconBtn:hover{
-  border-color: rgba(2,6,23,.22);
-  background: rgba(2,6,23,.02);
-  box-shadow: var(--sh-1);
-}
-.iconBtn:active{ transform: translateY(1px); }
-
-/* =========================
-   PROGRESS
-========================= */
+/* Progress */
 .progressWrap{
   margin-top: 14px;
   padding: 12px;
@@ -579,7 +433,7 @@ p{ margin:0; }
   height:100%;
   width:0%;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(37,99,235,1), rgba(29,78,216,1));
+  background: linear-gradient(90deg, rgba(29,78,216,1), rgba(30,64,175,1));
   transition: width .16s var(--ease);
 }
 .progressMeta{
@@ -588,15 +442,12 @@ p{ margin:0; }
   color: rgba(11,18,32,.55);
 }
 
-/* =========================
-   ACTIONS
-========================= */
+/* Actions */
 .actionWrap{
   margin-top: 14px;
   padding-top: 14px;
   border-top: 1px solid rgba(2,6,23,.08);
 }
-
 .actionSteps{ display:none; }
 
 .actionBar{
@@ -608,67 +459,52 @@ p{ margin:0; }
 .fineprint{
   margin-top: 12px;
   font-size: 12px;
-  color: rgba(11,18,32,.60);
+  color: rgba(11,18,32,.58);
   text-align: center;
 }
 .fineprint a{ text-decoration: underline; text-underline-offset: 2px; }
 
-/* =========================
-   PROOF STRIP
-========================= */
-.proofStrip{
-  padding: 14px 0 6px;
-}
-.proofStrip__inner{
-  display:flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  color: rgba(11,18,32,.62);
-  font-size: 13px;
-}
-.proofStrip__inner > div{
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.86);
-  border-radius: 999px;
-  padding: 8px 10px;
-  box-shadow: var(--sh-0);
-}
-
-/* =========================
-   SECTIONS (below fold)
-========================= */
+/* Sections below fold */
+.section{ padding: 18px 0; }
 .section .container{
-  background: rgba(255,255,255,.92);
+  background: rgba(255,255,255,.95);
   border: 1px solid rgba(15,23,42,.10);
   border-radius: 18px;
   padding: 18px;
   box-shadow: var(--sh-1);
 }
-
-.section--dark .container{
-  background:
-    radial-gradient(900px 340px at 50% 0%, rgba(37,99,235,.10), transparent 60%),
-    rgba(255,255,255,.92);
+.sectionHead{
+  display:flex;
+  align-items:flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(2,6,23,.08);
 }
-
+.sectionHead h2{
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+.sectionHead p{
+  margin: 0;
+  color: rgba(11,18,32,.68);
+  font-size: 13px;
+  line-height: 1.45;
+}
 .grid3{
   margin-top: 14px;
   display:grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
-
 .card{
   border-radius: 16px;
   padding: 14px;
   border: 1px solid rgba(2,6,23,.10);
-  background: rgba(255,255,255,.96);
+  background: rgba(255,255,255,.98);
   box-shadow: var(--sh-0);
 }
-.card h3{ margin: 0; font-size: 14px; letter-spacing: -0.02em; }
-.card p{ margin-top: 6px; color: rgba(11,18,32,.70); font-size: 13px; line-height: 1.55; }
-
 .card .k{
   width: 34px;
   height: 34px;
@@ -676,23 +512,19 @@ p{ margin:0; }
   display:grid;
   place-items:center;
   font-weight: 950;
-  background: rgba(37,99,235,.10);
-  border: 1px solid rgba(37,99,235,.18);
+  background: rgba(29,78,216,.10);
+  border: 1px solid rgba(29,78,216,.18);
   color: #1d4ed8;
   margin-bottom: 10px;
 }
-
-.section h2{
-  margin: 0;
-  font-size: 18px;
-  letter-spacing: -0.03em;
-}
+.card .t{ font-weight: 950; }
+.card .d{ margin-top: 6px; color: rgba(11,18,32,.70); font-size: 13px; }
 
 /* FAQ */
 .faq{ margin-top: 14px; display:grid; gap: 10px; }
 details{
   border: 1px solid rgba(2,6,23,.10);
-  background: rgba(255,255,255,.96);
+  background: rgba(255,255,255,.98);
   border-radius: 16px;
   padding: 12px 14px;
   box-shadow: var(--sh-0);
@@ -707,43 +539,32 @@ details p{
   margin: 10px 0 0;
   color: rgba(11,18,32,.72);
   font-size: 13px;
-  line-height: 1.55;
 }
 
-/* =========================
-   FOOTER
-========================= */
-.footer{
-  padding: 18px 0 34px;
-  margin-top: 18px;
-}
+/* Footer */
+.footer{ padding: 18px 0 30px; margin-top: 18px; }
 .footer__inner{
   display:flex;
   justify-content: space-between;
   align-items:center;
   gap: 12px;
-  color: rgba(11,18,32,.60);
+  color: rgba(11,18,32,.58);
   font-size: 13px;
 }
 .footer__links{ display:flex; gap: 12px; }
 .footer__links a{ color: rgba(11,18,32,.58); text-decoration: underline; text-underline-offset: 2px; }
 
-/* =========================
-   MODAL (viewport-safe)
-========================= */
+/* Modal (keep) */
 .modalOverlay{
   position: fixed;
   inset: 0;
-  background: rgba(2,6,23,.44);
+  background: rgba(2,6,23,.46);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   display: none;
-
   align-items: flex-start;
   justify-content: center;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-
   z-index: 999;
   padding: 18px;
 }
@@ -758,7 +579,6 @@ details p{
   overflow: hidden;
   transform: translateY(10px);
   animation: modalIn .14s var(--ease) forwards;
-
   margin: 18px auto;
   max-height: calc(100vh - 36px);
   display: flex;
@@ -773,7 +593,7 @@ details p{
   align-items:center;
   justify-content: space-between;
   gap: 12px;
-  background: linear-gradient(180deg, rgba(37,99,235,.08), rgba(255,255,255,0));
+  background: linear-gradient(180deg, rgba(29,78,216,.10), rgba(255,255,255,0));
 }
 .modalTitle{ font-weight: 950; letter-spacing: -0.02em; font-size: 14px; }
 .modalClose{
@@ -840,9 +660,9 @@ details p{
   background: rgba(2,6,23,.02);
 }
 .priceRow.isChosen{
-  border-color: rgba(37,99,235,.40);
-  background: rgba(37,99,235,.08);
-  box-shadow: 0 12px 30px rgba(37,99,235,.12);
+  border-color: rgba(29,78,216,.40);
+  background: rgba(29,78,216,.08);
+  box-shadow: 0 12px 30px rgba(29,78,216,.12);
 }
 .priceName{ font-weight: 950; font-size: 13px; }
 .priceDesc{ font-size: 12px; color: rgba(75,85,99,.95); }
@@ -861,33 +681,17 @@ details p{
   background: rgba(2,6,23,.01);
 }
 
-/* =========================
-   SUCCESS + SHARE (compat safe)
-========================= */
-.successActions{
-  margin-top: 14px;
-  display:grid;
-  gap: 12px;
-}
-
+/* Success/share + legal blocks */
+.successActions{ margin-top: 14px; display:grid; gap: 12px; }
 .shareBox{
   border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.92);
+  background: rgba(255,255,255,.94);
   border-radius: 16px;
   padding: 12px;
   box-shadow: var(--sh-0);
 }
-.shareLabel{
-  font-weight: 950;
-  letter-spacing: -0.02em;
-  font-size: 13px;
-  margin-bottom: 8px;
-}
-.shareRow{
-  display:flex;
-  gap: 10px;
-  align-items:center;
-}
+.shareLabel{ font-weight: 950; letter-spacing: -0.02em; font-size: 13px; margin-bottom: 8px; }
+.shareRow{ display:flex; gap: 10px; align-items:center; }
 .shareInput{
   flex: 1;
   min-width: 0;
@@ -898,36 +702,89 @@ details p{
   font-weight: 900;
   color: rgba(11,18,32,.92);
 }
-.shareInput:focus{
-  outline: 3px solid var(--ring);
-  outline-offset: 2px;
-}
-.shareHint{
-  margin-top: 8px;
-  font-size: 12px;
-  color: rgba(11,18,32,.56);
-}
+.shareInput:focus{ outline: 3px solid var(--ring); outline-offset: 2px; }
+.shareHint{ margin-top: 8px; font-size: 12px; color: rgba(11,18,32,.56); }
 
-/* =========================
-   PRICING + LEGAL PAGES (kept)
-========================= */
-.pricingPage{ padding: 10px 0 26px; }
 .legalPage{ padding: 10px 0 26px; }
+.legalHeader{ width: min(860px, 100%); margin: 0 auto 14px; text-align: center; }
+.legalKicker{
+  display:inline-block;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  color: rgba(11,18,32,.55);
+  border: 1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.82);
+  padding: 8px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+.legalTitle{
+  margin: 0 0 6px;
+  font-size: clamp(28px, 3.2vw, 40px);
+  letter-spacing: -0.045em;
+  line-height: 1.12;
+}
+.legalMeta{ margin: 0; color: rgba(11,18,32,.60); font-size: 13px; }
+.legalCard{
+  width: min(860px, 100%);
+  margin: 0 auto;
+  border: 1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.98);
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: var(--sh-2);
+}
+.legalIntro{
+  margin: 0 0 12px;
+  color: rgba(11,18,32,.80);
+  line-height: 1.65;
+  font-size: 14px;
+}
+.legalCard h2{ margin: 16px 0 8px; font-size: 15px; letter-spacing: -0.02em; }
+.legalCard p, .legalCard ul{
+  margin: 8px 0 0;
+  color: rgba(11,18,32,.74);
+  line-height: 1.7;
+  font-size: 14px;
+}
+.legalCard ul{ padding-left: 18px; }
+.legalCard li{ margin: 6px 0; }
+.legalCard a{ text-decoration: underline; text-underline-offset: 2px; }
+.legalActions{ margin-top: 16px; display:flex; gap: 10px; flex-wrap: wrap; }
 
-/* (Your existing pricing/legal blocks can stay as-is — this CSS is compatible.) */
+.successBox{
+  display:flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(2,6,23,.10);
+  background: rgba(2,6,23,.02);
+}
+.successIcon{
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display:grid;
+  place-items:center;
+  font-size: 18px;
+  background: rgba(29,78,216,.10);
+  border: 1px solid rgba(29,78,216,.18);
+}
+.successTitle{ font-weight: 950; letter-spacing: -0.02em; }
+.successDesc{ margin-top: 4px; color: rgba(11,18,32,.66); font-size: 13px; line-height: 1.55; }
 
-/* =========================
-   RESPONSIVE
-========================= */
+/* Responsive */
 @media (max-width: 980px){
   .nav{ display:none; }
-  .heroRambo__inner{ grid-template-columns: 1fr; }
   .grid3{ grid-template-columns: 1fr; }
   .actionBar{ grid-template-columns: 1fr; }
   .fileList{ grid-template-columns: 1fr; }
 
   .dropzone__inner{
-    grid-template-columns: 64px 1fr;
+    grid-template-columns: 68px 1fr;
     grid-template-rows: auto auto;
   }
   .dzActions{
@@ -941,7 +798,6 @@ details p{
 }
 
 @media (max-width: 520px){
-  .container{ width: min(var(--container), calc(100% - 24px)); }
   .modalOverlay{ padding: 12px; }
   .modalCard{ margin: 12px auto; max-height: calc(100vh - 24px); }
   .modalBody{ max-height: calc(100vh - 24px - 60px - 68px); }
