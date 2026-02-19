@@ -552,3 +552,149 @@ details p{
     pointer-events:auto;
   }
 }
+
+/* =========================
+   MODAL — REQUIRED (v16)
+   Fixes “modal HTML showing at bottom”
+========================= */
+.modalOverlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,23,.46);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  display: none; /* IMPORTANT: hide by default */
+  align-items: flex-start;
+  justify-content: center;
+
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+
+  z-index: 9999;
+  padding: 18px;
+}
+.modalOverlay.isOpen{ display:flex; }
+
+.modalCard{
+  width: min(640px, 100%);
+  background: #fff;
+  border: 1px solid rgba(2,6,23,.14);
+  border-radius: 18px;
+  box-shadow: 0 40px 140px rgba(2,6,23,.30);
+  overflow: hidden;
+
+  margin: 18px auto;
+  max-height: calc(100vh - 36px);
+
+  display: flex;
+  flex-direction: column;
+
+  transform: translateY(10px);
+  animation: modalIn .14s var(--ease) forwards;
+}
+@keyframes modalIn{ to { transform: translateY(0); } }
+
+.modalTop{
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(2,6,23,.08);
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 12px;
+  background: linear-gradient(180deg, rgba(29,78,216,.10), rgba(255,255,255,0));
+}
+.modalTitle{ font-weight: 950; letter-spacing: -0.02em; font-size: 14px; }
+
+.modalClose{
+  border: 1px solid rgba(2,6,23,.12);
+  background: #fff;
+  border-radius: 12px;
+  padding: 8px 10px;
+  cursor:pointer;
+  font-weight: 950;
+  font-size: 12px;
+  box-shadow: var(--sh-0);
+}
+.modalClose:hover{ border-color: rgba(2,6,23,.20); }
+
+.modalBody{
+  padding: 14px 16px 6px;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  max-height: calc(100vh - 36px - 60px - 68px);
+}
+.modalLead{ margin: 0; color: rgba(11,18,32,.86); font-size: 14px; line-height: 1.45; }
+
+.modalSummary{
+  margin-top: 12px;
+  border: 1px solid rgba(2,6,23,.10);
+  background: rgba(2,6,23,.02);
+  border-radius: 16px;
+  padding: 12px;
+  display:flex;
+  align-items:flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.modalSummaryKicker{
+  font-size: 12px;
+  font-weight: 950;
+  color: rgba(107,114,128,.98);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.modalSummaryMain{
+  font-size: 14px;
+  font-weight: 950;
+  color: rgba(11,18,32,.95);
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 360px;
+}
+.modalSummaryAmt{
+  font-size: 16px;
+  font-weight: 950;
+  white-space: nowrap;
+  color: rgba(11,18,32,.95);
+}
+
+.priceGrid{ display:grid; gap: 10px; margin-top: 12px; }
+.priceRow{
+  display:flex;
+  align-items:flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(2,6,23,.10);
+  background: rgba(2,6,23,.02);
+}
+.priceRow.isChosen{
+  border-color: rgba(29,78,216,.40);
+  background: rgba(29,78,216,.08);
+  box-shadow: 0 12px 30px rgba(29,78,216,.12);
+}
+.priceName{ font-weight: 950; font-size: 13px; }
+.priceDesc{ font-size: 12px; color: rgba(75,85,99,.95); }
+.priceAmt{ font-weight: 950; font-size: 13px; white-space: nowrap; }
+.priceAmt label{ display:inline-flex; align-items:center; gap: 8px; font-weight: 950; cursor:pointer; }
+.priceAmt input[type="checkbox"]{ width: 16px; height: 16px; accent-color: var(--primary); }
+
+.modalNote{ margin-top: 10px; font-size: 12px; color: rgba(107,114,128,.98); line-height: 1.45; }
+.modalFoot{
+  padding: 14px 16px;
+  border-top: 1px solid rgba(2,6,23,.08);
+  display:flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: rgba(2,6,23,.01);
+}
+
+@media (max-width: 520px){
+  .modalOverlay{ padding: 12px; }
+  .modalCard{ margin: 12px auto; max-height: calc(100vh - 24px); }
+  .modalBody{ max-height: calc(100vh - 24px - 60px - 68px); }
+}
