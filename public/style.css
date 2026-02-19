@@ -743,3 +743,78 @@ details p{
   .modalCard{ margin: 12px auto; max-height: calc(100vh - 24px); }
   .modalBody{ max-height: calc(100vh - 24px - 60px - 72px); }
 }
+
+/* =========================
+   v21 — NAV THEME (FULL RAMBO)
+   Add at END of file
+========================= */
+
+/* Brand accents */
+:root{
+  --navInk: rgba(255,255,255,.92);
+  --navInkMuted: rgba(255,255,255,.68);
+  --navHover: rgba(255,255,255,.10);
+  --navBorder: rgba(255,255,255,.10);
+
+  /* Pick your “ZipPixel” colour here */
+  --zipA: #2563eb;     /* electric blue */
+  --zipB: #22c55e;     /* optional green tint */
+}
+
+/* Coloured header with boutique glow */
+.nav{
+  background: linear-gradient(180deg,
+    rgba(11,18,32,.96),
+    rgba(11,18,32,.86)
+  ) !important;
+
+  border-bottom: 1px solid var(--navBorder) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* A subtle colour strip that screams “real product” */
+.nav::before{
+  content:"";
+  position:absolute;
+  left:0; right:0; top:0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--zipA), #60a5fa, var(--zipB));
+  opacity: .95;
+}
+
+/* Improve nav layout contrast */
+.brand{
+  color: var(--navInk) !important;
+}
+.brand span{
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.brand img{
+  filter: drop-shadow(0 10px 22px rgba(0,0,0,.22));
+}
+
+/* Nav links become premium */
+.navLinks{
+  color: var(--navInkMuted) !important;
+}
+.navLinks a{
+  color: var(--navInkMuted) !important;
+  border: 1px solid rgba(255,255,255,0);
+  transition: background .16s var(--ease), border-color .16s var(--ease), color .16s var(--ease);
+}
+.navLinks a:hover{
+  background: var(--navHover) !important;
+  border-color: rgba(255,255,255,.14);
+  color: var(--navInk) !important;
+  opacity: 1;
+}
+
+/* Optional: make the whole page feel more “premium dark top” */
+body{
+  background:
+    radial-gradient(1200px 540px at 50% -140px, rgba(37,99,235,.10), rgba(246,247,251,0) 62%),
+    radial-gradient(900px 520px at 0% 0%, rgba(2,6,23,.08), rgba(246,247,251,0) 60%),
+    var(--bg);
+}
