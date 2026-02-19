@@ -1,6 +1,6 @@
-/* public/style.css — ZipPixel (v17 - STRIPE MODE)
+/* public/style.css — ZipPixel (v17.1 - STRIPE MODE)
    ✅ Full redesign: clean, minimal, credible (Stripe/Linear vibe)
-   ✅ Tool-first centered layout
+   ✅ Tool-first centered layout (premium rhythm + depth)
    ✅ Keeps modal + pricing grid (required)
 */
 
@@ -28,6 +28,7 @@
 
   --sh-0: 0 1px 0 rgba(2,6,23,.04);
   --sh-1: 0 12px 30px rgba(2,6,23,.08);
+  --sh-2: 0 18px 60px rgba(2,6,23,.10);
 
   --container: 1040px;
   --ease: cubic-bezier(.2,.8,.2,1);
@@ -39,7 +40,10 @@ body{
   margin:0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   color: var(--text);
-  background: var(--bg);
+  background:
+    radial-gradient(900px 520px at 50% -140px, rgba(37,99,235,.10), transparent 60%),
+    radial-gradient(780px 420px at 12% 0%, rgba(2,6,23,.06), transparent 55%),
+    var(--bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -62,7 +66,7 @@ strong,b{ font-weight: 900; }
 }
 
 /* =========================
-   NEW NAV (v17)
+   NEW NAV (v17.1)
 ========================= */
 .nav{
   position: sticky;
@@ -78,7 +82,7 @@ strong,b{ font-weight: 900; }
   align-items:center;
   justify-content: space-between;
   gap: 14px;
-  padding: 14px 0;
+  padding: 12px 0;
 }
 
 .brand{
@@ -88,9 +92,9 @@ strong,b{ font-weight: 900; }
   font-weight: 950;
   letter-spacing: -0.02em;
 }
-.brand span{ font-size: 14px; }
+.brand span{ font-size: 15px; }
 
-/* v17 FIX: stop logo being squashed in the nav */
+/* Fix squashed logo */
 .brand img{
   width: 28px;
   height: 28px;
@@ -102,11 +106,21 @@ strong,b{ font-weight: 900; }
 .navLinks{
   display:flex;
   align-items:center;
-  gap: 18px;
+  gap: 16px;
   color: rgba(11,18,32,.66);
   font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
 }
-.navLinks a:hover{ color: rgba(11,18,32,.90); }
+.navLinks a{
+  padding: 8px 10px;
+  border-radius: 10px;
+  transition: background .16s var(--ease), color .16s var(--ease);
+}
+.navLinks a:hover{
+  background: rgba(2,6,23,.04);
+  color: rgba(11,18,32,.92);
+}
 
 /* Hide nav links on small screens */
 @media (max-width: 860px){
@@ -114,47 +128,57 @@ strong,b{ font-weight: 900; }
 }
 
 /* =========================
-   HERO (v17)
+   HERO (v17.1)
 ========================= */
 .hero{
-  padding: 44px 0 0;
+  padding: 30px 0 0;
   text-align: center;
 }
 .heroInner{
-  max-width: 860px;
+  max-width: 920px;
   margin: 0 auto;
 }
 
 .hero h1{
   margin: 0;
-  font-size: clamp(34px, 4.2vw, 48px);
-  letter-spacing: -0.05em;
+  font-size: clamp(34px, 4.4vw, 52px);
+  letter-spacing: -0.06em;
   line-height: 1.06;
 }
 .heroSub{
-  margin: 14px auto 26px;
-  max-width: 720px;
-  font-size: 16px;
-  line-height: 1.62;
+  margin: 12px auto 18px;
+  max-width: 740px;
+  font-size: 15px;
+  line-height: 1.65;
   color: rgba(11,18,32,.68);
 }
 
 /* =========================
-   TOOL (v17)
+   TOOL (v17.1)
 ========================= */
 .tool{
   text-align: left;
   background: var(--panel);
   border: 1px solid rgba(15,23,42,.10);
-  border-radius: 16px;
-  box-shadow: var(--sh-1);
+  border-radius: 18px;
+  box-shadow:
+    var(--sh-0),
+    var(--sh-2);
   padding: 18px;
+  max-width: 920px;
+  margin: 0 auto;
 }
 
 /* Status */
-.statusWrap{ margin-bottom: 14px; }
+.statusWrap{
+  margin-bottom: 14px;
+  display:flex;
+  align-items:flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
 .status{
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 950;
   letter-spacing: -0.02em;
 }
@@ -182,14 +206,22 @@ strong,b{ font-weight: 900; }
 /* Dropzone */
 .dropzone{
   position: relative;
-  border-radius: 14px;
-  border: 2px dashed rgba(15,23,42,.18);
-  background: #fff;
-  padding: 46px 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(15,23,42,.14);
+  background: linear-gradient(180deg, rgba(2,6,23,.015), rgba(255,255,255,1));
+  padding: 42px 18px;
   overflow:hidden;
   transition: border-color .16s var(--ease), box-shadow .16s var(--ease), transform .10s var(--ease);
 }
-.dropzone:hover{
+.dropzone:before{
+  content:"";
+  position:absolute;
+  inset: 12px;
+  border-radius: 14px;
+  border: 2px dashed rgba(15,23,42,.18);
+  pointer-events:none;
+}
+.dropzone:hover:before{
   border-color: rgba(15,23,42,.26);
 }
 
@@ -202,15 +234,18 @@ strong,b{ font-weight: 900; }
 
 /* Centered dropzone content (new HTML) */
 .dzCenter{ display:grid; place-items:center; text-align:center; gap: 6px; }
-.dzIcon{ font-size: 28px; margin-bottom: 2px; }
+.dzIcon{ font-size: 30px; margin-bottom: 2px; }
 .dzTitle{ font-weight: 950; letter-spacing:-0.02em; font-size: 16px; }
 .dzSub{ color: rgba(11,18,32,.58); font-size: 13px; margin-bottom: 10px; }
 
 /* Drag state (JS can toggle .isDrag; keep it) */
 .dropzone.isDrag{
-  border-color: rgba(37,99,235,.55);
+  border-color: rgba(37,99,235,.40);
   box-shadow: 0 22px 70px rgba(37,99,235,.12);
   transform: translateY(-1px);
+}
+.dropzone.isDrag:before{
+  border-color: rgba(37,99,235,.45);
 }
 
 /* File meta (app.js shows/hides via [hidden]) */
@@ -239,7 +274,8 @@ strong,b{ font-weight: 900; }
   padding: 10px 12px;
   border: 1px solid rgba(2,6,23,.10);
   border-radius: 12px;
-  background: rgba(2,6,23,.02);
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 1px 0 rgba(2,6,23,.04);
   font-size: 13px;
   color: rgba(11,18,32,.78);
 }
@@ -260,15 +296,19 @@ button{
 }
 button:hover{ border-color: rgba(15,23,42,.22); box-shadow: var(--sh-1); }
 button:active{ transform: translateY(1px); }
-button:disabled{ opacity:.45; cursor:not-allowed; box-shadow:none; }
+button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; }
 
 .btnPrimary{
-  background: #111827;
-  border-color: rgba(17,24,39,.60);
+  background: linear-gradient(180deg, #111827, #0b1220);
+  border-color: rgba(2,6,23,.55);
   color:#fff;
   box-shadow: 0 16px 44px rgba(2,6,23,.14);
 }
 .btnPrimary:hover{ box-shadow: 0 22px 70px rgba(2,6,23,.18); }
+.btnPrimary:disabled{
+  background: linear-gradient(180deg, rgba(17,24,39,.55), rgba(11,18,32,.55));
+  color: rgba(255,255,255,.88);
+}
 
 .btnSoft{
   background: rgba(2,6,23,.04);
@@ -277,6 +317,7 @@ button:disabled{ opacity:.45; cursor:not-allowed; box-shadow:none; }
   box-shadow: none;
 }
 .btnSoft:hover{ background: rgba(2,6,23,.06); }
+.btnSoft:disabled{ opacity:.55; }
 
 .btnGhost{
   background: transparent;
@@ -291,21 +332,26 @@ button:disabled{ opacity:.45; cursor:not-allowed; box-shadow:none; }
 .actionRow{
   display:flex;
   gap: 12px;
-  margin-top: 14px;
+  margin-top: 12px;
 }
-.actionRow button{ flex: 1; }
+.actionRow button{
+  flex: 1;
+  padding: 11px 14px;
+}
 
 /* Fineprint + pricing line */
 .fineprint{
-  margin-top: 12px;
+  margin-top: 10px;
   font-size: 12px;
   color: rgba(11,18,32,.60);
   text-align: center;
 }
 .pricingLine{
-  margin-top: 16px;
+  margin-top: 12px;
   font-size: 13px;
   color: rgba(11,18,32,.62);
+  text-align: center;
+  font-weight: 650;
 }
 
 /* =========================
@@ -573,4 +619,3 @@ details p{
   .modalCard{ margin: 12px auto; max-height: calc(100vh - 24px); }
   .modalBody{ max-height: calc(100vh - 24px - 60px - 68px); }
 }
-
