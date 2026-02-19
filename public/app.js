@@ -72,6 +72,32 @@
   let creatingJob = false;
   let uploading = false;
 
+  // ====== MODE STATE ======
+  let mode = "compress";
+  let convertTargetValue = null;
+
+  const modeCompress = document.getElementById("modeCompress");
+  const modeConvert = document.getElementById("modeConvert");
+  const convertTarget = document.getElementById("convertTarget");
+
+  const syncMode = () => {
+    if (modeConvert?.checked) {
+      mode = "convert";
+      convertTargetValue = convertTarget?.value || "jpg";
+      if (convertTarget) convertTarget.style.display = "";
+    } else {
+      mode = "compress";
+      convertTargetValue = null;
+      if (convertTarget) convertTarget.style.display = "none";
+    }
+  };
+
+  modeCompress?.addEventListener("change", syncMode);
+  modeConvert?.addEventListener("change", syncMode);
+  convertTarget?.addEventListener("change", syncMode);
+
+  syncMode();
+
   let selected = [];            // Array<File>
   const thumbUrls = new Map();  // keyOf(file) -> objectURL (images only)
   let uploadedMeta = [];        // [{ key, originalname, mimetype }]
@@ -527,6 +553,16 @@
 
     const totalBytes = selected.reduce((a, f) => a + f.size, 0);
     const prog = makeProgressReporter(totalBytes);
+
+    // Tell backend what mode we're using
+    await fetch(`/api/jobs/${jobId}/mode`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mode,
+        target: convertTargetValue
+      })
+    });
 
     try {
       for (let i = 0; i < selected.length; i++) {

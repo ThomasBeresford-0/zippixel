@@ -75,6 +75,26 @@
           <div class="statusHint" id="statusHint">Add files, then upload.</div>
         </div>
 
+                <!-- Mode Selector -->
+        <div class="modeRow">
+          <label class="modeOption">
+            <input type="radio" name="mode" id="modeCompress" checked>
+            <span>Compress</span>
+          </label>
+
+          <label class="modeOption">
+            <input type="radio" name="mode" id="modeConvert">
+            <span>Convert</span>
+          </label>
+
+          <select id="convertTarget" style="display:none;">
+            <option value="jpg">to JPG</option>
+            <option value="png">to PNG</option>
+            <option value="webp">to WebP</option>
+            <option value="pdf">to PDF</option>
+          </select>
+        </div>
+
         <!-- Dropzone -->
         <div class="dropzone dropzonePremium" id="dropzone">
           <input id="files" type="file" multiple />
@@ -250,6 +270,6 @@
   </div>
 </div>
 
-<script src="/app.js?v=15" defer></script>
+<script src="/app.js?v=16" defer></script>
 </body>
 </html>

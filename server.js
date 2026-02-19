@@ -292,6 +292,9 @@ app.post("/api/jobs", (_, res) => {
 
     options: { shareLink: false },
 
+    mode: "compress",
+    convertTarget: null,
+
     shareToken: null,
     shareExpiresAt: null,
 
@@ -362,6 +365,25 @@ app.post("/api/jobs/:jobId/register", (req, res) => {
     res.status(400).json({ error: e.message });
   }
 });
+
+    app.post("/api/jobs/:jobId/mode", (req, res) => {
+  try {
+    const job = getJob(req.params.jobId);
+    const { mode, target } = req.body;
+
+    if (!["compress", "convert"].includes(mode)) {
+      throw new Error("Invalid mode");
+    }
+
+    job.mode = mode;
+    job.convertTarget =
+      mode === "convert" ? String(target || "").toLowerCase() : null;
+
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+  });
 
 // Checkout
 app.post("/api/checkout", async (req, res) => {
@@ -479,9 +501,42 @@ app.get("/api/download/:jobId", async (req, res) => {
         })
       );
 
+    if (job.mode === "convert" && sharp && job.convertTarget) {
+      const buffer = await streamToBuffer(obj.Body);
+
+      let converted;
+      let newExt = "";
+
+      if (job.convertTarget === "jpg") {
+        converted = await sharp(buffer).jpeg({ quality: 90 }).toBuffer();
+        newExt = ".jpg";
+      }
+
+      if (job.convertTarget === "png") {
+        converted = await sharp(buffer).png().toBuffer();
+        newExt = ".png";
+      }
+
+      if (job.convertTarget === "webp") {
+        converted = await sharp(buffer).webp({ quality: 85 }).toBuffer();
+        newExt = ".webp";
+      }
+
+      if (job.convertTarget === "pdf") {
+        converted = await imageToPdf(buffer);
+        newExt = ".pdf";
+      }
+
+      const base = f.originalname.replace(/\.[^/.]+$/, "");
+      archive.append(converted, {
+        name: makeUniqueName(sanitizeName(base + newExt), used),
+      });
+
+    } else {
       archive.append(obj.Body, {
         name: makeUniqueName(sanitizeName(f.originalname), used),
       });
+    }
     }
 
     await archive.finalize();
@@ -609,6 +664,38 @@ async function cleanupExpiredJobs() {
 setInterval(() => {
   cleanupExpiredJobs().catch(() => {});
 }, CLEANUP_INTERVAL_MS);
+
+const { PassThrough } = require("stream");
+const PDFDocument = require("pdfkit");
+
+function streamToBuffer(stream) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    stream.on("data", (c) => chunks.push(c));
+    stream.on("end", () => resolve(Buffer.concat(chunks)));
+    stream.on("error", reject);
+  });
+}
+
+function imageToPdf(buffer) {
+  return new Promise((resolve) => {
+    const doc = new PDFDocument({ autoFirstPage: false });
+    const stream = new PassThrough();
+    const chunks = [];
+
+    stream.on("data", (c) => chunks.push(c));
+    stream.on("end", () => resolve(Buffer.concat(chunks)));
+
+    doc.pipe(stream);
+    doc.addPage();
+    doc.image(buffer, {
+      fit: [500, 700],
+      align: "center",
+      valign: "center",
+    });
+    doc.end();
+  });
+}
 
 // ====== START ======
 app.listen(PORT, () => {
