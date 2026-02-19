@@ -1,6 +1,6 @@
-// public/app.js — ZipPixel frontend (v15.3 - PREMIUM RAMBO UX, PRICE HIDDEN UNTIL MODAL)
-// Matches: v19 index.html IDs + server.js v15 routes:
-// /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/checkout
+// public/app.js — ZipPixel frontend (v15.4 - PREMIUM RAMBO UX, CLEAN MODE HANDLING)
+// Matches: index.html IDs + server.js v15 routes:
+// /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/jobs/:jobId/mode, /api/checkout
 (() => {
   // ====== YEAR ======
   const y = document.getElementById("y");
@@ -64,6 +64,13 @@
   const priceModalLead = document.getElementById("priceModalLead");
   const priceModalNote = document.getElementById("priceModalNote");
 
+  // Mode UI (optional; only exists on index)
+  const modeCompress = document.getElementById("modeCompress");
+  const modeConvert = document.getElementById("modeConvert");
+  const convertRow = document.getElementById("convertRow");
+  const convertFrom = document.getElementById("convertFrom"); // currently informational only
+  const convertTarget = document.getElementById("convertTarget");
+
   // If this page doesn’t have the tool, bail quietly
   if (!dropzone || !filesEl || !chooseBtn || !uploadBtn || !continueBtn) return;
 
@@ -72,50 +79,13 @@
   let creatingJob = false;
   let uploading = false;
 
-  // ====== MODE STATE ======
-// ====== MODE STATE (UPGRADED) ======
-let mode = "compress";
-let convertTargetValue = null;
-
-const modeCompress = document.getElementById("modeCompress");
-const modeConvert = document.getElementById("modeConvert");
-const convertRow = document.getElementById("convertRow");
-const convertFrom = document.getElementById("convertFrom");
-const convertTarget = document.getElementById("convertTarget");
-
-const syncMode = () => {
-  if (modeConvert?.checked) {
-    mode = "convert";
-    if (convertRow) convertRow.style.display = "flex";
-    convertTargetValue = convertTarget?.value || "jpg";
-
-    setHint("Upload files to convert.");
-  } else {
-    mode = "compress";
-    if (convertRow) convertRow.style.display = "none";
-    convertTargetValue = null;
-
-    setHint("Upload files to create a ZIP.");
-  }
-};
-
-modeCompress?.addEventListener("change", syncMode);
-modeConvert?.addEventListener("change", syncMode);
-convertTarget?.addEventListener("change", () => {
-  convertTargetValue = convertTarget?.value || "jpg";
-});
-
-syncMode();
-
-  modeCompress?.addEventListener("change", syncMode);
-  modeConvert?.addEventListener("change", syncMode);
-  convertTarget?.addEventListener("change", syncMode);
-
-  syncMode();
-
   let selected = [];            // Array<File>
   const thumbUrls = new Map();  // keyOf(file) -> objectURL (images only)
   let uploadedMeta = [];        // [{ key, originalname, mimetype }]
+
+  // ====== MODE STATE ======
+  let mode = "compress"; // "compress" | "convert"
+  let convertTargetValue = null;
 
   // ====== HELPERS ======
   const setStatus = (m) => { if (statusEl) statusEl.textContent = m; };
@@ -200,7 +170,54 @@ syncMode();
     });
   };
 
-  // ====== PREMIUM UX: continue always visible (no “where’s pay?”) ======
+  // ====== MODE SYNC (SINGLE SOURCE OF TRUTH) ======
+  const syncMode = () => {
+    const isConvert = !!modeConvert?.checked;
+
+    mode = isConvert ? "convert" : "compress";
+
+    if (convertRow) convertRow.style.display = isConvert ? "flex" : "none";
+
+    if (isConvert) {
+      convertTargetValue = convertTarget?.value || "jpg";
+      setHint("Choose a target format, then upload files to convert.");
+    } else {
+      convertTargetValue = null;
+      setHint("Upload files to create a ZIP.");
+    }
+
+    // If user changes mode after upload, force re-upload (so server job state matches)
+    if (uploadedMeta.length) {
+      uploadedMeta = [];
+      resetProgress();
+      setStatus("Ready");
+      setHint("Mode changed — please upload again.");
+    }
+
+    setPrimaryStates();
+  };
+
+  // Only attach if the elements exist on this page
+  if (modeCompress && modeConvert) {
+    modeCompress.addEventListener("change", syncMode);
+    modeConvert.addEventListener("change", syncMode);
+  }
+  convertTarget?.addEventListener("change", () => {
+    convertTargetValue = convertTarget?.value || "jpg";
+    // don’t nuke upload on target change unless they already uploaded
+    if (uploadedMeta.length) {
+      uploadedMeta = [];
+      resetProgress();
+      setStatus("Ready");
+      setHint("Target changed — please upload again.");
+      setPrimaryStates();
+    }
+  });
+
+  // Initial sync
+  syncMode();
+
+  // ====== PREMIUM UX: continue always visible ======
   const showContinue = (enabled) => {
     continueBtn.style.display = "";
     continueBtn.disabled = !enabled;
@@ -219,11 +236,10 @@ syncMode();
     showContinue(canContinue);
     continueBtn.textContent = "Continue →";
 
-    // Button labels + hints
     if (!hasFiles) {
       uploadBtn.textContent = "Upload files";
       setStatus("Ready");
-      setHint("Add up to <b>50</b> files. Then upload.");
+      setHint(mode === "convert" ? "Choose a target format, then add files." : "Add up to <b>50</b> files. Then upload.");
       return;
     }
 
@@ -249,14 +265,23 @@ syncMode();
     const n = selected.length;
     const tier = getTier(n);
 
-    if (tierInline) tierInline.textContent = tier.key === "zip50" ? "Pro ZIP" : "ZIP";
+    // Make the modal feel correct for convert vs compress (pricing is same)
+    const tierLabel =
+      mode === "convert"
+        ? `Convert → ${(convertTargetValue || "JPG").toUpperCase()}`
+        : (tier.key === "zip50" ? "Pro ZIP" : "ZIP");
+
+    if (tierInline) tierInline.textContent = tierLabel;
     if (countInline) countInline.textContent = String(n);
 
     if (rowStandard) rowStandard.classList.toggle("isChosen", tier.key === "zip10");
     if (rowPro) rowPro.classList.toggle("isChosen", tier.key === "zip50");
 
     if (priceModalLead) {
-      priceModalLead.innerHTML = `You’re about to checkout for <b>${n}</b> file${n === 1 ? "" : "s"}.`;
+      priceModalLead.innerHTML =
+        mode === "convert"
+          ? `You’re converting <b>${n}</b> file${n === 1 ? "" : "s"} to <b>${escapeHtml((convertTargetValue || "jpg").toUpperCase())}</b>.`
+          : `You’re about to checkout for <b>${n}</b> file${n === 1 ? "" : "s"}.`;
     }
   };
 
@@ -277,7 +302,7 @@ syncMode();
       revokeRemovedThumbs(new Set());
 
       setStatus("Ready");
-      setHint("Drop files to begin.");
+      setHint(mode === "convert" ? "Choose a target format, then drop files." : "Drop files to begin.");
       setPrimaryStates();
       return;
     }
@@ -318,10 +343,9 @@ syncMode();
 
     fileMeta.hidden = false;
 
-    // Premium hints
     if (jobId) {
       setStatus(uploadedMeta.length ? "Uploaded" : "Ready");
-      setHint(uploadedMeta.length ? "Continue to checkout." : "Upload your files to continue.");
+      setHint(uploadedMeta.length ? "Continue to checkout." : (mode === "convert" ? "Upload files to convert." : "Upload your files to continue."));
     } else {
       setStatus("Preparing");
       setHint("Setting up a secure upload…");
@@ -380,8 +404,8 @@ syncMode();
       if (!j?.jobId) throw new Error("No jobId returned");
 
       jobId = j.jobId;
-      setStatus(selected.length ? "Ready" : "Ready");
-      setHint(selected.length ? "Upload your files to continue." : "Drop files to begin.");
+      setStatus("Ready");
+      setHint(selected.length ? (mode === "convert" ? "Upload files to convert." : "Upload your files to continue.") : "Drop files to begin.");
       renderSelected();
       return jobId;
     } catch (err) {
@@ -532,12 +556,35 @@ syncMode();
         uploadedBytes += fileSize;
         setOverall(uploadedBytes);
       },
-      currentFile: (loaded, total) => {
+      currentFile: (loaded) => {
         const bytesSoFar = uploadedBytes + loaded;
         setOverall(bytesSoFar);
       },
       done: () => setOverall(totalBytes),
     };
+  };
+
+  const setBackendMode = async () => {
+    if (!jobId) return;
+    try {
+      const r = await fetch(`/api/jobs/${encodeURIComponent(jobId)}/mode`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode,
+          target: convertTargetValue,
+          from: convertFrom?.value || "auto", // informational for future
+        }),
+      });
+      if (!r.ok) {
+        // Don’t crash upload, but tell the user something is off.
+        setStatus("Mode error");
+        setHint("Couldn’t set mode. Please refresh and try again.");
+      }
+    } catch {
+      setStatus("Mode error");
+      setHint("Couldn’t set mode. Please refresh and try again.");
+    }
   };
 
   uploadBtn.addEventListener("click", async () => {
@@ -569,15 +616,8 @@ syncMode();
     const totalBytes = selected.reduce((a, f) => a + f.size, 0);
     const prog = makeProgressReporter(totalBytes);
 
-    // Tell backend what mode we're using
-    await fetch(`/api/jobs/${jobId}/mode`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        mode,
-        target: convertTargetValue
-      })
-    });
+    // ✅ Tell backend mode BEFORE uploading files
+    await setBackendMode();
 
     try {
       for (let i = 0; i < selected.length; i++) {
@@ -612,7 +652,7 @@ syncMode();
 
       prog.done();
 
-      const regRes = await fetch(`/api/jobs/${jobId}/register`, {
+      const regRes = await fetch(`/api/jobs/${encodeURIComponent(jobId)}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ files: uploadedMeta }),
@@ -649,7 +689,7 @@ syncMode();
 
     disableLegacyOptions();
 
-    // Default share link OFF (trust-first). Flip true if you want higher AOV.
+    // Default share link OFF (trust-first).
     if (optShareLink) optShareLink.checked = false;
 
     syncModalTierUI();
@@ -744,6 +784,6 @@ syncMode();
   continueBtn.textContent = "Continue →";
   continueBtn.style.display = "";   // never hidden
   setStatus("Ready");
-  setHint("Drop files to begin.");
+  setHint(mode === "convert" ? "Choose a target format, then drop files." : "Drop files to begin.");
   renderSelected();
 })();
