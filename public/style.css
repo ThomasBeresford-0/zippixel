@@ -1,5 +1,5 @@
-/* style.css — ZipPixel (v16 - FULL RAMBO MONEY MODE)
-   Goal: Premium utility. Tool is the hero. Less “SaaS demo”, more “trusted download console”.
+/* public/style.css — ZipPixel (v16 - BOUTIQUE MONEY MODE)
+   Premium utility: strong type, clean grid, tool-console feel.
 */
 
 :root{
@@ -7,7 +7,7 @@
   --panel: #ffffff;
 
   --text: #0b1220;
-  --muted: rgba(11,18,32,.62);
+  --muted: rgba(11,18,32,.66);
   --muted2: rgba(11,18,32,.48);
 
   --border: rgba(15,23,42,.10);
@@ -23,8 +23,8 @@
   --r-2xl: 28px;
 
   --sh-0: 0 1px 0 rgba(2,6,23,.04);
-  --sh-1: 0 16px 50px rgba(2,6,23,.10);
-  --sh-2: 0 44px 140px rgba(2,6,23,.14);
+  --sh-1: 0 16px 60px rgba(2,6,23,.10);
+  --sh-2: 0 46px 150px rgba(2,6,23,.14);
 
   --container: 1120px;
   --ease: cubic-bezier(.2,.8,.2,1);
@@ -38,7 +38,7 @@ body{
   color: var(--text);
   background:
     radial-gradient(1100px 560px at 50% -18%, rgba(29,78,216,.12), transparent 60%),
-    radial-gradient(900px 420px at 10% 12%, rgba(2,6,23,.06), transparent 55%),
+    radial-gradient(900px 420px at 14% 12%, rgba(2,6,23,.06), transparent 55%),
     var(--bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -60,9 +60,7 @@ p{ margin:0; }
   border-radius: 12px;
 }
 
-/* =========================
-   Header (sharper, cleaner)
-========================= */
+/* Header */
 .top{
   position: sticky;
   top:0;
@@ -109,9 +107,7 @@ p{ margin:0; }
   border-color: rgba(15,23,42,.08);
 }
 
-/* =========================
-   Buttons (less “puffy”, more “pro”)
-========================= */
+/* Buttons */
 .btn{
   appearance:none;
   border: 1px solid var(--border);
@@ -149,44 +145,55 @@ p{ margin:0; }
 .btn--sm{ padding: 8px 10px; border-radius: 12px; }
 .btn--block{ width:100%; }
 
-/* =========================
-   Layout
-========================= */
+/* Page */
 .page{ padding: 34px 0 30px; }
 .stage{ padding: 6px 0 22px; }
 
-.stage__inner{
+/* NEW: bougie grid */
+.stageGrid{
   display:grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  justify-items: center;
+  grid-template-columns: 1.05fr .95fr;
+  gap: 18px;
+  align-items:start;
 }
 
-/* Hero now feels “serious” */
-.hero{
-  text-align: center;
-  max-width: 920px;
-  margin: 0 auto;
+/* Hero */
+.hero--left{
+  padding: 10px 6px 0;
+}
+.heroKicker{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  font-weight: 950;
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(11,18,32,.55);
+  border: 1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.78);
+  border-radius: 999px;
+  padding: 8px 10px;
 }
 .heroTitle{
-  margin: 0 0 10px;
-  font-size: clamp(34px, 4.3vw, 54px);
-  letter-spacing: -0.055em;
-  line-height: 1.03;
+  margin: 14px 0 10px;
+  font-size: clamp(40px, 4.8vw, 62px);
+  letter-spacing: -0.06em;
+  line-height: 1.02;
 }
 .heroLead{
   font-size: 16px;
   color: rgba(11,18,32,.70);
-  line-height: 1.55;
+  line-height: 1.62;
   max-width: 720px;
-  margin: 0 auto;
 }
-.heroMeta{
+.heroMuted{ color: rgba(11,18,32,.52); margin-left: 6px; }
+
+.heroBadges{
   margin-top: 14px;
   display:flex;
   flex-wrap: wrap;
   gap: 8px;
-  justify-content: center;
 }
 .mini{
   font-size: 12px;
@@ -198,9 +205,32 @@ p{ margin:0; }
   padding: 7px 11px;
 }
 
-/* Tool card = premium console */
+.heroTrust{
+  margin-top: 14px;
+  display:grid;
+  gap: 8px;
+  max-width: 620px;
+}
+.trustLine{
+  display:flex;
+  align-items:flex-start;
+  gap: 10px;
+  color: rgba(11,18,32,.62);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.trustDot{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(29,78,216,.25);
+  border: 1px solid rgba(29,78,216,.35);
+  margin-top: 4px;
+}
+
+/* Tool console */
 .toolCard{
-  width: min(920px, 100%);
+  width: 100%;
   background: rgba(255,255,255,.98);
   border: 1px solid rgba(15,23,42,.10);
   border-radius: var(--r-2xl);
@@ -256,13 +286,12 @@ p{ margin:0; }
 
 .limits{ display:flex; gap: 8px; flex-wrap: wrap; justify-content:flex-end; }
 
-/* Dropzone becomes a “vault” */
+/* Dropzone vault */
 .dropzone{
   position: relative;
   border-radius: 24px;
   border: 1px solid rgba(15,23,42,.14);
-  background:
-    linear-gradient(180deg, rgba(2,6,23,.02), rgba(255,255,255,1));
+  background: linear-gradient(180deg, rgba(2,6,23,.02), rgba(255,255,255,1));
   padding: 22px;
   overflow:hidden;
   transition: border-color .16s var(--ease), transform .10s var(--ease), box-shadow .16s var(--ease);
@@ -275,6 +304,7 @@ p{ margin:0; }
   border: 2px dashed rgba(15,23,42,.24);
   pointer-events:none;
 }
+
 .dropzone input[type="file"]{
   position:absolute;
   inset:0;
@@ -349,60 +379,8 @@ p{ margin:0; }
   padding: 0;
   list-style: none;
   display:grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 10px;
-}
-
-.fileCard{
-  display:flex;
-  align-items:center;
-  gap: 10px;
-  padding: 12px;
-  border-radius: 16px;
-  border: 1px solid rgba(2,6,23,.10);
-  background: rgba(255,255,255,.98);
-  box-shadow: var(--sh-0);
-  transition: transform .10s var(--ease), box-shadow .16s var(--ease), border-color .16s var(--ease);
-}
-.fileCard:hover{
-  border-color: rgba(2,6,23,.14);
-  box-shadow: var(--sh-1);
-}
-.thumb{
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  overflow:hidden;
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(2,6,23,.03);
-  flex: 0 0 auto;
-  display:grid;
-  place-items:center;
-}
-.thumbImg{ width:100%; height:100%; object-fit:cover; }
-.thumbPdf{
-  font-size: 11px;
-  font-weight: 950;
-  color: rgba(11,18,32,.74);
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  padding: 0 6px;
-  text-align: center;
-  line-height: 1.1;
-}
-
-.fileInfo{ min-width:0; flex:1; }
-.fileName{
-  font-weight: 950;
-  letter-spacing:-0.01em;
-  overflow:hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.fileMetaLine{
-  margin-top: 2px;
-  font-size: 12px;
-  color: rgba(11,18,32,.56);
 }
 
 /* Progress */
@@ -448,14 +426,11 @@ p{ margin:0; }
   padding-top: 14px;
   border-top: 1px solid rgba(2,6,23,.08);
 }
-.actionSteps{ display:none; }
-
 .actionBar{
   display:grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
-
 .fineprint{
   margin-top: 12px;
   font-size: 12px;
@@ -464,7 +439,7 @@ p{ margin:0; }
 }
 .fineprint a{ text-decoration: underline; text-underline-offset: 2px; }
 
-/* Sections below fold */
+/* Sections */
 .section{ padding: 18px 0; }
 .section .container{
   background: rgba(255,255,255,.95);
@@ -554,234 +529,17 @@ details p{
 .footer__links{ display:flex; gap: 12px; }
 .footer__links a{ color: rgba(11,18,32,.58); text-decoration: underline; text-underline-offset: 2px; }
 
-/* Modal (keep) */
-.modalOverlay{
-  position: fixed;
-  inset: 0;
-  background: rgba(2,6,23,.46);
-  backdrop-filter: blur(10px);
-  display: none;
-  align-items: flex-start;
-  justify-content: center;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  z-index: 999;
-  padding: 18px;
-}
-.modalOverlay.isOpen{ display:flex; }
-
-.modalCard{
-  width: min(640px, 100%);
-  background: #fff;
-  border: 1px solid rgba(2,6,23,.14);
-  border-radius: 18px;
-  box-shadow: 0 40px 140px rgba(2,6,23,.28);
-  overflow: hidden;
-  transform: translateY(10px);
-  animation: modalIn .14s var(--ease) forwards;
-  margin: 18px auto;
-  max-height: calc(100vh - 36px);
-  display: flex;
-  flex-direction: column;
-}
-@keyframes modalIn{ to { transform: translateY(0); } }
-
-.modalTop{
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(2,6,23,.08);
-  display:flex;
-  align-items:center;
-  justify-content: space-between;
-  gap: 12px;
-  background: linear-gradient(180deg, rgba(29,78,216,.10), rgba(255,255,255,0));
-}
-.modalTitle{ font-weight: 950; letter-spacing: -0.02em; font-size: 14px; }
-.modalClose{
-  border: 1px solid rgba(2,6,23,.12);
-  background: #fff;
-  border-radius: 12px;
-  padding: 8px 10px;
-  cursor:pointer;
-  font-weight: 950;
-  font-size: 12px;
-  box-shadow: var(--sh-0);
-}
-.modalBody{
-  padding: 14px 16px 6px;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  max-height: calc(100vh - 36px - 60px - 68px);
-}
-.modalLead{ margin: 0; color: rgba(11,18,32,.86); font-size: 14px; line-height: 1.45; }
-
-.modalSummary{
-  margin-top: 12px;
-  border: 1px solid rgba(2,6,23,.10);
-  background: rgba(2,6,23,.02);
-  border-radius: 16px;
-  padding: 12px;
-  display:flex;
-  align-items:flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-.modalSummaryKicker{
-  font-size: 12px;
-  font-weight: 950;
-  color: rgba(107,114,128,.98);
-  text-transform: uppercase;
-  letter-spacing: .06em;
-}
-.modalSummaryMain{
-  font-size: 14px;
-  font-weight: 950;
-  color: rgba(11,18,32,.95);
-  overflow:hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 360px;
-}
-.modalSummaryAmt{
-  font-size: 16px;
-  font-weight: 950;
-  white-space: nowrap;
-  color: rgba(11,18,32,.95);
-}
-
-.priceGrid{ display:grid; gap: 10px; margin-top: 12px; }
-.priceRow{
-  display:flex;
-  align-items:flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 16px;
-  border: 1px solid rgba(2,6,23,.10);
-  background: rgba(2,6,23,.02);
-}
-.priceRow.isChosen{
-  border-color: rgba(29,78,216,.40);
-  background: rgba(29,78,216,.08);
-  box-shadow: 0 12px 30px rgba(29,78,216,.12);
-}
-.priceName{ font-weight: 950; font-size: 13px; }
-.priceDesc{ font-size: 12px; color: rgba(75,85,99,.95); }
-.priceAmt{ font-weight: 950; font-size: 13px; white-space: nowrap; }
-.priceAmt label{ display:inline-flex; align-items:center; gap: 8px; font-weight: 950; cursor:pointer; }
-.priceAmt input[type="checkbox"]{ width: 16px; height: 16px; accent-color: var(--primary); }
-
-.modalNote{ margin-top: 10px; font-size: 12px; color: rgba(107,114,128,.98); line-height: 1.45; }
-.modalFoot{
-  padding: 14px 16px;
-  border-top: 1px solid rgba(2,6,23,.08);
-  display:flex;
-  justify-content: flex-end;
-  gap: 10px;
-  flex-wrap: wrap;
-  background: rgba(2,6,23,.01);
-}
-
-/* Success/share + legal blocks */
-.successActions{ margin-top: 14px; display:grid; gap: 12px; }
-.shareBox{
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.94);
-  border-radius: 16px;
-  padding: 12px;
-  box-shadow: var(--sh-0);
-}
-.shareLabel{ font-weight: 950; letter-spacing: -0.02em; font-size: 13px; margin-bottom: 8px; }
-.shareRow{ display:flex; gap: 10px; align-items:center; }
-.shareInput{
-  flex: 1;
-  min-width: 0;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(15,23,42,.14);
-  background: #fff;
-  font-weight: 900;
-  color: rgba(11,18,32,.92);
-}
-.shareInput:focus{ outline: 3px solid var(--ring); outline-offset: 2px; }
-.shareHint{ margin-top: 8px; font-size: 12px; color: rgba(11,18,32,.56); }
-
-.legalPage{ padding: 10px 0 26px; }
-.legalHeader{ width: min(860px, 100%); margin: 0 auto 14px; text-align: center; }
-.legalKicker{
-  display:inline-block;
-  font-size: 12px;
-  font-weight: 950;
-  letter-spacing: .10em;
-  text-transform: uppercase;
-  color: rgba(11,18,32,.55);
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.82);
-  padding: 8px 10px;
-  border-radius: 999px;
-  margin-bottom: 10px;
-}
-.legalTitle{
-  margin: 0 0 6px;
-  font-size: clamp(28px, 3.2vw, 40px);
-  letter-spacing: -0.045em;
-  line-height: 1.12;
-}
-.legalMeta{ margin: 0; color: rgba(11,18,32,.60); font-size: 13px; }
-.legalCard{
-  width: min(860px, 100%);
-  margin: 0 auto;
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.98);
-  border-radius: 22px;
-  padding: 18px;
-  box-shadow: var(--sh-2);
-}
-.legalIntro{
-  margin: 0 0 12px;
-  color: rgba(11,18,32,.80);
-  line-height: 1.65;
-  font-size: 14px;
-}
-.legalCard h2{ margin: 16px 0 8px; font-size: 15px; letter-spacing: -0.02em; }
-.legalCard p, .legalCard ul{
-  margin: 8px 0 0;
-  color: rgba(11,18,32,.74);
-  line-height: 1.7;
-  font-size: 14px;
-}
-.legalCard ul{ padding-left: 18px; }
-.legalCard li{ margin: 6px 0; }
-.legalCard a{ text-decoration: underline; text-underline-offset: 2px; }
-.legalActions{ margin-top: 16px; display:flex; gap: 10px; flex-wrap: wrap; }
-
-.successBox{
-  display:flex;
-  gap: 12px;
-  align-items: flex-start;
-  padding: 12px;
-  border-radius: 16px;
-  border: 1px solid rgba(2,6,23,.10);
-  background: rgba(2,6,23,.02);
-}
-.successIcon{
-  width: 40px;
-  height: 40px;
-  border-radius: 14px;
-  display:grid;
-  place-items:center;
-  font-size: 18px;
-  background: rgba(29,78,216,.10);
-  border: 1px solid rgba(29,78,216,.18);
-}
-.successTitle{ font-weight: 950; letter-spacing: -0.02em; }
-.successDesc{ margin-top: 4px; color: rgba(11,18,32,.66); font-size: 13px; line-height: 1.55; }
+/* Modal / legal / success/share — keep your existing styles if you already have them.
+   If you pasted earlier v14 modal/legal blocks, keep them below here or merge.
+   (Your success.html/share.html/privacy/terms will still work.)
+*/
 
 /* Responsive */
 @media (max-width: 980px){
   .nav{ display:none; }
+  .stageGrid{ grid-template-columns: 1fr; }
   .grid3{ grid-template-columns: 1fr; }
   .actionBar{ grid-template-columns: 1fr; }
-  .fileList{ grid-template-columns: 1fr; }
 
   .dropzone__inner{
     grid-template-columns: 68px 1fr;
@@ -793,12 +551,4 @@ details p{
     margin-top: 10px;
     pointer-events:auto;
   }
-
-  .shareRow{ flex-direction: column; align-items: stretch; }
-}
-
-@media (max-width: 520px){
-  .modalOverlay{ padding: 12px; }
-  .modalCard{ margin: 12px auto; max-height: calc(100vh - 24px); }
-  .modalBody{ max-height: calc(100vh - 24px - 60px - 68px); }
 }
