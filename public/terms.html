@@ -1,9 +1,4 @@
-<!-- terms.html — ZipPixel (v15 FULL RAMBO)
-     ✅ Premium, tight, Stripe-friendly, digital-goods wording
-     ✅ Truthful: temporary storage intent, no guaranteed deletion timing
-     ✅ Clear responsibilities + fair-use + liability guardrails
-     ✅ Fixed “Last updated” string (manual update only)
--->
+<!-- public/terms.html — ZipPixel (v22 - PREMIUM SHELL) -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -11,193 +6,106 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Terms — ZipPixel</title>
-  <meta name="description" content="ZipPixel Terms of Service. Rules for use, uploads, payments, and availability." />
+  <meta name="description" content="ZipPixel terms of service. Rules for use, uploads, payments, and availability." />
   <link rel="canonical" href="https://zippixel.it.com/terms" />
-
   <meta name="theme-color" content="#0b1220" />
-
   <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=16" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/style.css?v=22" />
 </head>
 
-<body>
-  <header class="top">
-    <div class="container top__inner">
-      <a class="brand" href="/" aria-label="ZipPixel home">
-        <span class="brand__logo" aria-hidden="true">
-          <img src="/favicon.svg?v=1" alt="ZipPixel" width="34" height="34" />
-        </span>
-        <span class="brand__text">
-          <span class="brand__name">ZipPixel</span>
-          <span class="brand__sub">Compress files → one ZIP</span>
-        </span>
-      </a>
+<body class="premium">
+<header class="nav">
+  <div class="container navInner">
+    <a class="brand" href="/">
+      <img src="/favicon.svg" width="26" height="26" alt="">
+      <span>ZipPixel</span>
+    </a>
 
-      <nav class="nav" aria-label="Site">
-        <a href="/">Tool</a>
-        <a href="/pricing">Pricing</a>
-        <a href="/#faq">FAQ</a>
-        <a href="/privacy">Privacy</a>
-        <a href="/terms" aria-current="page">Terms</a>
-      </nav>
+    <nav class="navLinks">
+      <a href="/#how">How it works</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+  </div>
+</header>
 
-      <div class="top__cta">
-        <a class="btn btn--primary btn--sm" href="/">Open tool</a>
-      </div>
-    </div>
-  </header>
+<main>
+  <section class="pageShell">
+    <div class="container">
+      <div class="pageInner">
+        <h1 class="pageTitle">Terms</h1>
+        <p class="pageLead">
+          By using ZipPixel you agree to these terms. If you don’t agree, don’t use the service.
+        </p>
 
-  <main class="page">
-    <section class="legalPage">
-      <div class="container">
-        <div class="legalHeader">
-          <div class="legalKicker">Legal</div>
-          <h1 class="legalTitle">Terms of Service</h1>
-          <p class="legalMeta">Last updated: <span id="lastUpdated"></span></p>
+        <div class="doc">
+          <div class="meta">Last updated: 19 Feb 2026</div>
+
+          <h2>Service</h2>
+          <p>
+            ZipPixel bundles uploaded files into a downloadable ZIP. Availability may change and the service may be paused
+            for maintenance or updates.
+          </p>
+
+          <h2>Uploads</h2>
+          <p>
+            You must have the right to upload and process the files you submit. Do not upload illegal content or content
+            that violates third-party rights.
+          </p>
+
+          <h2>Temporary storage</h2>
+          <p>
+            Files are stored temporarily to generate your ZIP and to support download/sharing if purchased. We aim to delete
+            files automatically over time, but deletion timing is not guaranteed.
+          </p>
+
+          <h2>Payments</h2>
+          <p>
+            Payments are processed by Stripe. Digital delivery occurs after successful payment. Prices and tiers may change
+            at any time for new purchases.
+          </p>
+
+          <h2>Refunds</h2>
+          <p>
+            If something breaks and you cannot access what you paid for, contact support via the email shown on your Stripe
+            receipt and we’ll make it right (including refund where appropriate).
+          </p>
+
+          <h2>Liability</h2>
+          <p>
+            ZipPixel is provided “as is” without warranties. We are not liable for indirect or consequential loss. Nothing
+            in these terms limits liability where unlawful.
+          </p>
+
+          <h2>Contact</h2>
+          <p>
+            For support or legal questions, contact us via the email shown on the Stripe receipt for your purchase.
+          </p>
         </div>
-
-        <article class="legalCard">
-          <div class="successBox" style="margin-bottom: 12px;">
-            <div class="successIcon" aria-hidden="true">📄</div>
-            <div style="min-width:0;">
-              <div class="successTitle">Plain-English terms</div>
-              <div class="successDesc">
-                Use ZipPixel responsibly, only upload what you’re allowed to upload, and download promptly after paying.
-              </div>
-            </div>
-          </div>
-
-          <p class="legalIntro">
-            These Terms apply to your use of ZipPixel (the “Service”). By accessing or using the Service,
-            you agree to these Terms. If you don’t agree, do not use the Service.
-          </p>
-
-          <h2>1) Using the Service</h2>
-          <ul>
-            <li>You must have the rights and permissions to upload and process any files you submit.</li>
-            <li>Do not upload illegal, harmful, abusive, or infringing content.</li>
-            <li>
-              Do not misuse the Service (for example: bypass limits, overload the system, probe for vulnerabilities,
-              scrape excessively, or reverse engineer).
-            </li>
-          </ul>
-
-          <h2>2) Limits and fair use</h2>
-          <ul>
-            <li>The Service enforces limits (for example: maximum number of files and maximum file size).</li>
-            <li>We may throttle, block, or restrict usage that appears abusive or harms reliability for others.</li>
-          </ul>
-
-          <h2>3) Your files and permission to process</h2>
-          <p>
-            You keep ownership of your files. You grant ZipPixel a limited, temporary permission to store and process your files
-            only to generate the ZIP output you request and to provide the download you purchased (including any optional share link).
-          </p>
-
-          <h2>4) Temporary storage, links, and retention</h2>
-          <ul>
-            <li>
-              Uploaded files are stored so we can generate your ZIP and provide download access after payment.
-            </li>
-            <li>
-              ZipPixel is designed for <b>temporary storage</b>. We aim to delete files after a short period,
-              but we do not guarantee an exact deletion time.
-            </li>
-            <li>
-              Retention can vary due to operational needs (for example: reliability, abuse prevention, failed processing, or abandoned sessions).
-            </li>
-            <li><b>Download promptly</b> after purchase. If files are deleted or a link expires, downloads may stop working.</li>
-          </ul>
-
-          <h2>5) Payments and pricing</h2>
-          <p>
-            Payments are processed by <b>Stripe</b>. ZipPixel does not store full card details.
-            You’ll see the total price before completing checkout.
-          </p>
-
-          <h2>6) Digital service, delivery, and refunds</h2>
-          <p>
-            ZipPixel provides a digital service that is typically available immediately after payment (access to generate and download your ZIP).
-            Because delivery is instant, refunds are generally not provided once your download is available.
-          </p>
-          <p>
-            If something goes wrong (for example: you paid but couldn’t access your download), contact support and we’ll help.
-            Where appropriate, we may provide a refund or another remedy at our discretion.
-          </p>
-          <p>
-            Support: <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>
-          </p>
-
-          <h2>7) Shareable links</h2>
-          <p>
-            If you purchase the optional shareable link, anyone with that link can download the ZIP while it remains available.
-            Treat share links like a password and only share with people you trust.
-          </p>
-          <ul>
-            <li>Share links are time-limited (currently up to <b>7 days</b> from purchase).</li>
-            <li>If files are deleted or the link expires, the share link will stop working.</li>
-            <li>You are responsible for who you share the link with.</li>
-          </ul>
-
-          <h2>8) Availability</h2>
-          <p>
-            We aim to keep ZipPixel reliable, but the Service may be unavailable at times due to maintenance,
-            updates, outages, or issues outside our control.
-          </p>
-
-          <h2>9) Disclaimers</h2>
-          <p>
-            ZipPixel is provided on an “as is” and “as available” basis. To the maximum extent permitted by law,
-            we make no warranties that the Service will be uninterrupted, error-free, or meet your requirements.
-          </p>
-
-          <h2>10) Limitation of liability</h2>
-          <p>
-            To the maximum extent permitted by law, ZipPixel will not be liable for any indirect, incidental,
-            special, consequential, or punitive damages, or any loss of data, profits, or revenue arising from
-            your use of the Service.
-          </p>
-
-          <h2>11) Changes to these Terms</h2>
-          <p>
-            We may update these Terms from time to time. If we make material changes, we’ll update the “Last updated” date.
-            Continuing to use ZipPixel after changes means you accept the updated Terms.
-          </p>
-
-          <h2>12) Contact</h2>
-          <p>
-            Questions? Email <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
-          </p>
-
-          <div class="legalActions">
-            <a class="btn btn--primary" href="/">Back to ZipPixel</a>
-            <a class="btn btn--ghost" href="/privacy">View Privacy</a>
-          </div>
-        </article>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="container footer__inner">
-      <div>© <span id="y"></span> ZipPixel</div>
-      <div class="footer__links">
-        <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
       </div>
     </div>
-  </footer>
+  </section>
+</main>
 
-  <script>
-    document.getElementById("y").textContent = new Date().getFullYear();
+<footer class="footer footerPremium">
+  <div class="container footerInner">
+    <div>© <span id="y"></span> ZipPixel</div>
+    <div>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </div>
+  </div>
+</footer>
 
-    // IMPORTANT: fixed date (do not change on every page load)
-    // Update this string only when you actually update the terms.
-    const LAST_UPDATED = "10 Feb 2026";
-    document.getElementById("lastUpdated").textContent = LAST_UPDATED;
-  </script>
+<script>
+  const y = document.getElementById("y");
+  if (y) y.textContent = new Date().getFullYear();
+</script>
 </body>
 </html>

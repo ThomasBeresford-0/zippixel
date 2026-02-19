@@ -1,3 +1,4 @@
+<!-- public/cancel.html — ZipPixel (v22 FULL RAMBO) -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -8,82 +9,91 @@
   <meta name="description" content="Checkout cancelled. Return to ZipPixel to try again." />
   <link rel="canonical" href="https://zippixel.it.com/cancel" />
 
+  <meta name="theme-color" content="#0b1220" />
+
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=16" />
+  <!-- Premium fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/style.css?v=22" />
 </head>
 
-<body>
-  <header class="top">
-    <div class="container top__inner">
-      <a class="brand" href="/" aria-label="ZipPixel home">
-        <span class="brand__logo" aria-hidden="true">
-          <img src="/favicon.svg?v=1" alt="ZipPixel" width="34" height="34" />
-        </span>
-        <span class="brand__text">
-          <span class="brand__name">ZipPixel</span>
-          <span class="brand__sub">Compress files → one ZIP</span>
-        </span>
-      </a>
+<body class="premium">
 
-      <nav class="nav" aria-label="Site">
-        <a href="/">Tool</a>
-        <a href="/pricing">Pricing</a>
-        <a href="/#faq">FAQ</a>
-        <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
-      </nav>
+<header class="nav">
+  <div class="container navInner">
+    <a class="brand" href="/" aria-label="ZipPixel home">
+      <img src="/favicon.svg" width="26" height="26" alt="">
+      <span>ZipPixel</span>
+    </a>
 
-      <div class="top__cta">
-        <a class="btn btn--soft btn--sm" href="/">Back to tool</a>
-      </div>
-    </div>
-  </header>
+    <nav class="navLinks" aria-label="Site">
+      <a href="/">Tool</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+  </div>
+</header>
 
-  <main class="page">
-    <section class="legalPage">
-      <div class="container">
-        <div class="legalHeader">
-          <div class="legalKicker">Payment</div>
-          <h1 class="legalTitle">Checkout cancelled.</h1>
-          <p class="legalMeta">Nothing was charged. You can try again whenever you’re ready.</p>
-        </div>
+<main>
+  <section class="pageShell">
+    <div class="container">
+      <div class="pageInner">
 
-        <article class="legalCard">
-          <p class="legalIntro">
-            If you clicked back, closed the tab, or changed your mind — all good.
-            Head back to the tool to upload your files and continue.
-          </p>
+        <h1 class="pageTitle">Checkout cancelled.</h1>
+        <p class="pageLead">
+          Nothing was charged. You can try again whenever you’re ready.
+        </p>
 
-          <div class="legalActions">
-            <a class="btn btn--primary" href="/">Try again</a>
-            <a class="btn btn--soft" href="/pricing">View pricing</a>
-            <a class="btn btn--ghost" href="/#faq">Read FAQ</a>
+        <div class="tool" style="margin-top:18px; padding:16px;">
+          <div class="successBox" aria-live="polite">
+            <div class="successIcon" aria-hidden="true">↩</div>
+            <div style="min-width:0;">
+              <div class="successTitle">No worries</div>
+              <div class="successDesc">
+                If you clicked back, closed the tab, or changed your mind — all good.
+                Head back to the tool to upload your files and continue.
+              </div>
+            </div>
           </div>
 
-          <p style="margin-top:14px; color: rgba(11,18,32,.68); font-size: 13px; line-height: 1.6;">
+          <div class="successActions" style="margin-top:14px;">
+            <a class="btnPrimary btnBlock" href="/">Try again</a>
+            <a class="btnSoft btnBlock" href="/pricing">View pricing</a>
+            <a class="btnGhost btnBlock" href="/#faq">Read FAQ</a>
+          </div>
+
+          <p class="fineprint" style="margin-top:12px;">
             If something didn’t work as expected, email
             <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
           </p>
-        </article>
-      </div>
-    </section>
-  </main>
+        </div>
 
-  <footer class="footer">
-    <div class="container footer__inner">
-      <div>© <span id="y"></span> ZipPixel</div>
-      <div class="footer__links">
-        <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
       </div>
     </div>
-  </footer>
+  </section>
+</main>
 
-  <script>
-    document.getElementById("y").textContent = new Date().getFullYear();
-  </script>
+<footer class="footer footerPremium">
+  <div class="container footerInner">
+    <div>© <span id="y"></span> ZipPixel</div>
+    <div>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const y = document.getElementById("y");
+  if (y) y.textContent = new Date().getFullYear();
+</script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-// public/app.js — ZipPixel frontend (v15.2 - PREMIUM RAMBO UX, PRICE HIDDEN UNTIL MODAL)
+// public/app.js — ZipPixel frontend (v15.3 - PREMIUM RAMBO UX, PRICE HIDDEN UNTIL MODAL)
 // Matches: v19 index.html IDs + server.js v15 routes:
 // /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/checkout
 (() => {
@@ -159,51 +159,49 @@
     });
   };
 
-  // ====== PREMIUM UX: button visibility control ======
-  const showContinue = (on) => {
-    // Keep layout clean: hide until upload is complete
-    continueBtn.style.display = on ? "" : "none";
+  // ====== PREMIUM UX: continue always visible (no “where’s pay?”) ======
+  const showContinue = (enabled) => {
+    continueBtn.style.display = "";
+    continueBtn.disabled = !enabled;
+    continueBtn.classList.toggle("isDisabled", !enabled);
   };
 
   const setPrimaryStates = () => {
-    // Upload is the primary action until uploadedMeta exists
     const hasFiles = selected.length > 0;
     const hasJob = !!jobId;
     const canUpload = hasFiles && hasJob && !uploading;
     const canContinue = !!uploadedMeta.length && !uploading;
 
     uploadBtn.disabled = !canUpload;
-    continueBtn.disabled = !canContinue;
 
-    // Premium labels: clear intent
+    // Continue is ALWAYS visible
+    showContinue(canContinue);
+    continueBtn.textContent = "Continue →";
+
+    // Button labels + hints
     if (!hasFiles) {
       uploadBtn.textContent = "Upload files";
       setStatus("Ready");
       setHint("Add up to <b>50</b> files. Then upload.");
-      showContinue(false);
       return;
     }
 
     if (!hasJob) {
       uploadBtn.textContent = "Preparing…";
-      showContinue(false);
       return;
     }
 
     if (uploading) {
       uploadBtn.textContent = "Uploading…";
-      showContinue(false);
       return;
     }
 
     if (uploadedMeta.length) {
       uploadBtn.textContent = "Re-upload";
-      showContinue(true);
-      continueBtn.textContent = "Continue →";
-    } else {
-      uploadBtn.textContent = "Upload files";
-      showContinue(false);
+      return;
     }
+
+    uploadBtn.textContent = "Upload files";
   };
 
   const syncModalTierUI = () => {
@@ -293,9 +291,9 @@
 
   // Remove item
   fileList?.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-remove]");
-    if (!btn) return;
-    const idx = Number(btn.getAttribute("data-remove"));
+    const b = e.target.closest("[data-remove]");
+    if (!b) return;
+    const idx = Number(b.getAttribute("data-remove"));
     if (!Number.isFinite(idx)) return;
 
     const removed = selected.splice(idx, 1)[0];
@@ -391,7 +389,6 @@
 
     uploadedMeta = [];
     resetProgress();
-
     renderSelected();
 
     try {
@@ -683,6 +680,7 @@
       continueBtn.disabled = false;
     } finally {
       setBusy(false);
+      setPrimaryStates();
     }
   };
 
@@ -693,7 +691,7 @@
 
   // ====== INIT ======
   continueBtn.textContent = "Continue →";
-  showContinue(false);         // premium: no disabled clutter
+  continueBtn.style.display = "";   // never hidden
   setStatus("Ready");
   setHint("Drop files to begin.");
   renderSelected();

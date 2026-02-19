@@ -1,8 +1,8 @@
-<!-- share.html — ZipPixel (v15 FULL RAMBO)
-     ✅ Matches style.css?v=15 (premium “download portal”)
+<!-- public/share.html — ZipPixel (v22 FULL RAMBO)
+     ✅ Matches style.css?v=22 (premium shell + coloured header)
      ✅ Uses /api/share/:token (paid + expiry enforced server-side)
      ✅ Zero route changes. Zero backend changes.
-     ✅ Trust-first, client-ready, noindex/nofollow preserved.
+     ✅ Trust-first, noindex/nofollow preserved.
 -->
 <!doctype html>
 <html lang="en">
@@ -20,47 +20,42 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=16" />
+  <!-- Premium fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/style.css?v=22" />
 </head>
 
-<body>
-  <header class="top">
-    <div class="container top__inner">
-      <a class="brand" href="/" aria-label="ZipPixel home">
-        <span class="brand__logo" aria-hidden="true">
-          <img src="/favicon.svg?v=1" alt="ZipPixel" width="34" height="34" />
-        </span>
-        <span class="brand__text">
-          <span class="brand__name">ZipPixel</span>
-          <span class="brand__sub">Compress files → one ZIP</span>
-        </span>
-      </a>
+<body class="premium">
 
-      <nav class="nav" aria-label="Site">
-        <a href="/">Tool</a>
-        <a href="/pricing">Pricing</a>
-        <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
-      </nav>
+<header class="nav">
+  <div class="container navInner">
+    <a class="brand" href="/" aria-label="ZipPixel home">
+      <img src="/favicon.svg" width="26" height="26" alt="">
+      <span>ZipPixel</span>
+    </a>
 
-      <div class="top__cta">
-        <a class="btn btn--soft btn--sm" href="/" target="_blank" rel="noopener">Create your own</a>
-      </div>
-    </div>
-  </header>
+    <nav class="navLinks" aria-label="Site">
+      <a href="/">Tool</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+  </div>
+</header>
 
-  <main class="page">
-    <section class="legalPage">
-      <div class="container">
+<main>
+  <section class="pageShell">
+    <div class="container">
+      <div class="pageInner">
 
-        <div class="legalHeader">
-          <div class="legalKicker">Download</div>
-          <h1 class="legalTitle">Download portal</h1>
-          <p class="legalMeta" id="meta">Loading…</p>
-        </div>
+        <h1 class="pageTitle">Download</h1>
+        <p class="pageLead" id="meta">Loading…</p>
 
-        <article class="legalCard">
-          <!-- Premium info box -->
+        <div class="tool" style="margin-top:18px;">
+
           <div class="successBox" aria-live="polite">
             <div class="successIcon" aria-hidden="true">⬇</div>
             <div style="min-width:0;">
@@ -72,7 +67,7 @@
           </div>
 
           <div class="successActions" id="actions" aria-live="polite">
-            <a id="downloadBtn" class="btn btn--primary btn--block" href="#" aria-disabled="true" style="opacity:.55; pointer-events:none;">
+            <a id="downloadBtn" class="btnPrimary btnBlock" href="#" aria-disabled="true" style="opacity:.55; pointer-events:none;">
               Download ZIP
             </a>
 
@@ -81,9 +76,9 @@
               <div class="shareHint" id="stat" style="margin-top:0;">—</div>
             </div>
 
-            <div class="legalActions" id="actionsRow" style="display:none; margin-top:0;">
-              <button id="retryBtn" class="btn btn--ghost" type="button">Try again</button>
-              <a class="btn btn--soft" href="/" target="_blank" rel="noopener">Create your own</a>
+            <div id="actionsRow" style="display:none;">
+              <button id="retryBtn" class="btnGhost btnBlock" type="button">Try again</button>
+              <a class="btnSoft btnBlock" href="/" target="_blank" rel="noopener">Create your own</a>
             </div>
           </div>
 
@@ -91,159 +86,160 @@
             Tip: After downloading, save the ZIP somewhere safe.
           </p>
 
-          <p class="fineprint" id="error" style="display:none; margin-top:10px; color: rgba(220,38,38,1); font-weight: 950;">
+          <p class="fineprint" id="error" style="display:none; margin-top:10px; color: rgba(220,38,38,1); font-weight: 800;">
             This link is no longer available.
           </p>
 
-          <div class="pricingFooter" style="margin-top: 12px;">
+          <div class="fineprint" style="margin-top: 10px; opacity:.9;">
             Powered by ZipPixel • Secure delivery • No signup
           </div>
-        </article>
+        </div>
 
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="container footer__inner">
-      <div>© <span id="y"></span> ZipPixel</div>
-      <div class="footer__links">
-        <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
       </div>
     </div>
-  </footer>
+  </section>
+</main>
 
-  <script>
-    document.getElementById("y").textContent = new Date().getFullYear();
+<footer class="footer footerPremium">
+  <div class="container footerInner">
+    <div>© <span id="y"></span> ZipPixel</div>
+    <div>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </div>
+  </div>
+</footer>
 
-    const token = location.pathname.split("/").pop();
+<script>
+  document.getElementById("y").textContent = new Date().getFullYear();
 
-    const metaEl = document.getElementById("meta");
-    const titleLine = document.getElementById("titleLine");
-    const descEl = document.getElementById("desc");
-    const statEl = document.getElementById("stat");
-    const statsBox = document.getElementById("statsBox");
-    const btn = document.getElementById("downloadBtn");
-    const errorEl = document.getElementById("error");
-    const actionsRow = document.getElementById("actionsRow");
-    const retryBtn = document.getElementById("retryBtn");
-    const hintEl = document.getElementById("hint");
+  const token = location.pathname.replace(/\/+$/, "").split("/").pop();
+  
+  const metaEl = document.getElementById("meta");
+  const titleLine = document.getElementById("titleLine");
+  const descEl = document.getElementById("desc");
+  const statEl = document.getElementById("stat");
+  const statsBox = document.getElementById("statsBox");
+  const btn = document.getElementById("downloadBtn");
+  const errorEl = document.getElementById("error");
+  const actionsRow = document.getElementById("actionsRow");
+  const retryBtn = document.getElementById("retryBtn");
+  const hintEl = document.getElementById("hint");
 
-    const setDisabled = (disabled) => {
-      if (disabled) {
-        btn.setAttribute("aria-disabled", "true");
-        btn.style.opacity = ".55";
-        btn.style.pointerEvents = "none";
-        btn.setAttribute("href", "#");
-      } else {
-        btn.setAttribute("aria-disabled", "false");
-        btn.style.opacity = "1";
-        btn.style.pointerEvents = "auto";
-      }
-    };
+  const setDisabled = (disabled) => {
+    if (disabled) {
+      btn.setAttribute("aria-disabled", "true");
+      btn.style.opacity = ".55";
+      btn.style.pointerEvents = "none";
+      btn.setAttribute("href", "#");
+    } else {
+      btn.setAttribute("aria-disabled", "false");
+      btn.style.opacity = "1";
+      btn.style.pointerEvents = "auto";
+    }
+  };
 
-    const showError = (msg) => {
-      errorEl.textContent = msg || "This link is no longer available.";
-      errorEl.style.display = "block";
-      actionsRow.style.display = "flex";
-      statsBox.style.display = "none";
-      setDisabled(true);
-    };
+  const showError = (msg) => {
+    errorEl.textContent = msg || "This link is no longer available.";
+    errorEl.style.display = "block";
+    actionsRow.style.display = "grid";
+    statsBox.style.display = "none";
+    setDisabled(true);
+  };
 
-    const clearError = () => {
-      errorEl.style.display = "none";
-      errorEl.textContent = "";
-      actionsRow.style.display = "none";
-    };
+  const clearError = () => {
+    errorEl.style.display = "none";
+    errorEl.textContent = "";
+    actionsRow.style.display = "none";
+  };
 
-    const fmtDateTime = (ms) => {
-      try {
-        return new Date(ms).toLocaleString(undefined, {
-          year: "numeric",
-          month: "short",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-      } catch {
-        return new Date(ms).toString();
-      }
-    };
+  const fmtDateTime = (ms) => {
+    try {
+      return new Date(ms).toLocaleString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return new Date(ms).toString();
+    }
+  };
 
-    const load = async () => {
-      clearError();
-      setDisabled(true);
+  const load = async () => {
+    clearError();
+    setDisabled(true);
 
-      if (!token) {
-        metaEl.textContent = "Invalid link.";
-        titleLine.textContent = "Link not found";
-        descEl.textContent = "This link looks invalid. Ask the sender for a new one.";
-        hintEl.textContent = "If you think this is a mistake, contact the person who sent you the link.";
-        showError("Invalid link.");
+    if (!token) {
+      metaEl.textContent = "Invalid link.";
+      titleLine.textContent = "Link not found";
+      descEl.textContent = "This link looks invalid. Ask the sender for a new one.";
+      hintEl.textContent = "If you think this is a mistake, contact the person who sent you the link.";
+      showError("Invalid link.");
+      return;
+    }
+
+    metaEl.textContent = "Loading…";
+    titleLine.textContent = "Checking link";
+    descEl.textContent = "Validating this download link…";
+    statsBox.style.display = "none";
+
+    try {
+      const res = await fetch(`/api/share/${encodeURIComponent(token)}`, { cache: "no-store" });
+      if (!res.ok) throw new Error("Not found");
+
+      const data = await res.json();
+
+      const expiresAt = data.expiresAt ? Number(data.expiresAt) : null;
+      const remainingMs = expiresAt ? (expiresAt - Date.now()) : null;
+
+      if (expiresAt && remainingMs <= 0) {
+        metaEl.textContent = "Expired.";
+        titleLine.textContent = "This link has expired";
+        descEl.textContent = "Ask the sender to generate a new link in ZipPixel.";
+        hintEl.textContent = "Expired links can’t be reactivated.";
+        showError("This link has expired.");
         return;
       }
 
-      metaEl.textContent = "Loading…";
-      titleLine.textContent = "Checking link";
-      descEl.textContent = "Validating this download link…";
-      statsBox.style.display = "none";
+      const fileCount = Number(data.fileCount || 0);
+      const downloads = Number(data.downloads || 0);
+      const fileLabel = `${fileCount} file${fileCount === 1 ? "" : "s"}`;
 
-      try {
-        const res = await fetch(`/api/share/${encodeURIComponent(token)}`, { cache: "no-store" });
-        if (!res.ok) throw new Error("Not found");
-
-        const data = await res.json();
-
-        const expiresAt = data.expiresAt ? Number(data.expiresAt) : null;
-        const remainingMs = expiresAt ? (expiresAt - Date.now()) : null;
-
-        if (expiresAt && remainingMs <= 0) {
-          metaEl.textContent = "Expired.";
-          titleLine.textContent = "This link has expired";
-          descEl.textContent = "Ask the sender to generate a new link in ZipPixel.";
-          hintEl.textContent = "Expired links can’t be reactivated.";
-          showError("This link has expired.");
-          return;
-        }
-
-        const fileCount = Number(data.fileCount || 0);
-        const downloads = Number(data.downloads || 0);
-        const fileLabel = `${fileCount} file${fileCount === 1 ? "" : "s"}`;
-
-        if (expiresAt) {
-          const days = Math.max(0, Math.ceil(remainingMs / (1000 * 60 * 60 * 24)));
-          metaEl.textContent = `${fileLabel} • Expires in ${days} day${days === 1 ? "" : "s"}`;
-          titleLine.textContent = "Ready to download";
-          descEl.textContent = `Download the ZIP before it expires (${fmtDateTime(expiresAt)}).`;
-        } else {
-          metaEl.textContent = fileLabel;
-          titleLine.textContent = "Ready to download";
-          descEl.textContent = "Download the ZIP below.";
-        }
-
-        statEl.textContent =
-          `${downloads} download${downloads === 1 ? "" : "s"} so far` +
-          (expiresAt ? ` • Expires: ${fmtDateTime(expiresAt)}` : "");
-
-        statsBox.style.display = "block";
-
-        // Paid-only download is enforced server-side.
-        btn.href = `/api/download/${encodeURIComponent(data.jobId)}`;
-        setDisabled(false);
-
-        hintEl.textContent = "Tip: Download promptly and store the ZIP somewhere safe.";
-      } catch (e) {
-        metaEl.textContent = "Unavailable.";
-        titleLine.textContent = "This link is no longer available";
-        descEl.textContent = "The owner may have removed it, or it may have expired.";
-        hintEl.textContent = "Ask the sender for a new link.";
-        showError("The owner may have removed it, or the link has expired.");
+      if (expiresAt) {
+        const days = Math.max(0, Math.ceil(remainingMs / (1000 * 60 * 60 * 24)));
+        metaEl.textContent = `${fileLabel} • Expires in ${days} day${days === 1 ? "" : "s"}`;
+        titleLine.textContent = "Ready to download";
+        descEl.textContent = `Download the ZIP before it expires (${fmtDateTime(expiresAt)}).`;
+      } else {
+        metaEl.textContent = fileLabel;
+        titleLine.textContent = "Ready to download";
+        descEl.textContent = "Download the ZIP below.";
       }
-    };
 
-    retryBtn?.addEventListener("click", load);
-    load();
-  </script>
+      statEl.textContent =
+        `${downloads} download${downloads === 1 ? "" : "s"} so far` +
+        (expiresAt ? ` • Expires: ${fmtDateTime(expiresAt)}` : "");
+
+      statsBox.style.display = "block";
+
+      // Paid-only download is enforced server-side.
+      btn.href = `/api/download/${encodeURIComponent(data.jobId)}`;
+      setDisabled(false);
+
+      hintEl.textContent = "Tip: Download promptly and store the ZIP somewhere safe.";
+    } catch (e) {
+      metaEl.textContent = "Unavailable.";
+      titleLine.textContent = "This link is no longer available";
+      descEl.textContent = "The owner may have removed it, or it may have expired.";
+      hintEl.textContent = "Ask the sender for a new link.";
+      showError("The owner may have removed it, or the link has expired.");
+    }
+  };
+
+  retryBtn?.addEventListener("click", load);
+  load();
+</script>
 </body>
 </html>

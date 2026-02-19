@@ -818,3 +818,138 @@ body{
     radial-gradient(900px 520px at 0% 0%, rgba(2,6,23,.08), rgba(246,247,251,0) 60%),
     var(--bg);
 }
+
+/* =========================
+   v21.1 — HERO FRAME
+   Subtle border so it stands out
+========================= */
+
+.hero{
+  position: relative;
+  padding: 56px 0 32px;
+}
+
+/* Frame wrapper */
+.heroInner{
+  position: relative;
+  border-radius: 28px;
+  padding: 36px 28px 32px;
+  border: 1px solid rgba(15,23,42,.10);
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,.70),
+      rgba(255,255,255,.55)
+    );
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.60) inset,
+    0 40px 120px rgba(2,6,23,.10);
+}
+
+/* Add subtle glow edge */
+.heroInner::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  border-radius: 28px;
+  pointer-events:none;
+  background:
+    radial-gradient(1200px 300px at 50% 0%,
+      rgba(37,99,235,.08),
+      rgba(255,255,255,0) 60%);
+  opacity:.9;
+}
+
+/* Tighten spacing between text + tool */
+.heroText{
+  margin-bottom: 28px;
+}
+
+/* Slightly lift tool inside hero frame */
+.tool{
+  position: relative;
+  z-index: 2;
+}
+
+/* =========================
+   v22 — PAGE SHELL (GLOBAL)
+   Makes every page feel consistent + premium
+========================= */
+
+.pageShell{
+  padding: 46px 0 42px;
+}
+
+.pageInner{
+  position: relative;
+  border-radius: 28px;
+  padding: 34px 28px;
+  border: 1px solid rgba(15,23,42,.10);
+  background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.56));
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.60) inset,
+    0 44px 140px rgba(2,6,23,.10);
+  overflow:hidden;
+}
+
+.pageInner::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  border-radius: 28px;
+  pointer-events:none;
+  background: radial-gradient(1200px 300px at 50% 0%, rgba(37,99,235,.08), rgba(255,255,255,0) 60%);
+  opacity:.9;
+}
+
+.pageTitle{
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  font-size: clamp(26px, 3vw, 38px);
+  letter-spacing: -0.055em;
+  line-height: 1.06;
+  font-weight: 800;
+}
+
+.pageLead{
+  position: relative;
+  z-index: 2;
+  margin-top: 10px;
+  color: rgba(11,18,32,.70);
+  line-height: 1.6;
+  max-width: 70ch;
+}
+
+.doc{
+  position: relative;
+  z-index: 2;
+  margin-top: 18px;
+  max-width: 78ch;
+}
+
+.doc h2{
+  margin: 22px 0 10px;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+.doc p, .doc li{
+  color: rgba(11,18,32,.78);
+  line-height: 1.75;
+  font-size: 14px;
+}
+
+.doc ul{
+  padding-left: 18px;
+  margin: 10px 0 0;
+}
+
+.doc .meta{
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  color: rgba(11,18,32,.55);
+  margin-top: 10px;
+}
+
+#actionsRow{ display:grid; gap:10px; }

@@ -1,7 +1,7 @@
-<!-- public/success.html — ZipPixel (v18 - STRIPE MODE)
+<!-- public/success.html — ZipPixel (v22 - FULL RAMBO SUCCESS)
      ✅ Uses /api/status/:jobId (webhook + fallback)
      ✅ SAME logic (no backend changes)
-     ✅ Matches v18 nav/tool/footer styling (premium + consistent)
+     ✅ Matches v22 premium nav + page shell + footer
      ✅ No legacy “pricing page” vibes
 -->
 <!doctype html>
@@ -19,15 +19,20 @@
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=18" />
+  <!-- Premium fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/style.css?v=22" />
 </head>
 
-<body>
+<body class="premium">
 
 <header class="nav">
   <div class="container navInner">
     <a class="brand" href="/" aria-label="ZipPixel home">
-      <img src="/favicon.svg" width="28" height="28" alt="">
+      <img src="/favicon.svg" width="26" height="26" alt="">
       <span>ZipPixel</span>
     </a>
 
@@ -41,42 +46,37 @@
 </header>
 
 <main>
-  <section class="hero" style="padding-top:42px;">
-    <div class="container heroInner" style="max-width:860px;">
+  <section class="pageShell">
+    <div class="container">
+      <div class="pageInner">
 
-      <h1 style="font-size:clamp(30px,3.4vw,42px); letter-spacing:-0.05em;">
-        Payment received.
-      </h1>
+        <h1 class="pageTitle">Payment received.</h1>
+        <p class="pageLead" id="sub">Finalising your download…</p>
 
-      <p class="heroSub" id="sub" style="margin-bottom:22px;">
-        Finalising your download…
-      </p>
-
-      <div class="tool" style="padding:18px;">
-
-        <div class="successBox" aria-live="polite">
-          <div class="successIcon" aria-hidden="true">✓</div>
-          <div style="min-width:0;">
-            <div class="successTitle" id="titleLine">Preparing your ZIP</div>
-            <div class="successDesc" id="desc">
-              We’re confirming payment and preparing your download. This usually takes a few seconds.
+        <div class="tool" style="margin-top:18px;">
+          <div class="successBox" aria-live="polite">
+            <div class="successIcon" aria-hidden="true">✓</div>
+            <div style="min-width:0;">
+              <div class="successTitle" id="titleLine">Preparing your ZIP</div>
+              <div class="successDesc" id="desc">
+                We’re confirming payment and preparing your download. This usually takes a few seconds.
+              </div>
             </div>
           </div>
+
+          <div class="successActions" id="actions" aria-live="polite"></div>
+
+          <p class="fineprint" id="hint" style="margin-top:12px;">
+            Please keep this tab open. If it takes longer than ~30 seconds, use “Check again”.
+          </p>
         </div>
 
-        <div class="successActions" id="actions" aria-live="polite"></div>
-
-        <p class="fineprint" id="hint" style="margin-top:12px;">
-          Please keep this tab open. If it takes longer than ~30 seconds, use “Check again”.
-        </p>
-
       </div>
-
     </div>
   </section>
 </main>
 
-<footer class="footer">
+<footer class="footer footerPremium">
   <div class="container footerInner">
     <div>© <span id="y"></span> ZipPixel</div>
     <div>
