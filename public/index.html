@@ -1,365 +1,187 @@
-<!-- public/index.html — ZipPixel (v16 - BOUTIQUE MONEY MODE)
-     ✅ Full bougie redesign (CloudConvert/Smallpdf vibe)
-     ✅ Tool-first two-column layout on desktop
-     ✅ Keeps ALL existing ids/classes/JS hooks working (app.js v14+)
-     ✅ Works with style.css?v=16 below
+<!-- public/index.html — ZipPixel (v17 - STRIPE MODE)
+     ✅ Full professional redesign
+     ✅ Tool-first centered layout
+     ✅ No amateur badges / no split grid
+     ✅ Keeps ALL ids for app.js v14+
 -->
+
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>ZipPixel — Compress files into one ZIP</title>
-  <meta name="description" content="Upload up to 10 files. We optimise what we can and bundle everything into one clean ZIP. No signup. Clear pricing before payment." />
+  <title>ZipPixel — Create clean ZIP packages in seconds</title>
+  <meta name="description" content="Upload up to 50 files. We optimise what we can and bundle everything into one clean ZIP. No signup. Pay once." />
   <link rel="canonical" href="https://zippixel.it.com/" />
 
-  <meta property="og:title" content="ZipPixel — Compress files. Download one ZIP." />
-  <meta property="og:description" content="Upload up to 10 files → Download a single ZIP. No signup. Pricing shown before payment." />
+  <meta property="og:title" content="ZipPixel — Client-ready ZIPs in seconds" />
+  <meta property="og:description" content="Upload files → Download one clean ZIP. No signup." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zippixel.it.com/" />
   <meta property="og:image" content="https://zippixel.it.com/og.png" />
 
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="ZipPixel — Compress files. Download one ZIP." />
-  <meta name="twitter:description" content="Upload up to 10 files → Download one ZIP. No signup. Pricing shown before payment." />
-  <meta name="twitter:image" content="https://zippixel.it.com/og.png" />
-
-  <meta name="theme-color" content="#0b1220" />
+  <meta name="theme-color" content="#111827" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-
-  <link rel="stylesheet" href="/style.css?v=16" />
+  <link rel="stylesheet" href="/style.css?v=17" />
 </head>
 
 <body>
-  <header class="top">
-    <div class="container top__inner">
-      <a class="brand" href="/" aria-label="ZipPixel home">
-        <span class="brand__logo" aria-hidden="true">
-          <img src="/favicon.svg?v=1" alt="ZipPixel" width="34" height="34" />
-        </span>
-        <span class="brand__text">
-          <span class="brand__name">ZipPixel</span>
-          <span class="brand__sub">Compress files → one ZIP</span>
-        </span>
-      </a>
 
-      <nav class="nav" aria-label="Site">
-        <a href="/pricing">Pricing</a>
-        <a href="#how">How it works</a>
-        <a href="#faq">FAQ</a>
-        <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
-      </nav>
+<header class="nav">
+  <div class="container navInner">
+    <a class="brand" href="/">
+      <img src="/favicon.svg" width="28" height="28" alt="">
+      <span>ZipPixel</span>
+    </a>
 
-      <div class="top__cta">
-        <a class="btn btn--ghost btn--sm" href="/pricing">View pricing</a>
+    <nav class="navLinks">
+      <a href="#how">How it works</a>
+      <a href="#faq">FAQ</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container heroInner">
+
+      <h1>Create client-ready ZIP packages in seconds.</h1>
+
+      <p class="heroSub">
+        Upload up to 50 files. We optimise what we can and bundle everything into one clean ZIP.
+        No signup. Pay once.
+      </p>
+
+      <!-- TOOL -->
+      <div class="tool">
+
+        <!-- Status -->
+        <div class="statusWrap">
+          <div class="status" id="status">Ready</div>
+          <div class="spinner" id="spinner"></div>
+          <div class="statusHint" id="statusHint">Drop files to begin.</div>
+        </div>
+
+        <!-- Dropzone -->
+        <div class="dropzone" id="dropzone">
+          <input id="files" type="file" multiple />
+
+          <div class="dzCenter">
+            <div class="dzIcon">📦</div>
+            <div class="dzTitle">Drag & drop files here</div>
+            <div class="dzSub">Up to 50 files • One clean ZIP</div>
+            <button class="btnPrimary" id="chooseBtn" type="button">
+              Choose files
+            </button>
+          </div>
+
+          <div class="fileMeta" id="fileMeta" hidden>
+            <div class="fileMetaTop">
+              <div class="fileSummary" id="fileSummary"></div>
+              <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+            </div>
+            <ol class="fileList" id="fileList"></ol>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progressWrap" id="progressWrap" hidden>
+          <div class="progressTop">
+            <div id="progressLabel">Uploading…</div>
+            <div id="progressPct">0%</div>
+          </div>
+          <div class="progressBar">
+            <div class="progressFill" id="progressFill"></div>
+          </div>
+          <div id="progressMeta"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actionRow">
+          <button class="btnSoft" id="upload" disabled>Upload</button>
+          <button class="btnPrimary" id="continue" disabled>
+            Continue — £2.99
+          </button>
+        </div>
+
+        <div class="fineprint">
+          Secure checkout powered by Stripe
+        </div>
+
+      </div>
+
+      <div class="pricingLine">
+        £2.99 — up to 10 files  
+        · £9.99 — up to 50 files  
+        · Optional share link +£2.49
+      </div>
+
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section id="how" class="section">
+    <div class="container narrow">
+      <h2>How it works</h2>
+
+      <div class="steps">
+        <div>
+          <strong>1.</strong> Add files
+        </div>
+        <div>
+          <strong>2.</strong> We optimise & bundle
+        </div>
+        <div>
+          <strong>3.</strong> Pay once → Download
+        </div>
       </div>
     </div>
-  </header>
+  </section>
 
-  <main class="page">
-    <section class="stage">
-      <div class="container">
-        <div class="stageGrid">
-          <!-- LEFT: hero -->
-          <div class="hero hero--left">
-            <div class="heroKicker">One clean ZIP. No nonsense.</div>
-            <h1 class="heroTitle">Compress files. Deliver faster.</h1>
-            <p class="heroLead">
-              Upload up to <b>10</b> files. We optimise what we can (images), and bundle everything into one clean ZIP.
-              <span class="heroMuted">No signup. Pricing shown before payment.</span>
-            </p>
+  <!-- FAQ -->
+  <section id="faq" class="section">
+    <div class="container narrow">
+      <h2>FAQ</h2>
 
-            <div class="heroBadges" aria-label="Key points">
-              <span class="mini"><b>Max</b> 10 files</span>
-              <span class="mini"><b>Max</b> 25MB each</span>
-              <span class="mini"><b>£2.99</b> per ZIP</span>
-              <span class="mini"><b>Stripe</b> checkout</span>
-            </div>
+      <details>
+        <summary>Do I need an account?</summary>
+        <p>No signup required.</p>
+      </details>
 
-            <div class="heroTrust">
-              <div class="trustLine">
-                <span class="trustDot" aria-hidden="true"></span>
-                Temporary storage • Download promptly after purchase
-              </div>
-              <div class="trustLine">
-                <span class="trustDot" aria-hidden="true"></span>
-                Optional share link available at checkout (+£2.49)
-              </div>
-            </div>
-          </div>
+      <details>
+        <summary>What happens to my files?</summary>
+        <p>Files are stored temporarily to generate your ZIP and deleted automatically over time.</p>
+      </details>
 
-          <!-- RIGHT: tool console -->
-          <div class="toolCard" aria-label="ZipPixel tool">
-            <!-- Status hooks -->
-            <div class="toolTop">
-              <div class="statusBlock">
-                <div class="label">Status</div>
-                <div class="statusRow">
-                  <div class="status" id="status">Ready.</div>
-                  <div class="spinner" id="spinner" aria-hidden="true"></div>
-                </div>
-                <div class="statusHint" id="statusHint">Drop files to begin.</div>
-              </div>
-
-              <div class="limits" aria-hidden="true">
-                <span class="mini"><b>Max</b> 10</span>
-                <span class="mini"><b>Max</b> 25MB</span>
-                <span class="mini"><b>Output</b> ZIP</span>
-              </div>
-            </div>
-
-            <!-- DROPZONE -->
-            <div class="dropzone" id="dropzone" aria-label="Upload files">
-              <input id="files" type="file" multiple />
-
-              <div class="dropzone__inner">
-                <div class="dzBadge" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M12 16V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M8.5 11.5L12 8l3.5 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M7 16.5c-1.7 0-3-1.3-3-3 0-1.4.9-2.6 2.2-2.9C6.6 8.1 8.6 6.5 11 6.5c2.3 0 4.3 1.5 4.9 3.7.2 0 .5-.1.7-.1 2 0 3.5 1.6 3.5 3.5S18.6 17 16.6 17H7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  </svg>
-                </div>
-
-                <div class="dzText">
-                  <div class="dzTitle">Drop files here</div>
-                  <div class="dzSub">or click to choose • up to 10 • one ZIP</div>
-                </div>
-
-                <div class="dzActions">
-                  <button class="btn btn--primary btn--sm" id="chooseBtn" type="button">Choose files</button>
-                </div>
-              </div>
-
-              <div class="dzFine">
-                Built for client handovers. Upload only what you need.
-                <span class="heroMuted">Files are stored temporarily and deleted automatically over time.</span>
-              </div>
-
-              <div class="fileMeta" id="fileMeta" hidden>
-                <div class="fileMetaTop">
-                  <div class="fileSummary" id="fileSummary"></div>
-                  <button class="btn btn--ghost btn--sm" id="clearBtn" type="button">Clear</button>
-                </div>
-                <ol class="fileList" id="fileList"></ol>
-              </div>
-            </div>
-
-            <!-- PROGRESS -->
-            <div class="progressWrap" id="progressWrap" hidden>
-              <div class="progressTop">
-                <div class="progressLabel" id="progressLabel">Uploading…</div>
-                <div class="progressPct" id="progressPct">0%</div>
-              </div>
-              <div class="progressBar" aria-hidden="true">
-                <div class="progressFill" id="progressFill"></div>
-              </div>
-              <div class="progressMeta" id="progressMeta"></div>
-            </div>
-
-            <!-- ACTIONS -->
-            <div class="actionWrap" aria-label="Actions">
-              <div class="actionBar">
-                <button class="btn btn--soft btn--block" id="upload" disabled>Upload</button>
-                <button class="btn btn--primary btn--block" id="continue" disabled>Continue</button>
-              </div>
-
-              <div class="fineprint">
-                Secure checkout powered by Stripe • <a href="/terms">Terms</a> • <a href="/privacy">Privacy</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- How -->
-    <section class="section" id="how">
-      <div class="container">
-        <div class="sectionHead">
-          <h2>How it works</h2>
-          <p>Upload → confirm → pay → download.</p>
-        </div>
-
-        <div class="grid3">
-          <div class="card">
-            <div class="k">1</div>
-            <div class="t">Add files</div>
-            <div class="d">Drop up to 10 files of any type.</div>
-          </div>
-          <div class="card">
-            <div class="k">2</div>
-            <div class="t">We optimise & bundle</div>
-            <div class="d">Images may be optimised. Everything becomes one ZIP.</div>
-          </div>
-          <div class="card">
-            <div class="k">3</div>
-            <div class="t">Pay & download</div>
-            <div class="d">Pay once via Stripe → instant ZIP download.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="section" id="faq">
-      <div class="container">
-        <div class="sectionHead">
-          <h2>FAQ</h2>
-          <p>Fast answers.</p>
-        </div>
-
-        <div class="faq">
-          <details>
-            <summary>Do I need an account?</summary>
-            <p>No signup — upload, pay, download.</p>
-          </details>
-          <details>
-            <summary>What formats do you support?</summary>
-            <p>Any file type. Images may be optimised; everything else is bundled into your ZIP.</p>
-          </details>
-          <details>
-            <summary>When do I see pricing?</summary>
-            <p>After you upload — you’ll see the total before Stripe Checkout.</p>
-          </details>
-          <details>
-            <summary>What happens to my files?</summary>
-            <p>They’re stored temporarily to create your ZIP, then deleted automatically over time.</p>
-          </details>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="container footer__inner">
-      <div>© <span id="y"></span> ZipPixel</div>
-      <div class="footer__links">
-        <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
-      </div>
+      <details>
+        <summary>What file types are supported?</summary>
+        <p>All file types. Images may be optimised automatically.</p>
+      </details>
     </div>
-  </footer>
+  </section>
 
-  <!-- PRICE MODAL (keep IDs for app.js) -->
-  <div class="modalOverlay" id="priceModal" role="dialog" aria-modal="true" aria-labelledby="priceModalTitle">
-    <div class="modalCard" role="document">
-      <div class="modalTop">
-        <div class="modalTitle" id="priceModalTitle">Confirm your ZIP</div>
-        <button class="modalClose" id="modalCloseBtn" type="button" aria-label="Close">Close</button>
-      </div>
+</main>
 
-      <div class="modalBody">
-        <p class="modalLead" id="priceModalLead">You’ve uploaded <b>0</b> files.</p>
-
-        <div class="modalSummary" aria-label="Checkout summary">
-          <div class="modalSummaryLeft">
-            <div class="modalSummaryKicker">You’ll pay</div>
-            <div class="modalSummaryMain">
-              <span id="tierInline">ZIP Download</span> • <span id="countInline">0</span> files
-            </div>
-          </div>
-          <div class="modalSummaryAmt" id="priceInline">£0.00</div>
-        </div>
-
-        <div class="priceGrid" aria-label="Pricing">
-          <div class="priceRow isChosen" id="rowStandard">
-            <div class="priceLeft">
-              <div class="priceName">ZIP Download</div>
-              <div class="priceDesc">Up to 10 files</div>
-            </div>
-            <div class="priceAmt">£2.99</div>
-          </div>
-
-          <div class="priceRow" id="rowPro" style="display:none">
-            <div class="priceLeft">
-              <div class="priceName">Pro ZIP</div>
-              <div class="priceDesc">Up to 10 files</div>
-            </div>
-            <div class="priceAmt">£4.99</div>
-          </div>
-        </div>
-
-        <div class="priceGrid" aria-label="Optional upgrades">
-          <div class="priceRow">
-            <div class="priceLeft">
-              <div class="priceName">Shareable download link</div>
-              <div class="priceDesc">Send a link instead of the ZIP (7 days)</div>
-            </div>
-            <div class="priceAmt">
-              <label><input type="checkbox" id="optShareLink" /> +£2.49</label>
-            </div>
-          </div>
-
-          <div class="priceRow" style="display:none">
-            <div class="priceLeft">
-              <div class="priceName">Print-ready quality</div>
-              <div class="priceDesc">Higher quality for brochures & print (images only)</div>
-            </div>
-            <div class="priceAmt">
-              <label><input type="checkbox" id="optPrintReady" /> +£1.99</label>
-            </div>
-          </div>
-
-          <div class="priceRow" style="display:none">
-            <div class="priceLeft">
-              <div class="priceName">Email-safe compression</div>
-              <div class="priceDesc">Extra compression for inbox limits (images only)</div>
-            </div>
-            <div class="priceAmt">
-              <label><input type="checkbox" id="optEmailSafe" /> +£1.49</label>
-            </div>
-          </div>
-
-          <div class="priceRow" style="display:none">
-            <div class="priceLeft">
-              <div class="priceName">Keep original filenames</div>
-              <div class="priceDesc">Preserve names exactly as uploaded</div>
-            </div>
-            <div class="priceAmt">
-              <label><input type="checkbox" id="optKeepNames" /> Free</label>
-            </div>
-          </div>
-
-          <div class="priceRow" style="display:none">
-            <div class="priceLeft">
-              <div class="priceName">Property listing filenames</div>
-              <div class="priceDesc">listing_01.jpg, listing_02.jpg…</div>
-            </div>
-            <div class="priceAmt">
-              <label><input type="checkbox" id="optListingNames" /> Free</label>
-            </div>
-          </div>
-
-          <div class="priceRow" style="display:none">
-            <div class="priceLeft">
-              <div class="priceName">Unlimited 24-hour pass</div>
-              <div class="priceDesc">Compress unlimited ZIPs today</div>
-            </div>
-            <div class="priceAmt">
-              <label><input type="checkbox" id="optDayPass" /> £9.99</label>
-            </div>
-          </div>
-        </div>
-
-        <div class="modalNote" id="priceModalNote">You’ll be redirected to secure Stripe Checkout.</div>
-      </div>
-
-      <div class="modalFoot">
-        <button class="btn btn--ghost modalBackBtn" id="modalBackBtn" type="button">Go back</button>
-        <button class="btn btn--primary modalPayBtn" id="modalPayBtn" type="button">Continue to payment</button>
-      </div>
+<footer class="footer">
+  <div class="container footerInner">
+    <div>© <span id="y"></span> ZipPixel</div>
+    <div>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
     </div>
   </div>
+</footer>
 
-  <script>
-    document.getElementById("y").textContent = new Date().getFullYear();
-  </script>
-  <script src="/app.js?v=14" defer></script>
+<script>
+  document.getElementById("y").textContent = new Date().getFullYear();
+</script>
+<script src="/app.js?v=14" defer></script>
+
 </body>
 </html>
