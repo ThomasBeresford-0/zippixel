@@ -1,4 +1,4 @@
-<!-- public/index.html — ZipPixel (v22 - Compress + Convert PROPER) -->
+<!-- public/index.html — ZipPixel (v23 - UX polish, real sections, clearer flow) -->
 
 <!doctype html>
 <html lang="en">
@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/style.css?v=24" />
+  <link rel="stylesheet" href="/style.css?v=25" />
 </head>
 
 <body class="premium">
@@ -36,7 +36,7 @@
       <span>ZipPixel</span>
     </a>
 
-    <nav class="navLinks">
+    <nav class="navLinks" aria-label="Primary">
       <a href="#how">How it works</a>
       <a href="#faq">FAQ</a>
       <a href="/privacy">Privacy</a>
@@ -55,63 +55,102 @@
       <p class="heroSub">
         ZIP multiple files together or convert between formats in seconds.
       </p>
+
+      <!-- NEW: tiny flow cue (no JS changes) -->
+      <div class="heroSteps" role="list" aria-label="How ZipPixel works">
+        <div class="heroStep" role="listitem">
+          <div class="heroStepKicker">1</div>
+          <div class="heroStepText">Choose a mode</div>
+        </div>
+        <div class="heroStep" role="listitem">
+          <div class="heroStepKicker">2</div>
+          <div class="heroStepText">Add files</div>
+        </div>
+        <div class="heroStep" role="listitem">
+          <div class="heroStepKicker">3</div>
+          <div class="heroStepText">Pay once, download</div>
+        </div>
+      </div>
+
+      <!-- NEW: trust row (pure HTML) -->
+      <div class="heroTrust" aria-label="Trust and privacy notes">
+        <span class="trustPill">No signup</span>
+        <span class="trustPill">Secure Stripe checkout</span>
+        <span class="trustPill">Files processed for your job</span>
+      </div>
     </div>
 
-    <div class="tool toolPremium">
+    <div class="tool toolPremium" aria-label="ZipPixel tool">
 
       <div class="statusWrap">
         <div class="statusLeft">
-          <div class="status" id="status">Ready</div>
-          <div class="spinner" id="spinner"></div>
+          <!-- aria-live makes the status feel “alive” + accessible -->
+          <div class="status" id="status" aria-live="polite" aria-atomic="true">Ready</div>
+          <div class="spinner" id="spinner" aria-hidden="true"></div>
         </div>
         <div class="statusHint" id="statusHint">Choose a mode and add files.</div>
       </div>
 
-      <!-- MODE SELECTOR -->
-      <div class="modeRow">
+      <!-- MODE SELECTOR (wrapped for better semantics) -->
+      <fieldset class="modeRow" aria-label="Mode">
+        <legend class="srOnly">Choose a mode</legend>
 
-        <label class="modeOption">
+        <label class="modeOption" for="modeCompress">
           <input type="radio" name="mode" id="modeCompress" checked>
           <span>Compress to ZIP</span>
         </label>
 
-        <label class="modeOption">
+        <label class="modeOption" for="modeConvert">
           <input type="radio" name="mode" id="modeConvert">
           <span>Convert files</span>
         </label>
 
         <div class="convertRow" id="convertRow" style="display:none;">
-          <select id="convertFrom">
-            <option value="auto">Auto detect</option>
-            <option value="jpg">JPG</option>
-            <option value="png">PNG</option>
-            <option value="webp">WebP</option>
-            <option value="pdf">PDF</option>
-          </select>
+          <div class="convertGroup">
+            <label class="srOnly" for="convertFrom">Convert from</label>
+            <select id="convertFrom" aria-label="Convert from">
+              <option value="auto">Auto detect</option>
+              <option value="jpg">JPG</option>
+              <option value="png">PNG</option>
+              <option value="webp">WebP</option>
+              <option value="pdf">PDF</option>
+            </select>
+          </div>
 
-          <span class="convertArrow">→</span>
+          <span class="convertArrow" aria-hidden="true">→</span>
 
-          <select id="convertTarget">
-            <option value="jpg">JPG</option>
-            <option value="png">PNG</option>
-            <option value="webp">WebP</option>
-            <option value="pdf">PDF</option>
-          </select>
+          <div class="convertGroup">
+            <label class="srOnly" for="convertTarget">Convert to</label>
+            <select id="convertTarget" aria-label="Convert to">
+              <option value="jpg">JPG</option>
+              <option value="png">PNG</option>
+              <option value="webp">WebP</option>
+              <option value="pdf">PDF</option>
+            </select>
+          </div>
+
+          <div class="convertHint">
+            Supported: JPG, PNG, WebP, PDF
+          </div>
         </div>
-
-      </div>
+      </fieldset>
 
       <!-- DROPZONE -->
-      <div class="dropzone dropzonePremium" id="dropzone">
-        <input id="files" type="file" multiple />
+      <div class="dropzone dropzonePremium" id="dropzone" aria-label="File dropzone">
+        <input id="files" type="file" multiple aria-label="Choose files" />
 
         <div class="dzCenter">
-          <div class="dzIcon"><span class="dzArrow">↑</span></div>
+          <div class="dzIcon" aria-hidden="true"><span class="dzArrow">↑</span></div>
           <div class="dzTitle">Drop files here</div>
-          <div class="dzSub">Up to 50 files</div>
+          <div class="dzSub">Up to 50 files • Drag & drop or select</div>
           <button class="btnPrimary btnLarge" id="chooseBtn" type="button">
             Select files
           </button>
+
+          <!-- NEW: tiny “what happens next” cue -->
+          <div class="dzAfter">
+            Upload → review price → secure checkout → instant download
+          </div>
         </div>
 
         <div class="fileMeta" id="fileMeta" hidden>
@@ -128,7 +167,7 @@
           <div id="progressLabel">Uploading…</div>
           <div id="progressPct">0%</div>
         </div>
-        <div class="progressBar">
+        <div class="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Upload progress">
           <div class="progressFill" id="progressFill"></div>
         </div>
         <div id="progressMeta"></div>
@@ -146,6 +185,88 @@
     </div>
   </div>
 </section>
+
+<!-- NEW: REAL sections so nav anchors feel intentional -->
+<section id="how" class="section sectionHow">
+  <div class="container">
+    <div class="sectionHead">
+      <h2>How it works</h2>
+      <p class="sectionSub">A clean, predictable flow — no accounts, no clutter.</p>
+    </div>
+
+    <div class="howGrid" role="list" aria-label="How it works steps">
+      <div class="howCard" role="listitem">
+        <div class="howNum">01</div>
+        <div class="howTitle">Pick a mode</div>
+        <div class="howText">Compress multiple files into a single ZIP, or convert formats.</div>
+      </div>
+
+      <div class="howCard" role="listitem">
+        <div class="howNum">02</div>
+        <div class="howTitle">Add files</div>
+        <div class="howText">Drag & drop or select. Review the list before uploading.</div>
+      </div>
+
+      <div class="howCard" role="listitem">
+        <div class="howNum">03</div>
+        <div class="howTitle">Pay once & download</div>
+        <div class="howText">Checkout with Stripe. Download immediately after payment.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq" class="section sectionFaq">
+  <div class="container">
+    <div class="sectionHead">
+      <h2>FAQ</h2>
+      <p class="sectionSub">Quick answers. No nonsense.</p>
+    </div>
+
+    <div class="faqList">
+      <details class="faqItem">
+        <summary>Do I need an account?</summary>
+        <div class="faqBody">No. ZipPixel is pay-once with instant access after checkout.</div>
+      </details>
+
+      <details class="faqItem">
+        <summary>What files can I convert?</summary>
+        <div class="faqBody">Currently: JPG, PNG, WebP, and PDF. Use “Auto detect” if you’re not sure.</div>
+      </details>
+
+      <details class="faqItem">
+        <summary>How many files can I upload?</summary>
+        <div class="faqBody">Up to 50 files per job (Pro ZIP supports up to 50). Standard ZIP supports up to 10.</div>
+      </details>
+
+      <details class="faqItem">
+        <summary>Is checkout secure?</summary>
+        <div class="faqBody">Yes — payments are handled by Stripe Checkout.</div>
+      </details>
+
+      <details class="faqItem">
+        <summary>What happens to my files?</summary>
+        <div class="faqBody">They’re processed for your job so you can download the result. See the Privacy page for details.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer class="footer footerPremium">
+  <div class="container footerInner">
+    <div class="footerLeft">
+      <div class="footerBrand">
+        <img src="/favicon.svg" width="18" height="18" alt="">
+        <span>ZipPixel</span>
+      </div>
+      <div class="footerNote">Compress & convert files — pay once, download instantly.</div>
+    </div>
+    <div class="footerRight" aria-label="Footer links">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </div>
+  </div>
+</footer>
 
 <!-- KEEPING YOUR MODAL EXACTLY AS-IS BELOW -->
 <!-- (UNCHANGED FROM YOUR CURRENT FILE) -->

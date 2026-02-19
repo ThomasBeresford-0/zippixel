@@ -1,8 +1,8 @@
-/* public/style.css — ZipPixel (v20 - PREMIUM BOUTIQUE UTILITY)
-   ✅ New typography (Plus Jakarta Sans + IBM Plex Mono)
-   ✅ Less “AI gradient template”, more crisp product
-   ✅ Tool feels like the product (stronger contrast, tighter spacing)
-   ✅ Keeps modal + pricing required IDs/classes
+/* public/style.css — ZipPixel (v25 - PREMIUM BOUTIQUE, UNIFIED)
+   ✅ Single coherent system (no layered overrides / no !important wars)
+   ✅ Segmented mode selector (Compress / Convert) feels like a real product
+   ✅ Adds styles for new homepage sections (How it works + FAQ + footer)
+   ✅ Keeps modal + pricing required IDs/classes untouched
 */
 
 :root{
@@ -22,6 +22,7 @@
   --r: 14px;
   --r-lg: 18px;
   --r-xl: 24px;
+  --r-2xl: 28px;
 
   --sh-0: 0 1px 0 rgba(2,6,23,.05);
   --sh-1: 0 18px 60px rgba(2,6,23,.10);
@@ -29,6 +30,16 @@
 
   --container: 1100px;
   --ease: cubic-bezier(.2,.8,.2,1);
+
+  /* ZipPixel “brand strip” */
+  --zipA: #2563eb;
+  --zipB: #22c55e;
+
+  /* Dark nav ink */
+  --navInk: rgba(255,255,255,.92);
+  --navInkMuted: rgba(255,255,255,.68);
+  --navHover: rgba(255,255,255,.10);
+  --navBorder: rgba(255,255,255,.10);
 }
 
 *{ box-sizing:border-box; }
@@ -39,8 +50,8 @@ body{
   font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   color: var(--text);
   background:
-    radial-gradient(1200px 520px at 50% -140px, rgba(2,6,23,.06), rgba(246,247,251,0) 60%),
-    radial-gradient(900px 520px at 0% 0%, rgba(37,99,235,.06), rgba(246,247,251,0) 60%),
+    radial-gradient(1200px 560px at 50% -160px, rgba(37,99,235,.10), rgba(246,247,251,0) 62%),
+    radial-gradient(900px 520px at 0% 0%, rgba(2,6,23,.08), rgba(246,247,251,0) 60%),
     var(--bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -66,17 +77,33 @@ strong,b{ font-weight: 800; }
   border-radius: 12px;
 }
 
+.srOnly{
+  position:absolute!important;
+  width:1px;height:1px;
+  padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);
+  white-space:nowrap;border:0;
+}
+
 /* =========================
-   NAV
+   NAV (premium dark top)
 ========================= */
 .nav{
   position: sticky;
   top:0;
   z-index: 30;
-  background: rgba(246,247,251,.82);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(15,23,42,.08);
+  background: linear-gradient(180deg, rgba(11,18,32,.96), rgba(11,18,32,.86));
+  border-bottom: 1px solid var(--navBorder);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.nav::before{
+  content:"";
+  position:absolute;
+  left:0; right:0; top:0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--zipA), #60a5fa, var(--zipB));
+  opacity: .95;
 }
 
 .navInner{
@@ -91,33 +118,38 @@ strong,b{ font-weight: 800; }
   display:flex;
   align-items:center;
   gap: 10px;
-  font-weight: 800;
+  font-weight: 850;
   letter-spacing: -0.02em;
+  color: var(--navInk);
 }
 .brand span{ font-size: 14px; }
-
 .brand img{
   width: 26px;
   height: 26px;
   flex: 0 0 26px;
   object-fit: contain;
-  display: block;
+  filter: drop-shadow(0 10px 22px rgba(0,0,0,.22));
 }
 
 .navLinks{
   display:flex;
   align-items:center;
   gap: 18px;
-  color: rgba(11,18,32,.62);
+  color: var(--navInkMuted);
   font-size: 13px;
 }
 .navLinks a{
   padding: 8px 10px;
   border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0);
+  transition: background .16s var(--ease), border-color .16s var(--ease), color .16s var(--ease);
+  color: var(--navInkMuted);
 }
 .navLinks a:hover{
-  background: rgba(2,6,23,.04);
-  color: rgba(11,18,32,.92);
+  background: var(--navHover);
+  border-color: rgba(255,255,255,.14);
+  color: var(--navInk);
+  opacity: 1;
 }
 
 @media (max-width: 860px){
@@ -125,21 +157,44 @@ strong,b{ font-weight: 800; }
 }
 
 /* =========================
-   HERO
+   HERO (framed)
 ========================= */
 .hero{
-  padding: 44px 0 0;
+  position: relative;
+  padding: 56px 0 34px;
   text-align: center;
 }
 
 .heroInner{
   max-width: 980px;
   margin: 0 auto;
+  position: relative;
+  border-radius: var(--r-2xl);
+  padding: 36px 28px 32px;
+  border: 1px solid rgba(15,23,42,.10);
+  background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.56));
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.60) inset,
+    0 40px 120px rgba(2,6,23,.10);
+}
+.heroInner::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  border-radius: var(--r-2xl);
+  pointer-events:none;
+  background:
+    radial-gradient(1200px 320px at 50% 0%,
+      rgba(37,99,235,.09),
+      rgba(255,255,255,0) 60%);
+  opacity:.9;
 }
 
 .heroText{
   max-width: 920px;
-  margin: 0 auto;
+  margin: 0 auto 22px;
+  position: relative;
+  z-index: 2;
 }
 
 .hero h1{
@@ -147,15 +202,72 @@ strong,b{ font-weight: 800; }
   font-size: clamp(34px, 4.2vw, 56px);
   letter-spacing: -0.06em;
   line-height: 1.02;
-  font-weight: 800;
+  font-weight: 850;
 }
 
 .heroSub{
-  margin: 12px auto 22px;
+  margin: 12px auto 14px;
   max-width: 720px;
   font-size: 16px;
   line-height: 1.55;
   color: rgba(11,18,32,.70);
+}
+
+/* New hero bits (from index.html v23) */
+.heroSteps{
+  margin: 16px auto 0;
+  display:flex;
+  justify-content:center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.heroStep{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(2,6,23,.10);
+  background: rgba(255,255,255,.70);
+  box-shadow: 0 1px 0 rgba(255,255,255,.70) inset;
+}
+.heroStepKicker{
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display:grid;
+  place-items:center;
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(11,18,32,.85);
+  background: rgba(2,6,23,.04);
+  border: 1px solid rgba(2,6,23,.10);
+}
+.heroStepText{
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: rgba(11,18,32,.90);
+}
+
+.heroTrust{
+  margin: 12px auto 0;
+  display:flex;
+  justify-content:center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.trustPill{
+  display:inline-flex;
+  align-items:center;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(2,6,23,.10);
+  background: rgba(2,6,23,.03);
+  color: rgba(11,18,32,.78);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 /* =========================
@@ -170,6 +282,7 @@ strong,b{ font-weight: 800; }
   padding: 18px;
   position: relative;
   overflow:hidden;
+  z-index: 2;
 }
 
 .tool:before{
@@ -189,7 +302,7 @@ strong,b{ font-weight: 800; }
   align-items:center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .statusLeft{
@@ -201,7 +314,7 @@ strong,b{ font-weight: 800; }
 
 .status{
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 850;
   letter-spacing: -0.01em;
 }
 
@@ -226,14 +339,112 @@ strong,b{ font-weight: 800; }
 @keyframes spin{ to { transform: rotate(360deg); } }
 
 /* =========================
+   MODE SELECTOR (segmented)
+========================= */
+.modeRow{
+  position: relative;
+  display:flex;
+  align-items:center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0 14px 0;
+  padding: 10px;
+  border-radius: 18px;
+  border: 1px solid rgba(2,6,23,.10);
+  background: rgba(2,6,23,.02);
+}
+
+.modeOption{
+  position: relative;
+  display:inline-flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid rgba(2,6,23,.10);
+  background: rgba(255,255,255,.78);
+  box-shadow: 0 1px 0 rgba(255,255,255,.72) inset;
+  transition: transform .10s var(--ease), border-color .16s var(--ease), background .16s var(--ease), box-shadow .16s var(--ease);
+  font-weight: 850;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  color: rgba(11,18,32,.88);
+}
+
+.modeOption:hover{
+  border-color: rgba(2,6,23,.18);
+  box-shadow: 0 16px 48px rgba(2,6,23,.10);
+}
+
+.modeOption input{
+  width: 14px;
+  height: 14px;
+  accent-color: #0b1220;
+}
+
+.modeOption:has(input:checked){
+  background: linear-gradient(180deg, rgba(11,18,32,.96), rgba(11,18,32,.90));
+  border-color: rgba(2,6,23,.55);
+  color: rgba(255,255,255,.95);
+  box-shadow: 0 28px 90px rgba(2,6,23,.18);
+}
+.modeOption:has(input:checked) input{
+  accent-color: #ffffff;
+}
+
+/* Convert row */
+.convertRow{
+  width: 100%;
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px;
+  margin-top: 2px;
+  border-radius: 16px;
+  border: 1px dashed rgba(2,6,23,.14);
+  background: rgba(255,255,255,.70);
+}
+
+.convertGroup select,
+#convertTarget,
+#convertFrom{
+  appearance:none;
+  border-radius: 12px;
+  border: 1px solid rgba(2,6,23,.12);
+  background: rgba(255,255,255,.92);
+  padding: 10px 12px;
+  font-weight: 800;
+  font-size: 13px;
+  color: rgba(11,18,32,.90);
+  box-shadow: 0 1px 0 rgba(255,255,255,.70) inset;
+}
+.convertGroup select:focus-visible{
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.convertArrow{
+  font-weight: 900;
+  color: rgba(11,18,32,.62);
+}
+
+.convertHint{
+  margin-left: auto;
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  color: rgba(11,18,32,.55);
+}
+
+/* =========================
    DROPZONE
 ========================= */
 .dropzone{
   position: relative;
   border-radius: 20px;
   border: 1px solid rgba(2,6,23,.12);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.98), rgba(250,251,253,.92));
+  background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(250,251,253,.92));
   padding: 26px 18px;
   overflow:hidden;
   transition: border-color .16s var(--ease), box-shadow .16s var(--ease), transform .10s var(--ease);
@@ -288,7 +499,7 @@ strong,b{ font-weight: 800; }
 }
 
 .dzTitle{
-  font-weight: 800;
+  font-weight: 850;
   letter-spacing:-0.02em;
   font-size: 16px;
 }
@@ -296,7 +507,15 @@ strong,b{ font-weight: 800; }
 .dzSub{
   color: rgba(11,18,32,.58);
   font-size: 13px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+}
+
+/* New: micro step hint under the button */
+.dzAfter{
+  margin-top: 10px;
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  color: rgba(11,18,32,.54);
 }
 
 /* Drag state */
@@ -369,7 +588,7 @@ strong,b{ font-weight: 800; }
 
 .fileInfo{ min-width: 0; flex: 1 1 auto; }
 .fileName{
-  font-weight: 800;
+  font-weight: 850;
   font-size: 13px;
   letter-spacing: -0.01em;
   white-space: nowrap;
@@ -388,7 +607,7 @@ strong,b{ font-weight: 800; }
   box-shadow: none;
   padding: 8px 10px;
   border-radius: 12px;
-  font-weight: 800;
+  font-weight: 850;
   font-size: 12px;
   color: rgba(11,18,32,.68);
 }
@@ -397,7 +616,9 @@ strong,b{ font-weight: 800; }
   border-color: rgba(2,6,23,.18);
 }
 
-/* Buttons */
+/* =========================
+   BUTTONS
+========================= */
 button{
   appearance:none;
   border: 1px solid rgba(15,23,42,.14);
@@ -405,7 +626,7 @@ button{
   color: var(--text);
   border-radius: 14px;
   padding: 11px 14px;
-  font-weight: 800;
+  font-weight: 850;
   letter-spacing: -0.01em;
   cursor:pointer;
   transition: transform .10s var(--ease), background .16s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease), opacity .16s var(--ease);
@@ -503,27 +724,38 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 }
 
 /* =========================
-   SECTIONS
+   SECTIONS (How + FAQ)
 ========================= */
 .section{
   padding: 56px 0 0;
-  text-align:center;
-}
-.section h2{
-  margin: 0 0 18px;
-  font-size: 20px;
-  letter-spacing: -0.03em;
-  font-weight: 800;
 }
 
-.stepsPremium{
+.sectionHead{
+  text-align:center;
+  max-width: 760px;
+  margin: 0 auto 18px;
+}
+.sectionHead h2{
+  margin: 0 0 10px;
+  font-size: 22px;
+  letter-spacing: -0.04em;
+  font-weight: 850;
+}
+.sectionSub{
+  margin: 0 auto;
+  color: rgba(11,18,32,.66);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+/* How grid */
+.howGrid{
   display:grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-  margin-top: 10px;
+  margin-top: 16px;
 }
-
-.step{
+.howCard{
   text-align:left;
   border: 1px solid rgba(2,6,23,.10);
   background: rgba(255,255,255,.92);
@@ -531,28 +763,32 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   padding: 14px 14px;
   box-shadow: var(--sh-0);
 }
-
-.stepNo{
+.howNum{
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 12px;
   letter-spacing: .10em;
   text-transform: uppercase;
   color: rgba(11,18,32,.55);
 }
-
-.stepText{
-  margin-top: 6px;
-  font-weight: 800;
+.howTitle{
+  margin-top: 8px;
+  font-weight: 850;
   letter-spacing: -0.02em;
   color: rgba(11,18,32,.92);
 }
-
-@media (max-width: 860px){
-  .stepsPremium{ grid-template-columns: 1fr; }
+.howText{
+  margin-top: 6px;
+  color: rgba(11,18,32,.70);
+  line-height: 1.6;
+  font-size: 13px;
 }
 
-details{
+/* FAQ */
+.faqList{
+  margin-top: 14px;
+}
+.faqItem{
   text-align:left;
   border: 1px solid rgba(2,6,23,.10);
   background: rgba(255,255,255,.95);
@@ -562,14 +798,15 @@ details{
   max-width: 720px;
   margin: 0 auto 10px;
 }
-summary{
+.faqItem summary{
   cursor:pointer;
-  font-weight: 800;
+  font-weight: 850;
   list-style:none;
+  letter-spacing: -0.01em;
 }
-summary::-webkit-details-marker{ display:none; }
-details p{
-  margin: 10px 0 0;
+.faqItem summary::-webkit-details-marker{ display:none; }
+.faqBody{
+  margin-top: 10px;
   color: rgba(11,18,32,.72);
   font-size: 13px;
   line-height: 1.55;
@@ -579,38 +816,144 @@ details p{
    FOOTER
 ========================= */
 .footer{
-  padding: 32px 0 42px;
-  margin-top: 60px;
+  padding: 34px 0 46px;
+  margin-top: 64px;
   border-top: 1px solid rgba(15,23,42,.08);
 }
 .footerInner{
   display:flex;
   justify-content: space-between;
-  align-items:center;
-  gap: 12px;
+  align-items:flex-start;
+  gap: 14px;
   color: rgba(11,18,32,.58);
   font-size: 13px;
 }
-.footerInner a{
+.footerLeft{ display:grid; gap: 8px; }
+.footerBrand{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+  color: rgba(11,18,32,.86);
+}
+.footerBrand img{ opacity:.92; }
+.footerNote{ color: rgba(11,18,32,.60); line-height: 1.55; max-width: 52ch; }
+
+.footerRight{
+  display:flex;
+  align-items:center;
+  gap: 14px;
+}
+.footerRight a{
   color: rgba(11,18,32,.58);
   text-decoration: underline;
   text-underline-offset: 2px;
-  margin-left: 12px;
 }
+
+/* =========================
+   PAGE SHELL (privacy/terms etc.)
+========================= */
+.pageShell{
+  padding: 46px 0 42px;
+}
+
+.pageInner{
+  position: relative;
+  border-radius: var(--r-2xl);
+  padding: 34px 28px;
+  border: 1px solid rgba(15,23,42,.10);
+  background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.56));
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.60) inset,
+    0 44px 140px rgba(2,6,23,.10);
+  overflow:hidden;
+}
+
+.pageInner::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  border-radius: var(--r-2xl);
+  pointer-events:none;
+  background: radial-gradient(1200px 300px at 50% 0%, rgba(37,99,235,.08), rgba(255,255,255,0) 60%);
+  opacity:.9;
+}
+
+.pageTitle{
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  font-size: clamp(26px, 3vw, 38px);
+  letter-spacing: -0.055em;
+  line-height: 1.06;
+  font-weight: 850;
+}
+
+.pageLead{
+  position: relative;
+  z-index: 2;
+  margin-top: 10px;
+  color: rgba(11,18,32,.70);
+  line-height: 1.6;
+  max-width: 70ch;
+}
+
+.doc{
+  position: relative;
+  z-index: 2;
+  margin-top: 18px;
+  max-width: 78ch;
+}
+
+.doc h2{
+  margin: 22px 0 10px;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+  font-weight: 850;
+}
+
+.doc p, .doc li{
+  color: rgba(11,18,32,.78);
+  line-height: 1.75;
+  font-size: 14px;
+}
+
+.doc ul{
+  padding-left: 18px;
+  margin: 10px 0 0;
+}
+
+.doc .meta{
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  color: rgba(11,18,32,.55);
+  margin-top: 10px;
+}
+
+#actionsRow{ display:grid; gap:10px; }
 
 /* =========================
    RESPONSIVE
 ========================= */
+@media (max-width: 860px){
+  .howGrid{ grid-template-columns: 1fr; }
+}
+
 @media (max-width: 720px){
+  .hero{ padding: 46px 0 26px; }
+  .heroInner{ padding: 26px 16px 18px; }
   .tool{ padding: 14px; }
   .dropzone{ padding: 22px 14px; }
   .actionRow{ flex-direction: column; }
-  .footerInner{ flex-direction: column; align-items:flex-start; }
+  .footerInner{ flex-direction: column; }
   .statusHint{ text-align:left; }
+  .convertRow{ gap: 8px; }
+  .convertHint{ width: 100%; margin-left: 0; margin-top: 6px; }
 }
 
 /* =========================
-   MODAL — REQUIRED
+   MODAL — REQUIRED (kept intact)
 ========================= */
 .modalOverlay{
   position: fixed;
@@ -653,7 +996,7 @@ details p{
   gap: 12px;
   background: linear-gradient(180deg, rgba(2,6,23,.04), rgba(255,255,255,0));
 }
-.modalTitle{ font-weight: 800; letter-spacing: -0.02em; font-size: 14px; }
+.modalTitle{ font-weight: 850; letter-spacing: -0.02em; font-size: 14px; }
 
 .modalClose{
   border: 1px solid rgba(2,6,23,.12);
@@ -661,7 +1004,7 @@ details p{
   border-radius: 14px;
   padding: 8px 10px;
   cursor:pointer;
-  font-weight: 800;
+  font-weight: 850;
   font-size: 12px;
   box-shadow: var(--sh-0);
 }
@@ -689,21 +1032,21 @@ details p{
 .modalSummaryKicker{
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: rgba(107,114,128,.98);
   text-transform: uppercase;
   letter-spacing: .08em;
 }
 .modalSummaryMain{
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 850;
   color: rgba(11,18,32,.95);
   overflow:hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 420px;
 }
-.modalSummaryAmt{ font-size: 16px; font-weight: 800; white-space: nowrap; color: rgba(11,18,32,.95); }
+.modalSummaryAmt{ font-size: 16px; font-weight: 850; white-space: nowrap; color: rgba(11,18,32,.95); }
 
 .priceGrid{ display:grid; gap: 10px; margin-top: 12px; }
 .priceRow{
@@ -721,10 +1064,10 @@ details p{
   background: rgba(37,99,235,.08);
   box-shadow: 0 18px 52px rgba(37,99,235,.12);
 }
-.priceName{ font-weight: 800; font-size: 13px; }
+.priceName{ font-weight: 850; font-size: 13px; }
 .priceDesc{ font-size: 12px; color: rgba(75,85,99,.95); }
-.priceAmt{ font-weight: 800; font-size: 13px; white-space: nowrap; }
-.priceAmt label{ display:inline-flex; align-items:center; gap: 8px; font-weight: 800; cursor:pointer; }
+.priceAmt{ font-weight: 850; font-size: 13px; white-space: nowrap; }
+.priceAmt label{ display:inline-flex; align-items:center; gap: 8px; font-weight: 850; cursor:pointer; }
 .priceAmt input[type="checkbox"]{ width: 16px; height: 16px; accent-color: var(--accent); }
 
 .modalNote{ margin-top: 10px; font-size: 12px; color: rgba(107,114,128,.98); line-height: 1.45; }
@@ -742,241 +1085,4 @@ details p{
   .modalOverlay{ padding: 12px; }
   .modalCard{ margin: 12px auto; max-height: calc(100vh - 24px); }
   .modalBody{ max-height: calc(100vh - 24px - 60px - 72px); }
-}
-
-/* =========================
-   v21 — NAV THEME (FULL RAMBO)
-   Add at END of file
-========================= */
-
-/* Brand accents */
-:root{
-  --navInk: rgba(255,255,255,.92);
-  --navInkMuted: rgba(255,255,255,.68);
-  --navHover: rgba(255,255,255,.10);
-  --navBorder: rgba(255,255,255,.10);
-
-  /* Pick your “ZipPixel” colour here */
-  --zipA: #2563eb;     /* electric blue */
-  --zipB: #22c55e;     /* optional green tint */
-}
-
-/* Coloured header with boutique glow */
-.nav{
-  background: linear-gradient(180deg,
-    rgba(11,18,32,.96),
-    rgba(11,18,32,.86)
-  ) !important;
-
-  border-bottom: 1px solid var(--navBorder) !important;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
-/* A subtle colour strip that screams “real product” */
-.nav::before{
-  content:"";
-  position:absolute;
-  left:0; right:0; top:0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--zipA), #60a5fa, var(--zipB));
-  opacity: .95;
-}
-
-/* Improve nav layout contrast */
-.brand{
-  color: var(--navInk) !important;
-}
-.brand span{
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-.brand img{
-  filter: drop-shadow(0 10px 22px rgba(0,0,0,.22));
-}
-
-/* Nav links become premium */
-.navLinks{
-  color: var(--navInkMuted) !important;
-}
-.navLinks a{
-  color: var(--navInkMuted) !important;
-  border: 1px solid rgba(255,255,255,0);
-  transition: background .16s var(--ease), border-color .16s var(--ease), color .16s var(--ease);
-}
-.navLinks a:hover{
-  background: var(--navHover) !important;
-  border-color: rgba(255,255,255,.14);
-  color: var(--navInk) !important;
-  opacity: 1;
-}
-
-/* Optional: make the whole page feel more “premium dark top” */
-body{
-  background:
-    radial-gradient(1200px 540px at 50% -140px, rgba(37,99,235,.10), rgba(246,247,251,0) 62%),
-    radial-gradient(900px 520px at 0% 0%, rgba(2,6,23,.08), rgba(246,247,251,0) 60%),
-    var(--bg);
-}
-
-/* =========================
-   v21.1 — HERO FRAME
-   Subtle border so it stands out
-========================= */
-
-.hero{
-  position: relative;
-  padding: 56px 0 32px;
-}
-
-/* Frame wrapper */
-.heroInner{
-  position: relative;
-  border-radius: 28px;
-  padding: 36px 28px 32px;
-  border: 1px solid rgba(15,23,42,.10);
-  background:
-    linear-gradient(180deg,
-      rgba(255,255,255,.70),
-      rgba(255,255,255,.55)
-    );
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.60) inset,
-    0 40px 120px rgba(2,6,23,.10);
-}
-
-/* Add subtle glow edge */
-.heroInner::before{
-  content:"";
-  position:absolute;
-  inset:-1px;
-  border-radius: 28px;
-  pointer-events:none;
-  background:
-    radial-gradient(1200px 300px at 50% 0%,
-      rgba(37,99,235,.08),
-      rgba(255,255,255,0) 60%);
-  opacity:.9;
-}
-
-/* Tighten spacing between text + tool */
-.heroText{
-  margin-bottom: 28px;
-}
-
-/* Slightly lift tool inside hero frame */
-.tool{
-  position: relative;
-  z-index: 2;
-}
-
-/* =========================
-   v22 — PAGE SHELL (GLOBAL)
-   Makes every page feel consistent + premium
-========================= */
-
-.pageShell{
-  padding: 46px 0 42px;
-}
-
-.pageInner{
-  position: relative;
-  border-radius: 28px;
-  padding: 34px 28px;
-  border: 1px solid rgba(15,23,42,.10);
-  background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.56));
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.60) inset,
-    0 44px 140px rgba(2,6,23,.10);
-  overflow:hidden;
-}
-
-.pageInner::before{
-  content:"";
-  position:absolute;
-  inset:-1px;
-  border-radius: 28px;
-  pointer-events:none;
-  background: radial-gradient(1200px 300px at 50% 0%, rgba(37,99,235,.08), rgba(255,255,255,0) 60%);
-  opacity:.9;
-}
-
-.pageTitle{
-  position: relative;
-  z-index: 2;
-  margin: 0;
-  font-size: clamp(26px, 3vw, 38px);
-  letter-spacing: -0.055em;
-  line-height: 1.06;
-  font-weight: 800;
-}
-
-.pageLead{
-  position: relative;
-  z-index: 2;
-  margin-top: 10px;
-  color: rgba(11,18,32,.70);
-  line-height: 1.6;
-  max-width: 70ch;
-}
-
-.doc{
-  position: relative;
-  z-index: 2;
-  margin-top: 18px;
-  max-width: 78ch;
-}
-
-.doc h2{
-  margin: 22px 0 10px;
-  font-size: 15px;
-  letter-spacing: -0.02em;
-  font-weight: 800;
-}
-
-.doc p, .doc li{
-  color: rgba(11,18,32,.78);
-  line-height: 1.75;
-  font-size: 14px;
-}
-
-.doc ul{
-  padding-left: 18px;
-  margin: 10px 0 0;
-}
-
-.doc .meta{
-  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-size: 12px;
-  color: rgba(11,18,32,.55);
-  margin-top: 10px;
-}
-
-#actionsRow{ display:grid; gap:10px; }
-
-.modeRow {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin: 16px 0 20px 0;
-}
-
-.modeOption {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.modeOption input {
-  accent-color: #0b1220;
-}
-
-#convertTarget {
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(11,18,32,0.1);
-  font-weight: 600;
 }
