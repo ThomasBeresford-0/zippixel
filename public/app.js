@@ -1,4 +1,4 @@
-// public/app.js — ZipPixel frontend (v15 - MONEY MODE TIERS)
+// public/app.js — ZipPixel frontend (v15.1 - MONEY MODE TIERS, conversion-first)
 // Matches: v17 index.html IDs + server.js routes:
 // /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/checkout
 (() => {
@@ -10,7 +10,7 @@
   const MAX_FILES = 50;      // v15: allow up to 50
   const MAX_MB_EACH = 25;    // per file
 
-  // ====== PRICING (front-end display + checkout payload) ======
+  // ====== PRICING (modal-only reveal) ======
   // Tier rules:
   // 1–10 files  => £2.99
   // 11–50 files => £9.99
@@ -146,8 +146,11 @@
   };
 
   const getTier = (count) => {
-    if (!count || count <= 0) return { name: "ZIP Download", limit: TIER_10_LIMIT, base: TIER_10_PRICE, key: "zip10" };
-    if (count <= TIER_10_LIMIT) return { name: "ZIP Download", limit: TIER_10_LIMIT, base: TIER_10_PRICE, key: "zip10" };
+    const n = Number(count || 0);
+    if (!Number.isFinite(n) || n <= 0) {
+      return { name: "ZIP Download", limit: TIER_10_LIMIT, base: TIER_10_PRICE, key: "zip10" };
+    }
+    if (n <= TIER_10_LIMIT) return { name: "ZIP Download", limit: TIER_10_LIMIT, base: TIER_10_PRICE, key: "zip10" };
     return { name: "Pro ZIP", limit: TIER_50_LIMIT, base: TIER_50_PRICE, key: "zip50" };
   };
 
@@ -157,19 +160,10 @@
     return tier.base + (share ? SHARE_LINK_PRICE : 0);
   };
 
+  // Conversion-first: NEVER show prices on the Continue button
   const setContinueLabel = () => {
     if (!continueBtn) return;
-    const n = selected.length;
-    const tier = getTier(n);
-
-    // Before upload, keep it simple
-    if (!uploadedMeta.length) {
-      continueBtn.textContent = `Continue — £${tier.base.toFixed(2)}`;
-      return;
-    }
-
-    // After upload, show base price (add-on chosen in modal)
-    continueBtn.textContent = `Continue — £${tier.base.toFixed(2)}`;
+    continueBtn.textContent = "Continue";
   };
 
   // Hard-disable legacy options so users never get “promised” something backend doesn’t support
@@ -185,30 +179,27 @@
     const n = selected.length;
     const tier = getTier(n);
 
-    // Inline labels
     if (tierInline) tierInline.textContent = tier.name;
     if (countInline) countInline.textContent = String(n);
 
-    // Toggle rows if present
     if (rowStandard) rowStandard.classList.toggle("isChosen", tier.key === "zip10");
     if (rowPro) rowPro.classList.toggle("isChosen", tier.key === "zip50");
+    if (rowPro) rowPro.style.display = ""; // reveal if hidden
 
-    // If your HTML has rowPro hidden from old builds, reveal it
-    if (rowPro) rowPro.style.display = "";
-
-    // Update row descriptions if markup exists
+    // Update row copy if markup exists
     try {
       const stdDesc = rowStandard?.querySelector?.(".priceDesc");
       if (stdDesc) stdDesc.textContent = `Up to ${TIER_10_LIMIT} files`;
       const proDesc = rowPro?.querySelector?.(".priceDesc");
       if (proDesc) proDesc.textContent = `Up to ${TIER_50_LIMIT} files`;
-      const proAmt = rowPro?.querySelector?.(".priceAmt");
-      if (proAmt) proAmt.textContent = `£${TIER_50_PRICE.toFixed(2)}`;
+
       const stdAmt = rowStandard?.querySelector?.(".priceAmt");
       if (stdAmt) stdAmt.textContent = `£${TIER_10_PRICE.toFixed(2)}`;
+
+      const proAmt = rowPro?.querySelector?.(".priceAmt");
+      if (proAmt) proAmt.textContent = `£${TIER_50_PRICE.toFixed(2)}`;
     } catch {}
 
-    // Modal lead
     if (priceModalLead) {
       priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> file${n === 1 ? "" : "s"}.`;
     }
@@ -222,7 +213,6 @@
   const renderSelected = () => {
     if (!fileMeta || !fileSummary || !fileList) return;
 
-    // Always keep button label in sync with tier
     setContinueLabel();
 
     if (selected.length === 0) {
@@ -240,7 +230,8 @@
 
     const totalBytes = selected.reduce((a, f) => a + f.size, 0);
     const tier = getTier(selected.length);
-    fileSummary.textContent = `Selected ${selected.length} file(s) • Total ${humanMB(totalBytes)} • Tier: ${tier.key === "zip10" ? "≤10" : "11–50"}.`;
+    fileSummary.textContent =
+      `Selected ${selected.length} file(s) • Total ${humanMB(totalBytes)} • Tier: ${tier.key === "zip10" ? "≤10" : "11–50"}.`;
 
     const currentKeys = new Set(selected.map(keyOf));
     revokeRemovedThumbs(currentKeys);
@@ -617,7 +608,12 @@
     }
 
     if (priceModalNote) {
-      priceModalNote.textContent = "You’ll be redirected to secure Stripe Checkout.";
+      const tier = getTier(selected.length);
+      const base = tier.base.toFixed(2);
+      priceModalNote.textContent =
+        tier.key === "zip50"
+          ? `Pro tier selected (£${base}). You’ll be redirected to secure Stripe Checkout.`
+          : `Standard tier selected (£${base}). You’ll be redirected to secure Stripe Checkout.`;
     }
 
     priceModal.classList.add("isOpen");

@@ -1,8 +1,7 @@
-<!-- public/index.html — ZipPixel (v17 - STRIPE MODE)
-     ✅ Full professional redesign
+<!-- public/index.html — ZipPixel (v17.1 - STRIPE MODE)
+     ✅ Pricing hidden until Continue (modal-only reveal)
      ✅ Tool-first centered layout
-     ✅ No amateur badges / no split grid
-     ✅ Keeps ALL ids for app.js v14+
+     ✅ Keeps ALL ids for app.js v14+ (including legacy hidden ids)
 -->
 
 <!doctype html>
@@ -74,7 +73,7 @@
 
           <div class="dzCenter">
             <div class="dzIcon">📦</div>
-            <div class="dzTitle">Drag & drop files here</div>
+            <div class="dzTitle">Drag &amp; drop files here</div>
             <div class="dzSub">Up to 50 files • One clean ZIP</div>
             <button class="btnPrimary" id="chooseBtn" type="button">
               Choose files
@@ -105,21 +104,13 @@
         <!-- Actions -->
         <div class="actionRow">
           <button class="btnSoft" id="upload" disabled>Upload</button>
-          <button class="btnPrimary" id="continue" disabled>
-            Continue
-          </button>
+          <button class="btnPrimary" id="continue" disabled>Continue</button>
         </div>
 
         <div class="fineprint">
           Secure checkout powered by Stripe
         </div>
 
-      </div>
-
-      <div class="pricingLine">
-        £2.99 — up to 10 files  
-        · £9.99 — up to 50 files  
-        · Optional share link +£2.49
       </div>
 
     </div>
@@ -131,15 +122,9 @@
       <h2>How it works</h2>
 
       <div class="steps">
-        <div>
-          <strong>1.</strong> Add files
-        </div>
-        <div>
-          <strong>2.</strong> We optimise & bundle
-        </div>
-        <div>
-          <strong>3.</strong> Pay once → Download
-        </div>
+        <div><strong>1.</strong> Add files</div>
+        <div><strong>2.</strong> We optimise &amp; bundle</div>
+        <div><strong>3.</strong> Pay once → Download</div>
       </div>
     </div>
   </section>
@@ -178,10 +163,87 @@
   </div>
 </footer>
 
+<!-- =========================
+     CHECKOUT MODAL (required)
+     Price is revealed ONLY here
+========================= -->
+<div class="modalOverlay" id="priceModal" aria-hidden="true">
+  <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="priceModalTitle">
+    <div class="modalTop">
+      <div class="modalTitle" id="priceModalTitle">Checkout</div>
+      <button class="modalClose" id="modalCloseBtn" type="button" aria-label="Close">Close</button>
+    </div>
+
+    <div class="modalBody">
+      <p class="modalLead" id="priceModalLead">You’ve uploaded files.</p>
+
+      <div class="modalSummary">
+        <div>
+          <div class="modalSummaryKicker">Package</div>
+          <div class="modalSummaryMain">
+            <span id="tierInline">ZIP Download</span> • <span id="countInline">0</span> files
+          </div>
+        </div>
+        <div class="modalSummaryAmt" id="priceInline">£0.00</div>
+      </div>
+
+      <!-- Pricing rows (legacy IDs kept for app.js) -->
+      <div class="priceGrid">
+        <div class="priceRow isChosen" id="rowStandard">
+          <div>
+            <div class="priceName">ZIP Download</div>
+            <div class="priceDesc">Optimise what we can • Bundle everything into one ZIP</div>
+          </div>
+          <div class="priceAmt">
+            <span aria-hidden="true">Included</span>
+          </div>
+        </div>
+
+        <div class="priceRow" id="rowPro" style="display:none">
+          <div>
+            <div class="priceName">Pro</div>
+            <div class="priceDesc">Legacy option (hidden)</div>
+          </div>
+          <div class="priceAmt">—</div>
+        </div>
+
+        <div class="priceRow">
+          <div>
+            <div class="priceName">Shareable link</div>
+            <div class="priceDesc">Let someone else download the ZIP (time-limited)</div>
+          </div>
+          <div class="priceAmt">
+            <label>
+              <input type="checkbox" id="optShareLink" />
+              Add
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legacy options (present but disabled in JS) -->
+      <input type="checkbox" id="optPrintReady" hidden>
+      <input type="checkbox" id="optEmailSafe" hidden>
+      <input type="checkbox" id="optKeepNames" hidden>
+      <input type="checkbox" id="optListingNames" hidden>
+      <input type="checkbox" id="optDayPass" hidden>
+
+      <div class="modalNote" id="priceModalNote">You’ll be redirected to secure Stripe Checkout.</div>
+    </div>
+
+    <div class="modalFoot">
+      <button class="btnSoft" id="modalBackBtn" type="button">Back</button>
+      <button class="btnPrimary" id="modalPayBtn" type="button">Pay &amp; continue</button>
+    </div>
+  </div>
+</div>
+
 <script>
   document.getElementById("y").textContent = new Date().getFullYear();
 </script>
-<script src="/app.js?v=14" defer></script>
+
+<!-- If you haven't updated app.js yet, keep ?v=14 for now -->
+<script src="/app.js?v=15" defer></script>
 
 </body>
 </html>
