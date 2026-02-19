@@ -1,4 +1,8 @@
-// server.js — ZipPixel (RENDER SAFE MONEY MODE v14.1)
+// server.js — ZipPixel (RENDER SAFE MONEY MODE v15)
+// ✅ Pricing tiers: £2.99 (≤10) / £9.99 (11–50) + optional share link (+£2.49)
+// ✅ Server-side enforcement: max 50 files, 25MB each (size enforced at upload time in R2 presign policy via client; server still validates count)
+// ✅ Routes unchanged: /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/checkout
+// ✅ Webhook + Stripe self-heal preserved
 require("dotenv").config();
 
 const express = require("express");
@@ -35,9 +39,19 @@ const PORT = process.env.PORT || 4242;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 const PUBLIC_DIR = path.join(__dirname, "public");
 
-// ====== PRICING ======
-const STANDARD_PRICE_GBP_PENCE = Number(process.env.STANDARD_PRICE_GBP_PENCE || 299);
-const SHARE_LINK_UPSELL_PENCE = 249;
+// ====== LIMITS ======
+const MAX_FILES = Number(process.env.MAX_FILES || 50); // v15
+const MAX_MB_EACH = Number(process.env.MAX_MB_EACH || 25);
+
+// ====== PRICING TIERS ======
+// You can override via env, but defaults are the money-mode tiers.
+const TIER_10_LIMIT = Number(process.env.TIER_10_LIMIT || 10);
+const TIER_10_PRICE_GBP_PENCE = Number(process.env.TIER_10_PRICE_GBP_PENCE || 299);
+
+const TIER_50_LIMIT = Number(process.env.TIER_50_LIMIT || 50);
+const TIER_50_PRICE_GBP_PENCE = Number(process.env.TIER_50_PRICE_GBP_PENCE || 999);
+
+const SHARE_LINK_UPSELL_PENCE = Number(process.env.SHARE_LINK_UPSELL_PENCE || 249);
 
 // ====== TTLs ======
 // Unpaid jobs should expire quickly (abandoned uploads)
@@ -129,6 +143,25 @@ function getJob(id) {
   }
 
   return job;
+}
+
+function inferTierFromFileCount(count) {
+  const n = Number(count || 0);
+  if (!Number.isFinite(n) || n <= 0) return { key: "zip10", limit: TIER_10_LIMIT, price: TIER_10_PRICE_GBP_PENCE };
+
+  if (n <= TIER_10_LIMIT) return { key: "zip10", limit: TIER_10_LIMIT, price: TIER_10_PRICE_GBP_PENCE };
+  if (n <= TIER_50_LIMIT) return { key: "zip50", limit: TIER_50_LIMIT, price: TIER_50_PRICE_GBP_PENCE };
+
+  // Past 50 is not allowed; clamp to protect server math; caller should already have been rejected.
+  return { key: "zip50", limit: TIER_50_LIMIT, price: TIER_50_PRICE_GBP_PENCE };
+}
+
+function computeTotalPence(job) {
+  const count = job?.files?.length || 0;
+  const tier = inferTierFromFileCount(count);
+  const share = !!job?.options?.shareLink;
+  const total = tier.price + (share ? SHARE_LINK_UPSELL_PENCE : 0);
+  return { total, tier };
 }
 
 // ====== R2 CLEANUP HELPERS ======
@@ -225,6 +258,12 @@ app.get("/health", (_, res) => {
     r2Configured,
     sharpLoaded: !!sharp,
     jobsInMemory: jobs.size,
+    pricing: {
+      tier10: { limit: TIER_10_LIMIT, pricePence: TIER_10_PRICE_GBP_PENCE },
+      tier50: { limit: TIER_50_LIMIT, pricePence: TIER_50_PRICE_GBP_PENCE },
+      shareUpsellPence: SHARE_LINK_UPSELL_PENCE,
+    },
+    limits: { maxFiles: MAX_FILES, maxMBEach: MAX_MB_EACH },
   });
 });
 
@@ -276,6 +315,8 @@ app.post("/api/upload-url", async (req, res) => {
     const job = getJob(jobId);
     if (job.status !== "CREATED") throw new Error("Invalid job state");
 
+    // (We can't enforce file size here without a signed policy; client enforces MAX_MB_EACH.)
+    // We *do* keep the server-side count enforcement at register-time.
     const key = `${jobId}/${Date.now()}_${sanitizeName(filename)}`;
 
     const url = await getSignedUrl(
@@ -302,12 +343,18 @@ app.post("/api/jobs/:jobId/register", (req, res) => {
 
     const files = Array.isArray(req.body.files) ? req.body.files : [];
     if (!files.length) throw new Error("No files to register");
+    if (files.length > MAX_FILES) throw new Error(`Too many files (max ${MAX_FILES}).`);
 
     job.files = files.map((f) => ({
       key: String(f.key || ""),
       originalname: String(f.originalname || "file"),
       mimetype: String(f.mimetype || "application/octet-stream"),
     }));
+
+    // Safety: ensure keys are under job prefix
+    for (const f of job.files) {
+      if (!f.key.startsWith(`${job.jobId}/`)) throw new Error("Invalid file key");
+    }
 
     job.status = "UPLOADED";
     res.json({ ok: true, count: job.files.length });
@@ -325,6 +372,8 @@ app.post("/api/checkout", async (req, res) => {
     const job = getJob(jobId);
 
     if (job.status !== "UPLOADED") throw new Error("Nothing to pay for");
+    if (!job.files?.length) throw new Error("No files registered");
+    if (job.files.length > MAX_FILES) throw new Error(`Too many files (max ${MAX_FILES}).`);
 
     job.options.shareLink = !!shareLink;
 
@@ -332,7 +381,10 @@ app.post("/api/checkout", async (req, res) => {
     job.shareToken = null;
     job.shareExpiresAt = null;
 
-    const total = STANDARD_PRICE_GBP_PENCE + (job.options.shareLink ? SHARE_LINK_UPSELL_PENCE : 0);
+    const { total, tier } = computeTotalPence(job);
+
+    const productName =
+      tier.key === "zip50" ? "ZipPixel Pro ZIP (up to 50 files)" : "ZipPixel ZIP (up to 10 files)";
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -341,14 +393,25 @@ app.post("/api/checkout", async (req, res) => {
           price_data: {
             currency: "gbp",
             unit_amount: total,
-            product_data: { name: "ZipPixel Download" },
+            product_data: {
+              name: productName,
+              description: job.options.shareLink
+                ? "ZIP download + shareable link"
+                : "ZIP download",
+            },
           },
           quantity: 1,
         },
       ],
       success_url: `${BASE_URL}/success?jobId=${jobId}`,
       cancel_url: `${BASE_URL}/cancel`,
-      metadata: { jobId, shareLink: job.options.shareLink ? "1" : "0" },
+      metadata: {
+        jobId,
+        shareLink: job.options.shareLink ? "1" : "0",
+        tier: tier.key,
+        fileCount: String(job.files.length),
+        totalPence: String(total),
+      },
     });
 
     job.checkoutSessionId = session.id;
@@ -376,6 +439,7 @@ app.get("/api/status/:jobId", async (req, res) => {
       shareToken: job.shareToken || null,
       expiresAt: job.expiresAt || null,
       downloads: job.downloadCount || 0,
+      fileCount: job.files?.length || 0,
     });
   } catch {
     res.status(404).json({ ok: false, error: "Not found" });
@@ -486,7 +550,6 @@ function webhookHandler(req, res) {
       process.env.STRIPE_WEBHOOK_SECRET
     );
 
-    // Handle multiple "payment succeeded" variants safely
     const type = event.type;
 
     if (
@@ -499,8 +562,7 @@ function webhookHandler(req, res) {
       if (jobId && jobs.has(jobId)) {
         const job = jobs.get(jobId);
 
-        // Only mark paid if Stripe says paid (extra safety)
-        // Some flows can "complete" but still not be paid.
+        // Extra safety: only mark paid if Stripe says paid
         const paymentStatus = session?.payment_status;
         if (paymentStatus === "paid") {
           markJobPaid(job);

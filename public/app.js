@@ -1,17 +1,25 @@
-// public/app.js — ZipPixel frontend (v14 MONEY MODE)
-// Matches: v14 index.html IDs + server.js v14 routes:
+// public/app.js — ZipPixel frontend (v15 - MONEY MODE TIERS)
+// Matches: v17 index.html IDs + server.js routes:
 // /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/checkout
 (() => {
   // ====== YEAR ======
   const y = document.getElementById("y");
   if (y) y.textContent = new Date().getFullYear();
 
-  // ====== PRICING (must match backend v14) ======
-  const MAX_FILES = 10;
-  const MAX_MB_EACH = 25;
+  // ====== LIMITS ======
+  const MAX_FILES = 50;      // v15: allow up to 50
+  const MAX_MB_EACH = 25;    // per file
 
-  const BASE_PRICE = 2.99;       // £2.99 per ZIP (up to 10 files)
-  const SHARE_LINK_PRICE = 2.49; // +£2.49
+  // ====== PRICING (front-end display + checkout payload) ======
+  // Tier rules:
+  // 1–10 files  => £2.99
+  // 11–50 files => £9.99
+  const TIER_10_LIMIT = 10;
+  const TIER_10_PRICE = 2.99;
+  const TIER_50_LIMIT = 50;
+  const TIER_50_PRICE = 9.99;
+
+  const SHARE_LINK_PRICE = 2.49; // optional add-on
 
   // ====== DOM ======
   const dropzone = document.getElementById("dropzone");
@@ -42,17 +50,19 @@
   const modalBackBtn = document.getElementById("modalBackBtn");
   const modalPayBtn = document.getElementById("modalPayBtn");
 
-  // Only paid option in v14
+  // Optional add-on
   const optShareLink = document.getElementById("optShareLink");
 
-  // Legacy IDs (present but hidden in your v14 index.html)
+  // Legacy IDs (present but hidden in older HTML)
   const optPrintReady = document.getElementById("optPrintReady");
   const optEmailSafe = document.getElementById("optEmailSafe");
   const optKeepNames = document.getElementById("optKeepNames");
   const optListingNames = document.getElementById("optListingNames");
   const optDayPass = document.getElementById("optDayPass");
+
   const rowStandard = document.getElementById("rowStandard");
   const rowPro = document.getElementById("rowPro");
+
   const tierInline = document.getElementById("tierInline");
   const priceInline = document.getElementById("priceInline");
   const countInline = document.getElementById("countInline");
@@ -135,26 +145,85 @@
     return url;
   };
 
-  const calcTotal = () => {
-    const share = !!optShareLink?.checked;
-    const total = BASE_PRICE + (share ? SHARE_LINK_PRICE : 0);
-    return total;
+  const getTier = (count) => {
+    if (!count || count <= 0) return { name: "ZIP Download", limit: TIER_10_LIMIT, base: TIER_10_PRICE, key: "zip10" };
+    if (count <= TIER_10_LIMIT) return { name: "ZIP Download", limit: TIER_10_LIMIT, base: TIER_10_PRICE, key: "zip10" };
+    return { name: "Pro ZIP", limit: TIER_50_LIMIT, base: TIER_50_PRICE, key: "zip50" };
   };
 
-  // Hard-disable legacy options so users never get “promised” something backend doesn’t charge for.
+  const calcTotal = (count) => {
+    const tier = getTier(count);
+    const share = !!optShareLink?.checked;
+    return tier.base + (share ? SHARE_LINK_PRICE : 0);
+  };
+
+  const setContinueLabel = () => {
+    if (!continueBtn) return;
+    const n = selected.length;
+    const tier = getTier(n);
+
+    // Before upload, keep it simple
+    if (!uploadedMeta.length) {
+      continueBtn.textContent = `Continue — £${tier.base.toFixed(2)}`;
+      return;
+    }
+
+    // After upload, show base price (add-on chosen in modal)
+    continueBtn.textContent = `Continue — £${tier.base.toFixed(2)}`;
+  };
+
+  // Hard-disable legacy options so users never get “promised” something backend doesn’t support
   const disableLegacyOptions = () => {
     [optPrintReady, optEmailSafe, optKeepNames, optListingNames, optDayPass].forEach((el) => {
       if (!el) return;
       el.checked = false;
       el.disabled = true;
     });
-    if (rowPro) rowPro.style.display = "none";
-    if (rowStandard) rowStandard.classList.add("isChosen");
-    if (tierInline) tierInline.textContent = "ZIP Download";
+  };
+
+  const syncModalTierUI = () => {
+    const n = selected.length;
+    const tier = getTier(n);
+
+    // Inline labels
+    if (tierInline) tierInline.textContent = tier.name;
+    if (countInline) countInline.textContent = String(n);
+
+    // Toggle rows if present
+    if (rowStandard) rowStandard.classList.toggle("isChosen", tier.key === "zip10");
+    if (rowPro) rowPro.classList.toggle("isChosen", tier.key === "zip50");
+
+    // If your HTML has rowPro hidden from old builds, reveal it
+    if (rowPro) rowPro.style.display = "";
+
+    // Update row descriptions if markup exists
+    try {
+      const stdDesc = rowStandard?.querySelector?.(".priceDesc");
+      if (stdDesc) stdDesc.textContent = `Up to ${TIER_10_LIMIT} files`;
+      const proDesc = rowPro?.querySelector?.(".priceDesc");
+      if (proDesc) proDesc.textContent = `Up to ${TIER_50_LIMIT} files`;
+      const proAmt = rowPro?.querySelector?.(".priceAmt");
+      if (proAmt) proAmt.textContent = `£${TIER_50_PRICE.toFixed(2)}`;
+      const stdAmt = rowStandard?.querySelector?.(".priceAmt");
+      if (stdAmt) stdAmt.textContent = `£${TIER_10_PRICE.toFixed(2)}`;
+    } catch {}
+
+    // Modal lead
+    if (priceModalLead) {
+      priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> file${n === 1 ? "" : "s"}.`;
+    }
+  };
+
+  const syncModalTotalUI = () => {
+    const total = calcTotal(selected.length);
+    if (priceInline) priceInline.textContent = `£${total.toFixed(2)}`;
   };
 
   const renderSelected = () => {
     if (!fileMeta || !fileSummary || !fileList) return;
+
+    // Always keep button label in sync with tier
+    setContinueLabel();
 
     if (selected.length === 0) {
       fileMeta.hidden = true;
@@ -169,8 +238,9 @@
       return;
     }
 
-    const total = selected.reduce((a, f) => a + f.size, 0);
-    fileSummary.textContent = `Selected ${selected.length} file(s) • Total ${humanMB(total)}.`;
+    const totalBytes = selected.reduce((a, f) => a + f.size, 0);
+    const tier = getTier(selected.length);
+    fileSummary.textContent = `Selected ${selected.length} file(s) • Total ${humanMB(totalBytes)} • Tier: ${tier.key === "zip10" ? "≤10" : "11–50"}.`;
 
     const currentKeys = new Set(selected.map(keyOf));
     revokeRemovedThumbs(currentKeys);
@@ -206,7 +276,6 @@
     fileMeta.hidden = false;
 
     uploadBtn.disabled = !jobId || uploading;
-    // Continue only after successful upload of current selection
     continueBtn.disabled = !uploadedMeta.length;
 
     if (jobId) {
@@ -466,11 +535,9 @@
       for (let i = 0; i < selected.length; i++) {
         const f = selected[i];
 
-        if (progressLabel) {
-          progressLabel.textContent = `Uploading ${i + 1}/${selected.length}…`;
-        }
+        if (progressLabel) progressLabel.textContent = `Uploading ${i + 1}/${selected.length}…`;
 
-        const presign = await fetch("/api/upload-url", {
+        const presignRes = await fetch("/api/upload-url", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -478,14 +545,13 @@
             filename: f.name,
             type: f.type || "application/octet-stream",
           }),
-        }).then((r) => r.json());
+        });
 
+        const presign = await presignRes.json();
         if (presign?.error) throw new Error(presign.error);
         if (!presign?.url || !presign?.key) throw new Error("Failed to prepare upload");
 
-        await putWithProgress(presign.url, f, (loaded, total) => {
-          prog.currentFile(loaded, total);
-        });
+        await putWithProgress(presign.url, f, (loaded, total) => prog.currentFile(loaded, total));
 
         uploadedMeta.push({
           key: presign.key,
@@ -498,22 +564,26 @@
 
       prog.done();
 
-      const reg = await fetch(`/api/jobs/${jobId}/register`, {
+      const regRes = await fetch(`/api/jobs/${jobId}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ files: uploadedMeta }),
-      }).then((r) => r.json());
+      });
 
+      const reg = await regRes.json();
       if (reg?.error) throw new Error(reg.error);
 
       setStatus("Uploaded.");
       setHint(
-        `Uploaded. Continue to checkout.<br/><span style="color: rgba(11,18,32,.56)">Tip: add a shareable link if you’re sending this to someone.</span>`
+        `Uploaded. Continue to checkout.<br/><span style="color: rgba(11,18,32,.56)">Optional: add a shareable link at checkout (+£${SHARE_LINK_PRICE.toFixed(2)}).</span>`
       );
+
       if (progressLabel) progressLabel.textContent = "Uploaded";
       if (progressFill) progressFill.style.width = "100%";
       if (progressPct) progressPct.textContent = "100%";
+
       continueBtn.disabled = false;
+      setContinueLabel();
     } catch (e) {
       setStatus("Upload failed.");
       setHint(escapeHtml(e?.message || "Please try again."));
@@ -526,29 +596,25 @@
   });
 
   // ====== MODAL ======
+  let shareListenerAttached = false;
+
   const openPriceModal = () => {
     if (!priceModal) return;
 
     disableLegacyOptions();
 
-    const n = selected.length;
-    if (priceModalLead) priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> file${n === 1 ? "" : "s"}.`;
-    if (countInline) countInline.textContent = String(n);
-    if (tierInline) tierInline.textContent = "ZIP Download";
+    // Default: OFF (trust). You can flip to true if you want higher AOV.
+    if (optShareLink) optShareLink.checked = false;
 
-    // Default money lever: share link ON by default (you can switch this off if you want)
-    if (optShareLink) optShareLink.checked = true;
+    syncModalTierUI();
+    syncModalTotalUI();
 
-    const updateTotal = () => {
-      const total = calcTotal();
-      if (priceInline) priceInline.textContent = `£${total.toFixed(2)}`;
-    };
-
-    if (optShareLink) {
-      optShareLink.addEventListener("change", updateTotal);
+    if (!shareListenerAttached && optShareLink) {
+      optShareLink.addEventListener("change", () => {
+        syncModalTotalUI();
+      });
+      shareListenerAttached = true;
     }
-
-    updateTotal();
 
     if (priceModalNote) {
       priceModalNote.textContent = "You’ll be redirected to secure Stripe Checkout.";
@@ -590,6 +656,9 @@
   const startCheckout = async () => {
     if (!jobId) return;
 
+    const n = selected.length;
+    const tier = getTier(n);
+
     setBusy(true);
     setStatus("Redirecting…");
     setHint("Opening secure checkout…");
@@ -602,6 +671,9 @@
         body: JSON.stringify({
           jobId,
           shareLink: !!optShareLink?.checked,
+          // informational / future-proof (backend can ignore safely)
+          tier: tier.key,
+          fileCount: n,
         }),
       }).then(r => r.json());
 
