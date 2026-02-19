@@ -73,24 +73,39 @@
   let uploading = false;
 
   // ====== MODE STATE ======
-  let mode = "compress";
-  let convertTargetValue = null;
+// ====== MODE STATE (UPGRADED) ======
+let mode = "compress";
+let convertTargetValue = null;
 
-  const modeCompress = document.getElementById("modeCompress");
-  const modeConvert = document.getElementById("modeConvert");
-  const convertTarget = document.getElementById("convertTarget");
+const modeCompress = document.getElementById("modeCompress");
+const modeConvert = document.getElementById("modeConvert");
+const convertRow = document.getElementById("convertRow");
+const convertFrom = document.getElementById("convertFrom");
+const convertTarget = document.getElementById("convertTarget");
 
-  const syncMode = () => {
-    if (modeConvert?.checked) {
-      mode = "convert";
-      convertTargetValue = convertTarget?.value || "jpg";
-      if (convertTarget) convertTarget.style.display = "";
-    } else {
-      mode = "compress";
-      convertTargetValue = null;
-      if (convertTarget) convertTarget.style.display = "none";
-    }
-  };
+const syncMode = () => {
+  if (modeConvert?.checked) {
+    mode = "convert";
+    if (convertRow) convertRow.style.display = "flex";
+    convertTargetValue = convertTarget?.value || "jpg";
+
+    setHint("Upload files to convert.");
+  } else {
+    mode = "compress";
+    if (convertRow) convertRow.style.display = "none";
+    convertTargetValue = null;
+
+    setHint("Upload files to create a ZIP.");
+  }
+};
+
+modeCompress?.addEventListener("change", syncMode);
+modeConvert?.addEventListener("change", syncMode);
+convertTarget?.addEventListener("change", () => {
+  convertTargetValue = convertTarget?.value || "jpg";
+});
+
+syncMode();
 
   modeCompress?.addEventListener("change", syncMode);
   modeConvert?.addEventListener("change", syncMode);

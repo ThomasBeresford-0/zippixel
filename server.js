@@ -147,10 +147,13 @@ function getJob(id) {
 
 function inferTierFromFileCount(count) {
   const n = Number(count || 0);
-  if (!Number.isFinite(n) || n <= 0) return { key: "zip10", limit: TIER_10_LIMIT, price: TIER_10_PRICE_GBP_PENCE };
+  if (!Number.isFinite(n) || n <= 0)
+    return { key: "zip10", limit: TIER_10_LIMIT, price: TIER_10_PRICE_GBP_PENCE };
 
-  if (n <= TIER_10_LIMIT) return { key: "zip10", limit: TIER_10_LIMIT, price: TIER_10_PRICE_GBP_PENCE };
-  if (n <= TIER_50_LIMIT) return { key: "zip50", limit: TIER_50_LIMIT, price: TIER_50_PRICE_GBP_PENCE };
+  if (n <= TIER_10_LIMIT)
+    return { key: "zip10", limit: TIER_10_LIMIT, price: TIER_10_PRICE_GBP_PENCE };
+  if (n <= TIER_50_LIMIT)
+    return { key: "zip50", limit: TIER_50_LIMIT, price: TIER_50_PRICE_GBP_PENCE };
 
   // Past 50 is not allowed; clamp to protect server math; caller should already have been rejected.
   return { key: "zip50", limit: TIER_50_LIMIT, price: TIER_50_PRICE_GBP_PENCE };
@@ -366,24 +369,24 @@ app.post("/api/jobs/:jobId/register", (req, res) => {
   }
 });
 
-    app.post("/api/jobs/:jobId/mode", (req, res) => {
+// Set job mode (compress | convert)
+app.post("/api/jobs/:jobId/mode", (req, res) => {
   try {
     const job = getJob(req.params.jobId);
-    const { mode, target } = req.body;
+    const { mode, target } = req.body || {};
 
     if (!["compress", "convert"].includes(mode)) {
       throw new Error("Invalid mode");
     }
 
     job.mode = mode;
-    job.convertTarget =
-      mode === "convert" ? String(target || "").toLowerCase() : null;
+    job.convertTarget = mode === "convert" ? String(target || "").toLowerCase() : null;
 
     res.json({ ok: true });
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
-  });
+});
 
 // Checkout
 app.post("/api/checkout", async (req, res) => {
@@ -417,9 +420,7 @@ app.post("/api/checkout", async (req, res) => {
             unit_amount: total,
             product_data: {
               name: productName,
-              description: job.options.shareLink
-                ? "ZIP download + shareable link"
-                : "ZIP download",
+              description: job.options.shareLink ? "ZIP download + shareable link" : "ZIP download",
             },
           },
           quantity: 1,
@@ -487,7 +488,9 @@ app.get("/api/download/:jobId", async (req, res) => {
 
     const archive = archiver("zip", { zlib: { level: 9 } });
     archive.on("error", (err) => {
-      try { res.status(500).send(err.message); } catch {}
+      try {
+        res.status(500).send(err.message);
+      } catch {}
     });
     archive.pipe(res);
 
@@ -501,42 +504,86 @@ app.get("/api/download/:jobId", async (req, res) => {
         })
       );
 
-    if (job.mode === "convert" && sharp && job.convertTarget) {
-      const buffer = await streamToBuffer(obj.Body);
+      // ====== CONVERT MODE (SAFE + NON-BREAKING) ======
+      if (job.mode === "convert" && sharp && job.convertTarget) {
+        // We must buffer the object because:
+        // 1) conversion needs a buffer
+        // 2) if conversion fails, we can still append the original bytes (buffer) safely
+        let buffer;
+        try {
+          buffer = await streamToBuffer(obj.Body);
+        } catch {
+          // If we can't read it, skip conversion and try streaming original (best-effort)
+          archive.append(obj.Body, {
+            name: makeUniqueName(sanitizeName(f.originalname), used),
+          });
+          continue;
+        }
 
-      let converted;
-      let newExt = "";
+        const mime = String(f.mimetype || "");
+        const isImage = mime.startsWith("image/");
+        const isPdf = mime === "application/pdf";
 
-      if (job.convertTarget === "jpg") {
-        converted = await sharp(buffer).jpeg({ quality: 90 }).toBuffer();
-        newExt = ".jpg";
+        let converted = null;
+        let newExt = "";
+
+        try {
+          // ===== IMAGE INPUTS =====
+          if (isImage) {
+            const image = sharp(buffer);
+
+            if (job.convertTarget === "jpg") {
+              converted = await image.jpeg({ quality: 90 }).toBuffer();
+              newExt = ".jpg";
+            } else if (job.convertTarget === "png") {
+              converted = await image.png().toBuffer();
+              newExt = ".png";
+            } else if (job.convertTarget === "webp") {
+              converted = await image.webp({ quality: 85 }).toBuffer();
+              newExt = ".webp";
+            } else if (job.convertTarget === "pdf") {
+              converted = await imageToPdf(buffer);
+              newExt = ".pdf";
+            }
+          }
+
+          // ===== PDF INPUTS (first page only) =====
+          // Note: this only works if your Sharp build supports PDF input (pdfium/poppler).
+          if (!converted && isPdf) {
+            if (job.convertTarget === "jpg") {
+              converted = await sharp(buffer, { density: 300 }).jpeg({ quality: 90 }).toBuffer();
+              newExt = ".jpg";
+            } else if (job.convertTarget === "png") {
+              converted = await sharp(buffer, { density: 300 }).png().toBuffer();
+              newExt = ".png";
+            } else if (job.convertTarget === "webp") {
+              converted = await sharp(buffer, { density: 300 }).webp({ quality: 85 }).toBuffer();
+              newExt = ".webp";
+            }
+          }
+        } catch {
+          converted = null;
+        }
+
+        if (converted) {
+          const base = String(f.originalname || "file").replace(/\.[^/.]+$/, "");
+          archive.append(converted, {
+            name: makeUniqueName(sanitizeName(base + newExt), used),
+          });
+          continue;
+        }
+
+        // Conversion not possible → append original bytes (buffer) with original name
+        archive.append(buffer, {
+          name: makeUniqueName(sanitizeName(f.originalname), used),
+        });
+        continue;
       }
 
-      if (job.convertTarget === "png") {
-        converted = await sharp(buffer).png().toBuffer();
-        newExt = ".png";
-      }
-
-      if (job.convertTarget === "webp") {
-        converted = await sharp(buffer).webp({ quality: 85 }).toBuffer();
-        newExt = ".webp";
-      }
-
-      if (job.convertTarget === "pdf") {
-        converted = await imageToPdf(buffer);
-        newExt = ".pdf";
-      }
-
-      const base = f.originalname.replace(/\.[^/.]+$/, "");
-      archive.append(converted, {
-        name: makeUniqueName(sanitizeName(base + newExt), used),
-      });
-
-    } else {
+      // ====== DEFAULT (NO CONVERSION) ======
       archive.append(obj.Body, {
         name: makeUniqueName(sanitizeName(f.originalname), used),
       });
-    }
     }
 
     await archive.finalize();
@@ -559,7 +606,8 @@ app.get("/api/share/:token", async (req, res) => {
     }
 
     if (job.status !== "PAID") return res.status(404).json({ error: "Not found" });
-    if (job.shareExpiresAt && Date.now() > job.shareExpiresAt) return res.status(410).json({ error: "Expired" });
+    if (job.shareExpiresAt && Date.now() > job.shareExpiresAt)
+      return res.status(410).json({ error: "Expired" });
 
     res.json({
       jobId: job.jobId,
@@ -607,10 +655,7 @@ function webhookHandler(req, res) {
 
     const type = event.type;
 
-    if (
-      type === "checkout.session.completed" ||
-      type === "checkout.session.async_payment_succeeded"
-    ) {
+    if (type === "checkout.session.completed" || type === "checkout.session.async_payment_succeeded") {
       const session = event.data.object;
       const jobId = session?.metadata?.jobId;
 
