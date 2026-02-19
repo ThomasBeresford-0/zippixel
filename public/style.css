@@ -90,6 +90,15 @@ strong,b{ font-weight: 900; }
 }
 .brand span{ font-size: 14px; }
 
+/* v17 FIX: stop logo being squashed in the nav */
+.brand img{
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  object-fit: contain;
+  display: block;
+}
+
 .navLinks{
   display:flex;
   align-items:center;
@@ -564,3 +573,4 @@ details p{
   .modalCard{ margin: 12px auto; max-height: calc(100vh - 24px); }
   .modalBody{ max-height: calc(100vh - 24px - 60px - 68px); }
 }
+
