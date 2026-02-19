@@ -1,8 +1,7 @@
-<!-- public/index.html — ZipPixel (v19 - PREMIUM RAMBO MODE)
-     ✅ Premium tool-first layout
-     ✅ Sharper hierarchy, stronger authority
-     ✅ No SaaS fluff
-     ✅ ALL existing IDs preserved for app.js v15
+<!-- public/index.html — ZipPixel (v20 - PREMIUM TYPE + TOOL-FIRST)
+     ✅ New premium fonts (Plus Jakarta Sans + IBM Plex Mono)
+     ✅ Headline fixed: "Create one ZIP from your files."
+     ✅ Keeps ALL ids for app.js v15+
 -->
 
 <!doctype html>
@@ -11,8 +10,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>ZipPixel — Create one clean ZIP in seconds</title>
-  <meta name="description" content="Upload up to 50 files and generate one clean ZIP instantly. No signup. Pay once." />
+  <title>ZipPixel — Create one ZIP from your files</title>
+  <meta name="description" content="Upload up to 50 files and generate one clean ZIP. No signup. Pay once." />
   <link rel="canonical" href="https://zippixel.it.com/" />
 
   <meta property="og:title" content="ZipPixel — One clean ZIP in seconds" />
@@ -24,7 +23,13 @@
   <meta name="theme-color" content="#0b1220" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="stylesheet" href="/style.css?v=19" />
+
+  <!-- Premium fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/style.css?v=20" />
 </head>
 
 <body class="premium">
@@ -52,9 +57,9 @@
     <div class="container heroInner">
 
       <div class="heroText">
-        <h1>Create one clean ZIP from up to 50 files.</h1>
+        <h1>Create one ZIP from your files.</h1>
         <p class="heroSub">
-          Fast. Simple. No signup. Pay once.
+          Upload up to <b>50</b> files. Pay once. Download instantly.
         </p>
       </div>
 
@@ -67,7 +72,7 @@
             <div class="status" id="status">Ready</div>
             <div class="spinner" id="spinner"></div>
           </div>
-          <div class="statusHint" id="statusHint">Drop files to begin.</div>
+          <div class="statusHint" id="statusHint">Add files, then upload.</div>
         </div>
 
         <!-- Dropzone -->
@@ -75,8 +80,10 @@
           <input id="files" type="file" multiple />
 
           <div class="dzCenter">
-            <div class="dzIcon" aria-hidden="true">⬆</div>
-            <div class="dzTitle">Drag files here</div>
+            <div class="dzIcon" aria-hidden="true">
+              <span class="dzArrow">↑</span>
+            </div>
+            <div class="dzTitle">Drop files here</div>
             <div class="dzSub">Up to 50 files • One ZIP download</div>
             <button class="btnPrimary btnLarge" id="chooseBtn" type="button">
               Select files
@@ -106,18 +113,13 @@
 
         <!-- Actions -->
         <div class="actionRow actionRowPremium">
-          <button class="btnSoft" id="upload" disabled>
-            Upload files
-          </button>
-          <button class="btnPrimary btnStrong" id="continue" disabled>
-            Continue →
-          </button>
+          <button class="btnSoft" id="upload" disabled>Upload files</button>
+          <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
         </div>
 
         <div class="fineprint">
           Secure Stripe checkout • Instant download after payment
         </div>
-
       </div>
     </div>
   </section>
@@ -178,36 +180,28 @@
   </div>
 </footer>
 
-<!-- MODAL (IDs preserved) -->
+<!-- MODAL (required for app.js IDs) -->
 <div class="modalOverlay" id="priceModal" aria-hidden="true">
   <div class="modalCard premiumModal" role="dialog" aria-modal="true" aria-label="Checkout options">
-
     <div class="modalTop">
       <div class="modalTitle">Checkout</div>
-      <button class="modalClose" id="modalCloseBtn" type="button" aria-label="Close">
-        Close
-      </button>
+      <button class="modalClose" id="modalCloseBtn" type="button" aria-label="Close">Close</button>
     </div>
 
     <div class="modalBody">
-
-      <p class="modalLead" id="priceModalLead">
-        Review your upload.
-      </p>
+      <p class="modalLead" id="priceModalLead">Review your upload.</p>
 
       <div class="modalSummary">
         <div>
           <div class="modalSummaryKicker">Selected</div>
           <div class="modalSummaryMain">
-            <span id="countInline">0</span> file(s) • 
-            <span id="tierInline">ZIP Download</span>
+            <span id="countInline">0</span> file(s) • <span id="tierInline">ZIP Download</span>
           </div>
         </div>
         <div class="modalSummaryAmt" id="priceInline">£0.00</div>
       </div>
 
       <div class="priceGrid" aria-label="Pricing">
-
         <div class="priceRow isChosen" id="rowStandard">
           <div>
             <div class="priceName">ZIP (up to 10 files)</div>
@@ -244,21 +238,14 @@
           <input type="checkbox" id="optListingNames" />
           <input type="checkbox" id="optDayPass" />
         </div>
-
       </div>
 
-      <div class="modalNote" id="priceModalNote">
-        You’ll be redirected to secure Stripe Checkout.
-      </div>
+      <div class="modalNote" id="priceModalNote">You’ll be redirected to secure Stripe Checkout.</div>
     </div>
 
     <div class="modalFoot">
-      <button class="btnSoft" id="modalBackBtn" type="button">
-        Back
-      </button>
-      <button class="btnPrimary btnStrong" id="modalPayBtn" type="button">
-        Pay &amp; continue →
-      </button>
+      <button class="btnSoft" id="modalBackBtn" type="button">Back</button>
+      <button class="btnPrimary btnStrong" id="modalPayBtn" type="button">Pay &amp; continue →</button>
     </div>
   </div>
 </div>
