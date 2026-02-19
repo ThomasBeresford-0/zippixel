@@ -1,8 +1,8 @@
-<!-- success.html — ZipPixel (v15 FULL RAMBO)
-     ✅ Uses /api/status/:jobId (webhook-driven PAID state)
-     ✅ Same JS hooks/logic (no backend changes)
-     ✅ Premium “paid artifact” experience (no jank while polling)
-     ✅ Uses existing v15 style.css classes (legalPage/legalHeader/legalCard still valid)
+<!-- public/success.html — ZipPixel (v18 - STRIPE MODE)
+     ✅ Uses /api/status/:jobId (webhook + fallback)
+     ✅ SAME logic (no backend changes)
+     ✅ Matches v18 nav/tool/footer styling (premium + consistent)
+     ✅ No legacy “pricing page” vibes
 -->
 <!doctype html>
 <html lang="en">
@@ -17,285 +17,277 @@
   <meta name="theme-color" content="#0b1220" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="/style.css?v=16" />
+  <link rel="stylesheet" href="/style.css?v=18" />
 </head>
 
 <body>
-  <header class="top">
-    <div class="container top__inner">
-      <a class="brand" href="/" aria-label="ZipPixel home">
-        <span class="brand__logo" aria-hidden="true">
-          <img src="/favicon.svg?v=1" alt="ZipPixel" width="34" height="34" />
-        </span>
-        <span class="brand__text">
-          <span class="brand__name">ZipPixel</span>
-          <span class="brand__sub">Compress files → one ZIP</span>
-        </span>
-      </a>
 
-      <nav class="nav" aria-label="Site">
-        <a href="/">Tool</a>
-        <a href="/pricing">Pricing</a>
-        <a href="/#faq">FAQ</a>
-        <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
-      </nav>
+<header class="nav">
+  <div class="container navInner">
+    <a class="brand" href="/" aria-label="ZipPixel home">
+      <img src="/favicon.svg" width="28" height="28" alt="">
+      <span>ZipPixel</span>
+    </a>
 
-      <div class="top__cta">
-        <a class="btn btn--soft btn--sm" href="/">Back to tool</a>
-      </div>
-    </div>
-  </header>
+    <nav class="navLinks" aria-label="Site">
+      <a href="/">Tool</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+  </div>
+</header>
 
-  <main class="page">
-    <section class="legalPage">
-      <div class="container">
+<main>
+  <section class="hero" style="padding-top:42px;">
+    <div class="container heroInner" style="max-width:860px;">
 
-        <div class="legalHeader">
-          <div class="legalKicker">Payment</div>
-          <h1 class="legalTitle">Payment received.</h1>
-          <p class="legalMeta" id="sub">Finalising your download…</p>
-        </div>
+      <h1 style="font-size:clamp(30px,3.4vw,42px); letter-spacing:-0.05em;">
+        Payment received.
+      </h1>
 
-        <article class="legalCard">
-          <!-- Premium status box (uses existing compat styles; looks “expensive”) -->
-          <div class="successBox" aria-live="polite">
-            <div class="successIcon" aria-hidden="true">✓</div>
-            <div style="min-width:0;">
-              <div class="successTitle" id="titleLine">Preparing your ZIP</div>
-              <div class="successDesc" id="desc">
-                We’re confirming payment and building your download. This usually takes a few seconds.
-              </div>
+      <p class="heroSub" id="sub" style="margin-bottom:22px;">
+        Finalising your download…
+      </p>
+
+      <div class="tool" style="padding:18px;">
+
+        <div class="successBox" aria-live="polite">
+          <div class="successIcon" aria-hidden="true">✓</div>
+          <div style="min-width:0;">
+            <div class="successTitle" id="titleLine">Preparing your ZIP</div>
+            <div class="successDesc" id="desc">
+              We’re confirming payment and preparing your download. This usually takes a few seconds.
             </div>
           </div>
+        </div>
 
-          <div class="successActions" id="actions" aria-live="polite"></div>
+        <div class="successActions" id="actions" aria-live="polite"></div>
 
-          <p class="fineprint" id="hint">
-            Please keep this tab open. If it takes longer than ~30 seconds, use “Check again”.
-          </p>
-        </article>
+        <p class="fineprint" id="hint" style="margin-top:12px;">
+          Please keep this tab open. If it takes longer than ~30 seconds, use “Check again”.
+        </p>
 
       </div>
-    </section>
-  </main>
 
-  <footer class="footer">
-    <div class="container footer__inner">
-      <div>© <span id="y"></span> ZipPixel</div>
-      <div class="footer__links">
-        <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
-      </div>
     </div>
-  </footer>
+  </section>
+</main>
 
-  <script>
-    document.getElementById("y").textContent = new Date().getFullYear();
+<footer class="footer">
+  <div class="container footerInner">
+    <div>© <span id="y"></span> ZipPixel</div>
+    <div>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </div>
+  </div>
+</footer>
 
-    const qs = new URLSearchParams(location.search);
-    const jobId = (qs.get("jobId") || "").trim();
+<script>
+  document.getElementById("y").textContent = new Date().getFullYear();
 
-    const actions = document.getElementById("actions");
-    const sub = document.getElementById("sub");
-    const desc = document.getElementById("desc");
-    const hint = document.getElementById("hint");
-    const titleLine = document.getElementById("titleLine");
+  const qs = new URLSearchParams(location.search);
+  const jobId = (qs.get("jobId") || "").trim();
 
-    const setActions = (html) => { actions.innerHTML = html; };
+  const actions = document.getElementById("actions");
+  const sub = document.getElementById("sub");
+  const desc = document.getElementById("desc");
+  const hint = document.getElementById("hint");
+  const titleLine = document.getElementById("titleLine");
 
-    const supportHtml = `Support: <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>`;
+  const setActions = (html) => { actions.innerHTML = html; };
 
-    const downloadUrl = jobId ? `/api/download/${encodeURIComponent(jobId)}` : "#";
-    const statusUrl = jobId ? `/api/status/${encodeURIComponent(jobId)}` : "#";
+  const supportHtml = `Support: <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>`;
 
-    const safeCopy = async (text) => {
+  const downloadUrl = jobId ? `/api/download/${encodeURIComponent(jobId)}` : "#";
+  const statusUrl = jobId ? `/api/status/${encodeURIComponent(jobId)}` : "#";
+
+  const safeCopy = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
       try {
-        await navigator.clipboard.writeText(text);
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "true");
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
         return true;
       } catch {
-        try {
-          const ta = document.createElement("textarea");
-          ta.value = text;
-          ta.setAttribute("readonly", "true");
-          ta.style.position = "fixed";
-          ta.style.left = "-9999px";
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand("copy");
-          document.body.removeChild(ta);
-          return true;
-        } catch {
-          return false;
-        }
+        return false;
       }
+    }
+  };
+
+  // ---- edge case: missing jobId
+  if (!jobId) {
+    sub.textContent = "We couldn’t find your download reference.";
+    titleLine.textContent = "Missing download reference";
+    desc.textContent = "Go back to ZipPixel and try again. If this keeps happening, email support.";
+    hint.innerHTML = supportHtml;
+
+    setActions(`
+      <a class="btnPrimary btnBlock" href="/">Go to ZipPixel</a>
+      <a class="btnSoft btnBlock" href="/terms">Terms</a>
+    `);
+  } else {
+    const maxMs = 30000;
+    const start = Date.now();
+    let attempt = 0;
+
+    // waiting | notPaid | ready | failed
+    let mode = "waiting";
+
+    const renderWaiting = (msg) => {
+      mode = "waiting";
+      sub.textContent = "Finalising your download…";
+      titleLine.textContent = "Preparing your ZIP";
+      desc.textContent = msg || "This usually takes a few seconds.";
+      hint.textContent = "Please keep this tab open. If it takes longer than ~30 seconds, use “Check again”.";
+
+      setActions(`
+        <button class="btnPrimary btnBlock" id="retryBtn" type="button">Check again</button>
+        <a class="btnGhost btnBlock" href="/">Back to ZipPixel</a>
+      `);
+
+      const b = document.getElementById("retryBtn");
+      if (b) b.onclick = () => poll(true);
     };
 
-    // ---- edge case: missing jobId
-    if (!jobId) {
-      sub.textContent = "We couldn’t find your job.";
-      titleLine.textContent = "Missing download reference";
-      desc.textContent = "Go back to ZipPixel and try again. If this keeps happening, email support.";
+    const renderNotPaid = () => {
+      mode = "notPaid";
+      sub.textContent = "Payment not confirmed yet.";
+      titleLine.textContent = "Still confirming payment";
+      desc.textContent = "If you just paid, it can take a moment. If you cancelled, head back and try again.";
       hint.innerHTML = supportHtml;
 
       setActions(`
-        <a class="btn btn--primary btn--block" href="/">Go to ZipPixel</a>
-        <a class="btn btn--soft btn--block" href="/pricing">View pricing</a>
+        <a class="btnPrimary btnBlock" href="/">Back to ZipPixel</a>
+        <button class="btnGhost btnBlock" id="retryBtn3" type="button">Check again</button>
       `);
-    } else {
-      const maxMs = 30000;
-      const start = Date.now();
-      let attempt = 0;
 
-      // waiting | notPaid | ready | failed
-      let mode = "waiting";
+      const b = document.getElementById("retryBtn3");
+      if (b) b.onclick = () => poll(true);
+    };
 
-      const renderWaiting = (msg) => {
-        mode = "waiting";
-        sub.textContent = "Finalising your download…";
-        titleLine.textContent = "Preparing your ZIP";
-        desc.textContent = msg || "This usually takes a few seconds.";
-        hint.textContent = "Please keep this tab open. If it takes longer than ~30 seconds, use “Check again”.";
+    const renderFailed = () => {
+      mode = "failed";
+      sub.textContent = "Still not ready.";
+      titleLine.textContent = "Taking longer than expected";
+      desc.textContent = "Try once more. If it still doesn’t work, email support and we’ll sort it.";
+      hint.innerHTML = supportHtml;
 
-        setActions(`
-          <button class="btn btn--primary btn--block" id="retryBtn" type="button">Check again</button>
-          <a class="btn btn--ghost btn--block" href="/">Back to ZipPixel</a>
-        `);
+      setActions(`
+        <a class="btnPrimary btnBlock" href="${downloadUrl}">Try download</a>
+        <button class="btnSoft btnBlock" id="retryBtn2" type="button">Check again</button>
+      `);
 
-        const b = document.getElementById("retryBtn");
-        if (b) b.onclick = () => poll(true);
-      };
+      const b = document.getElementById("retryBtn2");
+      if (b) b.onclick = () => poll(true);
+    };
 
-      const renderNotPaid = () => {
-        mode = "notPaid";
-        sub.textContent = "Payment not confirmed yet.";
-        titleLine.textContent = "Still confirming payment";
-        desc.textContent = "If you just paid, it can take a moment. If you cancelled, head back and try again.";
-        hint.innerHTML = supportHtml;
+    const renderReady = (shareToken) => {
+      mode = "ready";
+      sub.textContent = "Ready to download.";
+      titleLine.textContent = "Your ZIP is ready";
+      desc.textContent = shareToken
+        ? "Download the ZIP, or copy a share link to send it to someone."
+        : "Download your ZIP below.";
 
-        setActions(`
-          <a class="btn btn--primary btn--block" href="/">Back to ZipPixel</a>
-          <a class="btn btn--soft btn--block" href="/pricing">View pricing</a>
-          <button class="btn btn--ghost btn--block" id="retryBtn3" type="button">Check again</button>
-        `);
+      let shareHtml = "";
+      if (shareToken) {
+        const link = `${location.origin}/s/${shareToken}`;
+        const safe = link.replace(/"/g, "&quot;");
 
-        const b = document.getElementById("retryBtn3");
-        if (b) b.onclick = () => poll(true);
-      };
-
-      const renderFailed = () => {
-        mode = "failed";
-        sub.textContent = "Still not ready.";
-        titleLine.textContent = "Taking longer than expected";
-        desc.textContent = "Try once more. If it still doesn’t work, email support and we’ll sort it.";
-        hint.innerHTML = supportHtml;
-
-        setActions(`
-          <a class="btn btn--primary btn--block" href="${downloadUrl}">Try download</a>
-          <button class="btn btn--soft btn--block" id="retryBtn2" type="button">Check again</button>
-        `);
-
-        const b = document.getElementById("retryBtn2");
-        if (b) b.onclick = () => poll(true);
-      };
-
-      const renderReady = (shareToken) => {
-        mode = "ready";
-        sub.textContent = "Ready to download.";
-        titleLine.textContent = "Your ZIP is ready";
-        desc.textContent = shareToken
-          ? "Download the ZIP, or copy a shareable link to send it to a client."
-          : "Download your ZIP below.";
-
-        let shareHtml = "";
-        if (shareToken) {
-          const link = `${location.origin}/s/${shareToken}`;
-          const safe = link.replace(/"/g, "&quot;");
-
-          shareHtml = `
-            <div class="shareBox">
-              <div class="shareLabel">Shareable link</div>
-              <div class="shareRow">
-                <input class="shareInput" id="shareInput" value="${safe}" readonly />
-                <button class="btn btn--soft btn--sm" id="copyBtn" type="button">Copy</button>
-              </div>
-              <div class="shareHint" id="copyHint">Anyone with the link can download while it remains available.</div>
+        shareHtml = `
+          <div class="shareBox">
+            <div class="shareLabel">Share link</div>
+            <div class="shareRow">
+              <input class="shareInput" id="shareInput" value="${safe}" readonly />
+              <button class="btnSoft btnSm" id="copyBtn" type="button">Copy</button>
             </div>
-          `;
-        }
+            <div class="shareHint" id="copyHint">Anyone with the link can download while it remains available.</div>
+          </div>
+        `;
+      }
 
-        setActions(`
-          <a class="btn btn--primary btn--block" href="${downloadUrl}">Download ZIP</a>
-          ${shareHtml}
-          <a class="btn btn--ghost btn--block" href="/">Back to ZipPixel</a>
-        `);
+      setActions(`
+        <a class="btnPrimary btnBlock" href="${downloadUrl}">Download ZIP</a>
+        ${shareHtml}
+        <a class="btnGhost btnBlock" href="/">Back to ZipPixel</a>
+      `);
 
-        if (shareToken) {
-          const link = `${location.origin}/s/${shareToken}`;
-          const copyBtn = document.getElementById("copyBtn");
-          const copyHint = document.getElementById("copyHint");
+      if (shareToken) {
+        const link = `${location.origin}/s/${shareToken}`;
+        const copyBtn = document.getElementById("copyBtn");
+        const copyHint = document.getElementById("copyHint");
 
-          copyBtn?.addEventListener("click", async () => {
-            const ok = await safeCopy(link);
-            if (copyHint) copyHint.textContent = ok ? "Copied ✅" : "Couldn’t copy — select the link and copy manually.";
-          });
-        }
+        copyBtn?.addEventListener("click", async () => {
+          const ok = await safeCopy(link);
+          if (copyHint) copyHint.textContent = ok ? "Copied ✅" : "Couldn’t copy — select the link and copy manually.";
+        });
+      }
 
-        hint.textContent = "Tip: download promptly and store the ZIP somewhere safe.";
-      };
+      hint.textContent = "Tip: download promptly and store the ZIP somewhere safe.";
+    };
 
-      const checkStatus = async () => {
-        try {
-          const r = await fetch(statusUrl, { cache: "no-store" });
-          if (!r.ok) return { ok: false, paid: false, status: "UNKNOWN", shareToken: null };
-          const j = await r.json();
-          return {
-            ok: !!j.ok,
-            paid: !!j.paid,
-            status: j.status || "UNKNOWN",
-            shareToken: j.shareToken || null
-          };
-        } catch {
-          return { ok: false, paid: false, status: "UNKNOWN", shareToken: null };
-        }
-      };
+    const checkStatus = async () => {
+      try {
+        const r = await fetch(statusUrl, { cache: "no-store" });
+        if (!r.ok) return { ok: false, paid: false, status: "UNKNOWN", shareToken: null };
+        const j = await r.json();
+        return {
+          ok: !!j.ok,
+          paid: !!j.paid,
+          status: j.status || "UNKNOWN",
+          shareToken: j.shareToken || null
+        };
+      } catch {
+        return { ok: false, paid: false, status: "UNKNOWN", shareToken: null };
+      }
+    };
 
-      const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+    const sleep = (ms) => new Promise(res => setTimeout(res, ms));
 
-      const poll = async (manual = false) => {
-        attempt++;
-        const waited = Date.now() - start;
+    const poll = async (manual = false) => {
+      attempt++;
+      const waited = Date.now() - start;
 
-        if (manual) renderWaiting("Checking…");
+      if (manual) renderWaiting("Checking…");
 
-        const st = await checkStatus();
+      const st = await checkStatus();
 
-        if (st.paid) return renderReady(st.shareToken);
+      if (st.paid) return renderReady(st.shareToken);
 
-        if (waited > 6000) {
-          if (mode !== "notPaid") renderNotPaid();
-        } else {
-          if (mode !== "waiting") renderWaiting("Checking your payment…");
-        }
+      if (waited > 6000) {
+        if (mode !== "notPaid") renderNotPaid();
+      } else {
+        if (mode !== "waiting") renderWaiting("Checking your payment…");
+      }
 
-        if (waited >= maxMs) return renderFailed();
+      if (waited >= maxMs) return renderFailed();
 
-        const delay = Math.min(2500, 800 + attempt * 350);
+      const delay = Math.min(2500, 800 + attempt * 350);
 
-        if (mode === "waiting") {
-          renderWaiting(`Not ready yet. Retrying in ${(delay/1000).toFixed(1)}s…`);
-        }
+      if (mode === "waiting") {
+        renderWaiting(`Not ready yet. Retrying in ${(delay/1000).toFixed(1)}s…`);
+      }
 
-        await sleep(delay);
-        return poll(false);
-      };
+      await sleep(delay);
+      return poll(false);
+    };
 
-      renderWaiting("Checking your payment…");
-      poll(false);
-    }
-  </script>
+    renderWaiting("Checking your payment…");
+    poll(false);
+  }
+</script>
 </body>
 </html>

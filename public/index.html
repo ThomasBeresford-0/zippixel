@@ -1,7 +1,7 @@
-<!-- public/index.html — ZipPixel (v17.1 - STRIPE MODE)
-     ✅ Pricing hidden until Continue (modal-only reveal)
-     ✅ Tool-first centered layout
-     ✅ Keeps ALL ids for app.js v14+ (including legacy hidden ids)
+<!-- public/index.html — ZipPixel (v18 - STRIPE MODE)
+     ✅ Premium copy + layout upgrade (no “client-ready”)
+     ✅ Price hidden until modal (conversion)
+     ✅ Keeps ALL ids for app.js v15
 -->
 
 <!doctype html>
@@ -10,20 +10,20 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>ZipPixel — Create clean ZIP packages in seconds</title>
-  <meta name="description" content="Upload up to 50 files. We optimise what we can and bundle everything into one clean ZIP. No signup. Pay once." />
+  <title>ZipPixel — Bundle files into one clean ZIP</title>
+  <meta name="description" content="Upload up to 50 files and get one clean ZIP. No signup. Pay once." />
   <link rel="canonical" href="https://zippixel.it.com/" />
 
-  <meta property="og:title" content="ZipPixel — Client-ready ZIPs in seconds" />
-  <meta property="og:description" content="Upload files → Download one clean ZIP. No signup." />
+  <meta property="og:title" content="ZipPixel — One clean ZIP in seconds" />
+  <meta property="og:description" content="Upload files → Download one ZIP. No signup." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zippixel.it.com/" />
   <meta property="og:image" content="https://zippixel.it.com/og.png" />
 
-  <meta name="theme-color" content="#111827" />
+  <meta name="theme-color" content="#0b1220" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="stylesheet" href="/style.css?v=17" />
+  <link rel="stylesheet" href="/style.css?v=18" />
 </head>
 
 <body>
@@ -50,10 +50,10 @@
   <section class="hero">
     <div class="container heroInner">
 
-      <h1>Create client-ready ZIP packages in seconds.</h1>
+      <h1>Bundle files into one clean ZIP in seconds.</h1>
 
       <p class="heroSub">
-        Upload up to 50 files. We optimise what we can and bundle everything into one clean ZIP.
+        Upload up to 50 files. We bundle everything into a single ZIP you can download instantly.
         No signup. Pay once.
       </p>
 
@@ -62,8 +62,10 @@
 
         <!-- Status -->
         <div class="statusWrap">
-          <div class="status" id="status">Ready</div>
-          <div class="spinner" id="spinner"></div>
+          <div class="statusLeft">
+            <div class="status" id="status">Ready</div>
+            <div class="spinner" id="spinner"></div>
+          </div>
           <div class="statusHint" id="statusHint">Drop files to begin.</div>
         </div>
 
@@ -72,12 +74,10 @@
           <input id="files" type="file" multiple />
 
           <div class="dzCenter">
-            <div class="dzIcon">📦</div>
-            <div class="dzTitle">Drag &amp; drop files here</div>
-            <div class="dzSub">Up to 50 files • One clean ZIP</div>
-            <button class="btnPrimary" id="chooseBtn" type="button">
-              Choose files
-            </button>
+            <div class="dzIcon" aria-hidden="true">📦</div>
+            <div class="dzTitle">Drag &amp; drop files</div>
+            <div class="dzSub">Up to 50 files • One ZIP download</div>
+            <button class="btnPrimary" id="chooseBtn" type="button">Choose files</button>
           </div>
 
           <div class="fileMeta" id="fileMeta" hidden>
@@ -107,10 +107,7 @@
           <button class="btnPrimary" id="continue" disabled>Continue</button>
         </div>
 
-        <div class="fineprint">
-          Secure checkout powered by Stripe
-        </div>
-
+        <div class="fineprint">Secure checkout powered by Stripe</div>
       </div>
 
     </div>
@@ -123,8 +120,8 @@
 
       <div class="steps">
         <div><strong>1.</strong> Add files</div>
-        <div><strong>2.</strong> We optimise &amp; bundle</div>
-        <div><strong>3.</strong> Pay once → Download</div>
+        <div><strong>2.</strong> Upload</div>
+        <div><strong>3.</strong> Pay once → Download ZIP</div>
       </div>
     </div>
   </section>
@@ -163,70 +160,68 @@
   </div>
 </footer>
 
-<!-- =========================
-     CHECKOUT MODAL (required)
-     Price is revealed ONLY here
-========================= -->
+<!-- MODAL (required for app.js IDs) -->
 <div class="modalOverlay" id="priceModal" aria-hidden="true">
-  <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="priceModalTitle">
+  <div class="modalCard" role="dialog" aria-modal="true" aria-label="Checkout options">
     <div class="modalTop">
-      <div class="modalTitle" id="priceModalTitle">Checkout</div>
+      <div class="modalTitle">Checkout</div>
       <button class="modalClose" id="modalCloseBtn" type="button" aria-label="Close">Close</button>
     </div>
 
     <div class="modalBody">
-      <p class="modalLead" id="priceModalLead">You’ve uploaded files.</p>
+      <p class="modalLead" id="priceModalLead">Review your upload.</p>
 
       <div class="modalSummary">
         <div>
-          <div class="modalSummaryKicker">Package</div>
+          <div class="modalSummaryKicker">Selected</div>
           <div class="modalSummaryMain">
-            <span id="tierInline">ZIP Download</span> • <span id="countInline">0</span> files
+            <span id="countInline">0</span> file(s) • <span id="tierInline">ZIP Download</span>
           </div>
         </div>
         <div class="modalSummaryAmt" id="priceInline">£0.00</div>
       </div>
 
-      <!-- Pricing rows (legacy IDs kept for app.js) -->
-      <div class="priceGrid">
+      <div class="priceGrid" aria-label="Pricing">
+        <!-- Tier rows (app.js toggles .isChosen) -->
         <div class="priceRow isChosen" id="rowStandard">
           <div>
-            <div class="priceName">ZIP Download</div>
-            <div class="priceDesc">Optimise what we can • Bundle everything into one ZIP</div>
+            <div class="priceName">ZIP (up to 10 files)</div>
+            <div class="priceDesc">Best for small batches</div>
           </div>
-          <div class="priceAmt">
-            <span aria-hidden="true">Included</span>
-          </div>
+          <div class="priceAmt">£2.99</div>
         </div>
 
-        <div class="priceRow" id="rowPro" style="display:none">
+        <div class="priceRow" id="rowPro">
           <div>
-            <div class="priceName">Pro</div>
-            <div class="priceDesc">Legacy option (hidden)</div>
+            <div class="priceName">Pro ZIP (up to 50 files)</div>
+            <div class="priceDesc">For larger batches</div>
           </div>
-          <div class="priceAmt">—</div>
+          <div class="priceAmt">£9.99</div>
         </div>
 
-        <div class="priceRow">
+        <!-- Optional add-on -->
+        <div class="priceRow" id="rowShare">
           <div>
-            <div class="priceName">Shareable link</div>
-            <div class="priceDesc">Let someone else download the ZIP (time-limited)</div>
+            <div class="priceName">Share link</div>
+            <div class="priceDesc">Optional link you can send to someone</div>
           </div>
           <div class="priceAmt">
             <label>
               <input type="checkbox" id="optShareLink" />
-              Add
+              +£2.49
             </label>
           </div>
         </div>
-      </div>
 
-      <!-- Legacy options (present but disabled in JS) -->
-      <input type="checkbox" id="optPrintReady" hidden>
-      <input type="checkbox" id="optEmailSafe" hidden>
-      <input type="checkbox" id="optKeepNames" hidden>
-      <input type="checkbox" id="optListingNames" hidden>
-      <input type="checkbox" id="optDayPass" hidden>
+        <!-- Legacy hidden inputs (kept for compatibility) -->
+        <div style="display:none">
+          <input type="checkbox" id="optPrintReady" />
+          <input type="checkbox" id="optEmailSafe" />
+          <input type="checkbox" id="optKeepNames" />
+          <input type="checkbox" id="optListingNames" />
+          <input type="checkbox" id="optDayPass" />
+        </div>
+      </div>
 
       <div class="modalNote" id="priceModalNote">You’ll be redirected to secure Stripe Checkout.</div>
     </div>
@@ -238,12 +233,6 @@
   </div>
 </div>
 
-<script>
-  document.getElementById("y").textContent = new Date().getFullYear();
-</script>
-
-<!-- If you haven't updated app.js yet, keep ?v=14 for now -->
 <script src="/app.js?v=15" defer></script>
-
 </body>
 </html>

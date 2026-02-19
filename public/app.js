@@ -1,5 +1,5 @@
-// public/app.js — ZipPixel frontend (v15.1 - MONEY MODE TIERS, conversion-first)
-// Matches: v17 index.html IDs + server.js routes:
+// public/app.js — ZipPixel frontend (v15.1 - MONEY MODE TIERS, PRICE HIDDEN UNTIL MODAL)
+// Matches: v18 index.html IDs + server.js v15 routes:
 // /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/checkout
 (() => {
   // ====== YEAR ======
@@ -7,19 +7,15 @@
   if (y) y.textContent = new Date().getFullYear();
 
   // ====== LIMITS ======
-  const MAX_FILES = 50;      // v15: allow up to 50
-  const MAX_MB_EACH = 25;    // per file
+  const MAX_FILES = 50;
+  const MAX_MB_EACH = 25;
 
-  // ====== PRICING (modal-only reveal) ======
-  // Tier rules:
-  // 1–10 files  => £2.99
-  // 11–50 files => £9.99
+  // ====== PRICING (modal only) ======
   const TIER_10_LIMIT = 10;
   const TIER_10_PRICE = 2.99;
   const TIER_50_LIMIT = 50;
   const TIER_50_PRICE = 9.99;
-
-  const SHARE_LINK_PRICE = 2.49; // optional add-on
+  const SHARE_LINK_PRICE = 2.49;
 
   // ====== DOM ======
   const dropzone = document.getElementById("dropzone");
@@ -50,10 +46,9 @@
   const modalBackBtn = document.getElementById("modalBackBtn");
   const modalPayBtn = document.getElementById("modalPayBtn");
 
-  // Optional add-on
   const optShareLink = document.getElementById("optShareLink");
 
-  // Legacy IDs (present but hidden in older HTML)
+  // Legacy IDs (kept)
   const optPrintReady = document.getElementById("optPrintReady");
   const optEmailSafe = document.getElementById("optEmailSafe");
   const optKeepNames = document.getElementById("optKeepNames");
@@ -79,7 +74,6 @@
 
   let selected = [];            // Array<File>
   const thumbUrls = new Map();  // keyOf(file) -> objectURL (images only)
-
   let uploadedMeta = [];        // [{ key, originalname, mimetype }]
 
   // ====== HELPERS ======
@@ -110,7 +104,6 @@
     return ext || (f.type ? f.type.toUpperCase() : "FILE");
   };
 
-  // Any file type; enforce size limit only
   const validateFile = (f) => {
     if (!f) return "Invalid file.";
     if (f.size > MAX_MB_EACH * 1024 * 1024) {
@@ -147,26 +140,17 @@
 
   const getTier = (count) => {
     const n = Number(count || 0);
-    if (!Number.isFinite(n) || n <= 0) {
-      return { name: "ZIP Download", limit: TIER_10_LIMIT, base: TIER_10_PRICE, key: "zip10" };
-    }
-    if (n <= TIER_10_LIMIT) return { name: "ZIP Download", limit: TIER_10_LIMIT, base: TIER_10_PRICE, key: "zip10" };
+    if (!Number.isFinite(n) || n <= 0) return { name: "ZIP", limit: TIER_10_LIMIT, base: TIER_10_PRICE, key: "zip10" };
+    if (n <= TIER_10_LIMIT) return { name: "ZIP", limit: TIER_10_LIMIT, base: TIER_10_PRICE, key: "zip10" };
     return { name: "Pro ZIP", limit: TIER_50_LIMIT, base: TIER_50_PRICE, key: "zip50" };
   };
 
-  const calcTotal = (count) => {
-    const tier = getTier(count);
+  const calcTotal = () => {
+    const tier = getTier(selected.length);
     const share = !!optShareLink?.checked;
     return tier.base + (share ? SHARE_LINK_PRICE : 0);
   };
 
-  // Conversion-first: NEVER show prices on the Continue button
-  const setContinueLabel = () => {
-    if (!continueBtn) return;
-    continueBtn.textContent = "Continue";
-  };
-
-  // Hard-disable legacy options so users never get “promised” something backend doesn’t support
   const disableLegacyOptions = () => {
     [optPrintReady, optEmailSafe, optKeepNames, optListingNames, optDayPass].forEach((el) => {
       if (!el) return;
@@ -179,26 +163,11 @@
     const n = selected.length;
     const tier = getTier(n);
 
-    if (tierInline) tierInline.textContent = tier.name;
+    if (tierInline) tierInline.textContent = tier.key === "zip50" ? "Pro ZIP" : "ZIP";
     if (countInline) countInline.textContent = String(n);
 
     if (rowStandard) rowStandard.classList.toggle("isChosen", tier.key === "zip10");
     if (rowPro) rowPro.classList.toggle("isChosen", tier.key === "zip50");
-    if (rowPro) rowPro.style.display = ""; // reveal if hidden
-
-    // Update row copy if markup exists
-    try {
-      const stdDesc = rowStandard?.querySelector?.(".priceDesc");
-      if (stdDesc) stdDesc.textContent = `Up to ${TIER_10_LIMIT} files`;
-      const proDesc = rowPro?.querySelector?.(".priceDesc");
-      if (proDesc) proDesc.textContent = `Up to ${TIER_50_LIMIT} files`;
-
-      const stdAmt = rowStandard?.querySelector?.(".priceAmt");
-      if (stdAmt) stdAmt.textContent = `£${TIER_10_PRICE.toFixed(2)}`;
-
-      const proAmt = rowPro?.querySelector?.(".priceAmt");
-      if (proAmt) proAmt.textContent = `£${TIER_50_PRICE.toFixed(2)}`;
-    } catch {}
 
     if (priceModalLead) {
       priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> file${n === 1 ? "" : "s"}.`;
@@ -206,14 +175,12 @@
   };
 
   const syncModalTotalUI = () => {
-    const total = calcTotal(selected.length);
+    const total = calcTotal();
     if (priceInline) priceInline.textContent = `£${total.toFixed(2)}`;
   };
 
   const renderSelected = () => {
     if (!fileMeta || !fileSummary || !fileList) return;
-
-    setContinueLabel();
 
     if (selected.length === 0) {
       fileMeta.hidden = true;
@@ -229,9 +196,7 @@
     }
 
     const totalBytes = selected.reduce((a, f) => a + f.size, 0);
-    const tier = getTier(selected.length);
-    fileSummary.textContent =
-      `Selected ${selected.length} file(s) • Total ${humanMB(totalBytes)} • Tier: ${tier.key === "zip10" ? "≤10" : "11–50"}.`;
+    fileSummary.textContent = `Selected ${selected.length} file(s) • Total ${humanMB(totalBytes)}.`;
 
     const currentKeys = new Set(selected.map(keyOf));
     revokeRemovedThumbs(currentKeys);
@@ -293,10 +258,8 @@
       thumbUrls.delete(k);
     }
 
-    // Selection change invalidates previous upload metadata
     uploadedMeta = [];
     continueBtn.disabled = true;
-
     renderSelected();
   });
 
@@ -393,13 +356,11 @@
     uploadBtn.disabled = uploading || selected.length === 0;
   };
 
-  // Choose files button
   chooseBtn.addEventListener("click", (e) => {
     e.preventDefault();
     filesEl.click();
   });
 
-  // File picker changed
   filesEl.addEventListener("change", async () => {
     if (!filesEl.files || filesEl.files.length === 0) return;
     await addFiles(filesEl.files);
@@ -436,7 +397,6 @@
     await addFiles(files);
   });
 
-  // Clear
   clearBtn?.addEventListener("click", () => {
     if (uploading) return;
     selected = [];
@@ -565,16 +525,14 @@
       if (reg?.error) throw new Error(reg.error);
 
       setStatus("Uploaded.");
-      setHint(
-        `Uploaded. Continue to checkout.<br/><span style="color: rgba(11,18,32,.56)">Optional: add a shareable link at checkout (+£${SHARE_LINK_PRICE.toFixed(2)}).</span>`
-      );
+      setHint(`Uploaded. Continue to checkout.<br/><span style="color: rgba(11,18,32,.56)">Optional: add a share link at checkout.</span>`);
 
       if (progressLabel) progressLabel.textContent = "Uploaded";
       if (progressFill) progressFill.style.width = "100%";
       if (progressPct) progressPct.textContent = "100%";
 
       continueBtn.disabled = false;
-      setContinueLabel();
+      continueBtn.textContent = "Continue";
     } catch (e) {
       setStatus("Upload failed.");
       setHint(escapeHtml(e?.message || "Please try again."));
@@ -594,29 +552,23 @@
 
     disableLegacyOptions();
 
-    // Default: OFF (trust). You can flip to true if you want higher AOV.
+    // Default share link OFF (trust-first). Flip to true if you want higher AOV.
     if (optShareLink) optShareLink.checked = false;
 
     syncModalTierUI();
     syncModalTotalUI();
 
     if (!shareListenerAttached && optShareLink) {
-      optShareLink.addEventListener("change", () => {
-        syncModalTotalUI();
-      });
+      optShareLink.addEventListener("change", syncModalTotalUI);
       shareListenerAttached = true;
     }
 
     if (priceModalNote) {
-      const tier = getTier(selected.length);
-      const base = tier.base.toFixed(2);
-      priceModalNote.textContent =
-        tier.key === "zip50"
-          ? `Pro tier selected (£${base}). You’ll be redirected to secure Stripe Checkout.`
-          : `Standard tier selected (£${base}). You’ll be redirected to secure Stripe Checkout.`;
+      priceModalNote.textContent = "You’ll be redirected to secure Stripe Checkout.";
     }
 
     priceModal.classList.add("isOpen");
+    priceModal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
     modalPayBtn?.focus();
   };
@@ -624,6 +576,7 @@
   const closePriceModal = () => {
     if (!priceModal) return;
     priceModal.classList.remove("isOpen");
+    priceModal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
     continueBtn?.focus();
   };
@@ -667,9 +620,8 @@
         body: JSON.stringify({
           jobId,
           shareLink: !!optShareLink?.checked,
-          // informational / future-proof (backend can ignore safely)
-          tier: tier.key,
-          fileCount: n,
+          tier: tier.key,     // informational (backend can ignore)
+          fileCount: n,       // informational
         }),
       }).then(r => r.json());
 
@@ -691,5 +643,6 @@
   });
 
   // ====== INIT ======
+  continueBtn.textContent = "Continue";
   renderSelected();
 })();

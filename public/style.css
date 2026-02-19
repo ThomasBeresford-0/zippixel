@@ -1,11 +1,10 @@
-/* public/style.css — ZipPixel (v17.1 - STRIPE MODE)
-   ✅ Full redesign: clean, minimal, credible (Stripe/Linear vibe)
-   ✅ Tool-first centered layout (premium rhythm + depth)
-   ✅ Keeps modal + pricing grid (required)
+/* public/style.css — ZipPixel (v18 - STRIPE MODE)
+   ✅ Premium upgrade (less “template”, more product)
+   ✅ Price hidden on page (shown in modal only)
+   ✅ Keeps modal + pricing grid required IDs/classes
 */
 
 :root{
-  /* Brand + neutrals */
   --bg: #f7f8fa;
   --panel: #ffffff;
 
@@ -13,24 +12,21 @@
   --muted: rgba(11,18,32,.66);
   --muted2: rgba(11,18,32,.48);
 
-  --border: rgba(15,23,42,.12);
-  --border2: rgba(15,23,42,.18);
+  --border: rgba(15,23,42,.10);
+  --border2: rgba(15,23,42,.16);
 
-  /* Accent kept subtle (used mainly for focus + modal chosen row) */
-  --primary: #111827;     /* main ink */
-  --accent: #2563eb;      /* restrained blue */
+  --accent: #2563eb;
   --ring: rgba(37,99,235,.22);
 
-  /* Radius + shadows (subtle) */
-  --r: 12px;
-  --r-lg: 14px;
-  --r-xl: 16px;
+  --r: 14px;
+  --r-lg: 16px;
+  --r-xl: 18px;
 
-  --sh-0: 0 1px 0 rgba(2,6,23,.04);
-  --sh-1: 0 12px 30px rgba(2,6,23,.08);
-  --sh-2: 0 18px 60px rgba(2,6,23,.10);
+  --sh-0: 0 1px 0 rgba(2,6,23,.05);
+  --sh-1: 0 10px 30px rgba(2,6,23,.08);
+  --sh-2: 0 30px 90px rgba(2,6,23,.10);
 
-  --container: 1040px;
+  --container: 1060px;
   --ease: cubic-bezier(.2,.8,.2,1);
 }
 
@@ -40,10 +36,9 @@ body{
   margin:0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   color: var(--text);
-  background:
-    radial-gradient(900px 520px at 50% -140px, rgba(37,99,235,.10), transparent 60%),
-    radial-gradient(780px 420px at 12% 0%, rgba(2,6,23,.06), transparent 55%),
-    var(--bg);
+  background: radial-gradient(1200px 520px at 50% 0%, rgba(37,99,235,.08), rgba(247,248,250,0) 60%),
+              radial-gradient(900px 520px at 10% 10%, rgba(2,6,23,.05), rgba(247,248,250,0) 65%),
+              var(--bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -55,26 +50,26 @@ p{ margin:0; }
 strong,b{ font-weight: 900; }
 
 .container{
-  width: min(var(--container), calc(100% - 40px));
+  width: min(var(--container), calc(100% - 44px));
   margin: 0 auto;
 }
 
 :focus-visible{
   outline: 3px solid var(--ring);
   outline-offset: 2px;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 /* =========================
-   NEW NAV (v17.1)
+   NAV
 ========================= */
 .nav{
   position: sticky;
   top:0;
   z-index: 30;
-  background: rgba(255,255,255,.86);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255,255,255,.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(15,23,42,.08);
 }
 .navInner{
@@ -82,7 +77,7 @@ strong,b{ font-weight: 900; }
   align-items:center;
   justify-content: space-between;
   gap: 14px;
-  padding: 12px 0;
+  padding: 14px 0;
 }
 
 .brand{
@@ -92,9 +87,9 @@ strong,b{ font-weight: 900; }
   font-weight: 950;
   letter-spacing: -0.02em;
 }
-.brand span{ font-size: 15px; }
+.brand span{ font-size: 14px; }
 
-/* Fix squashed logo */
+/* Stop logo being squashed */
 .brand img{
   width: 28px;
   height: 28px;
@@ -106,90 +101,87 @@ strong,b{ font-weight: 900; }
 .navLinks{
   display:flex;
   align-items:center;
-  gap: 16px;
-  color: rgba(11,18,32,.66);
+  gap: 18px;
+  color: rgba(11,18,32,.62);
   font-size: 13px;
-  font-weight: 650;
-  letter-spacing: -0.01em;
 }
 .navLinks a{
   padding: 8px 10px;
-  border-radius: 10px;
-  transition: background .16s var(--ease), color .16s var(--ease);
+  border-radius: 12px;
 }
 .navLinks a:hover{
   background: rgba(2,6,23,.04);
   color: rgba(11,18,32,.92);
 }
 
-/* Hide nav links on small screens */
 @media (max-width: 860px){
   .navLinks{ display:none; }
 }
 
 /* =========================
-   HERO (v17.1)
+   HERO
 ========================= */
 .hero{
-  padding: 30px 0 0;
+  padding: 52px 0 0;
   text-align: center;
 }
 .heroInner{
   max-width: 920px;
   margin: 0 auto;
 }
-
 .hero h1{
   margin: 0;
-  font-size: clamp(34px, 4.4vw, 52px);
-  letter-spacing: -0.06em;
-  line-height: 1.06;
+  font-size: clamp(34px, 4.2vw, 52px);
+  letter-spacing: -0.055em;
+  line-height: 1.04;
 }
 .heroSub{
-  margin: 12px auto 18px;
-  max-width: 740px;
-  font-size: 15px;
+  margin: 14px auto 30px;
+  max-width: 720px;
+  font-size: 16px;
   line-height: 1.65;
-  color: rgba(11,18,32,.68);
+  color: rgba(11,18,32,.66);
 }
 
 /* =========================
-   TOOL (v17.1)
+   TOOL CARD
 ========================= */
 .tool{
   text-align: left;
-  background: var(--panel);
+  background: rgba(255,255,255,.92);
   border: 1px solid rgba(15,23,42,.10);
   border-radius: 18px;
-  box-shadow:
-    var(--sh-0),
-    var(--sh-2);
+  box-shadow: var(--sh-2);
   padding: 18px;
-  max-width: 920px;
-  margin: 0 auto;
 }
 
-/* Status */
+/* Status row */
 .statusWrap{
-  margin-bottom: 14px;
   display:flex;
-  align-items:flex-start;
+  align-items:center;
   justify-content: space-between;
   gap: 12px;
+  margin-bottom: 14px;
+}
+.statusLeft{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  min-width: 140px;
 }
 .status{
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 950;
   letter-spacing: -0.02em;
 }
 .statusHint{
-  margin-top: 6px;
   color: rgba(11,18,32,.56);
   font-size: 13px;
   line-height: 1.40;
+  text-align: right;
 }
 
-/* Spinner (app.js uses .isOn) */
+/* Spinner */
 .spinner{
   width: 14px;
   height: 14px;
@@ -198,7 +190,6 @@ strong,b{ font-weight: 900; }
   border-top-color: rgba(11,18,32,.80);
   display:none;
   animation: spin .8s linear infinite;
-  margin-left: 10px;
 }
 .spinner.isOn{ display:inline-block; }
 @keyframes spin{ to { transform: rotate(360deg); } }
@@ -208,21 +199,23 @@ strong,b{ font-weight: 900; }
   position: relative;
   border-radius: 16px;
   border: 1px solid rgba(15,23,42,.14);
-  background: linear-gradient(180deg, rgba(2,6,23,.015), rgba(255,255,255,1));
-  padding: 42px 18px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.88));
+  padding: 26px 18px;
   overflow:hidden;
   transition: border-color .16s var(--ease), box-shadow .16s var(--ease), transform .10s var(--ease);
+  box-shadow: var(--sh-1);
 }
 .dropzone:before{
   content:"";
   position:absolute;
-  inset: 12px;
-  border-radius: 14px;
-  border: 2px dashed rgba(15,23,42,.18);
+  inset:0;
   pointer-events:none;
+  background: radial-gradient(600px 220px at 50% 0%, rgba(37,99,235,.10), rgba(255,255,255,0) 60%);
+  opacity:.7;
 }
-.dropzone:hover:before{
-  border-color: rgba(15,23,42,.26);
+.dropzone:hover{
+  border-color: rgba(15,23,42,.22);
 }
 
 .dropzone input[type="file"]{
@@ -232,24 +225,29 @@ strong,b{ font-weight: 900; }
   cursor:pointer;
 }
 
-/* Centered dropzone content (new HTML) */
-.dzCenter{ display:grid; place-items:center; text-align:center; gap: 6px; }
-.dzIcon{ font-size: 30px; margin-bottom: 2px; }
+/* Center content */
+.dzCenter{
+  position: relative;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  gap: 6px;
+  padding: 18px 10px 8px;
+}
+.dzIcon{ font-size: 28px; margin-bottom: 2px; }
 .dzTitle{ font-weight: 950; letter-spacing:-0.02em; font-size: 16px; }
-.dzSub{ color: rgba(11,18,32,.58); font-size: 13px; margin-bottom: 10px; }
+.dzSub{ color: rgba(11,18,32,.56); font-size: 13px; margin-bottom: 10px; }
 
-/* Drag state (JS can toggle .isDrag; keep it) */
+/* Drag state */
 .dropzone.isDrag{
-  border-color: rgba(37,99,235,.40);
-  box-shadow: 0 22px 70px rgba(37,99,235,.12);
+  border-color: rgba(37,99,235,.55);
+  box-shadow: 0 30px 90px rgba(37,99,235,.14);
   transform: translateY(-1px);
 }
-.dropzone.isDrag:before{
-  border-color: rgba(37,99,235,.45);
-}
 
-/* File meta (app.js shows/hides via [hidden]) */
+/* File meta */
 .fileMeta{
+  position: relative;
   margin-top: 14px;
   padding-top: 14px;
   border-top: 1px solid rgba(2,6,23,.08);
@@ -262,6 +260,7 @@ strong,b{ font-weight: 900; }
   margin-bottom: 10px;
 }
 .fileSummary{ color: rgba(11,18,32,.70); font-size: 13px; }
+
 .fileList{
   margin: 0;
   padding: 0;
@@ -270,46 +269,106 @@ strong,b{ font-weight: 900; }
   grid-template-columns: 1fr;
   gap: 8px;
 }
-.fileList li{
+
+.fileCard{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 12px;
   padding: 10px 12px;
   border: 1px solid rgba(2,6,23,.10);
-  border-radius: 12px;
-  background: rgba(255,255,255,.92);
-  box-shadow: 0 1px 0 rgba(2,6,23,.04);
-  font-size: 13px;
-  color: rgba(11,18,32,.78);
+  border-radius: 14px;
+  background: rgba(2,6,23,.02);
 }
 
-/* Buttons (new HTML uses: .btnPrimary .btnSoft .btnGhost) */
+.thumb{
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(2,6,23,.10);
+  background: rgba(255,255,255,.9);
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  flex: 0 0 42px;
+}
+.thumbImg{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.thumbPdf{
+  font-size: 12px;
+  font-weight: 950;
+  color: rgba(11,18,32,.70);
+}
+
+.fileInfo{
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.fileName{
+  font-weight: 950;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow:hidden;
+  text-overflow: ellipsis;
+}
+.fileMetaLine{
+  margin-top: 2px;
+  font-size: 12px;
+  color: rgba(11,18,32,.60);
+}
+
+.iconBtn{
+  background: transparent;
+  border: 1px solid rgba(2,6,23,.12);
+  box-shadow: none;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-weight: 950;
+  font-size: 12px;
+  color: rgba(11,18,32,.68);
+}
+.iconBtn:hover{
+  background: rgba(2,6,23,.04);
+  border-color: rgba(2,6,23,.18);
+}
+
+/* Buttons */
 button{
   appearance:none;
   border: 1px solid rgba(15,23,42,.14);
   background:#fff;
   color: var(--text);
-  border-radius: 12px;
-  padding: 10px 14px;
+  border-radius: 14px;
+  padding: 11px 14px;
   font-weight: 950;
   letter-spacing: -0.01em;
   cursor:pointer;
-  transition: transform .10s var(--ease), background .16s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease);
+  transition: transform .10s var(--ease), background .16s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease), opacity .16s var(--ease);
   box-shadow: var(--sh-0);
 }
 button:hover{ border-color: rgba(15,23,42,.22); box-shadow: var(--sh-1); }
 button:active{ transform: translateY(1px); }
-button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; }
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  box-shadow:none;
+  transform: none;
+}
 
+/* Primary */
 .btnPrimary{
-  background: linear-gradient(180deg, #111827, #0b1220);
-  border-color: rgba(2,6,23,.55);
+  background: linear-gradient(180deg, #0b1220, #111827);
+  border-color: rgba(17,24,39,.65);
   color:#fff;
-  box-shadow: 0 16px 44px rgba(2,6,23,.14);
+  box-shadow: 0 18px 52px rgba(2,6,23,.16);
 }
-.btnPrimary:hover{ box-shadow: 0 22px 70px rgba(2,6,23,.18); }
-.btnPrimary:disabled{
-  background: linear-gradient(180deg, rgba(17,24,39,.55), rgba(11,18,32,.55));
-  color: rgba(255,255,255,.88);
-}
+.btnPrimary:hover{ box-shadow: 0 26px 80px rgba(2,6,23,.18); }
 
+/* Soft */
 .btnSoft{
   background: rgba(2,6,23,.04);
   border-color: rgba(2,6,23,.12);
@@ -317,8 +376,8 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; }
   box-shadow: none;
 }
 .btnSoft:hover{ background: rgba(2,6,23,.06); }
-.btnSoft:disabled{ opacity:.55; }
 
+/* Ghost */
 .btnGhost{
   background: transparent;
   border: none;
@@ -326,43 +385,33 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; }
   padding: 8px 10px;
   color: rgba(11,18,32,.62);
 }
-.btnGhost:hover{ background: rgba(2,6,23,.04); border-radius: 10px; }
+.btnGhost:hover{ background: rgba(2,6,23,.04); border-radius: 12px; }
 
 /* Action row */
 .actionRow{
   display:flex;
   gap: 12px;
-  margin-top: 12px;
+  margin-top: 14px;
 }
-.actionRow button{
-  flex: 1;
-  padding: 11px 14px;
-}
+.actionRow button{ flex: 1; }
 
-/* Fineprint + pricing line */
+/* Fineprint */
 .fineprint{
-  margin-top: 10px;
-  font-size: 12px;
-  color: rgba(11,18,32,.60);
-  text-align: center;
-}
-.pricingLine{
   margin-top: 12px;
-  font-size: 13px;
-  color: rgba(11,18,32,.62);
+  font-size: 12px;
+  color: rgba(11,18,32,.56);
   text-align: center;
-  font-weight: 650;
 }
 
 /* =========================
-   PROGRESS (app.js hooks)
+   PROGRESS
 ========================= */
 .progressWrap{
   margin-top: 14px;
   padding: 12px;
   border: 1px solid rgba(2,6,23,.10);
   background: rgba(2,6,23,.02);
-  border-radius: 14px;
+  border-radius: 16px;
 }
 .progressTop{
   display:flex;
@@ -383,7 +432,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; }
   height:100%;
   width:0%;
   border-radius: 999px;
-  background: #111827;
+  background: #0b1220;
   transition: width .16s var(--ease);
 }
 #progressMeta{
@@ -393,7 +442,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; }
 }
 
 /* =========================
-   SECTIONS (How + FAQ)
+   SECTIONS
 ========================= */
 .section{
   padding: 54px 0 0;
@@ -405,7 +454,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; }
   letter-spacing: -0.03em;
 }
 .container.narrow{
-  width: min(860px, calc(100% - 40px));
+  width: min(860px, calc(100% - 44px));
 }
 .steps{
   display:flex;
@@ -421,7 +470,7 @@ details{
   text-align:left;
   border: 1px solid rgba(2,6,23,.10);
   background: rgba(255,255,255,.98);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 12px 14px;
   box-shadow: var(--sh-0);
   max-width: 720px;
@@ -468,23 +517,23 @@ details p{
 ========================= */
 @media (max-width: 720px){
   .tool{ padding: 14px; }
-  .dropzone{ padding: 36px 14px; }
+  .dropzone{ padding: 22px 14px; }
   .actionRow{ flex-direction: column; }
   .footerInner{ flex-direction: column; align-items:flex-start; }
+  .statusHint{ text-align:left; }
 }
 
 /* =========================
-   MODAL — REQUIRED (kept)
-   Fixes “modal HTML showing at bottom”
+   MODAL — REQUIRED
 ========================= */
 .modalOverlay{
   position: fixed;
   inset: 0;
-  background: rgba(2,6,23,.46);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(2,6,23,.48);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 
-  display: none; /* IMPORTANT: hide by default */
+  display: none;
   align-items: flex-start;
   justify-content: center;
 
@@ -497,11 +546,11 @@ details p{
 .modalOverlay.isOpen{ display:flex; }
 
 .modalCard{
-  width: min(640px, 100%);
+  width: min(660px, 100%);
   background: #fff;
   border: 1px solid rgba(2,6,23,.14);
-  border-radius: 18px;
-  box-shadow: 0 40px 140px rgba(2,6,23,.30);
+  border-radius: 20px;
+  box-shadow: 0 50px 160px rgba(2,6,23,.34);
   overflow: hidden;
 
   margin: 18px auto;
@@ -529,7 +578,7 @@ details p{
 .modalClose{
   border: 1px solid rgba(2,6,23,.12);
   background: #fff;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 8px 10px;
   cursor:pointer;
   font-weight: 950;
@@ -542,7 +591,7 @@ details p{
   padding: 14px 16px 6px;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  max-height: calc(100vh - 36px - 60px - 68px);
+  max-height: calc(100vh - 36px - 60px - 72px);
 }
 .modalLead{ margin: 0; color: rgba(11,18,32,.86); font-size: 14px; line-height: 1.45; }
 
@@ -550,7 +599,7 @@ details p{
   margin-top: 12px;
   border: 1px solid rgba(2,6,23,.10);
   background: rgba(2,6,23,.02);
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 12px;
   display:flex;
   align-items:flex-start;
@@ -571,7 +620,7 @@ details p{
   overflow:hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 360px;
+  max-width: 420px;
 }
 .modalSummaryAmt{
   font-size: 16px;
@@ -580,7 +629,6 @@ details p{
   color: rgba(11,18,32,.95);
 }
 
-/* Pricing grid (kept) */
 .priceGrid{ display:grid; gap: 10px; margin-top: 12px; }
 .priceRow{
   display:flex;
@@ -588,14 +636,14 @@ details p{
   justify-content: space-between;
   gap: 12px;
   padding: 12px;
-  border-radius: 16px;
+  border-radius: 18px;
   border: 1px solid rgba(2,6,23,.10);
   background: rgba(2,6,23,.02);
 }
 .priceRow.isChosen{
   border-color: rgba(37,99,235,.40);
   background: rgba(37,99,235,.08);
-  box-shadow: 0 12px 30px rgba(37,99,235,.12);
+  box-shadow: 0 14px 36px rgba(37,99,235,.12);
 }
 .priceName{ font-weight: 950; font-size: 13px; }
 .priceDesc{ font-size: 12px; color: rgba(75,85,99,.95); }
@@ -617,5 +665,131 @@ details p{
 @media (max-width: 520px){
   .modalOverlay{ padding: 12px; }
   .modalCard{ margin: 12px auto; max-height: calc(100vh - 24px); }
-  .modalBody{ max-height: calc(100vh - 24px - 60px - 68px); }
+  .modalBody{ max-height: calc(100vh - 24px - 60px - 72px); }
+}
+
+/* =========================
+   SUCCESS / SHARE UI (v18)
+========================= */
+.successBox{
+  display:flex;
+  align-items:flex-start;
+  gap: 12px;
+  padding: 14px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(2,6,23,.10);
+  background: rgba(2,6,23,.02);
+  box-shadow: var(--sh-0);
+}
+.successIcon{
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display:grid;
+  place-items:center;
+  font-weight: 950;
+  background: rgba(37,99,235,.10);
+  border: 1px solid rgba(37,99,235,.18);
+  color: rgba(11,18,32,.92);
+  flex: 0 0 34px;
+}
+.successTitle{
+  font-weight: 950;
+  letter-spacing: -0.02em;
+  font-size: 14px;
+}
+.successDesc{
+  margin-top: 4px;
+  color: rgba(11,18,32,.70);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.successActions{
+  margin-top: 14px;
+  display:grid;
+  gap: 10px;
+}
+
+/* v18 button utilities for success page (so we don't rely on old .btn system) */
+.btnBlock{ display:block; width:100%; text-align:center; }
+.btnSm{ padding: 9px 12px; border-radius: 12px; font-size: 12px; }
+
+/* Use same base <button> style from v18, but allow <a> to look identical */
+.btnPrimary, .btnSoft, .btnGhost{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap: 8px;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+  border-radius: 14px;
+  padding: 11px 14px;
+  border: 1px solid rgba(15,23,42,.14);
+  box-shadow: var(--sh-0);
+  transition: transform .10s var(--ease), background .16s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease), opacity .16s var(--ease);
+}
+.btnPrimary{
+  background: linear-gradient(180deg, #0b1220, #111827);
+  border-color: rgba(17,24,39,.65);
+  color:#fff;
+  box-shadow: 0 18px 52px rgba(2,6,23,.16);
+}
+.btnPrimary:hover{ box-shadow: 0 26px 80px rgba(2,6,23,.18); }
+
+.btnSoft{
+  background: rgba(2,6,23,.04);
+  border-color: rgba(2,6,23,.12);
+  color: rgba(11,18,32,.92);
+  box-shadow: none;
+}
+.btnSoft:hover{ background: rgba(2,6,23,.06); }
+
+.btnGhost{
+  background: transparent;
+  border: 1px solid rgba(2,6,23,.10);
+  color: rgba(11,18,32,.70);
+  box-shadow: none;
+}
+.btnGhost:hover{ background: rgba(2,6,23,.04); border-color: rgba(2,6,23,.16); }
+
+/* Share box */
+.shareBox{
+  margin-top: 6px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(2,6,23,.10);
+  background: rgba(255,255,255,.92);
+  box-shadow: var(--sh-0);
+}
+.shareLabel{
+  font-size: 12px;
+  font-weight: 950;
+  color: rgba(107,114,128,.98);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.shareRow{
+  margin-top: 10px;
+  display:flex;
+  gap: 10px;
+  align-items:center;
+}
+.shareInput{
+  flex: 1;
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(2,6,23,.12);
+  background: rgba(2,6,23,.02);
+  padding: 10px 12px;
+  font-weight: 700;
+  color: rgba(11,18,32,.90);
+  outline: none;
+}
+.shareInput:focus{ outline: 3px solid var(--ring); outline-offset: 2px; }
+.shareHint{
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(11,18,32,.60);
+  line-height: 1.45;
 }
