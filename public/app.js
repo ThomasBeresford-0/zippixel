@@ -1,5 +1,5 @@
-// public/app.js — ZipPixel frontend (v15.1 - MONEY MODE TIERS, PRICE HIDDEN UNTIL MODAL)
-// Matches: v18 index.html IDs + server.js v15 routes:
+// public/app.js — ZipPixel frontend (v15.2 - PREMIUM RAMBO UX, PRICE HIDDEN UNTIL MODAL)
+// Matches: v19 index.html IDs + server.js v15 routes:
 // /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/checkout
 (() => {
   // ====== YEAR ======
@@ -159,6 +159,53 @@
     });
   };
 
+  // ====== PREMIUM UX: button visibility control ======
+  const showContinue = (on) => {
+    // Keep layout clean: hide until upload is complete
+    continueBtn.style.display = on ? "" : "none";
+  };
+
+  const setPrimaryStates = () => {
+    // Upload is the primary action until uploadedMeta exists
+    const hasFiles = selected.length > 0;
+    const hasJob = !!jobId;
+    const canUpload = hasFiles && hasJob && !uploading;
+    const canContinue = !!uploadedMeta.length && !uploading;
+
+    uploadBtn.disabled = !canUpload;
+    continueBtn.disabled = !canContinue;
+
+    // Premium labels: clear intent
+    if (!hasFiles) {
+      uploadBtn.textContent = "Upload files";
+      setStatus("Ready");
+      setHint("Add up to <b>50</b> files. Then upload.");
+      showContinue(false);
+      return;
+    }
+
+    if (!hasJob) {
+      uploadBtn.textContent = "Preparing…";
+      showContinue(false);
+      return;
+    }
+
+    if (uploading) {
+      uploadBtn.textContent = "Uploading…";
+      showContinue(false);
+      return;
+    }
+
+    if (uploadedMeta.length) {
+      uploadBtn.textContent = "Re-upload";
+      showContinue(true);
+      continueBtn.textContent = "Continue →";
+    } else {
+      uploadBtn.textContent = "Upload files";
+      showContinue(false);
+    }
+  };
+
   const syncModalTierUI = () => {
     const n = selected.length;
     const tier = getTier(n);
@@ -170,7 +217,7 @@
     if (rowPro) rowPro.classList.toggle("isChosen", tier.key === "zip50");
 
     if (priceModalLead) {
-      priceModalLead.innerHTML = `You’ve uploaded <b>${n}</b> file${n === 1 ? "" : "s"}.`;
+      priceModalLead.innerHTML = `You’re about to checkout for <b>${n}</b> file${n === 1 ? "" : "s"}.`;
     }
   };
 
@@ -186,12 +233,13 @@
       fileMeta.hidden = true;
       fileSummary.textContent = "";
       fileList.innerHTML = "";
-      uploadBtn.disabled = true;
-      continueBtn.disabled = true;
+      uploadedMeta = [];
       resetProgress();
-      setStatus("Ready.");
-      setHint("Drop files to begin.");
       revokeRemovedThumbs(new Set());
+
+      setStatus("Ready");
+      setHint("Drop files to begin.");
+      setPrimaryStates();
       return;
     }
 
@@ -231,16 +279,16 @@
 
     fileMeta.hidden = false;
 
-    uploadBtn.disabled = !jobId || uploading;
-    continueBtn.disabled = !uploadedMeta.length;
-
+    // Premium hints
     if (jobId) {
-      setStatus("Ready.");
+      setStatus(uploadedMeta.length ? "Uploaded" : "Ready");
       setHint(uploadedMeta.length ? "Continue to checkout." : "Upload your files to continue.");
     } else {
-      setStatus("Starting…");
-      setHint("Creating a job…");
+      setStatus("Preparing");
+      setHint("Setting up a secure upload…");
     }
+
+    setPrimaryStates();
   };
 
   // Remove item
@@ -259,7 +307,7 @@
     }
 
     uploadedMeta = [];
-    continueBtn.disabled = true;
+    resetProgress();
     renderSelected();
   });
 
@@ -282,9 +330,9 @@
 
     creatingJob = true;
     setBusy(true);
-    setStatus("Starting…");
-    setHint("Creating a job…");
-    renderSelected();
+    setStatus("Preparing");
+    setHint("Setting up a secure upload…");
+    setPrimaryStates();
 
     try {
       const res = await fetch("/api/jobs", { method: "POST" });
@@ -293,18 +341,19 @@
       if (!j?.jobId) throw new Error("No jobId returned");
 
       jobId = j.jobId;
-      setStatus("Ready.");
+      setStatus(selected.length ? "Ready" : "Ready");
       setHint(selected.length ? "Upload your files to continue." : "Drop files to begin.");
       renderSelected();
       return jobId;
     } catch (err) {
-      setStatus("Couldn’t start.");
+      setStatus("Couldn’t start");
       setHint("Refresh and try again.");
       renderSelected();
       throw err;
     } finally {
       creatingJob = false;
       setBusy(false);
+      setPrimaryStates();
     }
   };
 
@@ -321,7 +370,7 @@
     }
 
     if (errors.length) {
-      setStatus("Some files were skipped.");
+      setStatus("Some files were skipped");
       setHint(errors.slice(0, 2).map(e => escapeHtml(e)).join("<br/>") + (errors.length > 2 ? "<br/>…" : ""));
     }
 
@@ -336,24 +385,24 @@
 
     if (selected.length > MAX_FILES) {
       selected = selected.slice(0, MAX_FILES);
-      setStatus("Max reached.");
+      setStatus("Max files reached");
       setHint(`Only the first <b>${MAX_FILES}</b> files were kept.`);
     }
 
     uploadedMeta = [];
-    continueBtn.disabled = true;
+    resetProgress();
 
     renderSelected();
 
     try {
       await ensureJob();
     } catch {
-      setStatus("Couldn’t start.");
+      setStatus("Couldn’t start");
       setHint("Refresh and try again.");
       return;
     }
 
-    uploadBtn.disabled = uploading || selected.length === 0;
+    setPrimaryStates();
   };
 
   chooseBtn.addEventListener("click", (e) => {
@@ -390,7 +439,7 @@
     const dt = e.dataTransfer;
     const files = dt?.files ? [...dt.files] : [];
     if (!files.length) {
-      setStatus("Drop files only.");
+      setStatus("Drop files only");
       setHint("Try dragging files from Finder.");
       return;
     }
@@ -403,6 +452,7 @@
     uploadedMeta = [];
     for (const url of thumbUrls.values()) URL.revokeObjectURL(url);
     thumbUrls.clear();
+    resetProgress();
     renderSelected();
   });
 
@@ -457,15 +507,14 @@
     if (selected.length === 0) return;
 
     try { await ensureJob(); } catch {
-      setStatus("Couldn’t start.");
+      setStatus("Couldn’t start");
       setHint("Refresh and try again.");
       return;
     }
 
     uploading = true;
     setBusy(true);
-    uploadBtn.disabled = true;
-    continueBtn.disabled = true;
+    setPrimaryStates();
 
     resetProgress();
     if (progressWrap) progressWrap.hidden = false;
@@ -474,7 +523,7 @@
     if (progressPct) progressPct.textContent = "0%";
     if (progressMeta) progressMeta.textContent = "";
 
-    setStatus("Uploading…");
+    setStatus("Uploading");
     setHint("Keep this tab open.");
 
     uploadedMeta = [];
@@ -524,23 +573,23 @@
       const reg = await regRes.json();
       if (reg?.error) throw new Error(reg.error);
 
-      setStatus("Uploaded.");
-      setHint(`Uploaded. Continue to checkout.<br/><span style="color: rgba(11,18,32,.56)">Optional: add a share link at checkout.</span>`);
+      setStatus("Uploaded");
+      setHint(`Upload complete. Continue to checkout.<br/><span style="color: rgba(11,18,32,.56)">Optional: add a share link at checkout.</span>`);
 
       if (progressLabel) progressLabel.textContent = "Uploaded";
       if (progressFill) progressFill.style.width = "100%";
       if (progressPct) progressPct.textContent = "100%";
 
-      continueBtn.disabled = false;
-      continueBtn.textContent = "Continue";
+      setPrimaryStates();
     } catch (e) {
-      setStatus("Upload failed.");
+      setStatus("Upload failed");
       setHint(escapeHtml(e?.message || "Please try again."));
-      uploadBtn.disabled = false;
       if (progressLabel) progressLabel.textContent = "Upload failed";
+      setPrimaryStates();
     } finally {
       uploading = false;
       setBusy(false);
+      setPrimaryStates();
     }
   });
 
@@ -552,7 +601,7 @@
 
     disableLegacyOptions();
 
-    // Default share link OFF (trust-first). Flip to true if you want higher AOV.
+    // Default share link OFF (trust-first). Flip true if you want higher AOV.
     if (optShareLink) optShareLink.checked = false;
 
     syncModalTierUI();
@@ -593,7 +642,7 @@
     if (selected.length === 0) return;
 
     if (!uploadedMeta.length) {
-      setStatus("Upload first.");
+      setStatus("Upload first");
       setHint("Please upload your files before continuing.");
       return;
     }
@@ -609,7 +658,7 @@
     const tier = getTier(n);
 
     setBusy(true);
-    setStatus("Redirecting…");
+    setStatus("Redirecting");
     setHint("Opening secure checkout…");
     continueBtn.disabled = true;
 
@@ -629,7 +678,7 @@
       if (!resp?.url) throw new Error("Something went wrong.");
       window.location.href = resp.url;
     } catch (e) {
-      setStatus("Couldn’t continue.");
+      setStatus("Couldn’t continue");
       setHint(escapeHtml(e?.message || "Please try again."));
       continueBtn.disabled = false;
     } finally {
@@ -643,6 +692,9 @@
   });
 
   // ====== INIT ======
-  continueBtn.textContent = "Continue";
+  continueBtn.textContent = "Continue →";
+  showContinue(false);         // premium: no disabled clutter
+  setStatus("Ready");
+  setHint("Drop files to begin.");
   renderSelected();
 })();

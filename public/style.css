@@ -1,57 +1,79 @@
-/* public/style.css — ZipPixel (v18 - STRIPE MODE)
-   ✅ Premium upgrade (less “template”, more product)
-   ✅ Price hidden on page (shown in modal only)
-   ✅ Keeps modal + pricing grid required IDs/classes
+/* public/style.css — ZipPixel (v19 - PREMIUM RAMBO MODE)
+   ✅ Boutique premium utility look (no template gradients)
+   ✅ Tool-first, high-contrast, sharper hierarchy
+   ✅ Keeps ALL required modal + pricing IDs/classes for app.js v15
+   ✅ Does NOT break success/share pages (compat utilities preserved)
 */
 
+/* =========================
+   TOKENS
+========================= */
 :root{
-  --bg: #f7f8fa;
+  /* Surface */
+  --bg: #f6f7fb;
   --panel: #ffffff;
+  --ink: #0b1220;
+  --muted: rgba(11,18,32,.70);
+  --muted2: rgba(11,18,32,.52);
 
-  --text: #0b1220;
-  --muted: rgba(11,18,32,.66);
-  --muted2: rgba(11,18,32,.48);
-
+  /* Borders */
   --border: rgba(15,23,42,.10);
   --border2: rgba(15,23,42,.16);
 
+  /* Accent (kept for checkbox + chosen rows) */
   --accent: #2563eb;
   --ring: rgba(37,99,235,.22);
 
+  /* Radius */
   --r: 14px;
-  --r-lg: 16px;
-  --r-xl: 18px;
+  --r-lg: 18px;
+  --r-xl: 22px;
 
+  /* Shadows (more “product” less “template”) */
   --sh-0: 0 1px 0 rgba(2,6,23,.05);
-  --sh-1: 0 10px 30px rgba(2,6,23,.08);
-  --sh-2: 0 30px 90px rgba(2,6,23,.10);
+  --sh-1: 0 18px 50px rgba(2,6,23,.10);
+  --sh-2: 0 60px 160px rgba(2,6,23,.16);
 
-  --container: 1060px;
+  --container: 1100px;
   --ease: cubic-bezier(.2,.8,.2,1);
 }
 
+/* =========================
+   BASE
+========================= */
 *{ box-sizing:border-box; }
 html,body{ height:100%; }
+
 body{
   margin:0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-  color: var(--text);
-  background: radial-gradient(1200px 520px at 50% 0%, rgba(37,99,235,.08), rgba(247,248,250,0) 60%),
-              radial-gradient(900px 520px at 10% 10%, rgba(2,6,23,.05), rgba(247,248,250,0) 65%),
-              var(--bg);
+  color: var(--ink);
+  background: var(--bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body.premium{
+  /* Premium background: subtle, controlled, NOT “SaaS template” */
+  background:
+    radial-gradient(1100px 520px at 50% -120px, rgba(2,6,23,.06), rgba(246,247,251,0) 62%),
+    radial-gradient(900px 520px at 0% 0%, rgba(37,99,235,.06), rgba(246,247,251,0) 60%),
+    var(--bg);
 }
 
 img{ max-width:100%; display:block; }
 a{ color: inherit; text-decoration:none; }
 a:hover{ opacity:.92; }
 p{ margin:0; }
-strong,b{ font-weight: 900; }
+strong,b{ font-weight: 950; }
 
 .container{
   width: min(var(--container), calc(100% - 44px));
   margin: 0 auto;
+}
+
+.container.narrow{
+  width: min(860px, calc(100% - 44px));
 }
 
 :focus-visible{
@@ -61,17 +83,18 @@ strong,b{ font-weight: 900; }
 }
 
 /* =========================
-   NAV
+   NAV (Sharper, quieter)
 ========================= */
 .nav{
   position: sticky;
   top:0;
   z-index: 30;
-  background: rgba(255,255,255,.82);
+  background: rgba(246,247,251,.82);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(15,23,42,.08);
 }
+
 .navInner{
   display:flex;
   align-items:center;
@@ -89,11 +112,10 @@ strong,b{ font-weight: 900; }
 }
 .brand span{ font-size: 14px; }
 
-/* Stop logo being squashed */
 .brand img{
-  width: 28px;
-  height: 28px;
-  flex: 0 0 28px;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
   object-fit: contain;
   display: block;
 }
@@ -102,7 +124,7 @@ strong,b{ font-weight: 900; }
   display:flex;
   align-items:center;
   gap: 18px;
-  color: rgba(11,18,32,.62);
+  color: rgba(11,18,32,.60);
   font-size: 13px;
 }
 .navLinks a{
@@ -119,32 +141,44 @@ strong,b{ font-weight: 900; }
 }
 
 /* =========================
-   HERO
+   HERO (Premium)
 ========================= */
 .hero{
   padding: 52px 0 0;
   text-align: center;
 }
+
+.heroPremium{
+  padding-top: 54px;
+}
+
 .heroInner{
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.heroText{
   max-width: 920px;
   margin: 0 auto;
 }
+
 .hero h1{
   margin: 0;
-  font-size: clamp(34px, 4.2vw, 52px);
-  letter-spacing: -0.055em;
-  line-height: 1.04;
+  font-size: clamp(34px, 4.2vw, 54px);
+  letter-spacing: -0.06em;
+  line-height: 1.02;
 }
+
 .heroSub{
-  margin: 14px auto 30px;
-  max-width: 720px;
+  margin: 14px auto 26px;
+  max-width: 700px;
   font-size: 16px;
   line-height: 1.65;
-  color: rgba(11,18,32,.66);
+  color: rgba(11,18,32,.70);
 }
 
 /* =========================
-   TOOL CARD
+   TOOL (Make it the product)
 ========================= */
 .tool{
   text-align: left;
@@ -155,25 +189,50 @@ strong,b{ font-weight: 900; }
   padding: 18px;
 }
 
+.toolPremium{
+  position: relative;
+  background: rgba(255,255,255,.92);
+  border-radius: 22px;
+  border: 1px solid rgba(2,6,23,.10);
+  box-shadow: var(--sh-2);
+  padding: 18px;
+  overflow: hidden;
+}
+
+.toolPremium:before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  pointer-events:none;
+  background:
+    radial-gradient(900px 260px at 50% 0%, rgba(2,6,23,.06), rgba(255,255,255,0) 62%),
+    radial-gradient(700px 260px at 0% 10%, rgba(37,99,235,.06), rgba(255,255,255,0) 60%);
+  opacity:.95;
+}
+
 /* Status row */
 .statusWrap{
+  position: relative;
   display:flex;
   align-items:center;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 14px;
 }
+
 .statusLeft{
   display:flex;
   align-items:center;
   gap: 10px;
   min-width: 140px;
 }
+
 .status{
   font-size: 14px;
   font-weight: 950;
   letter-spacing: -0.02em;
 }
+
 .statusHint{
   color: rgba(11,18,32,.56);
   font-size: 13px;
@@ -187,35 +246,47 @@ strong,b{ font-weight: 900; }
   height: 14px;
   border-radius: 999px;
   border: 2px solid rgba(15,23,42,.14);
-  border-top-color: rgba(11,18,32,.80);
+  border-top-color: rgba(11,18,32,.82);
   display:none;
   animation: spin .8s linear infinite;
 }
 .spinner.isOn{ display:inline-block; }
 @keyframes spin{ to { transform: rotate(360deg); } }
 
-/* Dropzone */
+/* =========================
+   DROPZONE (Premium, confident)
+========================= */
 .dropzone{
   position: relative;
   border-radius: 16px;
   border: 1px solid rgba(15,23,42,.14);
   background:
-    linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.88));
+    linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.88));
   padding: 26px 18px;
   overflow:hidden;
   transition: border-color .16s var(--ease), box-shadow .16s var(--ease), transform .10s var(--ease);
   box-shadow: var(--sh-1);
 }
+
+.dropzonePremium{
+  border-radius: 20px;
+  border: 1px solid rgba(2,6,23,.12);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.98), rgba(250,251,253,.92));
+  box-shadow: 0 26px 80px rgba(2,6,23,.10);
+}
+
 .dropzone:before{
   content:"";
   position:absolute;
   inset:0;
   pointer-events:none;
-  background: radial-gradient(600px 220px at 50% 0%, rgba(37,99,235,.10), rgba(255,255,255,0) 60%);
-  opacity:.7;
+  background: radial-gradient(820px 240px at 50% 0%, rgba(37,99,235,.09), rgba(255,255,255,0) 62%);
+  opacity:.75;
 }
+
 .dropzone:hover{
-  border-color: rgba(15,23,42,.22);
+  border-color: rgba(2,6,23,.22);
 }
 
 .dropzone input[type="file"]{
@@ -234,14 +305,37 @@ strong,b{ font-weight: 900; }
   gap: 6px;
   padding: 18px 10px 8px;
 }
-.dzIcon{ font-size: 28px; margin-bottom: 2px; }
-.dzTitle{ font-weight: 950; letter-spacing:-0.02em; font-size: 16px; }
-.dzSub{ color: rgba(11,18,32,.56); font-size: 13px; margin-bottom: 10px; }
+
+.dzIcon{
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display:grid;
+  place-items:center;
+  font-size: 18px;
+  font-weight: 950;
+  color: rgba(11,18,32,.90);
+  background: rgba(2,6,23,.04);
+  border: 1px solid rgba(2,6,23,.10);
+  margin-bottom: 4px;
+}
+
+.dzTitle{
+  font-weight: 950;
+  letter-spacing:-0.02em;
+  font-size: 16px;
+}
+
+.dzSub{
+  color: rgba(11,18,32,.58);
+  font-size: 13px;
+  margin-bottom: 12px;
+}
 
 /* Drag state */
 .dropzone.isDrag{
   border-color: rgba(37,99,235,.55);
-  box-shadow: 0 30px 90px rgba(37,99,235,.14);
+  box-shadow: 0 50px 150px rgba(37,99,235,.14);
   transform: translateY(-1px);
 }
 
@@ -252,6 +346,7 @@ strong,b{ font-weight: 900; }
   padding-top: 14px;
   border-top: 1px solid rgba(2,6,23,.08);
 }
+
 .fileMetaTop{
   display:flex;
   align-items:center;
@@ -259,7 +354,11 @@ strong,b{ font-weight: 900; }
   gap: 10px;
   margin-bottom: 10px;
 }
-.fileSummary{ color: rgba(11,18,32,.70); font-size: 13px; }
+
+.fileSummary{
+  color: rgba(11,18,32,.72);
+  font-size: 13px;
+}
 
 .fileList{
   margin: 0;
@@ -303,10 +402,7 @@ strong,b{ font-weight: 900; }
   color: rgba(11,18,32,.70);
 }
 
-.fileInfo{
-  min-width: 0;
-  flex: 1 1 auto;
-}
+.fileInfo{ min-width: 0; flex: 1 1 auto; }
 .fileName{
   font-weight: 950;
   font-size: 13px;
@@ -336,12 +432,14 @@ strong,b{ font-weight: 900; }
   border-color: rgba(2,6,23,.18);
 }
 
-/* Buttons */
+/* =========================
+   BUTTONS (Premium, decisive)
+========================= */
 button{
   appearance:none;
   border: 1px solid rgba(15,23,42,.14);
   background:#fff;
-  color: var(--text);
+  color: var(--ink);
   border-radius: 14px;
   padding: 11px 14px;
   font-weight: 950;
@@ -350,8 +448,14 @@ button{
   transition: transform .10s var(--ease), background .16s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease), opacity .16s var(--ease);
   box-shadow: var(--sh-0);
 }
-button:hover{ border-color: rgba(15,23,42,.22); box-shadow: var(--sh-1); }
+
+button:hover{
+  border-color: rgba(15,23,42,.22);
+  box-shadow: var(--sh-1);
+}
+
 button:active{ transform: translateY(1px); }
+
 button:disabled{
   opacity:.55;
   cursor:not-allowed;
@@ -362,17 +466,36 @@ button:disabled{
 /* Primary */
 .btnPrimary{
   background: linear-gradient(180deg, #0b1220, #111827);
-  border-color: rgba(17,24,39,.65);
+  border-color: rgba(17,24,39,.70);
   color:#fff;
-  box-shadow: 0 18px 52px rgba(2,6,23,.16);
+  box-shadow: 0 18px 52px rgba(2,6,23,.18);
 }
-.btnPrimary:hover{ box-shadow: 0 26px 80px rgba(2,6,23,.18); }
+
+.btnPrimary:hover{
+  box-shadow: 0 34px 110px rgba(2,6,23,.22);
+}
+
+/* Stronger primary (for Continue / Pay) */
+.btnStrong{
+  background: linear-gradient(180deg, #0b1220, #0b1220);
+  border-color: rgba(2,6,23,.85);
+  box-shadow: 0 20px 70px rgba(2,6,23,.22);
+}
+
+.btnStrong:hover{
+  box-shadow: 0 40px 140px rgba(2,6,23,.26);
+}
+
+.btnLarge{
+  padding: 12px 16px;
+  border-radius: 16px;
+}
 
 /* Soft */
 .btnSoft{
   background: rgba(2,6,23,.04);
   border-color: rgba(2,6,23,.12);
-  color: rgba(11,18,32,.92);
+  color: rgba(11,18,32,.94);
   box-shadow: none;
 }
 .btnSoft:hover{ background: rgba(2,6,23,.06); }
@@ -395,11 +518,15 @@ button:disabled{
 }
 .actionRow button{ flex: 1; }
 
+.actionRowPremium{
+  margin-top: 16px;
+}
+
 /* Fineprint */
 .fineprint{
   margin-top: 12px;
   font-size: 12px;
-  color: rgba(11,18,32,.56);
+  color: rgba(11,18,32,.58);
   text-align: center;
 }
 
@@ -448,40 +575,71 @@ button:disabled{
   padding: 54px 0 0;
   text-align:center;
 }
+
+.sectionPremium{
+  padding-top: 58px;
+}
+
 .section h2{
   margin: 0 0 18px;
   font-size: 20px;
   letter-spacing: -0.03em;
 }
-.container.narrow{
-  width: min(860px, calc(100% - 44px));
+
+/* New premium steps */
+.stepsPremium{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 10px;
 }
-.steps{
-  display:flex;
-  justify-content:center;
-  gap: 28px;
-  flex-wrap: wrap;
-  font-size: 14px;
-  color: rgba(11,18,32,.62);
+
+.step{
+  text-align:left;
+  border: 1px solid rgba(2,6,23,.10);
+  background: rgba(255,255,255,.92);
+  border-radius: 18px;
+  padding: 14px 14px;
+  box-shadow: var(--sh-0);
 }
-.steps strong{ color: rgba(11,18,32,.92); }
+
+.stepNo{
+  font-weight: 950;
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(11,18,32,.55);
+}
+
+.stepText{
+  margin-top: 6px;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+  color: rgba(11,18,32,.92);
+}
+
+@media (max-width: 860px){
+  .stepsPremium{ grid-template-columns: 1fr; }
+}
 
 details{
   text-align:left;
   border: 1px solid rgba(2,6,23,.10);
-  background: rgba(255,255,255,.98);
-  border-radius: 16px;
+  background: rgba(255,255,255,.95);
+  border-radius: 18px;
   padding: 12px 14px;
   box-shadow: var(--sh-0);
   max-width: 720px;
   margin: 0 auto 10px;
 }
+
 summary{
   cursor:pointer;
   font-weight: 950;
   list-style:none;
 }
 summary::-webkit-details-marker{ display:none; }
+
 details p{
   margin: 10px 0 0;
   color: rgba(11,18,32,.72);
@@ -497,6 +655,11 @@ details p{
   margin-top: 54px;
   border-top: 1px solid rgba(15,23,42,.08);
 }
+
+.footerPremium{
+  margin-top: 60px;
+}
+
 .footerInner{
   display:flex;
   justify-content: space-between;
@@ -505,6 +668,7 @@ details p{
   color: rgba(11,18,32,.58);
   font-size: 13px;
 }
+
 .footerInner a{
   color: rgba(11,18,32,.58);
   text-decoration: underline;
@@ -517,6 +681,7 @@ details p{
 ========================= */
 @media (max-width: 720px){
   .tool{ padding: 14px; }
+  .toolPremium{ padding: 14px; }
   .dropzone{ padding: 22px 14px; }
   .actionRow{ flex-direction: column; }
   .footerInner{ flex-direction: column; align-items:flex-start; }
@@ -529,7 +694,7 @@ details p{
 .modalOverlay{
   position: fixed;
   inset: 0;
-  background: rgba(2,6,23,.48);
+  background: rgba(2,6,23,.52);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 
@@ -549,8 +714,8 @@ details p{
   width: min(660px, 100%);
   background: #fff;
   border: 1px solid rgba(2,6,23,.14);
-  border-radius: 20px;
-  box-shadow: 0 50px 160px rgba(2,6,23,.34);
+  border-radius: 22px;
+  box-shadow: 0 70px 200px rgba(2,6,23,.36);
   overflow: hidden;
 
   margin: 18px auto;
@@ -562,6 +727,11 @@ details p{
   transform: translateY(10px);
   animation: modalIn .14s var(--ease) forwards;
 }
+
+.premiumModal{
+  border-radius: 24px;
+}
+
 @keyframes modalIn{ to { transform: translateY(0); } }
 
 .modalTop{
@@ -571,9 +741,14 @@ details p{
   align-items:center;
   justify-content: space-between;
   gap: 12px;
-  background: linear-gradient(180deg, rgba(37,99,235,.10), rgba(255,255,255,0));
+  background: linear-gradient(180deg, rgba(2,6,23,.04), rgba(255,255,255,0));
 }
-.modalTitle{ font-weight: 950; letter-spacing: -0.02em; font-size: 14px; }
+
+.modalTitle{
+  font-weight: 950;
+  letter-spacing: -0.02em;
+  font-size: 14px;
+}
 
 .modalClose{
   border: 1px solid rgba(2,6,23,.12);
@@ -593,7 +768,13 @@ details p{
   -webkit-overflow-scrolling: touch;
   max-height: calc(100vh - 36px - 60px - 72px);
 }
-.modalLead{ margin: 0; color: rgba(11,18,32,.86); font-size: 14px; line-height: 1.45; }
+
+.modalLead{
+  margin: 0;
+  color: rgba(11,18,32,.86);
+  font-size: 14px;
+  line-height: 1.45;
+}
 
 .modalSummary{
   margin-top: 12px;
@@ -606,6 +787,7 @@ details p{
   justify-content: space-between;
   gap: 12px;
 }
+
 .modalSummaryKicker{
   font-size: 12px;
   font-weight: 950;
@@ -613,6 +795,7 @@ details p{
   text-transform: uppercase;
   letter-spacing: .06em;
 }
+
 .modalSummaryMain{
   font-size: 14px;
   font-weight: 950;
@@ -622,6 +805,7 @@ details p{
   white-space: nowrap;
   max-width: 420px;
 }
+
 .modalSummaryAmt{
   font-size: 16px;
   font-weight: 950;
@@ -629,7 +813,9 @@ details p{
   color: rgba(11,18,32,.95);
 }
 
+/* Pricing grid */
 .priceGrid{ display:grid; gap: 10px; margin-top: 12px; }
+
 .priceRow{
   display:flex;
   align-items:flex-start;
@@ -640,18 +826,38 @@ details p{
   border: 1px solid rgba(2,6,23,.10);
   background: rgba(2,6,23,.02);
 }
+
 .priceRow.isChosen{
   border-color: rgba(37,99,235,.40);
   background: rgba(37,99,235,.08);
-  box-shadow: 0 14px 36px rgba(37,99,235,.12);
+  box-shadow: 0 18px 52px rgba(37,99,235,.12);
 }
+
 .priceName{ font-weight: 950; font-size: 13px; }
 .priceDesc{ font-size: 12px; color: rgba(75,85,99,.95); }
 .priceAmt{ font-weight: 950; font-size: 13px; white-space: nowrap; }
-.priceAmt label{ display:inline-flex; align-items:center; gap: 8px; font-weight: 950; cursor:pointer; }
-.priceAmt input[type="checkbox"]{ width: 16px; height: 16px; accent-color: var(--accent); }
 
-.modalNote{ margin-top: 10px; font-size: 12px; color: rgba(107,114,128,.98); line-height: 1.45; }
+.priceAmt label{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  font-weight: 950;
+  cursor:pointer;
+}
+
+.priceAmt input[type="checkbox"]{
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+.modalNote{
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(107,114,128,.98);
+  line-height: 1.45;
+}
+
 .modalFoot{
   padding: 14px 16px;
   border-top: 1px solid rgba(2,6,23,.08);
@@ -669,7 +875,7 @@ details p{
 }
 
 /* =========================
-   SUCCESS / SHARE UI (v18)
+   SUCCESS / SHARE UI (compat)
 ========================= */
 .successBox{
   display:flex;
@@ -681,6 +887,7 @@ details p{
   background: rgba(2,6,23,.02);
   box-shadow: var(--sh-0);
 }
+
 .successIcon{
   width: 34px;
   height: 34px;
@@ -693,11 +900,13 @@ details p{
   color: rgba(11,18,32,.92);
   flex: 0 0 34px;
 }
+
 .successTitle{
   font-weight: 950;
   letter-spacing: -0.02em;
   font-size: 14px;
 }
+
 .successDesc{
   margin-top: 4px;
   color: rgba(11,18,32,.70);
@@ -711,11 +920,11 @@ details p{
   gap: 10px;
 }
 
-/* v18 button utilities for success page (so we don't rely on old .btn system) */
+/* v18 utilities kept */
 .btnBlock{ display:block; width:100%; text-align:center; }
 .btnSm{ padding: 9px 12px; border-radius: 12px; font-size: 12px; }
 
-/* Use same base <button> style from v18, but allow <a> to look identical */
+/* Allow <a> to look like buttons (shared utilities) */
 .btnPrimary, .btnSoft, .btnGhost{
   display:inline-flex;
   align-items:center;
@@ -729,18 +938,19 @@ details p{
   box-shadow: var(--sh-0);
   transition: transform .10s var(--ease), background .16s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease), opacity .16s var(--ease);
 }
+
 .btnPrimary{
   background: linear-gradient(180deg, #0b1220, #111827);
-  border-color: rgba(17,24,39,.65);
+  border-color: rgba(17,24,39,.70);
   color:#fff;
-  box-shadow: 0 18px 52px rgba(2,6,23,.16);
+  box-shadow: 0 18px 52px rgba(2,6,23,.18);
 }
-.btnPrimary:hover{ box-shadow: 0 26px 80px rgba(2,6,23,.18); }
+.btnPrimary:hover{ box-shadow: 0 34px 110px rgba(2,6,23,.22); }
 
 .btnSoft{
   background: rgba(2,6,23,.04);
   border-color: rgba(2,6,23,.12);
-  color: rgba(11,18,32,.92);
+  color: rgba(11,18,32,.94);
   box-shadow: none;
 }
 .btnSoft:hover{ background: rgba(2,6,23,.06); }
@@ -751,7 +961,10 @@ details p{
   color: rgba(11,18,32,.70);
   box-shadow: none;
 }
-.btnGhost:hover{ background: rgba(2,6,23,.04); border-color: rgba(2,6,23,.16); }
+.btnGhost:hover{
+  background: rgba(2,6,23,.04);
+  border-color: rgba(2,6,23,.16);
+}
 
 /* Share box */
 .shareBox{
@@ -762,6 +975,7 @@ details p{
   background: rgba(255,255,255,.92);
   box-shadow: var(--sh-0);
 }
+
 .shareLabel{
   font-size: 12px;
   font-weight: 950;
@@ -769,12 +983,14 @@ details p{
   text-transform: uppercase;
   letter-spacing: .06em;
 }
+
 .shareRow{
   margin-top: 10px;
   display:flex;
   gap: 10px;
   align-items:center;
 }
+
 .shareInput{
   flex: 1;
   width: 100%;
@@ -787,6 +1003,7 @@ details p{
   outline: none;
 }
 .shareInput:focus{ outline: 3px solid var(--ring); outline-offset: 2px; }
+
 .shareHint{
   margin-top: 10px;
   font-size: 12px;
