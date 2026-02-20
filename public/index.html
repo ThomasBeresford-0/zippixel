@@ -1,4 +1,8 @@
-<!-- public/index.html — ZipPixel (v26 - PREMIUM HERO UPGRADE + VERSION SYNC + MERGE PDFs) -->
+<!-- public/index.html — ZipPixel (v26 - CLEAN HERO + MERGE PDFs + VERSION SYNC)
+     ✅ Removes all the extra hero clutter (no steps, no pills, no “upload your files…” paragraph)
+     ✅ Keeps ALL required IDs/classes for app.js + modal
+     ✅ Version sync: style.css?v=26 + app.js?v=16
+-->
 <!doctype html>
 <html lang="en">
 <head>
@@ -37,7 +41,6 @@
     </a>
 
     <nav class="navLinks" aria-label="Primary">
-      <a href="#how">How it works</a>
       <a href="#faq">FAQ</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
@@ -46,225 +49,166 @@
 </header>
 
 <main>
+  <section class="hero heroPremium" aria-label="ZipPixel hero">
+    <div class="container heroInner">
 
-<section class="hero heroPremium" aria-label="ZipPixel hero">
-  <div class="container heroInner">
-
-    <div class="heroText">
-      <!-- Slightly “better” hero: clearer promise + pricing cue + less generic -->
-      <p class="heroSub" style="margin:0 auto 10px; font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: rgba(11,18,32,.58);">
-        Pay once • Instant download • No signup
-      </p>
-
-      <h1>Compress, convert, or merge PDFs — in seconds.</h1>
-
-      <p class="heroSub" style="max-width: 760px;">
-        Upload your files, choose what you want (ZIP, convert, or merged PDF), then checkout securely with Stripe.
-        <span style="font-weight:800; color: rgba(11,18,32,.78);">From £2.99</span>.
-      </p>
-
-      <div class="heroSteps" role="list" aria-label="How ZipPixel works">
-        <div class="heroStep" role="listitem">
-          <div class="heroStepKicker">1</div>
-          <div class="heroStepText">Choose a mode</div>
-        </div>
-        <div class="heroStep" role="listitem">
-          <div class="heroStepKicker">2</div>
-          <div class="heroStepText">Add files</div>
-        </div>
-        <div class="heroStep" role="listitem">
-          <div class="heroStepKicker">3</div>
-          <div class="heroStepText">Pay once, download</div>
-        </div>
+      <!-- CLEAN: no extra hero text, no chips, no steps -->
+      <div class="heroText">
+        <h1>Compress, convert, or merge PDFs.</h1>
       </div>
 
-      <div class="heroTrust" aria-label="Trust and privacy notes">
-        <span class="trustPill">No signup</span>
-        <span class="trustPill">Stripe Checkout</span>
-        <span class="trustPill">Up to 50 files</span>
-        <span class="trustPill">Merge PDFs (2+)</span>
-      </div>
-    </div>
+      <div class="tool toolPremium" aria-label="ZipPixel tool">
 
-    <div class="tool toolPremium" aria-label="ZipPixel tool">
-
-      <div class="statusWrap">
-        <div class="statusLeft">
-          <div class="status" id="status" aria-live="polite" aria-atomic="true">Ready</div>
-          <div class="spinner" id="spinner" aria-hidden="true"></div>
+        <div class="statusWrap">
+          <div class="statusLeft">
+            <div class="status" id="status" aria-live="polite" aria-atomic="true">Ready</div>
+            <div class="spinner" id="spinner" aria-hidden="true"></div>
+          </div>
+          <div class="statusHint" id="statusHint">Choose a mode and add files.</div>
         </div>
-        <div class="statusHint" id="statusHint">Choose a mode and add files.</div>
-      </div>
 
-      <!-- MODE SELECTOR -->
-      <fieldset class="modeRow" aria-label="Mode">
-        <legend class="srOnly">Choose a mode</legend>
+        <!-- MODE SELECTOR -->
+        <fieldset class="modeRow" aria-label="Mode">
+          <legend class="srOnly">Choose a mode</legend>
 
-        <label class="modeOption" for="modeCompress">
-          <input type="radio" name="mode" id="modeCompress" checked>
-          <span>Compress to ZIP</span>
-        </label>
+          <label class="modeOption" for="modeCompress">
+            <input type="radio" name="mode" id="modeCompress" checked>
+            <span>Compress to ZIP</span>
+          </label>
 
-        <label class="modeOption" for="modeConvert">
-          <input type="radio" name="mode" id="modeConvert">
-          <span>Convert files</span>
-        </label>
+          <label class="modeOption" for="modeConvert">
+            <input type="radio" name="mode" id="modeConvert">
+            <span>Convert files</span>
+          </label>
 
-        <label class="modeOption" for="modeMergePdf" title="Combine multiple PDFs into one">
-          <input type="radio" name="mode" id="modeMergePdf">
-          <span>Merge PDFs</span>
-        </label>
+          <label class="modeOption" for="modeMergePdf" title="Combine multiple PDFs into one">
+            <input type="radio" name="mode" id="modeMergePdf">
+            <span>Merge PDFs</span>
+          </label>
 
-        <div class="convertRow" id="convertRow" style="display:none;">
-          <div class="convertGroup">
-            <label class="srOnly" for="convertFrom">Convert from</label>
-            <select id="convertFrom" aria-label="Convert from">
-              <option value="auto">Auto detect</option>
-              <option value="jpg">JPG</option>
-              <option value="png">PNG</option>
-              <option value="webp">WebP</option>
-              <option value="pdf">PDF</option>
-            </select>
+          <div class="convertRow" id="convertRow" style="display:none;">
+            <div class="convertGroup">
+              <label class="srOnly" for="convertFrom">Convert from</label>
+              <select id="convertFrom" aria-label="Convert from">
+                <option value="auto">Auto detect</option>
+                <option value="jpg">JPG</option>
+                <option value="png">PNG</option>
+                <option value="webp">WebP</option>
+                <option value="pdf">PDF</option>
+              </select>
+            </div>
+
+            <span class="convertArrow" aria-hidden="true">→</span>
+
+            <div class="convertGroup">
+              <label class="srOnly" for="convertTarget">Convert to</label>
+              <select id="convertTarget" aria-label="Convert to">
+                <option value="jpg">JPG</option>
+                <option value="png">PNG</option>
+                <option value="webp">WebP</option>
+                <option value="pdf">PDF</option>
+              </select>
+            </div>
+
+            <div class="convertHint">
+              Supported: JPG, PNG, WebP, PDF
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- DROPZONE -->
+        <div class="dropzone dropzonePremium" id="dropzone" aria-label="File dropzone">
+          <input id="files" type="file" multiple aria-label="Choose files" />
+
+          <div class="dzCenter">
+            <div class="dzIcon" aria-hidden="true"><span class="dzArrow">↑</span></div>
+            <div class="dzTitle" id="dzTitle">Drop files here</div>
+            <div class="dzSub" id="dzSub">Up to 50 files • Drag & drop or select</div>
+
+            <button class="btnPrimary btnLarge" id="chooseBtn" type="button">
+              Select files
+            </button>
+
+            <div class="dzAfter" id="dzAfter">
+              Upload → review price → secure checkout → instant download
+            </div>
           </div>
 
-          <span class="convertArrow" aria-hidden="true">→</span>
-
-          <div class="convertGroup">
-            <label class="srOnly" for="convertTarget">Convert to</label>
-            <select id="convertTarget" aria-label="Convert to">
-              <option value="jpg">JPG</option>
-              <option value="png">PNG</option>
-              <option value="webp">WebP</option>
-              <option value="pdf">PDF</option>
-            </select>
-          </div>
-
-          <div class="convertHint">
-            Supported: JPG, PNG, WebP, PDF
-          </div>
-        </div>
-      </fieldset>
-
-      <!-- DROPZONE -->
-      <div class="dropzone dropzonePremium" id="dropzone" aria-label="File dropzone">
-        <input id="files" type="file" multiple aria-label="Choose files" />
-
-        <div class="dzCenter">
-          <div class="dzIcon" aria-hidden="true"><span class="dzArrow">↑</span></div>
-          <div class="dzTitle" id="dzTitle">Drop files here</div>
-          <div class="dzSub" id="dzSub">Up to 50 files • Drag & drop or select</div>
-
-          <button class="btnPrimary btnLarge" id="chooseBtn" type="button">
-            Select files
-          </button>
-
-          <div class="dzAfter" id="dzAfter">
-            Upload → review price → secure checkout → instant download
+          <div class="fileMeta" id="fileMeta" hidden>
+            <div class="fileMetaTop">
+              <div class="fileSummary" id="fileSummary"></div>
+              <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+            </div>
+            <ol class="fileList" id="fileList"></ol>
           </div>
         </div>
 
-        <div class="fileMeta" id="fileMeta" hidden>
-          <div class="fileMetaTop">
-            <div class="fileSummary" id="fileSummary"></div>
-            <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+        <div class="progressWrap" id="progressWrap" hidden>
+          <div class="progressTop">
+            <div id="progressLabel">Uploading…</div>
+            <div id="progressPct">0%</div>
           </div>
-          <ol class="fileList" id="fileList"></ol>
+          <div class="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Upload progress">
+            <div class="progressFill" id="progressFill"></div>
+          </div>
+          <div id="progressMeta"></div>
         </div>
-      </div>
 
-      <div class="progressWrap" id="progressWrap" hidden>
-        <div class="progressTop">
-          <div id="progressLabel">Uploading…</div>
-          <div id="progressPct">0%</div>
+        <div class="actionRow actionRowPremium">
+          <button class="btnSoft" id="upload" disabled>Upload files</button>
+          <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
         </div>
-        <div class="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Upload progress">
-          <div class="progressFill" id="progressFill"></div>
+
+        <div class="fineprint">
+          Secure Stripe checkout • Instant download after payment
         </div>
-        <div id="progressMeta"></div>
-      </div>
 
-      <div class="actionRow actionRowPremium">
-        <button class="btnSoft" id="upload" disabled>Upload files</button>
-        <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
-      </div>
-
-      <div class="fineprint">
-        Secure Stripe checkout • Instant download after payment
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<section id="how" class="section sectionHow">
-  <div class="container">
-    <div class="sectionHead">
-      <h2>How it works</h2>
-      <p class="sectionSub">A clean, predictable flow — no accounts, no clutter.</p>
-    </div>
-
-    <div class="howGrid" role="list" aria-label="How it works steps">
-      <div class="howCard" role="listitem">
-        <div class="howNum">01</div>
-        <div class="howTitle">Pick a mode</div>
-        <div class="howText">Compress to ZIP, convert formats, or merge PDFs into one file.</div>
-      </div>
-
-      <div class="howCard" role="listitem">
-        <div class="howNum">02</div>
-        <div class="howTitle">Add files</div>
-        <div class="howText">Drag & drop or select. Review the list before uploading.</div>
-      </div>
-
-      <div class="howCard" role="listitem">
-        <div class="howNum">03</div>
-        <div class="howTitle">Pay once & download</div>
-        <div class="howText">Checkout with Stripe. Download immediately after payment.</div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section id="faq" class="section sectionFaq">
-  <div class="container">
-    <div class="sectionHead">
-      <h2>FAQ</h2>
-      <p class="sectionSub">Quick answers. No nonsense.</p>
+  <section id="faq" class="section sectionFaq">
+    <div class="container">
+      <div class="sectionHead">
+        <h2>FAQ</h2>
+        <p class="sectionSub">Quick answers. No nonsense.</p>
+      </div>
+
+      <div class="faqList">
+        <details class="faqItem">
+          <summary>Do I need an account?</summary>
+          <div class="faqBody">No. ZipPixel is pay-once with instant access after checkout.</div>
+        </details>
+
+        <details class="faqItem">
+          <summary>What files can I convert?</summary>
+          <div class="faqBody">Currently: JPG, PNG, WebP, and PDF. Use “Auto detect” if you’re not sure.</div>
+        </details>
+
+        <details class="faqItem">
+          <summary>Can I merge PDFs?</summary>
+          <div class="faqBody">Yes — choose “Merge PDFs”, upload 2+ PDF files, and ZipPixel will combine them into a single PDF.</div>
+        </details>
+
+        <details class="faqItem">
+          <summary>How many files can I upload?</summary>
+          <div class="faqBody">Up to 50 files per job (Pro supports up to 50). Standard supports up to 10.</div>
+        </details>
+
+        <details class="faqItem">
+          <summary>Is checkout secure?</summary>
+          <div class="faqBody">Yes — payments are handled by Stripe Checkout.</div>
+        </details>
+
+        <details class="faqItem">
+          <summary>What happens to my files?</summary>
+          <div class="faqBody">They’re processed for your job so you can download the result. See the Privacy page for details.</div>
+        </details>
+      </div>
     </div>
+  </section>
 
-    <div class="faqList">
-      <details class="faqItem">
-        <summary>Do I need an account?</summary>
-        <div class="faqBody">No. ZipPixel is pay-once with instant access after checkout.</div>
-      </details>
-
-      <details class="faqItem">
-        <summary>What files can I convert?</summary>
-        <div class="faqBody">Currently: JPG, PNG, WebP, and PDF. Use “Auto detect” if you’re not sure.</div>
-      </details>
-
-      <details class="faqItem">
-        <summary>Can I merge PDFs?</summary>
-        <div class="faqBody">Yes — choose “Merge PDFs”, upload 2+ PDF files, and ZipPixel will combine them into a single PDF.</div>
-      </details>
-
-      <details class="faqItem">
-        <summary>How many files can I upload?</summary>
-        <div class="faqBody">Up to 50 files per job (Pro supports up to 50). Standard supports up to 10.</div>
-      </details>
-
-      <details class="faqItem">
-        <summary>Is checkout secure?</summary>
-        <div class="faqBody">Yes — payments are handled by Stripe Checkout.</div>
-      </details>
-
-      <details class="faqItem">
-        <summary>What happens to my files?</summary>
-        <div class="faqBody">They’re processed for your job so you can download the result. See the Privacy page for details.</div>
-      </details>
-    </div>
-  </div>
-</section>
+</main>
 
 <footer class="footer footerPremium">
   <div class="container footerInner">
@@ -282,9 +226,7 @@
   </div>
 </footer>
 
-<!-- KEEPING YOUR MODAL EXACTLY AS-IS BELOW -->
-<!-- (UNCHANGED STRUCTURE + REQUIRED IDs) -->
-
+<!-- MODAL (UNCHANGED STRUCTURE + REQUIRED IDs) -->
 <div class="modalOverlay" id="priceModal" aria-hidden="true">
   <div class="modalCard premiumModal" role="dialog" aria-modal="true" aria-label="Checkout options">
     <div class="modalTop">
@@ -351,7 +293,6 @@
   </div>
 </div>
 
-<!-- ✅ VERSION SYNC -->
 <script src="/app.js?v=16" defer></script>
 </body>
 </html>
