@@ -1,8 +1,10 @@
-// server.js — ZipPixel (RENDER SAFE MONEY MODE v15)
+// server.js — ZipPixel (RENDER SAFE MONEY MODE v16 - MERGE PDF MODE)
 // ✅ Pricing tiers: £2.99 (≤10) / £9.99 (11–50) + optional share link (+£2.49)
-// ✅ Server-side enforcement: max 50 files, 25MB each (size enforced at upload time in R2 presign policy via client; server still validates count)
-// ✅ Routes unchanged: /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/checkout
+// ✅ Server-side enforcement: max 50 files, 25MB each (client enforces size; server enforces count + mode validation)
+// ✅ Routes: /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/jobs/:jobId/mode, /api/checkout
 // ✅ Webhook + Stripe self-heal preserved
+// ✅ NEW: merge_pdf mode — PAID download returns a single merged PDF (in upload order)
+
 require("dotenv").config();
 
 const express = require("express");
@@ -23,6 +25,16 @@ try {
   );
 }
 
+// pdf-lib is required for merge_pdf (but we fail gracefully if missing)
+let PDFLibDocument = null;
+try {
+  ({ PDFDocument: PDFLibDocument } = require("pdf-lib"));
+} catch (e) {
+  console.warn(
+    "⚠️ pdf-lib failed to load. merge_pdf mode will error until you install `pdf-lib`."
+  );
+}
+
 // R2 (S3-compatible)
 const {
   S3Client,
@@ -40,7 +52,7 @@ const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 const PUBLIC_DIR = path.join(__dirname, "public");
 
 // ====== LIMITS ======
-const MAX_FILES = Number(process.env.MAX_FILES || 50); // v15
+const MAX_FILES = Number(process.env.MAX_FILES || 50); // v15+
 const MAX_MB_EACH = Number(process.env.MAX_MB_EACH || 25);
 
 // ====== PRICING TIERS ======
@@ -167,6 +179,42 @@ function computeTotalPence(job) {
   return { total, tier };
 }
 
+// ====== MODE HELPERS ======
+const VALID_MODES = new Set(["compress", "convert", "merge_pdf"]);
+const VALID_CONVERT_TARGETS = new Set(["jpg", "jpeg", "png", "webp", "pdf"]);
+
+function normalizeConvertTarget(t) {
+  const v = String(t || "").toLowerCase().trim();
+  if (!v) return null;
+  if (v === "jpeg") return "jpg";
+  return v;
+}
+
+function isPdfMeta(fileMeta) {
+  const mt = String(fileMeta?.mimetype || "").toLowerCase();
+  const name = String(fileMeta?.originalname || "").toLowerCase();
+  return mt === "application/pdf" || name.endsWith(".pdf");
+}
+
+function validateJobFilesForMode(job) {
+  const files = Array.isArray(job.files) ? job.files : [];
+  if (!files.length) throw new Error("No files registered");
+  if (files.length > MAX_FILES) throw new Error(`Too many files (max ${MAX_FILES}).`);
+
+  if (job.mode === "merge_pdf") {
+    if (!PDFLibDocument) throw new Error("PDF merge is unavailable (pdf-lib not installed).");
+    if (files.length < 2) throw new Error("Merge PDFs requires at least 2 PDFs.");
+    const nonPdf = files.find((f) => !isPdfMeta(f));
+    if (nonPdf) throw new Error("Merge PDFs only accepts PDF files.");
+  }
+
+  if (job.mode === "convert") {
+    if (job.convertTarget && !VALID_CONVERT_TARGETS.has(job.convertTarget)) {
+      throw new Error("Invalid convert target");
+    }
+  }
+}
+
 // ====== R2 CLEANUP HELPERS ======
 async function deleteJobObjectsFromR2(jobId) {
   if (!r2Configured) return;
@@ -260,6 +308,7 @@ app.get("/health", (_, res) => {
     stripeConfigured,
     r2Configured,
     sharpLoaded: !!sharp,
+    pdfLibLoaded: !!PDFLibDocument,
     jobsInMemory: jobs.size,
     pricing: {
       tier10: { limit: TIER_10_LIMIT, pricePence: TIER_10_PRICE_GBP_PENCE },
@@ -267,6 +316,7 @@ app.get("/health", (_, res) => {
       shareUpsellPence: SHARE_LINK_UPSELL_PENCE,
     },
     limits: { maxFiles: MAX_FILES, maxMBEach: MAX_MB_EACH },
+    modes: Array.from(VALID_MODES),
   });
 });
 
@@ -295,8 +345,8 @@ app.post("/api/jobs", (_, res) => {
 
     options: { shareLink: false },
 
-    mode: "compress",
-    convertTarget: null,
+    mode: "compress",     // compress | convert | merge_pdf
+    convertTarget: null,  // jpg|png|webp|pdf (convert only)
 
     shareToken: null,
     shareExpiresAt: null,
@@ -362,6 +412,9 @@ app.post("/api/jobs/:jobId/register", (req, res) => {
       if (!f.key.startsWith(`${job.jobId}/`)) throw new Error("Invalid file key");
     }
 
+    // Mode-aware validation (merge PDFs must be PDFs-only + 2+)
+    validateJobFilesForMode(job);
+
     job.status = "UPLOADED";
     res.json({ ok: true, count: job.files.length });
   } catch (e) {
@@ -369,18 +422,27 @@ app.post("/api/jobs/:jobId/register", (req, res) => {
   }
 });
 
-// Set job mode (compress | convert)
+// Set job mode (compress | convert | merge_pdf)
 app.post("/api/jobs/:jobId/mode", (req, res) => {
   try {
     const job = getJob(req.params.jobId);
     const { mode, target } = req.body || {};
 
-    if (!["compress", "convert"].includes(mode)) {
-      throw new Error("Invalid mode");
-    }
+    const m = String(mode || "").toLowerCase().trim();
+    if (!VALID_MODES.has(m)) throw new Error("Invalid mode");
 
-    job.mode = mode;
-    job.convertTarget = mode === "convert" ? String(target || "").toLowerCase() : null;
+    // Don’t allow changing mode after upload/checkout has begun
+    if (job.status !== "CREATED") throw new Error("Invalid state");
+
+    job.mode = m;
+
+    if (m === "convert") {
+      const t = normalizeConvertTarget(target);
+      if (t && !VALID_CONVERT_TARGETS.has(t)) throw new Error("Invalid convert target");
+      job.convertTarget = t || null;
+    } else {
+      job.convertTarget = null;
+    }
 
     res.json({ ok: true });
   } catch (e) {
@@ -400,6 +462,9 @@ app.post("/api/checkout", async (req, res) => {
     if (!job.files?.length) throw new Error("No files registered");
     if (job.files.length > MAX_FILES) throw new Error(`Too many files (max ${MAX_FILES}).`);
 
+    // Mode-aware validation (again, belt & braces)
+    validateJobFilesForMode(job);
+
     job.options.shareLink = !!shareLink;
 
     // Clear any old token until payment confirmed
@@ -408,8 +473,17 @@ app.post("/api/checkout", async (req, res) => {
 
     const { total, tier } = computeTotalPence(job);
 
-    const productName =
-      tier.key === "zip50" ? "ZipPixel Pro ZIP (up to 50 files)" : "ZipPixel ZIP (up to 10 files)";
+    const productNameBase =
+      tier.key === "zip50" ? "ZipPixel Pro (up to 50 files)" : "ZipPixel (up to 10 files)";
+
+    const modeLabel =
+      job.mode === "merge_pdf"
+        ? "Merge PDFs"
+        : (job.mode === "convert"
+          ? `Convert to ${String(job.convertTarget || "").toUpperCase() || "format"}`
+          : "ZIP download");
+
+    const productName = `${productNameBase} — ${modeLabel}`;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -420,7 +494,7 @@ app.post("/api/checkout", async (req, res) => {
             unit_amount: total,
             product_data: {
               name: productName,
-              description: job.options.shareLink ? "ZIP download + shareable link" : "ZIP download",
+              description: job.options.shareLink ? `${modeLabel} + shareable link` : modeLabel,
             },
           },
           quantity: 1,
@@ -432,6 +506,8 @@ app.post("/api/checkout", async (req, res) => {
         jobId,
         shareLink: job.options.shareLink ? "1" : "0",
         tier: tier.key,
+        mode: job.mode,
+        convertTarget: job.convertTarget || "",
         fileCount: String(job.files.length),
         totalPence: String(total),
       },
@@ -463,13 +539,17 @@ app.get("/api/status/:jobId", async (req, res) => {
       expiresAt: job.expiresAt || null,
       downloads: job.downloadCount || 0,
       fileCount: job.files?.length || 0,
+      mode: job.mode || "compress",
+      convertTarget: job.convertTarget || null,
     });
   } catch {
     res.status(404).json({ ok: false, error: "Not found" });
   }
 });
 
-// Download ZIP (zip from R2) — PAID ONLY (webhook + stripe fallback)
+// Download — PAID ONLY (webhook + stripe fallback)
+// - compress/convert: ZIP stream
+// - merge_pdf: single PDF buffer
 app.get("/api/download/:jobId", async (req, res) => {
   try {
     requireR2();
@@ -481,8 +561,48 @@ app.get("/api/download/:jobId", async (req, res) => {
       if (!ok) return res.status(402).send("Payment required");
     }
 
+    // Final safety validation
+    validateJobFilesForMode(job);
+
     job.downloadCount++;
 
+    // ====== MERGE PDF MODE (returns a single PDF) ======
+    if (job.mode === "merge_pdf") {
+      if (!PDFLibDocument) throw new Error("PDF merge is unavailable (pdf-lib not installed).");
+
+      // Fetch all PDFs as buffers (in job.files order)
+      const pdfBuffers = [];
+      for (const f of job.files) {
+        const obj = await r2.send(
+          new GetObjectCommand({
+            Bucket: R2_BUCKET,
+            Key: f.key,
+          })
+        );
+        const buf = await streamToBuffer(obj.Body);
+        pdfBuffers.push(buf);
+      }
+
+      // Merge with pdf-lib (preserves page order)
+      const merged = await PDFLibDocument.create();
+
+      for (const buf of pdfBuffers) {
+        const src = await PDFLibDocument.load(buf);
+        const pages = await merged.copyPages(src, src.getPageIndices());
+        for (const p of pages) merged.addPage(p);
+      }
+
+      const mergedBytes = await merged.save();
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="zippixel_merged_${Date.now()}.pdf"`
+      );
+      return res.send(Buffer.from(mergedBytes));
+    }
+
+    // ====== ZIP MODES (compress / convert) ======
     res.setHeader("Content-Type", "application/zip");
     res.setHeader("Content-Disposition", `attachment; filename="zippixel_${Date.now()}.zip"`);
 
@@ -614,6 +734,8 @@ app.get("/api/share/:token", async (req, res) => {
       fileCount: job.files.length,
       downloads: job.downloadCount,
       expiresAt: job.shareExpiresAt,
+      mode: job.mode || "compress",
+      convertTarget: job.convertTarget || null,
     });
   } catch (e) {
     res.status(400).json({ error: e.message });
@@ -711,7 +833,7 @@ setInterval(() => {
 }, CLEANUP_INTERVAL_MS);
 
 const { PassThrough } = require("stream");
-const PDFDocument = require("pdfkit");
+const PDFKitDocument = require("pdfkit");
 
 function streamToBuffer(stream) {
   return new Promise((resolve, reject) => {
@@ -724,7 +846,7 @@ function streamToBuffer(stream) {
 
 function imageToPdf(buffer) {
   return new Promise((resolve) => {
-    const doc = new PDFDocument({ autoFirstPage: false });
+    const doc = new PDFKitDocument({ autoFirstPage: false });
     const stream = new PassThrough();
     const chunks = [];
 
@@ -748,4 +870,5 @@ app.listen(PORT, () => {
   console.log(`Stripe configured: ${stripeConfigured}`);
   console.log(`R2 configured: ${r2Configured}`);
   console.log(`sharp loaded: ${!!sharp}`);
+  console.log(`pdf-lib loaded: ${!!PDFLibDocument}`);
 });

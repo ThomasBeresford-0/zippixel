@@ -1,4 +1,4 @@
-// public/app.js — ZipPixel frontend (v15.4 - PREMIUM RAMBO UX, CLEAN MODE HANDLING)
+// public/app.js — ZipPixel frontend (v16.0 - MERGE PDF MODE + PREMIUM RAMBO UX)
 // Matches: index.html IDs + server.js v15 routes:
 // /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/jobs/:jobId/mode, /api/checkout
 (() => {
@@ -40,6 +40,11 @@
   const progressLabel = document.getElementById("progressLabel");
   const progressMeta = document.getElementById("progressMeta");
 
+  // Optional dropzone copy hooks (added in index.html v24)
+  const dzTitleEl = document.getElementById("dzTitle");
+  const dzSubEl = document.getElementById("dzSub");
+  const dzAfterEl = document.getElementById("dzAfter");
+
   // Modal
   const priceModal = document.getElementById("priceModal");
   const modalCloseBtn = document.getElementById("modalCloseBtn");
@@ -67,6 +72,7 @@
   // Mode UI (optional; only exists on index)
   const modeCompress = document.getElementById("modeCompress");
   const modeConvert = document.getElementById("modeConvert");
+  const modeMergePdf = document.getElementById("modeMergePdf"); // NEW
   const convertRow = document.getElementById("convertRow");
   const convertFrom = document.getElementById("convertFrom"); // currently informational only
   const convertTarget = document.getElementById("convertTarget");
@@ -84,7 +90,8 @@
   let uploadedMeta = [];        // [{ key, originalname, mimetype }]
 
   // ====== MODE STATE ======
-  let mode = "compress"; // "compress" | "convert"
+  // compress | convert | merge_pdf
+  let mode = "compress";
   let convertTargetValue = null;
 
   // ====== HELPERS ======
@@ -113,14 +120,6 @@
     if (isPdfFile(f)) return "PDF";
     const ext = getExt(f.name);
     return ext || (f.type ? f.type.toUpperCase() : "FILE");
-  };
-
-  const validateFile = (f) => {
-    if (!f) return "Invalid file.";
-    if (f.size > MAX_MB_EACH * 1024 * 1024) {
-      return `“${f.name}” is ${humanMB(f.size)} (max ${MAX_MB_EACH}MB).`;
-    }
-    return null;
   };
 
   const resetProgress = () => {
@@ -170,21 +169,96 @@
     });
   };
 
+  const setDropzoneCopy = () => {
+    // Optional – only updates if those IDs exist
+    if (!dzTitleEl || !dzSubEl || !dzAfterEl) return;
+
+    if (mode === "merge_pdf") {
+      dzTitleEl.textContent = "Drop PDFs here";
+      dzSubEl.textContent = "PDFs only • 2+ files • Up to 50";
+      dzAfterEl.textContent = "Upload PDFs → review price → secure checkout → download merged PDF";
+      return;
+    }
+
+    if (mode === "convert") {
+      dzTitleEl.textContent = "Drop files here";
+      dzSubEl.textContent = "Up to 50 files • Drag & drop or select";
+      dzAfterEl.textContent = "Upload → review price → secure checkout → instant download";
+      return;
+    }
+
+    // compress
+    dzTitleEl.textContent = "Drop files here";
+    dzSubEl.textContent = "Up to 50 files • Drag & drop or select";
+    dzAfterEl.textContent = "Upload → review price → secure checkout → instant download";
+  };
+
+  const setFileInputAccept = () => {
+    // Pure UX hint; server/app still validates.
+    if (!filesEl) return;
+    if (mode === "merge_pdf") filesEl.setAttribute("accept", "application/pdf,.pdf");
+    else filesEl.removeAttribute("accept");
+  };
+
+  const modeMinFilesSatisfied = () => {
+    if (mode === "merge_pdf") return selected.length >= 2;
+    return selected.length >= 1;
+  };
+
+  const validateFileBase = (f) => {
+    if (!f) return "Invalid file.";
+    if (f.size > MAX_MB_EACH * 1024 * 1024) {
+      return `“${f.name}” is ${humanMB(f.size)} (max ${MAX_MB_EACH}MB).`;
+    }
+    return null;
+  };
+
+  const validateFileForMode = (f) => {
+    const baseErr = validateFileBase(f);
+    if (baseErr) return baseErr;
+
+    if (mode === "merge_pdf") {
+      if (!isPdfFile(f)) return `“${f.name}” isn’t a PDF. Merge PDFs only accepts PDF files.`;
+    }
+
+    // Convert/compress can accept any file types (backend decides)
+    return null;
+  };
+
+  const clearSelectionHard = (msgStatus, msgHint) => {
+    selected = [];
+    uploadedMeta = [];
+    for (const url of thumbUrls.values()) URL.revokeObjectURL(url);
+    thumbUrls.clear();
+    resetProgress();
+    if (msgStatus) setStatus(msgStatus);
+    if (msgHint) setHint(msgHint);
+    renderSelected();
+  };
+
   // ====== MODE SYNC (SINGLE SOURCE OF TRUTH) ======
   const syncMode = () => {
     const isConvert = !!modeConvert?.checked;
+    const isMerge = !!modeMergePdf?.checked;
 
-    mode = isConvert ? "convert" : "compress";
+    mode = isMerge ? "merge_pdf" : (isConvert ? "convert" : "compress");
 
-    if (convertRow) convertRow.style.display = isConvert ? "flex" : "none";
+    // show/hide convert row
+    if (convertRow) convertRow.style.display = (mode === "convert") ? "flex" : "none";
 
-    if (isConvert) {
+    if (mode === "convert") {
       convertTargetValue = convertTarget?.value || "jpg";
       setHint("Choose a target format, then upload files to convert.");
+    } else if (mode === "merge_pdf") {
+      convertTargetValue = null;
+      setHint("Upload <b>2+</b> PDFs to merge into one file.");
     } else {
       convertTargetValue = null;
       setHint("Upload files to create a ZIP.");
     }
+
+    setDropzoneCopy();
+    setFileInputAccept();
 
     // If user changes mode after upload, force re-upload (so server job state matches)
     if (uploadedMeta.length) {
@@ -194,7 +268,18 @@
       setHint("Mode changed — please upload again.");
     }
 
+    // If switching to merge PDF with non-PDFs selected, clear (avoid silent skipping)
+    if (mode === "merge_pdf" && selected.length) {
+      const hasNonPdf = selected.some((f) => !isPdfFile(f));
+      if (hasNonPdf) {
+        clearSelectionHard("PDFs only", "Merge PDFs only accepts PDF files. Please add <b>2+</b> PDFs.");
+        return;
+      }
+    }
+
+    // Convert target changes after upload should re-upload
     setPrimaryStates();
+    renderSelected();
   };
 
   // Only attach if the elements exist on this page
@@ -202,6 +287,10 @@
     modeCompress.addEventListener("change", syncMode);
     modeConvert.addEventListener("change", syncMode);
   }
+  if (modeMergePdf) {
+    modeMergePdf.addEventListener("change", syncMode);
+  }
+
   convertTarget?.addEventListener("change", () => {
     convertTargetValue = convertTarget?.value || "jpg";
     // don’t nuke upload on target change unless they already uploaded
@@ -227,7 +316,9 @@
   const setPrimaryStates = () => {
     const hasFiles = selected.length > 0;
     const hasJob = !!jobId;
-    const canUpload = hasFiles && hasJob && !uploading;
+
+    const meetsMin = modeMinFilesSatisfied();
+    const canUpload = hasFiles && meetsMin && hasJob && !uploading;
     const canContinue = !!uploadedMeta.length && !uploading;
 
     uploadBtn.disabled = !canUpload;
@@ -236,40 +327,52 @@
     showContinue(canContinue);
     continueBtn.textContent = "Continue →";
 
+    // Button copy tuning
+    if (mode === "merge_pdf") uploadBtn.textContent = uploading ? "Uploading…" : (uploadedMeta.length ? "Re-upload PDFs" : "Upload PDFs");
+    else uploadBtn.textContent = uploading ? "Uploading…" : (uploadedMeta.length ? "Re-upload" : "Upload files");
+
     if (!hasFiles) {
-      uploadBtn.textContent = "Upload files";
       setStatus("Ready");
-      setHint(mode === "convert" ? "Choose a target format, then add files." : "Add up to <b>50</b> files. Then upload.");
+      setHint(
+        mode === "merge_pdf"
+          ? "Add <b>2+</b> PDFs to merge."
+          : (mode === "convert" ? "Choose a target format, then add files." : "Add up to <b>50</b> files. Then upload.")
+      );
+      return;
+    }
+
+    if (mode === "merge_pdf" && !meetsMin) {
+      setStatus("Add one more PDF");
+      setHint("Merge PDFs needs <b>2+</b> PDF files.");
       return;
     }
 
     if (!hasJob) {
-      uploadBtn.textContent = "Preparing…";
-      return;
-    }
-
-    if (uploading) {
-      uploadBtn.textContent = "Uploading…";
+      setStatus("Preparing");
+      setHint("Setting up a secure upload…");
       return;
     }
 
     if (uploadedMeta.length) {
-      uploadBtn.textContent = "Re-upload";
+      setStatus("Uploaded");
+      setHint("Continue to checkout.");
       return;
     }
 
-    uploadBtn.textContent = "Upload files";
+    setStatus("Ready");
+    setHint(mode === "merge_pdf" ? "Upload your PDFs to continue." : (mode === "convert" ? "Upload files to convert." : "Upload your files to continue."));
   };
 
   const syncModalTierUI = () => {
     const n = selected.length;
     const tier = getTier(n);
 
-    // Make the modal feel correct for convert vs compress (pricing is same)
     const tierLabel =
-      mode === "convert"
-        ? `Convert → ${(convertTargetValue || "JPG").toUpperCase()}`
-        : (tier.key === "zip50" ? "Pro ZIP" : "ZIP");
+      mode === "merge_pdf"
+        ? "Merged PDF"
+        : (mode === "convert"
+          ? `Convert → ${(convertTargetValue || "JPG").toUpperCase()}`
+          : (tier.key === "zip50" ? "Pro ZIP" : "ZIP"));
 
     if (tierInline) tierInline.textContent = tierLabel;
     if (countInline) countInline.textContent = String(n);
@@ -278,10 +381,13 @@
     if (rowPro) rowPro.classList.toggle("isChosen", tier.key === "zip50");
 
     if (priceModalLead) {
-      priceModalLead.innerHTML =
-        mode === "convert"
-          ? `You’re converting <b>${n}</b> file${n === 1 ? "" : "s"} to <b>${escapeHtml((convertTargetValue || "jpg").toUpperCase())}</b>.`
-          : `You’re about to checkout for <b>${n}</b> file${n === 1 ? "" : "s"}.`;
+      if (mode === "merge_pdf") {
+        priceModalLead.innerHTML = `You’re merging <b>${n}</b> PDF${n === 1 ? "" : "s"} into a single <b>PDF</b>.`;
+      } else if (mode === "convert") {
+        priceModalLead.innerHTML = `You’re converting <b>${n}</b> file${n === 1 ? "" : "s"} to <b>${escapeHtml((convertTargetValue || "jpg").toUpperCase())}</b>.`;
+      } else {
+        priceModalLead.innerHTML = `You’re about to checkout for <b>${n}</b> file${n === 1 ? "" : "s"}.`;
+      }
     }
   };
 
@@ -302,7 +408,9 @@
       revokeRemovedThumbs(new Set());
 
       setStatus("Ready");
-      setHint(mode === "convert" ? "Choose a target format, then drop files." : "Drop files to begin.");
+      setHint(mode === "merge_pdf" ? "Add <b>2+</b> PDFs to merge." : (mode === "convert" ? "Choose a target format, then drop files." : "Drop files to begin."));
+      setDropzoneCopy();
+      setFileInputAccept();
       setPrimaryStates();
       return;
     }
@@ -343,14 +451,19 @@
 
     fileMeta.hidden = false;
 
-    if (jobId) {
+    if (!modeMinFilesSatisfied()) {
+      setStatus("Add one more PDF");
+      setHint("Merge PDFs needs <b>2+</b> PDF files.");
+    } else if (jobId) {
       setStatus(uploadedMeta.length ? "Uploaded" : "Ready");
-      setHint(uploadedMeta.length ? "Continue to checkout." : (mode === "convert" ? "Upload files to convert." : "Upload your files to continue."));
+      setHint(uploadedMeta.length ? "Continue to checkout." : (mode === "merge_pdf" ? "Upload PDFs to merge." : (mode === "convert" ? "Upload files to convert." : "Upload your files to continue.")));
     } else {
       setStatus("Preparing");
       setHint("Setting up a secure upload…");
     }
 
+    setDropzoneCopy();
+    setFileInputAccept();
     setPrimaryStates();
   };
 
@@ -405,7 +518,7 @@
 
       jobId = j.jobId;
       setStatus("Ready");
-      setHint(selected.length ? (mode === "convert" ? "Upload files to convert." : "Upload your files to continue.") : "Drop files to begin.");
+      setHint(selected.length ? (mode === "merge_pdf" ? "Upload PDFs to merge." : (mode === "convert" ? "Upload files to convert." : "Upload your files to continue.")) : "Drop files to begin.");
       renderSelected();
       return jobId;
     } catch (err) {
@@ -426,8 +539,9 @@
 
     const errors = [];
     const incomingValid = [];
+
     for (const f of arr) {
-      const err = validateFile(f);
+      const err = validateFileForMode(f);
       if (err) errors.push(err);
       else incomingValid.push(f);
     }
@@ -450,6 +564,16 @@
       selected = selected.slice(0, MAX_FILES);
       setStatus("Max files reached");
       setHint(`Only the first <b>${MAX_FILES}</b> files were kept.`);
+    }
+
+    // Merge PDF mode: enforce PDFs only (double-check) and keep order as selected
+    if (mode === "merge_pdf") {
+      const before = selected.length;
+      selected = selected.filter(isPdfFile);
+      if (selected.length !== before) {
+        setStatus("PDFs only");
+        setHint("Non-PDF files were removed. Add <b>2+</b> PDFs to merge.");
+      }
     }
 
     uploadedMeta = [];
@@ -571,13 +695,12 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mode,
+          mode, // compress | convert | merge_pdf
           target: convertTargetValue,
           from: convertFrom?.value || "auto", // informational for future
         }),
       });
       if (!r.ok) {
-        // Don’t crash upload, but tell the user something is off.
         setStatus("Mode error");
         setHint("Couldn’t set mode. Please refresh and try again.");
       }
@@ -590,6 +713,22 @@
   uploadBtn.addEventListener("click", async () => {
     if (uploading) return;
     if (selected.length === 0) return;
+
+    if (mode === "merge_pdf" && !modeMinFilesSatisfied()) {
+      setStatus("Add one more PDF");
+      setHint("Merge PDFs needs <b>2+</b> PDF files.");
+      return;
+    }
+
+    // Safety: merge mode must be PDFs only
+    if (mode === "merge_pdf") {
+      const bad = selected.find((f) => !isPdfFile(f));
+      if (bad) {
+        setStatus("PDFs only");
+        setHint("Merge PDFs only accepts PDF files. Remove non-PDF files and try again.");
+        return;
+      }
+    }
 
     try { await ensureJob(); } catch {
       setStatus("Couldn’t start");
@@ -639,7 +778,7 @@
         if (presign?.error) throw new Error(presign.error);
         if (!presign?.url || !presign?.key) throw new Error("Failed to prepare upload");
 
-        await putWithProgress(presign.url, f, (loaded, total) => prog.currentFile(loaded, total));
+        await putWithProgress(presign.url, f, (loaded) => prog.currentFile(loaded));
 
         uploadedMeta.push({
           key: presign.key,
@@ -729,6 +868,12 @@
     if (!jobId) return;
     if (selected.length === 0) return;
 
+    if (mode === "merge_pdf" && !modeMinFilesSatisfied()) {
+      setStatus("Add one more PDF");
+      setHint("Merge PDFs needs <b>2+</b> PDF files.");
+      return;
+    }
+
     if (!uploadedMeta.length) {
       setStatus("Upload first");
       setHint("Please upload your files before continuing.");
@@ -784,6 +929,8 @@
   continueBtn.textContent = "Continue →";
   continueBtn.style.display = "";   // never hidden
   setStatus("Ready");
-  setHint(mode === "convert" ? "Choose a target format, then drop files." : "Drop files to begin.");
+  setHint(mode === "merge_pdf" ? "Add <b>2+</b> PDFs to merge." : (mode === "convert" ? "Choose a target format, then drop files." : "Drop files to begin."));
+  setDropzoneCopy();
+  setFileInputAccept();
   renderSelected();
 })();

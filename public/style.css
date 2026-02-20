@@ -1,7 +1,7 @@
-/* public/style.css — ZipPixel (v25 - PREMIUM BOUTIQUE, UNIFIED)
-   ✅ Single coherent system (no layered overrides / no !important wars)
-   ✅ Segmented mode selector (Compress / Convert) feels like a real product
-   ✅ Adds styles for new homepage sections (How it works + FAQ + footer)
+/* public/style.css — ZipPixel (v26 - PREMIUM BOUTIQUE, TIGHTER UX + MERGE MODE READY)
+   ✅ Keeps your coherent v25 system (no !important wars)
+   ✅ Adds polish for Merge PDFs (third segmented option + convert row + hints)
+   ✅ Fixes a few “off” feelings: spacing rhythm, hover states, details open state, focus, mobile stacking
    ✅ Keeps modal + pricing required IDs/classes untouched
 */
 
@@ -207,13 +207,13 @@ strong,b{ font-weight: 800; }
 
 .heroSub{
   margin: 12px auto 14px;
-  max-width: 720px;
+  max-width: 740px;
   font-size: 16px;
   line-height: 1.55;
   color: rgba(11,18,32,.70);
 }
 
-/* New hero bits (from index.html v23) */
+/* New hero bits */
 .heroSteps{
   margin: 16px auto 0;
   display:flex;
@@ -246,7 +246,7 @@ strong,b{ font-weight: 800; }
 }
 .heroStepText{
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 850;
   letter-spacing: -0.01em;
   color: rgba(11,18,32,.90);
 }
@@ -267,7 +267,7 @@ strong,b{ font-weight: 800; }
   background: rgba(2,6,23,.03);
   color: rgba(11,18,32,.78);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 750;
 }
 
 /* =========================
@@ -339,7 +339,7 @@ strong,b{ font-weight: 800; }
 @keyframes spin{ to { transform: rotate(360deg); } }
 
 /* =========================
-   MODE SELECTOR (segmented)
+   MODE SELECTOR (segmented, 3 modes ready)
 ========================= */
 .modeRow{
   position: relative;
@@ -415,7 +415,7 @@ strong,b{ font-weight: 800; }
   border: 1px solid rgba(2,6,23,.12);
   background: rgba(255,255,255,.92);
   padding: 10px 12px;
-  font-weight: 800;
+  font-weight: 850;
   font-size: 13px;
   color: rgba(11,18,32,.90);
   box-shadow: 0 1px 0 rgba(255,255,255,.70) inset;
@@ -493,7 +493,7 @@ strong,b{ font-weight: 800; }
 }
 .dzArrow{
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 850;
   color: rgba(11,18,32,.92);
   line-height: 1;
 }
@@ -565,6 +565,12 @@ strong,b{ font-weight: 800; }
   border: 1px solid rgba(2,6,23,.10);
   border-radius: 14px;
   background: rgba(2,6,23,.02);
+  transition: border-color .16s var(--ease), background .16s var(--ease), box-shadow .16s var(--ease);
+}
+.fileCard:hover{
+  border-color: rgba(2,6,23,.16);
+  background: rgba(2,6,23,.025);
+  box-shadow: 0 12px 40px rgba(2,6,23,.08);
 }
 
 .thumb{
@@ -582,7 +588,7 @@ strong,b{ font-weight: 800; }
 .thumbPdf{
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 650;
   color: rgba(11,18,32,.70);
 }
 
@@ -610,11 +616,13 @@ strong,b{ font-weight: 800; }
   font-weight: 850;
   font-size: 12px;
   color: rgba(11,18,32,.68);
+  transition: background .16s var(--ease), border-color .16s var(--ease), transform .10s var(--ease);
 }
 .iconBtn:hover{
   background: rgba(2,6,23,.04);
   border-color: rgba(2,6,23,.18);
 }
+.iconBtn:active{ transform: translateY(1px); }
 
 /* =========================
    BUTTONS
@@ -762,10 +770,16 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   border-radius: 18px;
   padding: 14px 14px;
   box-shadow: var(--sh-0);
+  transition: transform .10s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease);
+}
+.howCard:hover{
+  border-color: rgba(2,6,23,.16);
+  box-shadow: 0 22px 70px rgba(2,6,23,.10);
+  transform: translateY(-1px);
 }
 .howNum{
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-weight: 700;
+  font-weight: 750;
   font-size: 12px;
   letter-spacing: .10em;
   text-transform: uppercase;
@@ -797,6 +811,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   box-shadow: var(--sh-0);
   max-width: 720px;
   margin: 0 auto 10px;
+  transition: border-color .16s var(--ease), box-shadow .16s var(--ease), background .16s var(--ease);
 }
 .faqItem summary{
   cursor:pointer;
@@ -805,6 +820,12 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   letter-spacing: -0.01em;
 }
 .faqItem summary::-webkit-details-marker{ display:none; }
+
+.faqItem[open]{
+  border-color: rgba(37,99,235,.22);
+  box-shadow: 0 24px 80px rgba(2,6,23,.10);
+  background: rgba(255,255,255,.98);
+}
 .faqBody{
   margin-top: 10px;
   color: rgba(11,18,32,.72);
@@ -838,7 +859,11 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   color: rgba(11,18,32,.86);
 }
 .footerBrand img{ opacity:.92; }
-.footerNote{ color: rgba(11,18,32,.60); line-height: 1.55; max-width: 52ch; }
+.footerNote{
+  color: rgba(11,18,32,.60);
+  line-height: 1.55;
+  max-width: 52ch;
+}
 
 .footerRight{
   display:flex;
@@ -850,6 +875,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+.footerRight a:hover{ color: rgba(11,18,32,.78); opacity: 1; }
 
 /* =========================
    PAGE SHELL (privacy/terms etc.)
