@@ -869,5 +869,5 @@ app.listen(PORT, () => {
   console.log(`Stripe configured: ${stripeConfigured}`);
   console.log(`R2 configured: ${r2Configured}`);
   console.log(`sharp loaded: ${!!sharp}`);
-  console.log(`pdf-lib loaded: ${!!PDFLibDocument}`);
+  console.log(`pdf-lib loaded: ${!!PDFDocumentLib}`);
 });
