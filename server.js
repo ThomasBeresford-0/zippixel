@@ -307,7 +307,7 @@ app.get("/health", (_, res) => {
     stripeConfigured,
     r2Configured,
     sharpLoaded: !!sharp,
-    pdfLibLoaded: !!PDFLibDocument,
+    pdfLibLoaded: !!PDFDocumentLib,
     jobsInMemory: jobs.size,
     pricing: {
       tier10: { limit: TIER_10_LIMIT, pricePence: TIER_10_PRICE_GBP_PENCE },
