@@ -26,13 +26,12 @@ try {
 }
 
 // pdf-lib is required for merge_pdf (but we fail gracefully if missing)
-let PDFLibDocument = null;
+let PDFDocumentLib = null;
 try {
-  ({ PDFDocument: PDFLibDocument } = require("pdf-lib"));
+  const pdfLib = require("pdf-lib");
+  PDFDocumentLib = pdfLib.PDFDocument;
 } catch (e) {
-  console.warn(
-    "⚠️ pdf-lib failed to load. merge_pdf mode will error until you install `pdf-lib`."
-  );
+  console.warn("⚠️ pdf-lib failed to load. merge_pdf mode will error until you install `pdf-lib`.");
 }
 
 // R2 (S3-compatible)

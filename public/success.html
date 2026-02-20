@@ -1,8 +1,8 @@
-<!-- public/success.html — ZipPixel (v22 - FULL RAMBO SUCCESS)
+<!-- public/success.html — ZipPixel (v23 - MERGE PDF AWARE SUCCESS)
      ✅ Uses /api/status/:jobId (webhook + fallback)
-     ✅ SAME logic (no backend changes)
-     ✅ Matches v22 premium nav + page shell + footer
-     ✅ No legacy “pricing page” vibes
+     ✅ No backend changes
+     ✅ Mode-aware copy + correct download button label (ZIP vs PDF)
+     ✅ Updates stylesheet version to match your current premium system
 -->
 <!doctype html>
 <html lang="en">
@@ -11,7 +11,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Success — ZipPixel</title>
-  <meta name="description" content="Payment confirmed. Your ZIP will be ready to download shortly." />
+  <meta name="description" content="Payment confirmed. Your download will be ready shortly." />
   <link rel="canonical" href="https://zippixel.it.com/success" />
 
   <meta name="theme-color" content="#0b1220" />
@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/style.css?v=22" />
+  <link rel="stylesheet" href="/style.css?v=26" />
 </head>
 
 <body class="premium">
@@ -57,7 +57,7 @@
           <div class="successBox" aria-live="polite">
             <div class="successIcon" aria-hidden="true">✓</div>
             <div style="min-width:0;">
-              <div class="successTitle" id="titleLine">Preparing your ZIP</div>
+              <div class="successTitle" id="titleLine">Preparing your download</div>
               <div class="successDesc" id="desc">
                 We’re confirming payment and preparing your download. This usually takes a few seconds.
               </div>
@@ -127,6 +127,25 @@
     }
   };
 
+  // ---- helpers (mode-aware labels)
+  const normalizeMode = (m) => {
+    const v = String(m || "").toLowerCase().trim();
+    if (v === "merge_pdf") return "merge_pdf";
+    if (v === "convert") return "convert";
+    return "compress";
+  };
+
+  const downloadKind = (mode) => (mode === "merge_pdf" ? "PDF" : "ZIP");
+
+  const modeLabel = (mode, convertTarget) => {
+    if (mode === "merge_pdf") return "Merged PDF";
+    if (mode === "convert") {
+      const t = String(convertTarget || "").toUpperCase().trim();
+      return t ? `Converted files (${t})` : "Converted files";
+    }
+    return "ZIP";
+  };
+
   // ---- edge case: missing jobId
   if (!jobId) {
     sub.textContent = "We couldn’t find your download reference.";
@@ -144,12 +163,18 @@
     let attempt = 0;
 
     // waiting | notPaid | ready | failed
-    let mode = "waiting";
+    let viewState = "waiting";
+
+    // Mode snapshot (we learn this from status endpoint)
+    let currentMode = "compress";
+    let currentConvertTarget = null;
 
     const renderWaiting = (msg) => {
-      mode = "waiting";
+      viewState = "waiting";
+
+      const kind = downloadKind(currentMode);
       sub.textContent = "Finalising your download…";
-      titleLine.textContent = "Preparing your ZIP";
+      titleLine.textContent = `Preparing your ${kind}`;
       desc.textContent = msg || "This usually takes a few seconds.";
       hint.textContent = "Please keep this tab open. If it takes longer than ~30 seconds, use “Check again”.";
 
@@ -163,7 +188,7 @@
     };
 
     const renderNotPaid = () => {
-      mode = "notPaid";
+      viewState = "notPaid";
       sub.textContent = "Payment not confirmed yet.";
       titleLine.textContent = "Still confirming payment";
       desc.textContent = "If you just paid, it can take a moment. If you cancelled, head back and try again.";
@@ -179,7 +204,9 @@
     };
 
     const renderFailed = () => {
-      mode = "failed";
+      viewState = "failed";
+
+      const kind = downloadKind(currentMode);
       sub.textContent = "Still not ready.";
       titleLine.textContent = "Taking longer than expected";
       desc.textContent = "Try once more. If it still doesn’t work, email support and we’ll sort it.";
@@ -192,15 +219,24 @@
 
       const b = document.getElementById("retryBtn2");
       if (b) b.onclick = () => poll(true);
+
+      // Keep copy consistent with kind
+      // (button label is generic here on purpose — backend enforces paid anyway)
     };
 
     const renderReady = (shareToken) => {
-      mode = "ready";
+      viewState = "ready";
+
+      const kind = downloadKind(currentMode);
+      const label = modeLabel(currentMode, currentConvertTarget);
+
       sub.textContent = "Ready to download.";
-      titleLine.textContent = "Your ZIP is ready";
+      titleLine.textContent = `${label} is ready`;
       desc.textContent = shareToken
-        ? "Download the ZIP, or copy a share link to send it to someone."
-        : "Download your ZIP below.";
+        ? `Download the ${kind}, or copy a share link to send it to someone.`
+        : `Download your ${kind} below.`;
+
+      const downloadBtnLabel = currentMode === "merge_pdf" ? "Download PDF" : "Download ZIP";
 
       let shareHtml = "";
       if (shareToken) {
@@ -220,7 +256,7 @@
       }
 
       setActions(`
-        <a class="btnPrimary btnBlock" href="${downloadUrl}">Download ZIP</a>
+        <a class="btnPrimary btnBlock" href="${downloadUrl}">${downloadBtnLabel}</a>
         ${shareHtml}
         <a class="btnGhost btnBlock" href="/">Back to ZipPixel</a>
       `);
@@ -236,22 +272,32 @@
         });
       }
 
-      hint.textContent = "Tip: download promptly and store the ZIP somewhere safe.";
+      hint.textContent =
+        currentMode === "merge_pdf"
+          ? "Tip: download promptly and store the PDF somewhere safe."
+          : "Tip: download promptly and store the ZIP somewhere safe.";
     };
 
     const checkStatus = async () => {
       try {
         const r = await fetch(statusUrl, { cache: "no-store" });
-        if (!r.ok) return { ok: false, paid: false, status: "UNKNOWN", shareToken: null };
+        if (!r.ok) return { ok: false, paid: false, status: "UNKNOWN", shareToken: null, mode: "compress", convertTarget: null };
         const j = await r.json();
+
+        const m = normalizeMode(j.mode);
+        currentMode = m;
+        currentConvertTarget = j.convertTarget || null;
+
         return {
           ok: !!j.ok,
           paid: !!j.paid,
           status: j.status || "UNKNOWN",
-          shareToken: j.shareToken || null
+          shareToken: j.shareToken || null,
+          mode: m,
+          convertTarget: j.convertTarget || null
         };
       } catch {
-        return { ok: false, paid: false, status: "UNKNOWN", shareToken: null };
+        return { ok: false, paid: false, status: "UNKNOWN", shareToken: null, mode: currentMode, convertTarget: currentConvertTarget };
       }
     };
 
@@ -268,16 +314,16 @@
       if (st.paid) return renderReady(st.shareToken);
 
       if (waited > 6000) {
-        if (mode !== "notPaid") renderNotPaid();
+        if (viewState !== "notPaid") renderNotPaid();
       } else {
-        if (mode !== "waiting") renderWaiting("Checking your payment…");
+        if (viewState !== "waiting") renderWaiting("Checking your payment…");
       }
 
       if (waited >= maxMs) return renderFailed();
 
       const delay = Math.min(2500, 800 + attempt * 350);
 
-      if (mode === "waiting") {
+      if (viewState === "waiting") {
         renderWaiting(`Not ready yet. Retrying in ${(delay/1000).toFixed(1)}s…`);
       }
 

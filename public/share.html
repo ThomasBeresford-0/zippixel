@@ -1,8 +1,8 @@
-<!-- public/share.html — ZipPixel (v22 FULL RAMBO)
-     ✅ Matches style.css?v=22 (premium shell + coloured header)
+<!-- public/share.html — ZipPixel (v23 - MODE-AWARE SHARE: ZIP / MERGED PDF)
      ✅ Uses /api/share/:token (paid + expiry enforced server-side)
-     ✅ Zero route changes. Zero backend changes.
-     ✅ Trust-first, noindex/nofollow preserved.
+     ✅ Mode-aware: merge_pdf downloads a single PDF (button + copy updated)
+     ✅ No route changes. No backend changes.
+     ✅ noindex/nofollow preserved.
 -->
 <!doctype html>
 <html lang="en">
@@ -25,7 +25,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/style.css?v=22" />
+  <link rel="stylesheet" href="/style.css?v=26" />
 </head>
 
 <body class="premium">
@@ -61,14 +61,14 @@
             <div style="min-width:0;">
               <div class="successTitle" id="titleLine">Checking link</div>
               <div class="successDesc" id="desc">
-                This link was created with ZipPixel. If it’s still valid, you can download the ZIP below.
+                This link was created with ZipPixel. If it’s still valid, you can download below.
               </div>
             </div>
           </div>
 
           <div class="successActions" id="actions" aria-live="polite">
             <a id="downloadBtn" class="btnPrimary btnBlock" href="#" aria-disabled="true" style="opacity:.55; pointer-events:none;">
-              Download ZIP
+              Download
             </a>
 
             <div class="shareBox" id="statsBox" style="display:none;">
@@ -83,7 +83,7 @@
           </div>
 
           <p class="fineprint" id="hint" style="margin-top:12px;">
-            Tip: After downloading, save the ZIP somewhere safe.
+            Tip: After downloading, save it somewhere safe.
           </p>
 
           <p class="fineprint" id="error" style="display:none; margin-top:10px; color: rgba(220,38,38,1); font-weight: 800;">
@@ -114,7 +114,7 @@
   document.getElementById("y").textContent = new Date().getFullYear();
 
   const token = location.pathname.replace(/\/+$/, "").split("/").pop();
-  
+
   const metaEl = document.getElementById("meta");
   const titleLine = document.getElementById("titleLine");
   const descEl = document.getElementById("desc");
@@ -167,9 +167,50 @@
     }
   };
 
+  const modeCopy = (mode, convertTarget) => {
+    const m = String(mode || "").toLowerCase();
+
+    if (m === "merge_pdf") {
+      return {
+        badge: "Merged PDF",
+        action: "Download PDF",
+        what: "PDF",
+        descReady: "Download the merged PDF below.",
+        descExpire: (when) => `Download the merged PDF before it expires (${when}).`,
+        tip: "Tip: download promptly and store the PDF somewhere safe."
+      };
+    }
+
+    if (m === "convert") {
+      const tgt = String(convertTarget || "").toUpperCase() || "FORMAT";
+      return {
+        badge: `Converted → ${tgt}`,
+        action: "Download ZIP",
+        what: "ZIP",
+        descReady: "Download the ZIP of converted files below.",
+        descExpire: (when) => `Download the ZIP before it expires (${when}).`,
+        tip: "Tip: download promptly and store the ZIP somewhere safe."
+      };
+    }
+
+    // compress (default)
+    return {
+      badge: "ZIP Download",
+      action: "Download ZIP",
+      what: "ZIP",
+      descReady: "Download the ZIP below.",
+      descExpire: (when) => `Download the ZIP before it expires (${when}).`,
+      tip: "Tip: download promptly and store the ZIP somewhere safe."
+    };
+  };
+
   const load = async () => {
     clearError();
     setDisabled(true);
+
+    // Default button label while loading
+    btn.textContent = "Download";
+    btn.setAttribute("href", "#");
 
     if (!token) {
       metaEl.textContent = "Invalid link.";
@@ -191,6 +232,12 @@
 
       const data = await res.json();
 
+      const mode = data.mode || "compress";
+      const convertTarget = data.convertTarget || null;
+
+      const copy = modeCopy(mode, convertTarget);
+      btn.textContent = copy.action;
+
       const expiresAt = data.expiresAt ? Number(data.expiresAt) : null;
       const remainingMs = expiresAt ? (expiresAt - Date.now()) : null;
 
@@ -205,17 +252,22 @@
 
       const fileCount = Number(data.fileCount || 0);
       const downloads = Number(data.downloads || 0);
-      const fileLabel = `${fileCount} file${fileCount === 1 ? "" : "s"}`;
+
+      // Mode-aware “fileCount” label (still uses server’s fileCount)
+      let fileLabel = `${fileCount} file${fileCount === 1 ? "" : "s"}`;
+      if (String(mode).toLowerCase() === "merge_pdf") {
+        fileLabel = `${fileCount} PDF${fileCount === 1 ? "" : "s"}`;
+      }
 
       if (expiresAt) {
         const days = Math.max(0, Math.ceil(remainingMs / (1000 * 60 * 60 * 24)));
-        metaEl.textContent = `${fileLabel} • Expires in ${days} day${days === 1 ? "" : "s"}`;
+        metaEl.textContent = `${fileLabel} • ${copy.badge} • Expires in ${days} day${days === 1 ? "" : "s"}`;
         titleLine.textContent = "Ready to download";
-        descEl.textContent = `Download the ZIP before it expires (${fmtDateTime(expiresAt)}).`;
+        descEl.textContent = copy.descExpire(fmtDateTime(expiresAt));
       } else {
-        metaEl.textContent = fileLabel;
+        metaEl.textContent = `${fileLabel} • ${copy.badge}`;
         titleLine.textContent = "Ready to download";
-        descEl.textContent = "Download the ZIP below.";
+        descEl.textContent = copy.descReady;
       }
 
       statEl.textContent =
@@ -224,11 +276,11 @@
 
       statsBox.style.display = "block";
 
-      // Paid-only download is enforced server-side.
+      // Paid-only download enforced server-side.
       btn.href = `/api/download/${encodeURIComponent(data.jobId)}`;
       setDisabled(false);
 
-      hintEl.textContent = "Tip: Download promptly and store the ZIP somewhere safe.";
+      hintEl.textContent = copy.tip;
     } catch (e) {
       metaEl.textContent = "Unavailable.";
       titleLine.textContent = "This link is no longer available";

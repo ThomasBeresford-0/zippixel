@@ -89,6 +89,19 @@
   const thumbUrls = new Map();  // keyOf(file) -> objectURL (images only)
   let uploadedMeta = [];        // [{ key, originalname, mimetype }]
 
+    const hardResetJob = (reason) => {
+    // When mode/target changes, the backend may have locked the job state.
+    // The only safe move is: start fresh.
+    jobId = null;
+    creatingJob = false;
+    uploadedMeta = [];
+    resetProgress();
+    if (reason) {
+      setStatus("Ready");
+      setHint(reason);
+    }
+  };
+
   // ====== MODE STATE ======
   // compress | convert | merge_pdf
   let mode = "compress";
@@ -261,11 +274,10 @@
     setFileInputAccept();
 
     // If user changes mode after upload, force re-upload (so server job state matches)
-    if (uploadedMeta.length) {
-      uploadedMeta = [];
-      resetProgress();
-      setStatus("Ready");
-      setHint("Mode changed — please upload again.");
+    // If user changes mode after ANY upload, we must start a NEW backend job,
+    // because server locks mode once job becomes UPLOADED.
+    if (uploadedMeta.length || jobId) {
+      hardResetJob("Mode changed — please upload again.");
     }
 
     // If switching to merge PDF with non-PDFs selected, clear (avoid silent skipping)
@@ -293,14 +305,15 @@
 
   convertTarget?.addEventListener("change", () => {
     convertTargetValue = convertTarget?.value || "jpg";
-    // don’t nuke upload on target change unless they already uploaded
-    if (uploadedMeta.length) {
-      uploadedMeta = [];
-      resetProgress();
-      setStatus("Ready");
-      setHint("Target changed — please upload again.");
-      setPrimaryStates();
+
+    // If target changes, treat it like mode change: new job is safest
+    // because backend may already be UPLOADED and will reject /mode.
+    if (uploadedMeta.length || jobId) {
+      hardResetJob("Target changed — please upload again.");
     }
+
+    setPrimaryStates();
+    renderSelected();
   });
 
   // Initial sync
