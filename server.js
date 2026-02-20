@@ -583,10 +583,10 @@ app.get("/api/download/:jobId", async (req, res) => {
       }
 
       // Merge with pdf-lib (preserves page order)
-      const merged = await PDFLibDocument.create();
+        const merged = await PDFDocumentLib.create();
 
-      for (const buf of pdfBuffers) {
-        const src = await PDFLibDocument.load(buf);
+        for (const buf of pdfBuffers) {
+          const src = await PDFDocumentLib.load(buf);
         const pages = await merged.copyPages(src, src.getPageIndices());
         for (const p of pages) merged.addPage(p);
       }
