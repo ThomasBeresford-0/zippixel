@@ -1,37 +1,30 @@
-<!-- public/pdf-to-jpg.html — PDFOperations (v1 - HIGH-INTENT “PDF TO JPG” LANDING)
-     ✅ Dedicated SEO landing page for "pdf to jpg"
-     ✅ Uses convert mode and targets JPG
+<!-- public/convert.html — PDFOperations (v1 - Unified Conversion Page)
+     ✅ Single conversion hub (PDF, JPG, PNG, WebP)
+     ✅ Uses convert mode
      ✅ Keeps ALL app.js IDs unchanged
-     ✅ Modal + Stripe untouched
+     ✅ Stripe + modal untouched
      ✅ No backend changes required
-     ⚠️ NOTE: This page sets the UI to PDF → JPG. If your app.js doesn't auto-lock the target,
-        it will still work (user can change). We'll hard-lock targets in app.js later.
 -->
+
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>PDF to JPG Online — Convert PDF Pages to Images | PDFOperations</title>
-  <meta name="description" content="Convert PDF to JPG online in seconds. Turn pages into high-quality JPG images and download in a ZIP. Secure. No signup required." />
-  <link rel="canonical" href="https://pdfoperations.com/pdf-to-jpg" />
+  <title>Convert Files Online — PDF, JPG, PNG & WebP | PDFOperations</title>
+  <meta name="description" content="Convert PDF, JPG, PNG and WebP files online. Change formats instantly and download when ready. Secure. No signup required." />
+  <link rel="canonical" href="https://pdfoperations.com/convert" />
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
 
   <!-- Open Graph -->
-  <meta property="og:title" content="PDF to JPG Online — Convert PDF Pages to Images" />
-  <meta property="og:description" content="Convert PDF pages into JPG images and download in a ZIP. Secure, fast, no signup." />
+  <meta property="og:title" content="Convert Files Online — PDF, JPG, PNG & WebP" />
+  <meta property="og:description" content="Convert between PDF, JPG, PNG and WebP. Fast, secure and no signup required." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://pdfoperations.com/pdf-to-jpg" />
+  <meta property="og:url" content="https://pdfoperations.com/convert" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="PDF to JPG Online — Convert PDF Pages to Images" />
-  <meta name="twitter:description" content="Turn a PDF into JPG images quickly. Download as a ZIP. No signup." />
-  <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -45,15 +38,15 @@
 
 <header class="nav">
   <div class="container navInner">
-    <a class="brand" href="/" aria-label="PDFOperations home">
+    <a class="brand" href="/">
       <img src="/favicon.svg" width="26" height="26" alt="">
       <span>PDFOperations</span>
     </a>
 
     <nav class="navLinks">
-      <a href="/">All tools</a>
-      <a href="/jpg-to-pdf">JPG to PDF</a>
       <a href="/compress-pdf">Compress PDF</a>
+      <a href="/merge-pdf">Merge PDFs</a>
+      <a href="/split-pdf">Split PDF</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
     </nav>
@@ -62,218 +55,151 @@
 
 <main>
 
-  <section class="hero heroPremium heroToolFirst">
-    <div class="container heroWide">
+<section class="hero heroPremium heroToolFirst">
+  <div class="container heroWide">
 
-      <div id="tool" class="tool toolPremium toolMega">
+    <div id="tool" class="tool toolPremium toolMega">
 
-        <!-- HEADLINE -->
-        <div class="toolHead toolHeadMinimal">
-          <h1 class="toolTitle">PDF to JPG</h1>
-          <p class="toolSub">
-            Convert PDF pages into high-quality JPG images. Upload a PDF, choose your settings, and download as a ZIP when ready.
-          </p>
+      <!-- HEADLINE -->
+      <div class="toolHead toolHeadMinimal">
+        <h1 class="toolTitle">Convert Files</h1>
+        <p class="toolSub">
+          Convert between PDF, JPG, PNG and WebP. Upload files, choose a target format, and download when ready.
+        </p>
+      </div>
+
+      <!-- STATUS -->
+      <div class="statusWrap">
+        <div class="statusLeft">
+          <div class="status" id="status">Ready</div>
+          <div class="spinner" id="spinner"></div>
+        </div>
+        <div class="statusHint" id="statusHint">
+          Choose a target format and upload your files.
+        </div>
+      </div>
+
+      <!-- REQUIRED MODE INPUTS (hidden but required for app.js) -->
+      <fieldset class="modeRow" style="display:none;">
+        <input type="radio" name="mode" id="modeCompress">
+        <input type="radio" name="mode" id="modeCompressPdf">
+        <input type="radio" name="mode" id="modeConvert" checked>
+        <input type="radio" name="mode" id="modeMergePdf">
+        <input type="radio" name="mode" id="modeSplitPdf">
+      </fieldset>
+
+      <!-- CONVERT CONTROLS -->
+      <div class="convertRow convertRowPremium convertRowFull" id="convertRow">
+        <div class="convertGroup">
+          <div class="convertLabel">From</div>
+          <select id="convertFrom" aria-label="Convert from">
+            <option value="auto" selected>Auto detect</option>
+            <option value="pdf">PDF</option>
+            <option value="jpg">JPG</option>
+            <option value="png">PNG</option>
+            <option value="webp">WebP</option>
+          </select>
         </div>
 
-        <!-- STATUS -->
-        <div class="statusWrap">
-          <div class="statusLeft">
-            <div class="status" id="status">Ready</div>
-            <div class="spinner" id="spinner"></div>
-          </div>
-          <div class="statusHint" id="statusHint">Upload a PDF to convert pages into JPG images.</div>
+        <span class="convertArrow" aria-hidden="true">→</span>
+
+        <div class="convertGroup">
+          <div class="convertLabel">To</div>
+          <select id="convertTarget" aria-label="Convert to">
+            <option value="pdf">PDF</option>
+            <option value="jpg">JPG</option>
+            <option value="png">PNG</option>
+            <option value="webp">WebP</option>
+          </select>
         </div>
 
-        <!-- HIDDEN MODE INPUTS (REQUIRED FOR app.js) -->
-        <fieldset class="modeRow" style="display:none;">
-          <input type="radio" name="mode" id="modeCompress">
-          <input type="radio" name="mode" id="modeCompressPdf">
-          <input type="radio" name="mode" id="modeConvert" checked>
-          <input type="radio" name="mode" id="modeMergePdf">
-          <input type="radio" name="mode" id="modeSplitPdf">
-        </fieldset>
+        <div class="convertHint">
+          Output files are downloaded together in a ZIP if multiple are generated.
+        </div>
+      </div>
 
-        <!-- CONVERT CONTROLS (VISIBLE) -->
-        <div class="convertRow convertRowPremium convertRowFull" id="convertRow">
-          <div class="convertGroup">
-            <div class="convertLabel">From</div>
-            <select id="convertFrom" aria-label="Convert from">
-              <option value="pdf" selected>PDF</option>
-              <option value="auto">Auto detect</option>
-              <option value="jpg">JPG</option>
-              <option value="png">PNG</option>
-              <option value="webp">WebP</option>
-            </select>
+      <!-- HIDDEN PDF COMPRESS CONTROLS (keep ID for app.js safety) -->
+      <div class="convertRow" id="pdfCompressRow" style="display:none;">
+        <div class="convertGroup convertGroupWide">
+          <div class="convertLabel">Compression level</div>
+          <select id="pdfCompressLevel">
+            <option value="balanced" selected>Balanced</option>
+            <option value="light">Light</option>
+            <option value="max">Maximum</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- DROPZONE -->
+      <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
+
+        <div class="dzCenter">
+          <div class="dzIcon"><span class="dzArrow">↑</span></div>
+          <div class="dzTitle" id="dzTitle">Drop files here</div>
+          <div class="dzSub" id="dzSub">
+            Drag & drop or select (PDF, JPG, PNG, WebP)
           </div>
 
-          <span class="convertArrow" aria-hidden="true">→</span>
-
-          <div class="convertGroup">
-            <div class="convertLabel">To</div>
-            <select id="convertTarget" aria-label="Convert to">
-              <option value="jpg" selected>JPG</option>
-              <option value="png">PNG</option>
-              <option value="webp">WebP</option>
-              <option value="pdf">PDF</option>
-            </select>
+          <div class="filePick">
+            <button class="btnPrimary btnLarge" id="chooseBtn" type="button">
+              Select files
+            </button>
+            <input id="files" type="file" multiple />
           </div>
 
-          <div class="convertHint">PDF pages convert into images and download as a ZIP.</div>
+          <div class="dzFine">
+            Files are prepared first. Checkout appears only when you request the download.
+          </div>
         </div>
 
-        <!-- HIDE PDF COMPRESS ROW (KEEP ID FOR app.js) -->
-        <div class="convertRow" id="pdfCompressRow" style="display:none;">
-          <div class="convertGroup convertGroupWide">
-            <div class="convertLabel">Compression level</div>
-            <select id="pdfCompressLevel" aria-label="PDF compression level">
-              <option value="balanced" selected>Balanced</option>
-              <option value="light">Light</option>
-              <option value="max">Maximum</option>
-            </select>
+        <div class="fileMeta" id="fileMeta" hidden>
+          <div class="fileMetaTop">
+            <div class="fileSummary" id="fileSummary"></div>
+            <button class="btnGhost" id="clearBtn" type="button">Clear</button>
           </div>
-          <div class="convertHint">Choose how aggressively to reduce file size.</div>
-        </div>
 
-        <!-- DROPZONE -->
-        <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
+          <ol class="fileList" id="fileList"></ol>
 
-          <div class="dzCenter">
-            <div class="dzIcon"><span class="dzArrow">↑</span></div>
-            <div class="dzTitle" id="dzTitle">Drop your PDF here</div>
-            <div class="dzSub" id="dzSub">Drag & drop or select one PDF file</div>
-
-            <div class="filePick">
-              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
-              <input id="files" type="file" accept="application/pdf" />
+          <!-- Keep reorder container for compatibility -->
+          <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
+            <div class="pdfReorderHead">
+              <div class="pdfReorderTitle">Preview</div>
+              <div class="pdfReorderSub">Used for merge/split modes.</div>
             </div>
-
-            <div class="dzFine">
-              Files are prepared first. Checkout appears only when you request the download.
-            </div>
+            <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
           </div>
-
-          <div class="fileMeta" id="fileMeta" hidden>
-            <div class="fileMetaTop">
-              <div class="fileSummary" id="fileSummary"></div>
-              <button class="btnGhost" id="clearBtn" type="button">Clear</button>
-            </div>
-            <ol class="fileList" id="fileList"></ol>
-
-            <!-- Keep reorder container present (no harm). Hidden unless app.js uses it. -->
-            <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
-              <div class="pdfReorderHead">
-                <div class="pdfReorderTitle">Preview pages</div>
-                <div class="pdfReorderSub">Used for merge/split modes.</div>
-              </div>
-              <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- PROGRESS -->
-        <div class="progressWrap" id="progressWrap" hidden>
-          <div class="progressTop">
-            <div id="progressLabel">Uploading…</div>
-            <div id="progressPct">0%</div>
-          </div>
-          <div class="progressBar">
-            <div class="progressFill" id="progressFill"></div>
-          </div>
-          <div id="progressMeta"></div>
-        </div>
-
-        <!-- ACTIONS -->
-        <div class="actionRow actionRowWide">
-          <button class="btnSoft" id="upload" disabled>Upload PDF</button>
-          <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
-        </div>
-
-        <div class="fineprint">
-          No signup. Prepare first. Pay only when you request the download.
         </div>
 
       </div>
 
-      <!-- BELOW FOLD: SEO SUPPORT -->
-      <section class="section sectionSupport" style="padding-top: 18px;">
-        <div class="container">
-          <div class="supportCard">
-            <div class="supportHead">
-              <h2>Convert PDF pages to JPG images</h2>
-              <p class="supportSub">Perfect for sharing individual pages, exporting scans, or uploading to platforms that require images.</p>
-            </div>
-
-            <div class="supportGrid">
-              <div class="supportStep">
-                <div class="stepNum">1</div>
-                <div class="stepBody">
-                  <div class="stepTitle">Upload your PDF</div>
-                  <div class="stepText">Choose a PDF — multi-page documents are supported.</div>
-                </div>
-              </div>
-
-              <div class="supportStep">
-                <div class="stepNum">2</div>
-                <div class="stepBody">
-                  <div class="stepTitle">Convert to JPG</div>
-                  <div class="stepText">Each page is converted into a JPG image.</div>
-                </div>
-              </div>
-
-              <div class="supportStep">
-                <div class="stepNum">3</div>
-                <div class="stepBody">
-                  <div class="stepTitle">Download as ZIP</div>
-                  <div class="stepText">Get all JPG images in one ZIP file — ready to use.</div>
-                </div>
-              </div>
-            </div>
-
-          </div>
+      <!-- PROGRESS -->
+      <div class="progressWrap" id="progressWrap" hidden>
+        <div class="progressTop">
+          <div id="progressLabel">Uploading…</div>
+          <div id="progressPct">0%</div>
         </div>
-      </section>
-
-      <section class="section sectionSupport" id="faq">
-        <div class="container">
-          <div class="supportCard">
-            <div class="supportHead">
-              <h2>FAQ</h2>
-              <p class="supportSub">Quick answers. No fluff.</p>
-            </div>
-
-            <div class="faqPro">
-              <details class="faqItemPro">
-                <summary>Does it convert every page?</summary>
-                <div class="faqBodyPro">
-                  Yes — multi-page PDFs convert page-by-page, and you download all JPG files in a ZIP.
-                </div>
-              </details>
-
-              <details class="faqItemPro">
-                <summary>Is quality preserved?</summary>
-                <div class="faqBodyPro">
-                  Output quality is tuned for clean, usable images. If you need ultra-high DPI exports, we can add a quality selector next.
-                </div>
-              </details>
-
-              <details class="faqItemPro">
-                <summary>Do I need an account?</summary>
-                <div class="faqBodyPro">No signup required.</div>
-              </details>
-
-              <details class="faqItemPro">
-                <summary>When do I pay?</summary>
-                <div class="faqBodyPro">Only when you request the download. Preparation happens first.</div>
-              </details>
-            </div>
-
-          </div>
+        <div class="progressBar">
+          <div class="progressFill" id="progressFill"></div>
         </div>
-      </section>
+        <div id="progressMeta"></div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="actionRow actionRowWide">
+        <button class="btnSoft" id="upload" disabled>Upload files</button>
+        <button class="btnPrimary btnStrong" id="continue" disabled>
+          Continue →
+        </button>
+      </div>
+
+      <div class="fineprint">
+        No signup. Prepare first. Pay only when you request the download.
+      </div>
 
     </div>
-  </section>
+
+  </div>
+</section>
 
 </main>
 
@@ -284,7 +210,9 @@
         <img src="/favicon.svg" width="18" height="18" alt="">
         <span>PDFOperations</span>
       </div>
-      <div class="footerNote">Convert PDF to JPG online.</div>
+      <div class="footerNote">
+        File conversion made simple.
+      </div>
     </div>
     <div class="footerRight">
       <a href="/privacy">Privacy</a>
