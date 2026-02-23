@@ -1,8 +1,8 @@
-<!-- public/merge-pdf.html — PDFOperations (v4 - NO PAYMENT COPY + ROUTES FIXED)
-     ✅ No mention of paying until payment screen
-     ✅ Canonical/OG/Schema URLs corrected to *.html
-     ✅ Header/footer nav uses REAL *.html pages
-     ✅ Keeps ALL app.js IDs unchanged
+<!-- public/merge-pdf.html — PDFOperations (v5 - PAGE PREVIEW + DRAG REORDER UPGRADE)
+     ✅ Header routes fixed (no ZIP / no /compress-pdf.html)
+     ✅ Keeps ALL existing app.js IDs unchanged
+     ✅ Adds real PDF page thumbnails + drag & drop reorder + click-to-preview modal
+     ✅ Exposes window.__pdfopsPageOrder + dispatches "pdfops:pageorder" event (backend/app.js can consume)
 -->
 <!doctype html>
 <html lang="en">
@@ -54,6 +54,154 @@
     "browserRequirements": "Requires JavaScript. Works in modern browsers."
   }
   </script>
+
+  <style>
+    /* =========================
+       Merge v5 — page preview UX
+       (scoped, safe, no style.css edits)
+    ========================== */
+
+    .pdfReorderWrap{ margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(15,23,42,.08); }
+    .pdfReorderHead{
+      display:flex; align-items:flex-start; justify-content:space-between; gap: 14px;
+      margin: 2px 0 12px;
+    }
+    .pdfReorderTitle{ font-weight: 800; letter-spacing: -.02em; }
+    .pdfReorderSub{ opacity:.8; font-size: 13px; line-height: 1.35; margin-top: 4px; }
+
+    .pdfThumbGrid{
+      display:grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (max-width: 1100px){
+      .pdfThumbGrid{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px){
+      .pdfThumbGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    .pdfThumb{
+      position:relative;
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.7);
+      border-radius: 14px;
+      overflow:hidden;
+      box-shadow: 0 10px 30px rgba(15,23,42,.06);
+      cursor: grab;
+      user-select:none;
+      -webkit-user-select:none;
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    }
+    .pdfThumb:hover{
+      transform: translateY(-2px);
+      border-color: rgba(15,23,42,.16);
+      box-shadow: 0 14px 40px rgba(15,23,42,.10);
+    }
+    .pdfThumb:active{ cursor: grabbing; transform: translateY(0); }
+
+    .pdfThumb.isDragging{
+      opacity: .55;
+      transform: scale(.98);
+    }
+    .pdfThumb.isOver{
+      outline: 2px solid rgba(13,148,136,.55);
+      outline-offset: 2px;
+    }
+
+    .pdfThumbImg{
+      width:100%;
+      aspect-ratio: 3 / 4;
+      background: linear-gradient(180deg, rgba(15,23,42,.04), rgba(15,23,42,.02));
+      display:flex; align-items:center; justify-content:center;
+    }
+    .pdfThumbImg img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      display:block;
+    }
+
+    .pdfThumbMeta{
+      display:flex; justify-content:space-between; align-items:center;
+      gap: 8px;
+      padding: 8px 10px 10px;
+      font-size: 12px;
+      opacity: .9;
+    }
+    .pdfThumbPill{
+      font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.75);
+      white-space: nowrap;
+      max-width: 100%;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Modal */
+    .pdfPreviewModal{
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(2,6,23,.58);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .pdfPreviewCard{
+      width: min(980px, 96vw);
+      max-height: 90vh;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 18px;
+      overflow:hidden;
+      box-shadow: 0 30px 90px rgba(0,0,0,.35);
+      display:flex;
+      flex-direction: column;
+    }
+    .pdfPreviewTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(15,23,42,.08);
+    }
+    .pdfPreviewTitle{
+      font-weight: 800;
+      letter-spacing: -.02em;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 75%;
+    }
+    .pdfPreviewBody{
+      padding: 12px;
+      overflow:auto;
+      background: linear-gradient(180deg, rgba(15,23,42,.02), rgba(15,23,42,.01));
+    }
+    .pdfPreviewCanvas{
+      width: 100%;
+      display:block;
+      background: white;
+      border-radius: 12px;
+      border: 1px solid rgba(15,23,42,.10);
+    }
+
+    .pdfTinyNote{
+      margin-top: 10px;
+      font-size: 12px;
+      opacity: .75;
+    }
+  </style>
 </head>
 
 <body class="premium" data-tool="merge_pdf">
@@ -164,13 +312,26 @@
 
             <ol class="fileList" id="fileList"></ol>
 
+            <!-- ====== NEW: REAL page preview + reorder grid ====== -->
             <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
               <div class="pdfReorderHead">
-                <div class="pdfReorderTitle">Reorder pages</div>
-                <div class="pdfReorderSub">Drag pages to control the final document order.</div>
+                <div>
+                  <div class="pdfReorderTitle">Reorder pages</div>
+                  <div class="pdfReorderSub">
+                    Drag pages to control the final document order. Click a page to preview.
+                    <span id="pdfReorderCount"></span>
+                  </div>
+                </div>
+
+                <div class="pdfReorderActions" style="display:flex; gap:10px; align-items:center;">
+                  <button class="btnGhost" id="pdfReorderReset" type="button">Reset</button>
+                </div>
               </div>
+
               <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
+              <div class="pdfTinyNote" id="pdfThumbNote" hidden></div>
             </div>
+            <!-- ================================================ -->
           </div>
 
         </div>
@@ -256,10 +417,375 @@
   </div>
 </footer>
 
+<!-- ====== NEW: page preview modal ====== -->
+<div id="pdfPreviewModal" class="pdfPreviewModal" hidden aria-hidden="true">
+  <div class="pdfPreviewCard" role="dialog" aria-modal="true" aria-labelledby="pdfPreviewTitle">
+    <div class="pdfPreviewTop">
+      <div class="pdfPreviewTitle" id="pdfPreviewTitle">Preview</div>
+      <button class="btnGhost" id="pdfPreviewClose" type="button">Close</button>
+    </div>
+    <div class="pdfPreviewBody">
+      <canvas id="pdfPreviewCanvas" class="pdfPreviewCanvas"></canvas>
+    </div>
+  </div>
+</div>
+<!-- ===================================== -->
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+</script>
+
+<script>
+/* =========================================================
+   Merge v5 — PDF page thumbnails + drag reorder + preview
+   - Coexists with /app.js (does not change existing IDs)
+   - Sets window.__pdfopsPageOrder (array of page keys)
+   - Dispatches "pdfops:pageorder" event after any reorder
+========================================================= */
+(() => {
+  const fileInput = document.getElementById("files");
+  const clearBtn = document.getElementById("clearBtn");
+
+  const wrap = document.getElementById("pdfReorderWrap");
+  const grid = document.getElementById("pdfThumbGrid");
+  const countEl = document.getElementById("pdfReorderCount");
+  const resetBtn = document.getElementById("pdfReorderReset");
+  const noteEl = document.getElementById("pdfThumbNote");
+
+  const modal = document.getElementById("pdfPreviewModal");
+  const modalTitle = document.getElementById("pdfPreviewTitle");
+  const modalClose = document.getElementById("pdfPreviewClose");
+  const modalCanvas = document.getElementById("pdfPreviewCanvas");
+
+  // Safety: only run on merge tool page
+  if (!document.body || document.body.dataset.tool !== "merge_pdf") return;
+
+  // Limits (keep sane – thumbnails can be heavy)
+  const MAX_THUMB_PAGES = 160;     // total pages thumb-rendered across all PDFs
+  const THUMB_TARGET_W = 260;      // used to scale thumb renders
+
+  let originalOrder = []; // pageKey[] in initial order
+  let currentOrder = [];  // pageKey[] current order
+  let pageMap = new Map(); // pageKey -> { fileIndex, pageNumber, name, bytes }
+  let pdfBytesByFile = []; // arrayBuffer per file (for preview rendering)
+
+  let dragKey = null;
+
+  function setOrder(order) {
+    currentOrder = order.slice();
+    window.__pdfopsPageOrder = currentOrder.slice();
+
+    document.dispatchEvent(new CustomEvent("pdfops:pageorder", {
+      detail: { order: window.__pdfopsPageOrder.slice() }
+    }));
+  }
+
+  function updateCount() {
+    if (!countEl) return;
+    if (!currentOrder.length) {
+      countEl.textContent = "";
+      return;
+    }
+    countEl.textContent = ` • ${currentOrder.length} page${currentOrder.length === 1 ? "" : "s"}`;
+  }
+
+  function showModal(title) {
+    modal.hidden = false;
+    modal.setAttribute("aria-hidden", "false");
+    modalTitle.textContent = title || "Preview";
+    document.body.style.overflow = "hidden";
+  }
+
+  function hideModal() {
+    modal.hidden = true;
+    modal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  function moveKey(order, fromIdx, toIdx) {
+    const next = order.slice();
+    const [item] = next.splice(fromIdx, 1);
+    next.splice(toIdx, 0, item);
+    return next;
+  }
+
+  function el(tag, attrs = {}, children = []) {
+    const n = document.createElement(tag);
+    Object.entries(attrs).forEach(([k, v]) => {
+      if (k === "class") n.className = v;
+      else if (k === "text") n.textContent = v;
+      else if (k.startsWith("data-")) n.setAttribute(k, v);
+      else n[k] = v;
+    });
+    children.forEach(c => n.appendChild(c));
+    return n;
+  }
+
+  function clearThumbs() {
+    grid.innerHTML = "";
+    wrap.hidden = true;
+    noteEl.hidden = true;
+    originalOrder = [];
+    currentOrder = [];
+    pageMap.clear();
+    pdfBytesByFile = [];
+    dragKey = null;
+    setOrder([]);
+    updateCount();
+  }
+
+  async function renderThumbForPage(pdfDoc, pageNumber) {
+    const page = await pdfDoc.getPage(pageNumber);
+    const vp0 = page.getViewport({ scale: 1 });
+    const scale = Math.min(2.2, THUMB_TARGET_W / vp0.width);
+    const viewport = page.getViewport({ scale });
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d", { alpha: false });
+
+    canvas.width = Math.floor(viewport.width);
+    canvas.height = Math.floor(viewport.height);
+
+    await page.render({ canvasContext: ctx, viewport }).promise;
+
+    const url = canvas.toDataURL("image/jpeg", 0.86);
+    return { url, w: canvas.width, h: canvas.height };
+  }
+
+  async function renderPreviewPage(fileIndex, pageNumber) {
+    const bytes = pdfBytesByFile[fileIndex];
+    if (!bytes) return;
+
+    const loadingTask = pdfjsLib.getDocument({ data: bytes });
+    const pdfDoc = await loadingTask.promise;
+
+    const page = await pdfDoc.getPage(pageNumber);
+    const vp0 = page.getViewport({ scale: 1 });
+
+    // fit to modal width
+    const maxW = Math.min(920, window.innerWidth * 0.92);
+    const scale = Math.min(3.0, maxW / vp0.width);
+    const viewport = page.getViewport({ scale });
+
+    const ctx = modalCanvas.getContext("2d", { alpha: false });
+    modalCanvas.width = Math.floor(viewport.width);
+    modalCanvas.height = Math.floor(viewport.height);
+
+    await page.render({ canvasContext: ctx, viewport }).promise;
+  }
+
+  function rebuildGridFromOrder() {
+    const frag = document.createDocumentFragment();
+    currentOrder.forEach((key, idx) => {
+      const meta = pageMap.get(key);
+      if (!meta) return;
+
+      // existing node?
+      let node = grid.querySelector(`[data-page-key="${CSS.escape(key)}"]`);
+      if (node) {
+        frag.appendChild(node);
+        return;
+      }
+
+      // create node (should exist already, but safe)
+      node = el("div", { class: "pdfThumb", draggable: true });
+      node.setAttribute("data-page-key", key);
+
+      node.appendChild(el("div", { class: "pdfThumbImg" }, [
+        el("img", { alt: `Page ${meta.pageNumber}` })
+      ]));
+
+      node.appendChild(el("div", { class: "pdfThumbMeta" }, [
+        el("div", { class: "pdfThumbPill", text: `p${meta.pageNumber}` }),
+        el("div", { class: "pdfThumbPill", text: meta.name || "PDF" })
+      ]));
+
+      frag.appendChild(node);
+    });
+
+    grid.innerHTML = "";
+    grid.appendChild(frag);
+
+    // update visible ordering pills
+    [...grid.querySelectorAll(".pdfThumb")].forEach((node, i) => {
+      const key = node.getAttribute("data-page-key");
+      const meta = pageMap.get(key);
+      const pill = node.querySelector(".pdfThumbMeta .pdfThumbPill");
+      if (pill && meta) pill.textContent = `p${meta.pageNumber}`;
+      node.setAttribute("aria-label", `Page ${meta?.pageNumber || ""}`);
+    });
+  }
+
+  function wireDragAndClick() {
+    const items = [...grid.querySelectorAll(".pdfThumb")];
+
+    items.forEach(node => {
+      const key = node.getAttribute("data-page-key");
+
+      node.addEventListener("dragstart", (e) => {
+        dragKey = key;
+        node.classList.add("isDragging");
+        e.dataTransfer.effectAllowed = "move";
+        try { e.dataTransfer.setData("text/plain", key); } catch(_) {}
+      });
+
+      node.addEventListener("dragend", () => {
+        dragKey = null;
+        node.classList.remove("isDragging");
+        items.forEach(n => n.classList.remove("isOver"));
+      });
+
+      node.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        node.classList.add("isOver");
+        e.dataTransfer.dropEffect = "move";
+      });
+
+      node.addEventListener("dragleave", () => node.classList.remove("isOver"));
+
+      node.addEventListener("drop", (e) => {
+        e.preventDefault();
+        node.classList.remove("isOver");
+
+        const fromKey = dragKey || (()=>{
+          try { return e.dataTransfer.getData("text/plain"); } catch(_) { return null; }
+        })();
+
+        const toKey = key;
+        if (!fromKey || !toKey || fromKey === toKey) return;
+
+        const fromIdx = currentOrder.indexOf(fromKey);
+        const toIdx = currentOrder.indexOf(toKey);
+        if (fromIdx === -1 || toIdx === -1) return;
+
+        const next = moveKey(currentOrder, fromIdx, toIdx);
+        setOrder(next);
+        rebuildGridFromOrder();
+        wireDragAndClick();
+        updateCount();
+      });
+
+      node.addEventListener("click", async () => {
+        const meta = pageMap.get(key);
+        if (!meta) return;
+
+        showModal(`${meta.name} • page ${meta.pageNumber}`);
+        await renderPreviewPage(meta.fileIndex, meta.pageNumber);
+      });
+    });
+  }
+
+  async function buildThumbsForFiles(files) {
+    clearThumbs();
+    if (!files || files.length < 1) return;
+
+    // Only show for PDFs
+    const pdfs = [...files].filter(f => (f.type === "application/pdf") || /\.pdf$/i.test(f.name));
+    if (pdfs.length < 1) return;
+
+    // Read bytes for preview rendering
+    pdfBytesByFile = await Promise.all(pdfs.map(f => f.arrayBuffer()));
+
+    let totalThumbs = 0;
+    let clipped = false;
+
+    for (let fileIndex = 0; fileIndex < pdfs.length; fileIndex++) {
+      const name = pdfs[fileIndex].name || `PDF ${fileIndex + 1}`;
+      const bytes = pdfBytesByFile[fileIndex];
+
+      const loadingTask = pdfjsLib.getDocument({ data: bytes });
+      const pdfDoc = await loadingTask.promise;
+
+      const numPages = pdfDoc.numPages;
+
+      for (let p = 1; p <= numPages; p++) {
+        if (totalThumbs >= MAX_THUMB_PAGES) { clipped = true; break; }
+
+        const pageKey = `${fileIndex}:${p}`; // stable key
+
+        pageMap.set(pageKey, {
+          fileIndex,
+          pageNumber: p,
+          name,
+        });
+
+        originalOrder.push(pageKey);
+        totalThumbs++;
+
+        // create thumb node
+        const node = el("div", { class: "pdfThumb", draggable: true });
+        node.setAttribute("data-page-key", pageKey);
+
+        const imgEl = el("img", { alt: `${name} page ${p}` });
+        const imgWrap = el("div", { class: "pdfThumbImg" }, [imgEl]);
+
+        const meta = el("div", { class: "pdfThumbMeta" }, [
+          el("div", { class: "pdfThumbPill", text: `p${p}` }),
+          el("div", { class: "pdfThumbPill", text: name })
+        ]);
+
+        node.appendChild(imgWrap);
+        node.appendChild(meta);
+        grid.appendChild(node);
+
+        // render thumb async (sequential per page to avoid hammering)
+        try {
+          const { url } = await renderThumbForPage(pdfDoc, p);
+          imgEl.src = url;
+        } catch (e) {
+          // leave blank gradient if render fails
+          // (don’t break the whole flow)
+        }
+      }
+
+      if (clipped) break;
+    }
+
+    // Show UI
+    setOrder(originalOrder);
+    wrap.hidden = false;
+    updateCount();
+    wireDragAndClick();
+
+    if (clipped) {
+      noteEl.hidden = false;
+      noteEl.textContent =
+        `Preview limited to the first ${MAX_THUMB_PAGES} pages for speed. Reordering still applies to visible pages.`;
+    }
+  }
+
+  // Modal close
+  modalClose?.addEventListener("click", hideModal);
+  modal?.addEventListener("click", (e) => { if (e.target === modal) hideModal(); });
+  window.addEventListener("keydown", (e) => { if (e.key === "Escape" && !modal.hidden) hideModal(); });
+
+  // Reset order
+  resetBtn?.addEventListener("click", () => {
+    if (!originalOrder.length) return;
+    setOrder(originalOrder);
+    rebuildGridFromOrder();
+    wireDragAndClick();
+    updateCount();
+  });
+
+  // When file input changes (works alongside app.js listeners)
+  fileInput?.addEventListener("change", async () => {
+    const files = fileInput.files;
+    // Only render if user has at least 1 pdf (merge needs 2+, but preview can show anyway)
+    if (!files || files.length < 1) {
+      clearThumbs();
+      return;
+    }
+    await buildThumbsForFiles(files);
+  });
+
+  // Clear button should clear thumbs too
+  clearBtn?.addEventListener("click", () => {
+    clearThumbs();
+  });
+})();
 </script>
 
 <script src="/app.js?v=17.3" defer></script>
