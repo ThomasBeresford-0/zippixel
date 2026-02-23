@@ -1730,3 +1730,37 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   .modalCard{ margin: 12px auto; max-height: calc(100vh - 24px); }
   .modalBody{ max-height: calc(100vh - 24px - 60px - 72px); }
 }
+
+/* =========================================
+   PDFOperations — Homepage layout fix
+   Fix: footer floating mid-page
+========================================= */
+
+html, body {
+  height: 100%;
+}
+
+body.premium {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Make main expand to push footer down */
+body.premium > main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Let hero take available space */
+body.premium .heroToolFirst {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+/* Ensure hero container spans width properly */
+body.premium .heroToolFirst .heroWide {
+  width: 100%;
+}
