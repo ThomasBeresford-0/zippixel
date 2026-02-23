@@ -1764,3 +1764,110 @@ body.premium .heroToolFirst {
 body.premium .heroToolFirst .heroWide {
   width: 100%;
 }
+
+/* =========================================================
+   PDFOperations — PREMIUM UPGRADE PATCH (SAFE LAYER)
+   Adds visual authority without breaking layout
+========================================================= */
+
+/* ===== Hero breathing room ===== */
+
+.hero{
+  padding: 120px 0 60px !important;
+}
+
+.heroLanding{
+  margin-bottom: 70px !important;
+}
+
+.heroTitle{
+  font-size: clamp(42px, 5vw, 72px) !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.05em !important;
+}
+
+.heroTag{
+  font-size: 20px !important;
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ===== Tool dominance ===== */
+
+.tool{
+  box-shadow:
+    0 20px 60px rgba(15,23,42,.10),
+    0 60px 160px rgba(15,23,42,.14) !important;
+  border-radius: 28px !important;
+  padding: 56px !important;
+}
+
+@media (max-width: 900px){
+  .tool{
+    padding: 32px !important;
+  }
+}
+
+/* ===== Dropzone upgrade ===== */
+
+.dropzone{
+  border-width: 2px !important;
+  padding: 70px 30px !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%) !important;
+}
+
+.dropzone:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 30px 80px rgba(15,23,42,.12);
+}
+
+/* ===== Primary button authority ===== */
+
+.btnPrimary{
+  padding: 16px 28px !important;
+  border-radius: 16px !important;
+  font-size: 15px !important;
+  box-shadow: 0 18px 50px rgba(2,6,23,.22) !important;
+}
+
+.btnPrimary:hover{
+  transform: translateY(-2px);
+}
+
+/* ===== Preset buttons refinement ===== */
+
+.presetBtn{
+  padding: 10px 16px !important;
+  border-radius: 999px !important;
+}
+
+/* ===== Nav upgrade ===== */
+
+.nav{
+  box-shadow: 0 10px 40px rgba(0,0,0,.15);
+}
+
+.navLinks a{
+  font-weight: 600;
+}
+
+.navCta{
+  border-radius: 14px !important;
+  padding: 10px 18px !important;
+  font-weight: 700 !important;
+}
+
+/* ===== Footer polish ===== */
+
+.footerPremium{
+  background: rgba(255,255,255,.85) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ===== Global refinement ===== */
+
+.container{
+  width: min(1320px, calc(100% - 60px)) !important;
+}

@@ -1,24 +1,24 @@
-<!-- public/index.html — PDFOperations (v36 NAV STRUCTURE FIXED)
-     ✅ All app.js IDs unchanged
-     ✅ Mode radios preserved (hidden)
-     ✅ Homepage = Compress to ZIP only
-     ✅ Header links use REAL existing pages
-     ✅ No JS changes required
--->
-
+<!-- public/index.html — PDFOperations (Homepage = Compress PDF Landing) -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Compress PDF, Merge, Convert & Split Files Online | PDFOperations</title>
-  <meta name="description" content="Professional PDF tools. Compress PDF files, merge documents, split pages, convert formats or bundle files into a ZIP. Secure uploads. No signup. Pay only when ready." />
+  <title>Compress PDF Online — Fast, Clean & Professional | PDFOperations</title>
+  <meta name="description" content="Compress PDF files online. Reduce file size for email, portals and uploads. Secure processing. No signup required." />
   <link rel="canonical" href="https://pdfoperations.com/" />
 
+  <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light" />
-  <meta name="robots" content="index,follow" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Compress PDF Online — Fast, Clean & Professional" />
+  <meta property="og:description" content="Reduce PDF file size in seconds. Secure processing. No signup required." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pdfoperations.com/" />
+  <meta property="og:image" content="https://pdfoperations.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -26,7 +26,7 @@
   <link rel="stylesheet" href="/style.css?v=29" />
 </head>
 
-<body class="premium">
+<body class="premium" data-tool="compress_pdf">
 
 <a href="#tool" class="srOnly">Skip to the tool</a>
 
@@ -38,22 +38,11 @@
     </a>
 
     <nav class="navLinks">
-
-      <a href="#how">How it works</a>
-      <a href="#faq">FAQ</a>
-
-      <span class="navSep"></span>
-
-      <!-- REAL TOOL PAGES -->
-      <a href="/" aria-current="page">ZIP</a>
-      <a href="/compress-pdf.html">Compress PDF</a>
+      <a href="/" aria-current="page">Compress PDF</a>
       <a href="/merge-pdf.html">Merge</a>
       <a href="/split-pdf.html">Split</a>
       <a href="/convert.html">Convert</a>
       <a href="/rotate-pdf.html">Rotate</a>
-
-      <span class="navSep"></span>
-
       <a href="/pricing.html">Pricing</a>
       <a href="/privacy.html">Privacy</a>
       <a href="/terms.html">Terms</a>
@@ -64,50 +53,154 @@
 
 <main>
 
-<section class="hero heroPremium heroToolFirst">
+<!-- HERO -->
+<section class="hero heroPremium heroToolFirst heroLanding">
   <div class="container heroWide">
 
+    <div class="heroIntro">
+      <h1 class="heroTitle">
+        Compress PDF Online
+      </h1>
+      <p class="heroTag">
+        Reduce file size instantly for email, portals and client delivery.
+        Clean interface. Secure processing. No account required.
+      </p>
+    </div>
+
+    <!-- TOOL -->
     <div id="tool" class="tool toolPremium toolMega">
 
       <div class="toolHead toolHeadMinimal">
-        <h1 class="toolTitle">
-          Compress Files to ZIP
-        </h1>
-        <p class="toolSub">
-          Bundle multiple files into a single ZIP in seconds. Secure upload. No account. One-time payment.
-        </p>
+        <h2 class="toolTitle">Upload your PDF</h2>
       </div>
 
-      <!-- STATUS -->
       <div class="statusWrap">
         <div class="statusLeft">
           <div class="status" id="status">Ready</div>
           <div class="spinner" id="spinner"></div>
         </div>
-        <div class="statusHint" id="statusHint">
-          Add files to bundle into a ZIP.
-        </div>
+        <div class="statusHint" id="statusHint">Upload one PDF to begin.</div>
       </div>
 
-      <!-- MODE INPUTS (HIDDEN BUT PRESERVED FOR app.js) -->
-      <fieldset style="display:none">
-        <input type="radio" name="mode" id="modeCompress" checked>
-        <input type="radio" name="mode" id="modeCompressPdf">
+      <fieldset style="display:none;">
+        <input type="radio" name="mode" id="modeCompress">
+        <input type="radio" name="mode" id="modeCompressPdf" checked>
         <input type="radio" name="mode" id="modeConvert">
         <input type="radio" name="mode" id="modeMergePdf">
         <input type="radio" name="mode" id="modeSplitPdf">
       </fieldset>
 
-      <!-- EVERYTHING BELOW REMAINS EXACTLY AS YOU HAD IT -->
-      <!-- Dropzone -->
-      <!-- File list -->
-      <!-- Progress -->
-      <!-- Actions -->
-      <!-- Modal structure -->
-      <!-- DO NOT TOUCH -->
+      <div class="presetRow">
+        <div class="presetLabel">Common limits:</div>
+        <div class="presetButtons">
+          <button type="button" class="presetBtn" data-preset-level="max">Under 2MB</button>
+          <button type="button" class="presetBtn" data-preset-level="max">Under 5MB</button>
+          <button type="button" class="presetBtn" data-preset-level="balanced">Under 10MB</button>
+          <button type="button" class="presetBtn" data-preset-level="light">High quality</button>
+        </div>
+      </div>
+
+      <div class="convertRow convertRowPremium convertRowFull" id="pdfCompressRow">
+        <div class="convertGroup convertGroupWide">
+          <div class="convertLabel">Compression level</div>
+          <select id="pdfCompressLevel">
+            <option value="balanced" selected>Balanced (recommended)</option>
+            <option value="light">Light (better quality)</option>
+            <option value="max">Maximum (smallest size)</option>
+          </select>
+        </div>
+        <div class="convertHint">
+          Tip: choose <b>Maximum</b> for strict upload limits.
+        </div>
+      </div>
+
+      <div id="convertRow" style="display:none;">
+        <select id="convertFrom"></select>
+        <select id="convertTarget"></select>
+      </div>
+
+      <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
+        <div class="dzCenter">
+          <div class="dzIcon"><span class="dzArrow">↑</span></div>
+          <div class="dzTitle" id="dzTitle">Drop your PDF here</div>
+          <div class="dzSub" id="dzSub">Drag & drop or select one PDF</div>
+          <div class="filePick">
+            <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
+            <input id="files" type="file" accept="application/pdf" />
+          </div>
+          <div class="dzFine">Files are processed securely.</div>
+        </div>
+
+        <div class="fileMeta" id="fileMeta" hidden>
+          <div class="fileMetaTop">
+            <div class="fileSummary" id="fileSummary"></div>
+            <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+          </div>
+          <ol class="fileList" id="fileList"></ol>
+        </div>
+      </div>
+
+      <div class="progressWrap" id="progressWrap" hidden>
+        <div class="progressTop">
+          <div id="progressLabel">Uploading…</div>
+          <div id="progressPct">0%</div>
+        </div>
+        <div class="progressBar">
+          <div class="progressFill" id="progressFill"></div>
+        </div>
+        <div id="progressMeta"></div>
+      </div>
+
+      <div class="actionRow actionRowWide">
+        <button class="btnSoft" id="upload" disabled>Upload PDF</button>
+        <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
+      </div>
+
+      <div class="fineprint">
+        No signup. Secure processing.
+      </div>
 
     </div>
 
+  </div>
+</section>
+
+<!-- TRUST -->
+<section class="trustStrip">
+  <div class="container trustInner">
+    <div class="trustItem">
+      <strong>Secure</strong>
+      <span>Your files are handled safely.</span>
+    </div>
+    <div class="trustItem">
+      <strong>No Signup</strong>
+      <span>Compress instantly.</span>
+    </div>
+    <div class="trustItem">
+      <strong>Professional Quality</strong>
+      <span>Multiple compression levels.</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="infoSection">
+  <div class="container infoInner">
+    <h2>How it works</h2>
+    <div class="infoGrid">
+      <div>
+        <h3>1. Upload</h3>
+        <p>Select your PDF and choose compression level.</p>
+      </div>
+      <div>
+        <h3>2. Compress</h3>
+        <p>Your file is securely optimised.</p>
+      </div>
+      <div>
+        <h3>3. Download</h3>
+        <p>Get your smaller PDF instantly.</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -120,9 +213,7 @@
         <img src="/favicon.svg" width="18" height="18" alt="">
         <span>PDFOperations</span>
       </div>
-      <div class="footerNote">
-        Secure file compression and professional PDF processing tools.
-      </div>
+      <div class="footerNote">Smart PDF compression online.</div>
     </div>
     <div class="footerRight">
       <a href="/privacy.html">Privacy</a>
