@@ -1,11 +1,12 @@
-<!-- public/split-pdf.html — PDFOperations (v2 - FULL RAMBO SPLIT + CHECKOUT MODAL INCLUDED)
+<!-- public/split-pdf.html — PDFOperations (v3 - NO PAYMENT COPY + ROUTES FIXED)
      ✅ Dedicated SEO landing page for "split pdf"
      ✅ Preselects split_pdf mode
      ✅ Keeps ALL app.js IDs unchanged
      ✅ Includes page thumbnail grid containers (pdfReorderWrap/pdfThumbGrid)
-     ✅ Includes FULL checkout modal markup (required for app.js to actually proceed)
+     ✅ Includes FULL checkout modal markup (required for app.js proceed flow)
      ✅ Uses pdf.js for thumbnails
-     ✅ No backend changes required to deploy this page
+     ✅ No backend changes required
+     ✅ No mention of paying until payment screen (modal only, neutral phrasing)
 -->
 <!doctype html>
 <html lang="en">
@@ -15,16 +16,17 @@
 
   <title>Split PDF Online — Separate Pages in Seconds | PDFOperations</title>
   <meta name="description" content="Split a PDF into separate pages online. Upload one PDF, preview pages, drag to reorder, then download a ZIP of split pages. Secure. No signup required." />
-  <link rel="canonical" href="https://pdfoperations.com/split-pdf" />
+  <link rel="canonical" href="https://pdfoperations.com/split-pdf.html" />
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
+  <meta name="color-scheme" content="light" />
 
   <!-- Open Graph -->
   <meta property="og:title" content="Split PDF Online — Separate Pages in Seconds" />
   <meta property="og:description" content="Upload one PDF, preview pages, reorder, then download split pages as a ZIP." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://pdfoperations.com/split-pdf" />
+  <meta property="og:url" content="https://pdfoperations.com/split-pdf.html" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
   <meta property="og:image:alt" content="PDFOperations — Split PDF" />
 
@@ -47,17 +49,24 @@
 
 <header class="nav">
   <div class="container navInner">
-    <a class="brand" href="/" aria-label="PDFOperations home">
+    <a class="brand" href="/index.html" aria-label="PDFOperations home">
       <img src="/favicon.svg" width="26" height="26" alt="">
       <span>PDFOperations</span>
     </a>
 
-    <nav class="navLinks">
-      <a href="/">All tools</a>
-      <a href="/compress-pdf">Compress PDF</a>
-      <a href="/merge-pdf">Merge PDFs</a>
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
+    <!-- Header = tool navigation + utility links (REAL pages) -->
+    <nav class="navLinks" aria-label="Primary navigation">
+      <a href="/index.html">ZIP</a>
+      <a href="/compress-pdf.html">Compress PDF</a>
+      <a href="/merge-pdf.html">Merge</a>
+      <a href="/split-pdf.html" aria-current="page">Split</a>
+      <a href="/convert.html">Convert</a>
+      <a href="/rotate-pdf.html">Rotate</a>
+
+      <a href="/pricing.html">Pricing</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms.html">Terms</a>
+
       <a href="#faq" class="navCta">FAQ</a>
     </nav>
   </div>
@@ -97,9 +106,6 @@
           <input type="radio" name="mode" id="modeSplitPdf" checked>
         </fieldset>
 
-        <!-- Convert + CompressPDF rows (optional in app.js, but safe if omitted)
-             We leave them out cleanly on this dedicated page. -->
-
         <!-- DROPZONE -->
         <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
 
@@ -114,7 +120,7 @@
             </div>
 
             <div class="dzFine">
-              Preview pages before splitting. Checkout appears only when you request download.
+              Preview pages before splitting. Reorder if you need to.
             </div>
           </div>
 
@@ -131,11 +137,10 @@
               <div class="pdfReorderHead">
                 <div class="pdfReorderTitle">Preview & reorder pages</div>
                 <div class="pdfReorderSub">
-                  Drag pages to set the output order. Your download will be a ZIP of single-page PDFs.
+                  Drag pages to set the output order.
                 </div>
               </div>
 
-              <!-- pdfThumbGrid is where app.js/pdf.js renders thumbnails -->
               <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
             </div>
           </div>
@@ -161,7 +166,7 @@
         </div>
 
         <div class="fineprint">
-          No signup. Prepare first. Pay only when you request the download.
+          No signup. Secure processing.
         </div>
 
       </div>
@@ -180,7 +185,7 @@
                 <div class="stepNum">1</div>
                 <div class="stepBody">
                   <div class="stepTitle">One ZIP download</div>
-                  <div class="stepText">Each page becomes its own PDF file inside a single ZIP.</div>
+                  <div class="stepText">Each page becomes its own PDF inside a single ZIP.</div>
                 </div>
               </div>
 
@@ -262,8 +267,8 @@
       <div class="footerNote">Secure PDF splitting online.</div>
     </div>
     <div class="footerRight">
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms.html">Terms</a>
     </div>
   </div>
 </footer>
@@ -316,7 +321,6 @@
           </div>
         </div>
 
-        <!-- Legacy hidden options (keep IDs for app.js compatibility) -->
         <div style="display:none">
           <input type="checkbox" id="optPrintReady" />
           <input type="checkbox" id="optEmailSafe" />
@@ -327,13 +331,14 @@
       </div>
 
       <div class="modalNote" id="priceModalNote">
-        You’ll be redirected to secure Stripe Checkout.
+        Secure checkout (Stripe).
       </div>
     </div>
 
     <div class="modalFoot">
       <button class="btnSoft" id="modalBackBtn" type="button">Back</button>
-      <button class="btnPrimary btnStrong" id="modalPayBtn" type="button">Pay & continue →</button>
+      <!-- ✅ neutral wording; payment happens on Stripe -->
+      <button class="btnPrimary btnStrong" id="modalPayBtn" type="button">Continue to checkout →</button>
     </div>
   </div>
 </div>
@@ -345,7 +350,6 @@
     "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 </script>
 
-<!-- IMPORTANT: keep version in sync with your deployed app.js -->
 <script src="/app.js?v=17.4" defer></script>
 </body>
 </html>

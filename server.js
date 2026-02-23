@@ -1,4 +1,4 @@
-// server.js — ZipPixel (RENDER SAFE MONEY MODE v16.3 - ADD COMPRESS PDF MODE)
+// server.js — ZipPixel (RENDER SAFE MONEY MODE v16.4 - ADD ROTATE PDF MODE)
 // ✅ Pricing tiers: £2.99 (≤10) / £9.99 (11–50) + optional share link (+£2.49)
 // ✅ Server-side enforcement: max 50 files (client enforces size; server enforces count + mode validation)
 // ✅ Routes: /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/jobs/:jobId/mode, /api/checkout
@@ -6,6 +6,7 @@
 // ✅ merge_pdf mode — PAID download returns a single merged PDF (in upload order / optional page order)
 // ✅ split_pdf mode — PAID download returns a ZIP of per-page PDFs (in page order)
 // ✅ compress_pdf mode — PAID download returns a single compressed PDF (raster-based; level: light/balanced/max)
+// ✅ rotate_pdf mode — PAID download returns a single rotated PDF (degrees: 90/180/270)
 
 require("dotenv").config();
 
@@ -27,14 +28,16 @@ try {
   );
 }
 
-// pdf-lib is required for merge_pdf + split_pdf (but we fail gracefully if missing)
-let PDFDocumentLib = null; // <-- THIS is the one we use everywhere
+// pdf-lib is required for merge_pdf + split_pdf + rotate_pdf (but we fail gracefully if missing)
+let PDFDocumentLib = null; // PDFDocument
+let PDFDegrees = null;     // degrees()
 try {
   const pdfLib = require("pdf-lib");
   PDFDocumentLib = pdfLib.PDFDocument;
+  PDFDegrees = pdfLib.degrees;
 } catch (e) {
   console.warn(
-    "⚠️ pdf-lib failed to load. merge_pdf/split_pdf modes will error until you install `pdf-lib`."
+    "⚠️ pdf-lib failed to load. merge_pdf/split_pdf/rotate_pdf modes will error until you install `pdf-lib`."
   );
 }
 
@@ -147,7 +150,6 @@ function getJob(id) {
   if (!job) throw new Error("Job not found");
 
   if (job.expiresAt && Date.now() > job.expiresAt) {
-    // Remove + clean share index if present
     if (job.shareToken) shareIndex.delete(job.shareToken);
     jobs.delete(id);
     throw new Error("Job expired");
@@ -177,9 +179,18 @@ function computeTotalPence(job) {
 }
 
 // ====== MODE HELPERS ======
-const VALID_MODES = new Set(["compress", "compress_pdf", "convert", "merge_pdf", "split_pdf"]);
+const VALID_MODES = new Set([
+  "compress",
+  "compress_pdf",
+  "convert",
+  "merge_pdf",
+  "split_pdf",
+  "rotate_pdf",
+]);
+
 const VALID_CONVERT_TARGETS = new Set(["jpg", "jpeg", "png", "webp", "pdf"]);
 const VALID_PDF_COMPRESS_LEVELS = new Set(["light", "balanced", "max"]);
+const VALID_ROTATE_DEGREES = new Set([90, 180, 270]);
 
 function normalizeConvertTarget(t) {
   const v = String(t || "").toLowerCase().trim();
@@ -193,6 +204,14 @@ function normalizePdfLevel(lvl) {
   if (!v) return "balanced";
   if (!VALID_PDF_COMPRESS_LEVELS.has(v)) return "balanced";
   return v;
+}
+
+function normalizeRotateDegrees(deg) {
+  const n = Number(deg);
+  if (!Number.isFinite(n)) return 90;
+  const i = Math.round(n);
+  if (!VALID_ROTATE_DEGREES.has(i)) return 90;
+  return i;
 }
 
 function isPdfMeta(fileMeta) {
@@ -221,13 +240,20 @@ function validateJobFilesForMode(job) {
   }
 
   if (job.mode === "compress_pdf") {
-    // NOTE: This compression method is raster-based (pages rendered to images then re-packed).
-    // It massively reduces size for scanned/image-heavy PDFs. It can reduce text-select/search.
     if (!sharp) throw new Error("PDF compression is unavailable (sharp not installed).");
     if (files.length !== 1) throw new Error("Compress PDF requires exactly 1 PDF.");
     const nonPdf = files.find((f) => !isPdfMeta(f));
     if (nonPdf) throw new Error("Compress PDF only accepts a PDF file.");
     job.pdfCompressLevel = normalizePdfLevel(job.pdfCompressLevel);
+  }
+
+  if (job.mode === "rotate_pdf") {
+    if (!PDFDocumentLib || !PDFDegrees)
+      throw new Error("PDF rotate is unavailable (pdf-lib not installed).");
+    if (files.length !== 1) throw new Error("Rotate PDF requires exactly 1 PDF.");
+    const nonPdf = files.find((f) => !isPdfMeta(f));
+    if (nonPdf) throw new Error("Rotate PDF only accepts a PDF file.");
+    job.rotateDegrees = normalizeRotateDegrees(job.rotateDegrees);
   }
 
   if (job.mode === "convert") {
@@ -296,11 +322,8 @@ function markJobPaid(job) {
     job.shareToken = job.shareToken || newShareToken();
     job.shareExpiresAt = job.shareExpiresAt || Date.now() + SHARE_TTL_MS;
     job.expiresAt = Date.now() + SHARE_TTL_MS;
-
-    // ✅ add to index
     shareIndex.set(job.shareToken, job.jobId);
   } else {
-    // if previously had token (edge), remove it
     if (job.shareToken) shareIndex.delete(job.shareToken);
 
     job.shareToken = null;
@@ -341,6 +364,7 @@ app.get("/health", (_, res) => {
     limits: { maxFiles: MAX_FILES, maxMBEach: MAX_MB_EACH },
     modes: Array.from(VALID_MODES),
     pdfCompressLevels: Array.from(VALID_PDF_COMPRESS_LEVELS),
+    rotateDegrees: Array.from(VALID_ROTATE_DEGREES),
   });
 });
 
@@ -354,7 +378,7 @@ app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
   { route: "/cancel", file: "cancel.html" },
   { route: "/privacy", file: "privacy.html" },
   { route: "/terms", file: "terms.html" },
-  { route: "/pricing", file: "pricing.html" }
+  { route: "/pricing", file: "pricing.html" },
 ].forEach(({ route, file }) => {
   app.get(route, (_, res) => {
     res.sendFile(path.join(PUBLIC_DIR, file));
@@ -370,7 +394,8 @@ const TOOL_PAGES = [
   "jpg-to-pdf",
   "rotate-pdf",
   "reduce-pdf-size",
-  "compress-pdf-to-5mb"
+  "compress-pdf-to-5mb",
+  "convert",
 ];
 
 TOOL_PAGES.forEach((slug) => {
@@ -395,12 +420,15 @@ app.post("/api/jobs", (_, res) => {
 
     options: { shareLink: false },
 
-    mode: "compress", // compress | compress_pdf | convert | merge_pdf | split_pdf
+    mode: "compress", // compress | compress_pdf | convert | merge_pdf | split_pdf | rotate_pdf
     convertTarget: null,
     pageOrder: null,
 
     // compress_pdf options
     pdfCompressLevel: "balanced",
+
+    // rotate_pdf options
+    rotateDegrees: 90,
 
     shareToken: null,
     shareExpiresAt: null,
@@ -472,11 +500,11 @@ app.post("/api/jobs/:jobId/register", (req, res) => {
   }
 });
 
-// Set job mode (compress | compress_pdf | convert | merge_pdf | split_pdf)
+// Set job mode (compress | compress_pdf | convert | merge_pdf | split_pdf | rotate_pdf)
 app.post("/api/jobs/:jobId/mode", (req, res) => {
   try {
     const job = getJob(req.params.jobId);
-    const { mode, target, order, level } = req.body || {};
+    const { mode, target, order, level, degrees, angle } = req.body || {};
 
     const m = String(mode || "").toLowerCase().trim();
     if (!VALID_MODES.has(m)) throw new Error("Invalid mode");
@@ -491,9 +519,11 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
       job.convertTarget = t || null;
       job.pageOrder = null;
       job.pdfCompressLevel = "balanced";
+      job.rotateDegrees = 90;
     } else if (m === "merge_pdf") {
       job.convertTarget = null;
       job.pdfCompressLevel = "balanced";
+      job.rotateDegrees = 90;
 
       if (Array.isArray(order) && order.length) {
         job.pageOrder = order.map((n) => Number(n)).filter((n) => Number.isInteger(n) && n >= 0);
@@ -504,10 +534,19 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
       job.convertTarget = null;
       job.pageOrder = null;
       job.pdfCompressLevel = normalizePdfLevel(level);
+      job.rotateDegrees = 90;
+    } else if (m === "rotate_pdf") {
+      job.convertTarget = null;
+      job.pageOrder = null;
+      job.pdfCompressLevel = "balanced";
+      job.rotateDegrees = normalizeRotateDegrees(
+        degrees != null ? degrees : angle
+      );
     } else {
       job.convertTarget = null;
       job.pageOrder = null;
       job.pdfCompressLevel = "balanced";
+      job.rotateDegrees = 90;
     }
 
     res.json({ ok: true });
@@ -549,16 +588,23 @@ app.post("/api/checkout", async (req, res) => {
       return "Balanced";
     })();
 
+    const rotateLabel = (() => {
+      const d = normalizeRotateDegrees(job.rotateDegrees);
+      return `${d}°`;
+    })();
+
     const modeLabel =
       job.mode === "merge_pdf"
         ? "Merge PDFs"
-        : (job.mode === "split_pdf"
+        : job.mode === "split_pdf"
             ? "Split PDF"
             : (job.mode === "compress_pdf"
                 ? `Compress PDF (${levelLabel})`
-                : (job.mode === "convert"
-                    ? `Convert to ${String(job.convertTarget || "").toUpperCase() || "format"}`
-                    : "ZIP download")));
+                : (job.mode === "rotate_pdf"
+                    ? `Rotate PDF (${rotateLabel})`
+                    : (job.mode === "convert"
+                        ? `Convert to ${String(job.convertTarget || "").toUpperCase() || "format"}`
+                        : "ZIP download")));
 
     const productName = `${productNameBase} — ${modeLabel}`;
 
@@ -586,6 +632,7 @@ app.post("/api/checkout", async (req, res) => {
         mode: job.mode,
         convertTarget: job.convertTarget || "",
         pdfLevel: job.mode === "compress_pdf" ? normalizePdfLevel(job.pdfCompressLevel) : "",
+        rotateDeg: job.mode === "rotate_pdf" ? String(normalizeRotateDegrees(job.rotateDegrees)) : "",
         fileCount: String(job.files.length),
         totalPence: String(total),
       },
@@ -619,6 +666,7 @@ app.get("/api/status/:jobId", async (req, res) => {
       mode: job.mode || "compress",
       convertTarget: job.convertTarget || null,
       pdfLevel: job.pdfCompressLevel || null,
+      rotateDegrees: job.rotateDegrees || null,
     });
   } catch {
     res.status(404).json({ ok: false, error: "Not found" });
@@ -640,6 +688,35 @@ app.get("/api/download/:jobId", async (req, res) => {
     validateJobFilesForMode(job);
     job.downloadCount++;
 
+    // ====== ROTATE PDF MODE ======
+    if (job.mode === "rotate_pdf") {
+      if (!PDFDocumentLib || !PDFDegrees)
+        throw new Error("PDF rotate is unavailable (pdf-lib not installed).");
+
+      const only = job.files[0];
+      const obj = await r2.send(
+        new GetObjectCommand({ Bucket: R2_BUCKET, Key: only.key })
+      );
+      const inputBuf = await streamToBuffer(obj.Body);
+
+      const deg = normalizeRotateDegrees(job.rotateDegrees);
+
+      const pdf = await PDFDocumentLib.load(inputBuf);
+      const pages = pdf.getPages();
+      for (const p of pages) {
+        p.setRotation(PDFDegrees(deg));
+      }
+
+      const outBytes = await pdf.save();
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="zippixel_rotated_${deg}deg_${job.jobId}.pdf"`
+      );
+      return res.send(Buffer.from(outBytes));
+    }
+
     // ====== COMPRESS PDF MODE ======
     if (job.mode === "compress_pdf") {
       if (!sharp) throw new Error("PDF compression is unavailable (sharp not installed).");
@@ -652,10 +729,6 @@ app.get("/api/download/:jobId", async (req, res) => {
 
       const lvl = normalizePdfLevel(job.pdfCompressLevel);
 
-      // Level tuning (raster-based)
-      // - light: higher DPI + higher JPEG quality (gentler)
-      // - balanced: good default for email/client
-      // - max: aggressive size reduction
       const settings =
         lvl === "light"
           ? { density: 170, quality: 82 }
@@ -663,25 +736,21 @@ app.get("/api/download/:jobId", async (req, res) => {
               ? { density: 110, quality: 60 }
               : { density: 140, quality: 72 });
 
-      // Determine page count (sharp metadata.pages when supported)
-      let pages = 1;
+      let pagesCount = 1;
       try {
         const meta = await sharp(inputBuf, { density: settings.density }).metadata();
-        if (meta && Number.isFinite(meta.pages) && meta.pages > 0) pages = meta.pages;
+        if (meta && Number.isFinite(meta.pages) && meta.pages > 0) pagesCount = meta.pages;
       } catch {
-        pages = 1;
+        pagesCount = 1;
       }
 
-      // Safety cap (prevents insane PDFs nuking your instance)
       const MAX_PAGES_COMPRESS = Number(process.env.MAX_PDF_COMPRESS_PAGES || 80);
-      if (pages > MAX_PAGES_COMPRESS) {
+      if (pagesCount > MAX_PAGES_COMPRESS) {
         throw new Error(`PDF too long to compress (max ${MAX_PAGES_COMPRESS} pages).`);
       }
 
-      // Build new PDF via PDFKit using compressed page renders
-      const outBuf = await pdfFromRenderedPages(inputBuf, pages, settings);
+      const outBuf = await pdfFromRenderedPages(inputBuf, pagesCount, settings);
 
-      // If compression backfires (rare, but possible), return original
       if (outBuf && outBuf.length && outBuf.length < inputBuf.length) {
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader(
@@ -705,7 +774,6 @@ app.get("/api/download/:jobId", async (req, res) => {
 
       const merged = await PDFDocumentLib.create();
 
-      // We only support single-PDF page reorder for now
       if (job.files.length === 1) {
         const f = job.files[0];
 
@@ -720,7 +788,6 @@ app.get("/api/download/:jobId", async (req, res) => {
         let indices = src.getPageIndices();
 
         if (Array.isArray(job.pageOrder) && job.pageOrder.length === totalPages) {
-          // Validate order strictly
           const isValid =
             job.pageOrder.every((n) => Number.isInteger(n) && n >= 0 && n < totalPages) &&
             new Set(job.pageOrder).size === totalPages;
@@ -733,7 +800,6 @@ app.get("/api/download/:jobId", async (req, res) => {
         const pages = await merged.copyPages(src, indices);
         for (const p of pages) merged.addPage(p);
       } else {
-        // Default multi-file merge (no page reorder)
         for (const f of job.files) {
           const obj = await r2.send(
             new GetObjectCommand({ Bucket: R2_BUCKET, Key: f.key })
@@ -768,11 +834,11 @@ app.get("/api/download/:jobId", async (req, res) => {
       const buf = await streamToBuffer(obj.Body);
 
       const src = await PDFDocumentLib.load(buf);
-      const indices = src.getPageIndices(); // [0..n-1]
+      const indices = src.getPageIndices();
       const totalPages = indices.length;
 
       const safeBase = sanitizeName(String(only.originalname || "document").replace(/\.pdf$/i, ""));
-      const pad = String(totalPages).length; // neat padding
+      const pad = String(totalPages).length;
 
       res.setHeader("Content-Type", "application/zip");
       res.setHeader(
@@ -813,9 +879,7 @@ app.get("/api/download/:jobId", async (req, res) => {
 
     const archive = archiver("zip", { zlib: { level: 9 } });
     archive.on("error", (err) => {
-      try {
-        res.status(500).send(err.message);
-      } catch {}
+      try { res.status(500).send(err.message); } catch {}
     });
     archive.pipe(res);
 
@@ -938,6 +1002,7 @@ app.get("/api/share/:token", async (req, res) => {
       mode: job.mode || "compress",
       convertTarget: job.convertTarget || null,
       pdfLevel: job.pdfCompressLevel || null,
+      rotateDegrees: job.rotateDegrees || null,
     });
   } catch (e) {
     res.status(400).json({ error: e.message });
@@ -1070,7 +1135,6 @@ function imageToPdf(buffer) {
 
 // Render PDF pages via sharp and rebuild as compressed PDF (raster-based)
 async function pdfFromRenderedPages(pdfBuffer, pageCount, settings) {
-  // settings: { density, quality }
   return new Promise(async (resolve, reject) => {
     try {
       const doc = new PDFKitDocument({ autoFirstPage: false, compress: true });
@@ -1084,7 +1148,6 @@ async function pdfFromRenderedPages(pdfBuffer, pageCount, settings) {
       doc.pipe(stream);
 
       for (let page = 0; page < pageCount; page++) {
-        // Render page to JPEG buffer
         let img;
         try {
           img = await sharp(pdfBuffer, { density: settings.density, page })
@@ -1094,13 +1157,10 @@ async function pdfFromRenderedPages(pdfBuffer, pageCount, settings) {
           throw new Error("Could not render PDF pages for compression.");
         }
 
-        // Determine rendered page dimensions to preserve aspect ratio
         let meta = null;
-        try {
-          meta = await sharp(img).metadata();
-        } catch {}
+        try { meta = await sharp(img).metadata(); } catch {}
 
-        const w = meta?.width || 595;  // fallback A4-ish
+        const w = meta?.width || 595;
         const h = meta?.height || 842;
 
         doc.addPage({ size: [w, h], margin: 0 });

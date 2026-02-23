@@ -1,10 +1,8 @@
-<!-- public/merge-pdf.html — PDFOperations (v2 - HIGH-INTENT MERGE PAGE + REORDER READY)
-     ✅ Dedicated SEO landing page for "merge pdf"
-     ✅ Preselects merge_pdf mode (hidden radios)
+<!-- public/merge-pdf.html — PDFOperations (v4 - NO PAYMENT COPY + ROUTES FIXED)
+     ✅ No mention of paying until payment screen
+     ✅ Canonical/OG/Schema URLs corrected to *.html
+     ✅ Header/footer nav uses REAL *.html pages
      ✅ Keeps ALL app.js IDs unchanged
-     ✅ Keeps page reordering UI hooks (#pdfReorderWrap / #pdfThumbGrid)
-     ✅ Keeps Stripe modal untouched (modal lives on index; app.js safe without it)
-     ✅ No backend changes required
 -->
 <!doctype html>
 <html lang="en">
@@ -14,16 +12,17 @@
 
   <title>Merge PDF Files Online — Combine PDFs Instantly | PDFOperations</title>
   <meta name="description" content="Merge PDF files online instantly. Combine multiple PDF documents into one file. Drag, reorder pages and download when ready. Secure. No signup required." />
-  <link rel="canonical" href="https://pdfoperations.com/merge-pdf" />
+  <link rel="canonical" href="https://pdfoperations.com/merge-pdf.html" />
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
+  <meta name="color-scheme" content="light" />
 
   <!-- Open Graph -->
   <meta property="og:title" content="Merge PDF Files Online — Combine PDFs Instantly" />
   <meta property="og:description" content="Combine multiple PDF files into one document. Drag, reorder and download securely." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://pdfoperations.com/merge-pdf" />
+  <meta property="og:url" content="https://pdfoperations.com/merge-pdf.html" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
   <meta property="og:image:alt" content="PDFOperations — Merge PDF" />
 
@@ -48,7 +47,7 @@
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "PDFOperations",
-    "url": "https://pdfoperations.com/merge-pdf",
+    "url": "https://pdfoperations.com/merge-pdf.html",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "All",
     "description": "Merge PDF files online instantly. Combine multiple PDF documents into one file. Drag to reorder pages and download when ready.",
@@ -63,16 +62,23 @@
 
 <header class="nav">
   <div class="container navInner">
-    <a class="brand" href="/" aria-label="PDFOperations home">
+    <a class="brand" href="/index.html" aria-label="PDFOperations home">
       <img src="/favicon.svg" width="26" height="26" alt="">
       <span>PDFOperations</span>
     </a>
-    <nav class="navLinks">
-      <a href="/">All tools</a>
-      <a href="/compress-pdf">Compress PDF</a>
-      <a href="/split-pdf">Split PDF</a>
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
+
+    <nav class="navLinks" aria-label="Primary navigation">
+      <a href="/index.html">ZIP</a>
+      <a href="/compress-pdf.html">Compress PDF</a>
+      <a href="/merge-pdf.html" aria-current="page">Merge</a>
+      <a href="/split-pdf.html">Split</a>
+      <a href="/convert.html">Convert</a>
+      <a href="/rotate-pdf.html">Rotate</a>
+
+      <a href="/pricing.html">Pricing</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms.html">Terms</a>
+
       <a href="#tool" class="navCta">Start</a>
     </nav>
   </div>
@@ -85,23 +91,20 @@
 
       <div id="tool" class="tool toolPremium toolMega">
 
-        <!-- HEADLINE -->
         <div class="toolHead toolHeadMinimal">
           <h1 class="toolTitle">Merge PDF Files</h1>
           <p class="toolSub">
-            Combine multiple PDFs into a single file. Upload your PDFs, reorder pages, then download when ready.
+            Combine multiple PDFs into a single file. Upload your PDFs, reorder pages, then download the result.
           </p>
 
-          <!-- Optional trust pills (styled in your CSS; harmless if unused) -->
           <div class="trustBar" aria-label="Trust indicators">
             <div class="trustPill">No signup</div>
             <div class="trustPill">PDFs only</div>
             <div class="trustPill">Reorder pages</div>
-            <div class="trustPill">Pay only at download</div>
+            <div class="trustPill">Secure processing</div>
           </div>
         </div>
 
-        <!-- STATUS -->
         <div class="statusWrap">
           <div class="statusLeft">
             <div class="status" id="status">Ready</div>
@@ -112,7 +115,6 @@
           </div>
         </div>
 
-        <!-- REQUIRED MODE INPUTS (hidden, but must exist for app.js) -->
         <fieldset style="display:none;">
           <input type="radio" name="mode" id="modeCompress">
           <input type="radio" name="mode" id="modeCompressPdf">
@@ -121,7 +123,6 @@
           <input type="radio" name="mode" id="modeSplitPdf">
         </fieldset>
 
-        <!-- REQUIRED rows for app.js safety (hidden on this page) -->
         <div id="pdfCompressRow" style="display:none;">
           <select id="pdfCompressLevel">
             <option value="balanced" selected>Balanced</option>
@@ -139,7 +140,6 @@
           </select>
         </div>
 
-        <!-- DROPZONE -->
         <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
 
           <div class="dzCenter">
@@ -153,11 +153,10 @@
             </div>
 
             <div class="dzFine">
-              Tip: if you add the wrong file, remove it from the list below.
+              Add files, reorder pages, then continue.
             </div>
           </div>
 
-          <!-- FILE META -->
           <div class="fileMeta" id="fileMeta" hidden>
             <div class="fileMetaTop">
               <div class="fileSummary" id="fileSummary"></div>
@@ -166,7 +165,6 @@
 
             <ol class="fileList" id="fileList"></ol>
 
-            <!-- PAGE REORDER WRAP (merge mode UI hooks used by app.js) -->
             <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
               <div class="pdfReorderHead">
                 <div class="pdfReorderTitle">Reorder pages</div>
@@ -178,7 +176,6 @@
 
         </div>
 
-        <!-- PROGRESS -->
         <div class="progressWrap" id="progressWrap" hidden>
           <div class="progressTop">
             <div id="progressLabel">Uploading…</div>
@@ -190,14 +187,13 @@
           <div id="progressMeta"></div>
         </div>
 
-        <!-- ACTIONS -->
         <div class="actionRow actionRowWide">
           <button class="btnSoft" id="upload" disabled>Upload PDFs</button>
           <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
         </div>
 
         <div class="fineprint">
-          No signup. Prepare first. Pay only when you request the download.
+          No signup. Secure processing.
         </div>
 
       </div>
@@ -205,13 +201,12 @@
     </div>
   </section>
 
-  <!-- OPTIONAL SUPPORT SECTION (keeps the page looking “finished” without new JS hooks) -->
   <section class="section sectionSupport" id="how">
     <div class="container">
       <div class="supportCard">
         <div class="supportHead">
           <h2>How merging works</h2>
-          <p class="supportSub">Upload PDFs, reorder pages, then download the merged file. Checkout only appears when you request the download.</p>
+          <p class="supportSub">Upload PDFs, reorder pages, then download the merged file.</p>
         </div>
 
         <div class="supportGrid">
@@ -234,8 +229,8 @@
           <div class="supportStep">
             <div class="stepNum">3</div>
             <div class="stepBody">
-              <div class="stepTitle">Download when ready</div>
-              <div class="stepText">Pay only when you request the download.</div>
+              <div class="stepTitle">Download</div>
+              <div class="stepText">Get a single merged PDF.</div>
             </div>
           </div>
         </div>
@@ -256,13 +251,12 @@
       <div class="footerNote">Secure PDF merging online.</div>
     </div>
     <div class="footerRight">
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms.html">Terms</a>
     </div>
   </div>
 </footer>
 
-<!-- pdf.js required for thumbnails -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
   pdfjsLib.GlobalWorkerOptions.workerSrc =

@@ -1,5 +1,5 @@
-// public/app.js — PDFOperations frontend (v17.5 - PRESET BUTTONS + PAGE-AWARE MODES + CLEAN COPY)
-// Matches: index.html + compress-pdf.html IDs + server.js routes:
+// public/app.js — PDFOperations frontend (v17.6 - ROTATE PDF + NO PAYMENT COPY OUTSIDE MODAL + MODAL FALLBACK)
+// Matches: index.html + tool pages + server.js routes:
 // /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/jobs/:jobId/mode, /api/checkout
 (() => {
   // ====== YEAR ======
@@ -45,7 +45,7 @@
   const dzSubEl = document.getElementById("dzSub");
   const dzAfterEl = document.getElementById("dzAfter"); // may not exist
 
-  // Modal
+  // Modal (may not exist on some tool pages)
   const priceModal = document.getElementById("priceModal");
   const modalCloseBtn = document.getElementById("modalCloseBtn");
   const modalBackBtn = document.getElementById("modalBackBtn");
@@ -75,6 +75,9 @@
   const modeMergePdf = document.getElementById("modeMergePdf");
   const modeSplitPdf = document.getElementById("modeSplitPdf");
 
+  // NEW (optional) rotate mode radio — safe if missing
+  const modeRotatePdf = document.getElementById("modeRotatePdf");
+
   const convertRow = document.getElementById("convertRow");
   const convertFrom = document.getElementById("convertFrom"); // informational
   const convertTarget = document.getElementById("convertTarget");
@@ -85,6 +88,10 @@
 
   // Presets on compress-pdf page (and can exist elsewhere)
   const presetButtons = Array.from(document.querySelectorAll("[data-preset-level]"));
+
+  // Rotate controls (optional)
+  const rotateButtons = Array.from(document.querySelectorAll("[data-rotate-deg]"));
+  const rotateSelect = document.getElementById("rotateDegrees"); // optional
 
   // PDF reorder UI
   let pdfPageOrder = [];
@@ -108,18 +115,22 @@
   let uploadedMeta = [];        // [{ key, originalname, mimetype }]
 
   // ====== MODE STATE ======
-  // compress | compress_pdf | convert | merge_pdf | split_pdf
+  // compress | compress_pdf | convert | merge_pdf | split_pdf | rotate_pdf
   let mode = "compress";
   let convertTargetValue = null;
 
   // Compress PDF level
   let pdfCompressLevelValue = "balanced"; // balanced | light | max
 
+  // Rotate degrees
+  let rotateDegreesValue = 90; // 90 | 180 | 270
+
   // ====== UX MEMORY (localStorage) ======
   const LS = {
     lastMode: "po:lastMode",
     lastTarget: "po:lastTarget",
     lastPdfLevel: "po:lastPdfLevel",
+    lastRotateDeg: "po:lastRotateDeg",
     sharePref: "po:sharePref",       // "on" | "off"
     shareSeen: "po:shareSeen",       // "1" once they've seen the modal
     lastJob: "po:lastJobId",
@@ -231,7 +242,55 @@
     }
   };
 
-  // ====== SMART COPY ======
+  // ====== ROTATE HELPERS ======
+  const normalizeRotateDeg = (deg) => {
+    const n = Number(deg);
+    if (!Number.isFinite(n)) return 90;
+    const i = Math.round(n);
+    if (i === 180) return 180;
+    if (i === 270) return 270;
+    return 90;
+  };
+
+  const setRotateActive = (deg) => {
+    const wanted = normalizeRotateDeg(deg);
+    if (rotateSelect) rotateSelect.value = String(wanted);
+
+    if (!rotateButtons.length) return;
+    rotateButtons.forEach((btn) => {
+      const b = normalizeRotateDeg(btn.getAttribute("data-rotate-deg"));
+      const active = b === wanted;
+      btn.classList.toggle("isActive", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+  };
+
+  const applyRotateDeg = (deg, reason) => {
+    rotateDegreesValue = normalizeRotateDeg(deg);
+    safeLocalSet(LS.lastRotateDeg, rotateDegreesValue);
+    setRotateActive(rotateDegreesValue);
+
+    if (reason && (uploadedMeta.length || jobId)) {
+      hardResetJob(`${reason} — please upload again.`);
+    }
+
+    setDropzoneCopy();
+    setPrimaryStates();
+    renderSelected();
+  };
+
+  rotateButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const d = btn.getAttribute("data-rotate-deg");
+      applyRotateDeg(d, "Rotation changed");
+    });
+  });
+
+  rotateSelect?.addEventListener("change", () => {
+    applyRotateDeg(rotateSelect.value, "Rotation changed");
+  });
+
+  // ====== SMART COPY (NO PAYMENT MENTIONS) ======
   const setDropzoneCopy = () => {
     if (!dzTitleEl || !dzSubEl) return;
 
@@ -256,6 +315,13 @@
       return;
     }
 
+    if (mode === "rotate_pdf") {
+      dzTitleEl.textContent = "Drop a PDF here";
+      dzSubEl.textContent = "PDF only • 1 file • Rotate pages";
+      if (dzAfterEl) dzAfterEl.textContent = "";
+      return;
+    }
+
     if (mode === "convert") {
       dzTitleEl.textContent = "Drop files here";
       dzSubEl.textContent = "Up to 50 files • Drag & drop or select";
@@ -270,7 +336,7 @@
 
   const setFileInputAccept = () => {
     if (!filesEl) return;
-    if (mode === "merge_pdf" || mode === "split_pdf" || mode === "compress_pdf") {
+    if (mode === "merge_pdf" || mode === "split_pdf" || mode === "compress_pdf" || mode === "rotate_pdf") {
       filesEl.setAttribute("accept", "application/pdf,.pdf");
     } else {
       filesEl.removeAttribute("accept");
@@ -281,6 +347,7 @@
     if (mode === "merge_pdf") return selected.length >= 2;
     if (mode === "split_pdf") return selected.length === 1;
     if (mode === "compress_pdf") return selected.length === 1;
+    if (mode === "rotate_pdf") return selected.length === 1;
     return selected.length >= 1;
   };
 
@@ -296,12 +363,13 @@
     const baseErr = validateFileBase(f);
     if (baseErr) return baseErr;
 
-    if (mode === "merge_pdf" || mode === "split_pdf" || mode === "compress_pdf") {
+    if (mode === "merge_pdf" || mode === "split_pdf" || mode === "compress_pdf" || mode === "rotate_pdf") {
       if (!isPdfFile(f)) {
         const label =
           mode === "merge_pdf" ? "Merge PDFs" :
           mode === "split_pdf" ? "Split PDF" :
-          "Compress PDF";
+          mode === "compress_pdf" ? "Compress PDF" :
+          "Rotate PDF";
         return `“${f.name}” isn’t a PDF. ${label} only accepts PDF files.`;
       }
     }
@@ -315,6 +383,7 @@
     if (mode === "merge_pdf") return true;
     if (mode === "split_pdf") return true;
     if (mode === "compress_pdf") return true;
+    if (mode === "rotate_pdf") return true;
     if (n >= 8) return true;
     if (totalBytes >= 20 * 1024 * 1024) return true;
     return false;
@@ -363,6 +432,8 @@
       uploadBtn.textContent = uploading ? "Uploading…" : (uploadedMeta.length ? "Re-upload PDF" : "Upload PDF");
     } else if (mode === "compress_pdf") {
       uploadBtn.textContent = uploading ? "Uploading…" : (uploadedMeta.length ? "Re-upload PDF" : "Upload PDF");
+    } else if (mode === "rotate_pdf") {
+      uploadBtn.textContent = uploading ? "Uploading…" : (uploadedMeta.length ? "Re-upload PDF" : "Upload PDF");
     } else {
       uploadBtn.textContent = uploading ? "Uploading…" : (uploadedMeta.length ? "Re-upload" : "Upload files");
     }
@@ -375,12 +446,15 @@
       setStatus("Ready");
       setHint(
         mode === "merge_pdf"
-          ? "Add <b>2+</b> PDFs to merge."
+          ? "Add <b>2+</b> PDFs to begin."
           : (mode === "split_pdf"
-              ? "Add <b>1</b> PDF to split into pages."
+              ? "Add <b>1</b> PDF to begin."
               : (mode === "compress_pdf"
-                  ? "Add <b>1</b> PDF to compress."
-                  : (mode === "convert" ? "Choose a target format, then add files." : "Add up to <b>50</b> files to begin.")
+                  ? "Add <b>1</b> PDF to begin."
+                  : (mode === "rotate_pdf"
+                      ? "Add <b>1</b> PDF to begin."
+                      : (mode === "convert" ? "Choose a target format, then add files." : "Add up to <b>50</b> files to begin.")
+                    )
                 )
             )
       );
@@ -405,6 +479,12 @@
       return;
     }
 
+    if (mode === "rotate_pdf" && !meetsMin) {
+      setStatus("Add a PDF");
+      setHint("Rotate PDF accepts <b>1</b> PDF only.");
+      return;
+    }
+
     if (!hasJob) {
       setStatus("Preparing");
       setHint("Setting up a secure upload…");
@@ -413,19 +493,22 @@
 
     if (uploadedMeta.length) {
       setStatus("Uploaded");
-      setHint("Upload complete. Continue to checkout.");
+      setHint("Upload complete. Continue when ready.");
       return;
     }
 
     setStatus("Ready");
     setHint(
       mode === "merge_pdf"
-        ? "Upload your PDFs to merge."
+        ? "Upload your PDFs to continue."
         : (mode === "split_pdf"
-            ? "Upload your PDF to split into pages."
+            ? "Upload your PDF to continue."
             : (mode === "compress_pdf"
-                ? "Upload your PDF to reduce file size."
-                : (mode === "convert" ? "Upload files to convert." : "Upload your files to continue.")
+                ? "Upload your PDF to continue."
+                : (mode === "rotate_pdf"
+                    ? "Upload your PDF to continue."
+                    : (mode === "convert" ? "Upload files to continue." : "Upload your files to continue.")
+                  )
               )
           )
     );
@@ -443,9 +526,12 @@
             ? "Split PDF"
             : (mode === "compress_pdf"
                 ? "Compressed PDF"
-                : (mode === "convert"
-                    ? `Convert → ${(convertTargetValue || "JPG").toUpperCase()}`
-                    : (tier.key === "zip50" ? "Pro ZIP" : "ZIP")
+                : (mode === "rotate_pdf"
+                    ? `Rotate PDF → ${rotateDegreesValue}°`
+                    : (mode === "convert"
+                        ? `Convert → ${(convertTargetValue || "JPG").toUpperCase()}`
+                        : (tier.key === "zip50" ? "Pro ZIP" : "ZIP")
+                      )
                   )
               )
           );
@@ -466,10 +552,12 @@
           pdfCompressLevelValue === "max" ? "Maximum" :
           pdfCompressLevelValue === "light" ? "Light" : "Balanced";
         priceModalLead.innerHTML = `You’re compressing <b>1</b> PDF at <b>${lvl}</b> level.`;
+      } else if (mode === "rotate_pdf") {
+        priceModalLead.innerHTML = `You’re rotating <b>1</b> PDF by <b>${rotateDegreesValue}°</b>.`;
       } else if (mode === "convert") {
         priceModalLead.innerHTML = `You’re converting <b>${n}</b> file${n === 1 ? "" : "s"} to <b>${escapeHtml((convertTargetValue || "jpg").toUpperCase())}</b>.`;
       } else {
-        priceModalLead.innerHTML = `You’re about to checkout for <b>${n}</b> file${n === 1 ? "" : "s"}.`;
+        priceModalLead.innerHTML = `You’re about to continue with <b>${n}</b> file${n === 1 ? "" : "s"}.`;
       }
     }
   };
@@ -498,12 +586,15 @@
       setStatus("Ready");
       setHint(
         mode === "merge_pdf"
-          ? "Add <b>2+</b> PDFs to merge."
+          ? "Add <b>2+</b> PDFs to begin."
           : (mode === "split_pdf"
-              ? "Add <b>1</b> PDF to split."
+              ? "Add <b>1</b> PDF to begin."
               : (mode === "compress_pdf"
-                  ? "Add <b>1</b> PDF to compress."
-                  : (mode === "convert" ? "Choose a target format, then drop files." : "Drop files to begin.")
+                  ? "Add <b>1</b> PDF to begin."
+                  : (mode === "rotate_pdf"
+                      ? "Add <b>1</b> PDF to begin."
+                      : (mode === "convert" ? "Choose a target format, then drop files." : "Drop files to begin.")
+                    )
                 )
             )
       );
@@ -614,22 +705,19 @@
 
   presetButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      // Only meaningful in compress_pdf mode; ignore elsewhere safely
       const lvl = btn.getAttribute("data-preset-level");
       applyPdfLevel(lvl, "Preset changed");
     });
   });
 
-  // ====== MODE SYNC ======
   const enforceModeFromPage = () => {
-    // If the page declares a tool, force the correct hidden radio state.
-    // (compress-pdf.html has hidden radios; we keep IDs unchanged)
     if (!pageTool) return;
 
-    if (pageTool === "compress_pdf" && modeCompressPdf) {
-      modeCompressPdf.checked = true;
-    }
-    // If you later add data-tool="merge_pdf" etc., you can extend here.
+    if (pageTool === "compress" && modeCompress) modeCompress.checked = true;
+    if (pageTool === "compress_pdf" && modeCompressPdf) modeCompressPdf.checked = true;
+    if (pageTool === "convert" && modeConvert) modeConvert.checked = true;
+    if (pageTool === "merge_pdf" && modeMergePdf) modeMergePdf.checked = true;
+    if (pageTool === "split_pdf" && modeSplitPdf) modeSplitPdf.checked = true;
   };
 
   const syncMode = () => {
@@ -639,14 +727,18 @@
     const isConvert = !!modeConvert?.checked;
     const isMerge = !!modeMergePdf?.checked;
     const isSplit = !!modeSplitPdf?.checked;
+    const isRotate = !!modeRotatePdf?.checked;
 
-    mode = isMerge
-      ? "merge_pdf"
-      : (isSplit
-          ? "split_pdf"
-          : (isCompressPdf
-              ? "compress_pdf"
-              : (isConvert ? "convert" : "compress")
+    mode = isRotate
+      ? "rotate_pdf"
+      : (isMerge
+          ? "merge_pdf"
+          : (isSplit
+              ? "split_pdf"
+              : (isCompressPdf
+                  ? "compress_pdf"
+                  : (isConvert ? "convert" : "compress")
+                )
             )
         );
 
@@ -658,7 +750,7 @@
     if (mode === "convert") {
       convertTargetValue = convertTarget?.value || "jpg";
       safeLocalSet(LS.lastTarget, convertTargetValue);
-      setHint("Choose a target format, then upload files to convert.");
+      setHint("Choose a target format, then add files.");
     } else if (mode === "merge_pdf") {
       convertTargetValue = null;
       setHint("Upload <b>2+</b> PDFs to merge into one file.");
@@ -671,6 +763,9 @@
         pdfCompressLevelValue === "max" ? "Maximum" :
         pdfCompressLevelValue === "light" ? "Light" : "Balanced";
       setHint(`Upload <b>1</b> PDF to compress. Level: <b>${lvl}</b>.`);
+    } else if (mode === "rotate_pdf") {
+      convertTargetValue = null;
+      setHint(`Upload <b>1</b> PDF to rotate. Rotation: <b>${rotateDegreesValue}°</b>.`);
     } else {
       convertTargetValue = null;
       setHint("Upload files to create a ZIP.");
@@ -683,7 +778,7 @@
       hardResetJob("Mode changed — please upload again.");
     }
 
-    if ((mode === "merge_pdf" || mode === "split_pdf" || mode === "compress_pdf") && selected.length) {
+    if ((mode === "merge_pdf" || mode === "split_pdf" || mode === "compress_pdf" || mode === "rotate_pdf") && selected.length) {
       const hasNonPdf = selected.some((f) => !isPdfFile(f));
       if (hasNonPdf) {
         selected = [];
@@ -695,19 +790,20 @@
         const label =
           mode === "merge_pdf" ? "Merge PDFs" :
           mode === "split_pdf" ? "Split PDF" :
-          "Compress PDF";
+          mode === "compress_pdf" ? "Compress PDF" :
+          "Rotate PDF";
         setHint(`${label} only accepts PDF files.`);
         renderSelected();
         return;
       }
     }
 
-    if ((mode === "split_pdf" || mode === "compress_pdf") && selected.length > 1) {
+    if ((mode === "split_pdf" || mode === "compress_pdf" || mode === "rotate_pdf") && selected.length > 1) {
       selected = [selected[0]];
       uploadedMeta = [];
       resetProgress();
       setStatus("Only one PDF");
-      setHint(`${mode === "split_pdf" ? "Split PDF" : "Compress PDF"} accepts <b>1</b> PDF only.`);
+      setHint(`${mode === "split_pdf" ? "Split PDF" : (mode === "compress_pdf" ? "Compress PDF" : "Rotate PDF")} accepts <b>1</b> PDF only.`);
     }
 
     setPrimaryStates();
@@ -721,6 +817,7 @@
   if (modeCompressPdf) modeCompressPdf.addEventListener("change", syncMode);
   if (modeMergePdf) modeMergePdf.addEventListener("change", syncMode);
   if (modeSplitPdf) modeSplitPdf.addEventListener("change", syncMode);
+  if (modeRotatePdf) modeRotatePdf.addEventListener("change", syncMode);
 
   convertTarget?.addEventListener("change", () => {
     convertTargetValue = convertTarget?.value || "jpg";
@@ -742,6 +839,7 @@
     const savedMode = safeLocalGet(LS.lastMode);
     const savedTarget = safeLocalGet(LS.lastTarget);
     const savedPdfLevel = safeLocalGet(LS.lastPdfLevel);
+    const savedRotateDeg = safeLocalGet(LS.lastRotateDeg);
 
     if (savedTarget && convertTarget) {
       convertTarget.value = savedTarget;
@@ -754,23 +852,25 @@
       pdfCompressLevelValue = normalizePdfLevel(pdfCompressLevel?.value || "balanced");
     }
 
+    rotateDegreesValue = normalizeRotateDeg(savedRotateDeg || rotateDegreesValue || 90);
+    setRotateActive(rotateDegreesValue);
+
     // Only restore lastMode if we're on the index (tabs exist).
-    // Tool pages should force their own mode via data-tool.
     const onTabbedIndex =
       !!(modeCompress && modeCompressPdf && modeConvert && modeMergePdf && modeSplitPdf) &&
-      !pageTool; // no data-tool on index
+      !pageTool;
 
     if (onTabbedIndex && savedMode) {
       if (savedMode === "merge_pdf" && modeMergePdf) modeMergePdf.checked = true;
       else if (savedMode === "split_pdf" && modeSplitPdf) modeSplitPdf.checked = true;
       else if (savedMode === "compress_pdf" && modeCompressPdf) modeCompressPdf.checked = true;
       else if (savedMode === "convert" && modeConvert) modeConvert.checked = true;
+      else if (savedMode === "rotate_pdf" && modeRotatePdf) modeRotatePdf.checked = true;
       else if (modeCompress) modeCompress.checked = true;
     }
   };
 
   restoreModePrefs();
-  // Ensure preset pills show correct active state on load (if present)
   setPresetActive(pdfCompressLevelValue);
   syncMode();
 
@@ -839,8 +939,8 @@
       setHint(errors.slice(0, 2).map(e => escapeHtml(e)).join("<br/>") + (errors.length > 2 ? "<br/>…" : ""));
     }
 
-    // Split / Compress PDF: selecting another PDF REPLACES
-    if (mode === "split_pdf" || mode === "compress_pdf") {
+    // Single-PDF tools: selecting another PDF REPLACES
+    if (mode === "split_pdf" || mode === "compress_pdf" || mode === "rotate_pdf") {
       if (!incomingValid.length) {
         setPrimaryStates();
         return;
@@ -1002,13 +1102,9 @@
         from: convertFrom?.value || "auto",
       };
 
-      if (mode === "merge_pdf" && pdfPageOrder.length) {
-        payload.order = pdfPageOrder;
-      }
-
-      if (mode === "compress_pdf") {
-        payload.level = pdfCompressLevelValue || "balanced";
-      }
+      if (mode === "merge_pdf" && pdfPageOrder.length) payload.order = pdfPageOrder;
+      if (mode === "compress_pdf") payload.level = pdfCompressLevelValue || "balanced";
+      if (mode === "rotate_pdf") payload.degrees = rotateDegreesValue || 90;
 
       const r = await fetch(`/api/jobs/${encodeURIComponent(jobId)}/mode`, {
         method: "POST",
@@ -1040,6 +1136,9 @@
       } else if (mode === "compress_pdf") {
         setStatus("Add a PDF");
         setHint("Compress PDF accepts <b>1</b> PDF only.");
+      } else if (mode === "rotate_pdf") {
+        setStatus("Add a PDF");
+        setHint("Rotate PDF accepts <b>1</b> PDF only.");
       }
       return;
     }
@@ -1114,7 +1213,7 @@
       if (reg?.error) throw new Error(reg.error);
 
       setStatus("Uploaded");
-      setHint("Upload complete. Continue to checkout.");
+      setHint("Upload complete. Continue when ready.");
 
       if (progressLabel) progressLabel.textContent = "Uploaded";
       if (progressFill) progressFill.style.width = "100%";
@@ -1137,7 +1236,7 @@
   let shareListenerAttached = false;
 
   const openPriceModal = () => {
-    if (!priceModal) return;
+    if (!priceModal) return false;
 
     disableLegacyOptions();
 
@@ -1170,6 +1269,7 @@
     priceModal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
     modalPayBtn?.focus();
+    return true;
   };
 
   const closePriceModal = () => {
@@ -1185,16 +1285,6 @@
   priceModal?.addEventListener("click", (e) => { if (e.target === priceModal) closePriceModal(); });
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && priceModal?.classList.contains("isOpen")) closePriceModal();
-  });
-
-  continueBtn.addEventListener("click", () => {
-    if (!jobId) return;
-    if (!uploadedMeta.length) {
-      setStatus("Upload first");
-      setHint("Please upload your files before continuing.");
-      return;
-    }
-    openPriceModal();
   });
 
   // ====== CHECKOUT ======
@@ -1235,6 +1325,21 @@
     }
   };
 
+  // Continue: open modal if present; otherwise go straight to redirect
+  continueBtn.addEventListener("click", async () => {
+    if (!jobId) return;
+    if (!uploadedMeta.length) {
+      setStatus("Upload first");
+      setHint("Please upload your files before continuing.");
+      return;
+    }
+
+    const opened = openPriceModal();
+    if (!opened) {
+      await startCheckout();
+    }
+  });
+
   modalPayBtn?.addEventListener("click", async () => {
     closePriceModal();
     await startCheckout();
@@ -1250,7 +1355,11 @@
     "balanced"
   );
 
-  // Ensure preset highlight matches selected level
+  rotateDegreesValue = normalizeRotateDeg(
+    safeLocalGet(LS.lastRotateDeg) || rotateDegreesValue || 90
+  );
+  setRotateActive(rotateDegreesValue);
+
   setPresetActive(pdfCompressLevelValue);
 
   setStatus("Ready");

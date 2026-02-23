@@ -1,11 +1,9 @@
-<!-- public/index.html — PDFOperations (v33 - WIDE OPEN “TOOL-FIRST” HERO + NON-AMATEUR RHYTHM)
-     ✅ Makes the tool the hero (no cramped split layout / no dead whitespace)
-     ✅ Keeps ALL app.js IDs exactly the same
-     ✅ Keeps modal structure unchanged
-     ✅ Still uses style.css?v=29 + app.js?v=17.3
-     ✅ Controls (convertRow/pdfCompressRow) remain OUTSIDE tabs so they can’t “break”
-     ✅ Adds clean, competitor-style header + trust bar + tool header (HTML-ready for your style.css facelift)
-     ✅ No new JS hooks required
+<!-- public/rotate-pdf.html — PDFOperations (v1 - FULL RAMBO ROTATE + MODAL INCLUDED)
+     ✅ Dedicated SEO landing page for "rotate pdf"
+     ✅ Preselects rotate_pdf mode
+     ✅ Keeps ALL app.js IDs unchanged (adds optional #modeRotatePdf)
+     ✅ Includes FULL checkout modal markup (consistent flow)
+     ✅ No payment mentions outside modal
 -->
 <!doctype html>
 <html lang="en">
@@ -13,53 +11,39 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>PDFOperations — File compression & PDF tools.</title>
-  <meta name="description" content="Compress files into a ZIP, convert formats, merge or split PDFs, or reduce PDF size. No signup. Pay only when your download is ready." />
-  <link rel="canonical" href="https://pdfoperations.com/" />
+  <title>Rotate PDF Online — Turn Pages 90°, 180°, 270° | PDFOperations</title>
+  <meta name="description" content="Rotate a PDF online in seconds. Upload one PDF, choose 90°, 180° or 270°, then download the rotated file. Secure. No signup required." />
+  <link rel="canonical" href="https://pdfoperations.com/rotate-pdf" />
 
-  <meta name="theme-color" content="#0b1220" />
-  <meta name="color-scheme" content="light" />
   <meta name="robots" content="index,follow" />
+  <meta name="theme-color" content="#0b1220" />
 
   <!-- Open Graph -->
-  <meta property="og:title" content="PDFOperations — File compression & PDF tools." />
-  <meta property="og:description" content="Compress files into a ZIP, convert formats, merge or split PDFs, or reduce PDF size. No signup. Pay only when ready." />
+  <meta property="og:title" content="Rotate PDF Online — Turn Pages 90°, 180°, 270°" />
+  <meta property="og:description" content="Upload one PDF, choose the rotation, then download the rotated file." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://pdfoperations.com/" />
+  <meta property="og:url" content="https://pdfoperations.com/rotate-pdf" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
-  <meta property="og:image:alt" content="PDFOperations — File compression & PDF tools" />
+  <meta property="og:image:alt" content="PDFOperations — Rotate PDF" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="PDFOperations — File compression & PDF tools." />
-  <meta name="twitter:description" content="Compress to ZIP, convert formats, merge or split PDFs, or reduce PDF size. No signup. Pay only when ready." />
+  <meta name="twitter:title" content="Rotate PDF Online — Turn Pages 90°, 180°, 270°" />
+  <meta name="twitter:description" content="Upload one PDF, choose the rotation, then download the rotated file." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
-  <!-- Fonts -->
+  <!-- Fonts (match index) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/style.css?v=29" />
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "PDFOperations",
-    "url": "https://pdfoperations.com/",
-    "applicationCategory": "UtilitiesApplication",
-    "operatingSystem": "All",
-    "description": "Compress files into a ZIP, convert formats, merge or split PDFs, or reduce PDF size. No signup. Pay only when your download is ready.",
-    "browserRequirements": "Requires JavaScript. Works in modern browsers."
-  }
-  </script>
+  <link rel="stylesheet" href="/style.css?v=33" />
 </head>
 
-<body class="premium">
+<body class="premium" data-tool="rotate_pdf">
 
 <a href="#tool" class="srOnly">Skip to the tool</a>
 
@@ -71,111 +55,83 @@
     </a>
 
     <nav class="navLinks">
-      <a href="#how">How it works</a>
-      <a href="#faq">FAQ</a>
+      <a href="/">All tools</a>
+      <a href="/compress-pdf">Compress PDF</a>
+      <a href="/merge-pdf">Merge PDFs</a>
+      <a href="/split-pdf">Split PDF</a>
+      <a href="/convert">Convert</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
-      <a href="#tool" class="navCta">Start</a>
     </nav>
   </div>
 </header>
 
 <main>
 
-  <!-- HERO (tool-first, wide + obvious) -->
   <section class="hero heroPremium heroToolFirst">
     <div class="container heroWide">
 
-      <!-- TOOL CARD -->
       <div id="tool" class="tool toolPremium toolMega">
 
-        <!-- TOOL HEADER (headline belongs to the tool, not beside it) -->
         <div class="toolHead toolHeadMinimal">
-          <h1 class="toolTitle">
-            Compress, convert, merge, split.
-          </h1>
+          <h1 class="toolTitle">Rotate PDF</h1>
+          <p class="toolSub">
+            Upload one PDF, choose a rotation, then download the updated file.
+          </p>
+
+          <!-- Rotation controls (app.js v17.6 reads data-rotate-deg) -->
+          <div class="trustBar" aria-label="Rotation controls">
+            <button class="trustPill" type="button" data-rotate-deg="90">Rotate 90°</button>
+            <button class="trustPill" type="button" data-rotate-deg="180">Rotate 180°</button>
+            <button class="trustPill" type="button" data-rotate-deg="270">Rotate 270°</button>
+          </div>
+
+          <!-- Optional select for accessibility (app.js reads #rotateDegrees if present) -->
+          <div style="margin-top:12px; display:flex; gap:10px; align-items:center;">
+            <div style="font-weight:700; opacity:.85;">Rotation</div>
+            <select id="rotateDegrees" aria-label="Rotation degrees">
+              <option value="90" selected>90°</option>
+              <option value="180">180°</option>
+              <option value="270">270°</option>
+            </select>
+          </div>
         </div>
 
-        <!-- STATUS -->
         <div class="statusWrap">
           <div class="statusLeft">
             <div class="status" id="status">Ready</div>
             <div class="spinner" id="spinner"></div>
           </div>
-          <div class="statusHint" id="statusHint">Choose a mode and add files.</div>
+          <div class="statusHint" id="statusHint">Add one PDF to begin.</div>
         </div>
 
-        <!-- MODES (tabs) -->
-        <fieldset class="modeRow modeRowPremium modeTabs modeTabsWide">
-          <legend class="srOnly">Choose a mode</legend>
-
-          <label class="modeTab" for="modeCompress">
-            <input type="radio" name="mode" id="modeCompress" checked>
-            <span>Compress to ZIP</span>
-          </label>
-
-          <label class="modeTab" for="modeCompressPdf">
-            <input type="radio" name="mode" id="modeCompressPdf">
-            <span>Compress PDF</span>
-          </label>
-
-          <label class="modeTab" for="modeConvert">
-            <input type="radio" name="mode" id="modeConvert">
-            <span>Convert</span>
-          </label>
-
-          <label class="modeTab" for="modeMergePdf">
-            <input type="radio" name="mode" id="modeMergePdf">
-            <span>Merge PDFs</span>
-          </label>
-
-          <label class="modeTab" for="modeSplitPdf">
-            <input type="radio" name="mode" id="modeSplitPdf">
-            <span>Split PDF</span>
-          </label>
+        <!-- REQUIRED MODE INPUTS (hidden but required for app.js) -->
+        <fieldset class="modeRow" style="display:none;">
+          <input type="radio" name="mode" id="modeCompress">
+          <input type="radio" name="mode" id="modeCompressPdf">
+          <input type="radio" name="mode" id="modeConvert">
+          <input type="radio" name="mode" id="modeMergePdf">
+          <input type="radio" name="mode" id="modeSplitPdf">
+          <!-- NEW (optional) rotate mode radio -->
+          <input type="radio" name="mode" id="modeRotatePdf" checked>
         </fieldset>
 
-        <!-- CONTROLS (OUTSIDE TABS so segmented control never “breaks”) -->
-
-        <!-- Compress PDF controls -->
-        <div class="convertRow convertRowPremium convertRowFull" id="pdfCompressRow" style="display:none;">
-          <div class="convertGroup convertGroupWide">
-            <div class="convertLabel">Compression level</div>
-            <select id="pdfCompressLevel" aria-label="PDF compression level">
-              <option value="balanced" selected>Balanced</option>
-              <option value="light">Light</option>
-              <option value="max">Maximum</option>
-            </select>
-          </div>
-          <div class="convertHint">Choose how aggressively to reduce file size.</div>
+        <!-- Required rows for app.js safety -->
+        <div id="pdfCompressRow" style="display:none;">
+          <select id="pdfCompressLevel">
+            <option value="balanced" selected>Balanced</option>
+            <option value="light">Light</option>
+            <option value="max">Maximum</option>
+          </select>
         </div>
 
-        <!-- Convert controls -->
-        <div class="convertRow convertRowPremium convertRowFull" id="convertRow" style="display:none;">
-          <div class="convertGroup">
-            <div class="convertLabel">From</div>
-            <select id="convertFrom" aria-label="Convert from">
-              <option value="auto">Auto detect</option>
-              <option value="jpg">JPG</option>
-              <option value="png">PNG</option>
-              <option value="webp">WebP</option>
-              <option value="pdf">PDF</option>
-            </select>
-          </div>
-
-          <span class="convertArrow" aria-hidden="true">→</span>
-
-          <div class="convertGroup">
-            <div class="convertLabel">To</div>
-            <select id="convertTarget" aria-label="Convert to">
-              <option value="jpg">JPG</option>
-              <option value="png">PNG</option>
-              <option value="webp">WebP</option>
-              <option value="pdf">PDF</option>
-            </select>
-          </div>
-
-          <div class="convertHint">Pick a target format.</div>
+        <div id="convertRow" style="display:none;">
+          <select id="convertFrom">
+            <option value="auto" selected>Auto detect</option>
+          </select>
+          <select id="convertTarget">
+            <option value="jpg" selected>JPG</option>
+          </select>
         </div>
 
         <!-- DROPZONE -->
@@ -183,18 +139,16 @@
 
           <div class="dzCenter">
             <div class="dzIcon"><span class="dzArrow">↑</span></div>
-            <div class="dzTitle" id="dzTitle">Drop files here</div>
-            <div class="dzSub" id="dzSub">Drag & drop or select (up to 50 files)</div>
+            <div class="dzTitle" id="dzTitle">Drop a PDF here</div>
+            <div class="dzSub" id="dzSub">PDF only • 1 file</div>
 
             <div class="filePick">
-              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">
-                Select files
-              </button>
-              <input id="files" type="file" multiple />
+              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
+              <input id="files" type="file" accept="application/pdf,.pdf" />
             </div>
 
             <div class="dzFine">
-              Files are prepared first. Checkout appears only when you request the download.
+              Tip: selecting a new PDF replaces the current one.
             </div>
           </div>
 
@@ -203,16 +157,19 @@
               <div class="fileSummary" id="fileSummary"></div>
               <button class="btnGhost" id="clearBtn" type="button">Clear</button>
             </div>
+
             <ol class="fileList" id="fileList"></ol>
 
+            <!-- Kept for compatibility -->
             <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
               <div class="pdfReorderHead">
-                <div class="pdfReorderTitle">Reorder pages</div>
-                <div class="pdfReorderSub">Drag pages to set the final order.</div>
+                <div class="pdfReorderTitle">Preview</div>
+                <div class="pdfReorderSub">Used for merge/split modes.</div>
               </div>
               <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
             </div>
           </div>
+
         </div>
 
         <!-- PROGRESS -->
@@ -229,82 +186,15 @@
 
         <!-- ACTIONS -->
         <div class="actionRow actionRowWide">
-          <button class="btnSoft" id="upload" disabled>Upload files</button>
+          <button class="btnSoft" id="upload" disabled>Upload PDF</button>
           <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
         </div>
 
         <div class="fineprint">
-          No signup. Prepare first. Pay only when you request the download.
+          No signup. Upload, rotate, download.
         </div>
 
       </div>
-
-      <!-- BELOW-FOLD sections (kept optional; IDs unchanged) -->
-<section id="how" class="section sectionSupport">
-  <div class="container">
-    <div class="supportCard">
-      <div class="supportHead">
-        <h2>How it works</h2>
-        <p class="supportSub">A simple flow: choose, upload, download. Checkout only when you request the download.</p>
-      </div>
-
-      <div class="supportGrid">
-        <div class="supportStep">
-          <div class="stepNum">1</div>
-          <div class="stepBody">
-            <div class="stepTitle">Choose a mode</div>
-            <div class="stepText">ZIP, PDF compress, convert, merge, or split.</div>
-          </div>
-        </div>
-
-        <div class="supportStep">
-          <div class="stepNum">2</div>
-          <div class="stepBody">
-            <div class="stepTitle">Add files</div>
-            <div class="stepText">Drag & drop, or select files. We prepare everything first.</div>
-          </div>
-        </div>
-
-        <div class="supportStep">
-          <div class="stepNum">3</div>
-          <div class="stepBody">
-            <div class="stepTitle">Download when ready</div>
-            <div class="stepText">Checkout appears only when you request the download.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-    <section id="faq" class="section sectionSupport">
-      <div class="container">
-        <div class="supportCard">
-          <div class="supportHead">
-            <h2>FAQ</h2>
-            <p class="supportSub">Quick answers. No fluff.</p>
-          </div>
-
-          <div class="faqPro">
-            <details class="faqItemPro">
-              <summary>Do I need an account?</summary>
-              <div class="faqBodyPro">No. Upload, prepare, and download — without signup.</div>
-            </details>
-
-            <details class="faqItemPro">
-              <summary>When do I pay?</summary>
-              <div class="faqBodyPro">Only when you request the download. Preparation happens first.</div>
-            </details>
-
-            <details class="faqItemPro">
-              <summary>How many files can I upload?</summary>
-              <div class="faqBodyPro">Up to 50 files per job.</div>
-            </details>
-          </div>
-        </div>
-      </div>
-    </section>
-
     </div>
   </section>
 
@@ -317,9 +207,7 @@
         <img src="/favicon.svg" width="18" height="18" alt="">
         <span>PDFOperations</span>
       </div>
-      <div class="footerNote">
-        File compression and PDF processing.
-      </div>
+      <div class="footerNote">Fast PDF tools that feel premium.</div>
     </div>
     <div class="footerRight">
       <a href="/privacy">Privacy</a>
@@ -328,7 +216,9 @@
   </div>
 </footer>
 
-<!-- MODAL (structure preserved) -->
+<!-- =========================================================
+     CHECKOUT MODAL (REQUIRED for consistent flow)
+========================================================= -->
 <div class="modalOverlay" id="priceModal" aria-hidden="true">
   <div class="modalCard premiumModal">
     <div class="modalTop">
@@ -343,7 +233,7 @@
         <div>
           <div class="modalSummaryKicker">Selected</div>
           <div class="modalSummaryMain">
-            <span id="countInline">0</span> file(s) • <span id="tierInline">ZIP Download</span>
+            <span id="countInline">0</span> file(s) • <span id="tierInline">Rotate PDF</span>
           </div>
         </div>
         <div class="modalSummaryAmt" id="priceInline">£0.00</div>
@@ -373,6 +263,7 @@
           </div>
         </div>
 
+        <!-- Legacy hidden options (keep IDs for app.js compatibility) -->
         <div style="display:none">
           <input type="checkbox" id="optPrintReady" />
           <input type="checkbox" id="optEmailSafe" />
@@ -394,13 +285,7 @@
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script>
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-</script>
-
-<script src="/app.js?v=17.3" defer></script>
-
+<!-- IMPORTANT: keep version in sync with your deployed app.js -->
+<script src="/app.js?v=17.6" defer></script>
 </body>
 </html>

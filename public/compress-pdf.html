@@ -1,11 +1,8 @@
-<!-- public/compress-pdf.html — PDFOperations (v3 - Smart Compressor, CLEAN)
-     ✅ Single powerful compressor page (no thin variants)
-     ✅ Presets are markup-only (no inline JS); app.js can enhance later
+<!-- public/compress-pdf.html — PDFOperations (v5 - NO PAYMENT COPY)
+     ✅ No mention of paying until payment screen
      ✅ Keeps ALL app.js IDs unchanged
-     ✅ Stripe + modal untouched
-     ✅ No backend changes required
+     ✅ Tool nav uses REAL *.html pages
 -->
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -14,7 +11,7 @@
 
   <title>Compress PDF Online — Reduce File Size Fast | PDFOperations</title>
   <meta name="description" content="Compress PDF files online. Reduce size for email, portals and uploads. Choose a compression level and download when ready." />
-  <link rel="canonical" href="https://pdfoperations.com/compress-pdf" />
+  <link rel="canonical" href="https://pdfoperations.com/compress-pdf.html" />
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
@@ -24,7 +21,7 @@
   <meta property="og:title" content="Compress PDF Online — Reduce File Size Fast" />
   <meta property="og:description" content="Compress PDF files online. Reduce size for email, portals and uploads. No signup." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://pdfoperations.com/compress-pdf" />
+  <meta property="og:url" content="https://pdfoperations.com/compress-pdf.html" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -39,17 +36,24 @@
 
 <header class="nav">
   <div class="container navInner">
-    <a class="brand" href="/" aria-label="PDFOperations home">
+    <a class="brand" href="/index.html" aria-label="PDFOperations home">
       <img src="/favicon.svg" width="26" height="26" alt="">
       <span>PDFOperations</span>
     </a>
 
-    <nav class="navLinks">
-      <a href="/merge-pdf">Merge</a>
-      <a href="/split-pdf">Split</a>
-      <a href="/convert">Convert</a>
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
+    <nav class="navLinks" aria-label="Primary navigation">
+      <a href="/index.html">ZIP</a>
+      <a href="/compress-pdf.html" aria-current="page">Compress PDF</a>
+      <a href="/merge-pdf.html">Merge</a>
+      <a href="/split-pdf.html">Split</a>
+      <a href="/convert.html">Convert</a>
+      <a href="/rotate-pdf.html">Rotate</a>
+
+      <a href="/pricing.html">Pricing</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms.html">Terms</a>
+
+      <a href="#tool" class="navCta">Start</a>
     </nav>
   </div>
 </header>
@@ -64,8 +68,8 @@
       <div class="toolHead toolHeadMinimal">
         <h1 class="toolTitle">Compress PDF</h1>
         <p class="toolSub">
-          Make your PDF smaller for email attachments, job portals, government uploads, and client delivery.
-          Upload first — checkout appears only when you request the download.
+          Reduce PDF size for email attachments, portals, uploads, and client delivery.
+          Choose a compression level, upload your PDF, and download the result.
         </p>
       </div>
 
@@ -86,7 +90,7 @@
         <input type="radio" name="mode" id="modeSplitPdf">
       </fieldset>
 
-      <!-- Presets (no inline JS — app.js can enhance later) -->
+      <!-- Presets -->
       <div class="presetRow" aria-label="Common PDF size limits">
         <div class="presetLabel">Common limits:</div>
         <div class="presetButtons">
@@ -97,7 +101,7 @@
         </div>
       </div>
 
-      <!-- Compression Level (app.js reads #pdfCompressLevel) -->
+      <!-- Compression Level -->
       <div class="convertRow convertRowPremium convertRowFull" id="pdfCompressRow">
         <div class="convertGroup convertGroupWide">
           <div class="convertLabel">Compression level</div>
@@ -132,7 +136,7 @@
           </div>
 
           <div class="dzFine">
-            Your file is prepared first. Checkout appears only when you request the download.
+            Files are processed securely. No account required.
           </div>
         </div>
 
@@ -143,7 +147,6 @@
           </div>
           <ol class="fileList" id="fileList"></ol>
 
-          <!-- Keep for compatibility (merge/split use this elsewhere; harmless here) -->
           <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
             <div class="pdfReorderHead">
               <div class="pdfReorderTitle">Reorder pages</div>
@@ -173,7 +176,7 @@
       </div>
 
       <div class="fineprint">
-        No signup. Prepare first. Pay only when you request the download.
+        No signup. Secure processing.
       </div>
 
     </div>
@@ -194,11 +197,13 @@
     </div>
 
     <div class="footerRight">
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms.html">Terms</a>
     </div>
   </div>
 </footer>
+
+<script src="/app.js?v=17.3" defer></script>
 
 </body>
 </html>
