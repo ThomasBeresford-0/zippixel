@@ -1,9 +1,9 @@
-/* public/style.css — ZipPixel (v27.0 - 100M TOOL SYSTEM, ONE COHESIVE DESIGN)
-   ✅ Single design system (removes style wars / patch layering)
+/* public/style.css — ZipPixel (v29.1 - NO RAINBOW, NO BUBBLES, PRO PRODUCT UI)
+   ✅ Removes rainbow/green brand strip + removes “bubble/pill” feel
+   ✅ Professional, calm, neutral glass (still premium)
+   ✅ Adds proper tab-style segmented control for modes (no rounded pills)
    ✅ Keeps ALL existing IDs/classes used by index.html + app.js + modal + success pages
-   ✅ Premium glass + depth + typography + spacing rhythm
-   ✅ Segmented mode control feels like a real product
-   ✅ Mobile-safe file input overlay preserved
+   ✅ Backwards compatible: .modeOption still works if any older HTML exists
 */
 
 /* =========================
@@ -21,8 +21,9 @@
   --border: rgba(15,23,42,.10);
   --border2: rgba(15,23,42,.16);
 
-  --accent: #2563eb;
-  --ring: rgba(37,99,235,.22);
+  /* Single, serious accent (NO green / NO rainbow) */
+  --accent: #1d4ed8;
+  --ring: rgba(29,78,216,.22);
 
   --r: 14px;
   --r-lg: 18px;
@@ -37,20 +38,16 @@
   --container: 1100px;
   --ease: cubic-bezier(.2,.8,.2,1);
 
-  /* Brand strip */
-  --zipA: #2563eb;
-  --zipB: #22c55e;
-
   /* Nav */
   --navInk: rgba(255,255,255,.92);
   --navInkMuted: rgba(255,255,255,.68);
   --navHover: rgba(255,255,255,.10);
   --navBorder: rgba(255,255,255,.10);
 
-  /* Premium glow */
-  --glowA: rgba(56,189,248,.18);
-  --glowB: rgba(99,102,241,.14);
-  --glowC: rgba(16,185,129,.10);
+  /* Calm background glow (subtle, not “rainbow”) */
+  --glowA: rgba(29,78,216,.10);
+  --glowB: rgba(30,64,175,.07);
+  --glowC: rgba(2,6,23,.04);
 }
 
 *{ box-sizing:border-box; }
@@ -61,9 +58,9 @@ body{
   font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   color: var(--ink);
   background:
-    radial-gradient(1200px 700px at 15% 8%, var(--glowA), transparent 60%),
-    radial-gradient(900px 650px at 80% 12%, var(--glowB), transparent 55%),
-    radial-gradient(900px 650px at 50% 92%, var(--glowC), transparent 60%),
+    radial-gradient(1100px 640px at 18% 10%, var(--glowA), transparent 60%),
+    radial-gradient(980px 620px at 82% 12%, var(--glowB), transparent 58%),
+    radial-gradient(1000px 680px at 50% 92%, var(--glowC), transparent 62%),
     linear-gradient(180deg, #f7f8fc 0%, #f3f5fb 45%, #f6f7fb 100%);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -98,7 +95,7 @@ strong,b{ font-weight: 800; }
 }
 
 /* =========================
-   NAV (premium dark top)
+   NAV (premium dark top — NO rainbow strip)
 ========================= */
 .nav{
   position: sticky;
@@ -113,9 +110,9 @@ strong,b{ font-weight: 800; }
   content:"";
   position:absolute;
   left:0; right:0; top:0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--zipA), #60a5fa, var(--zipB));
-  opacity: .95;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.22), rgba(255,255,255,.06));
+  opacity: .9;
 }
 
 .navInner{
@@ -164,6 +161,17 @@ strong,b{ font-weight: 800; }
   opacity: 1;
 }
 
+/* New: Start CTA (used by index v29) */
+.navCta{
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.92);
+}
+.navCta:hover{
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.22);
+}
+
 @media (max-width: 860px){
   .navLinks{ display:none; }
 }
@@ -184,7 +192,7 @@ strong,b{ font-weight: 800; }
   border-radius: var(--r-2xl);
   padding: 38px 30px 28px;
   border: 1px solid rgba(15,23,42,.10);
-  background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.60));
+  background: linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.64));
   box-shadow:
     0 1px 0 rgba(255,255,255,.70) inset,
     var(--shadow-2);
@@ -198,8 +206,8 @@ strong,b{ font-weight: 800; }
   pointer-events:none;
   background:
     radial-gradient(1200px 320px at 50% 0%,
-      rgba(37,99,235,.10),
-      rgba(255,255,255,0) 60%);
+      rgba(29,78,216,.10),
+      rgba(255,255,255,0) 62%);
   opacity:.95;
 }
 
@@ -210,6 +218,7 @@ strong,b{ font-weight: 800; }
   z-index: 2;
 }
 
+/* legacy kicker (kept for compatibility; neutralised) */
 .heroKicker{
   display:flex;
   align-items:center;
@@ -218,13 +227,13 @@ strong,b{ font-weight: 800; }
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 12px;
   letter-spacing: .02em;
-  color: rgba(11,18,32,.62);
+  color: rgba(11,18,32,.58);
   margin-bottom: 14px;
 }
 .heroKicker .kDot{
   width:10px; height:10px; border-radius:999px;
-  background: linear-gradient(135deg, rgba(56,189,248,.95), rgba(99,102,241,.78));
-  box-shadow: 0 0 0 4px rgba(56,189,248,.12);
+  background: rgba(11,18,32,.28);
+  box-shadow: 0 0 0 4px rgba(11,18,32,.06);
 }
 
 .hero h1{
@@ -237,10 +246,32 @@ strong,b{ font-weight: 800; }
 
 .heroSub{
   margin: 12px auto 0;
-  max-width: 56ch;
+  max-width: 58ch;
   font-size: 16px;
   line-height: 1.60;
   color: rgba(11,18,32,.70);
+}
+
+/* New: clean meta line (no pills) */
+.heroMeta{
+  margin: 14px auto 0;
+  max-width: 72ch;
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  color: rgba(11,18,32,.56);
+  line-height: 1.55;
+}
+.heroMetaItem{ white-space: nowrap; }
+.heroMetaSep{ margin: 0 8px; opacity: .55; }
+
+/* Old pill/chip UI — keep classes but kill the “bubble” look */
+.heroChips,
+.heroMetaRow{
+  display:none !important;
+}
+.chip,
+.metaPill{
+  display:none !important;
 }
 
 /* Optional trust line if present */
@@ -251,47 +282,8 @@ strong,b{ font-weight: 800; }
   color: rgba(11,18,32,.56);
 }
 
-/* Chips / meta pills (your v28.1 html has these) */
-.heroChips{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-top: 18px;
-}
-.chip{
-  display:inline-flex;
-  align-items:center;
-  padding: 10px 12px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.74);
-  border: 1px solid rgba(15,23,42,.10);
-  box-shadow: 0 10px 22px rgba(2,6,23,.06);
-  color: rgba(11,18,32,.72);
-  font-weight: 650;
-  font-size: 13px;
-}
-
-.heroMetaRow{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-top: 14px;
-}
-.metaPill{
-  font-size: 13px;
-  color: rgba(11,18,32,.62);
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.56);
-  padding: 10px 12px;
-  border-radius: 999px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
 /* =========================
-   TOOL (100M glass card)
+   TOOL (glass card)
 ========================= */
 .tool{
   text-align: left;
@@ -301,7 +293,7 @@ strong,b{ font-weight: 800; }
   overflow:hidden;
   z-index: 2;
 
-  background: linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,255,255,.70));
+  background: linear-gradient(180deg, rgba(255,255,255,.90), rgba(255,255,255,.72));
   border: 1px solid rgba(15,23,42,.12);
   box-shadow: var(--shadow-3);
   backdrop-filter: blur(16px);
@@ -313,8 +305,8 @@ strong,b{ font-weight: 800; }
   inset:-2px;
   pointer-events:none;
   background:
-    radial-gradient(600px 240px at 20% 0%, rgba(56,189,248,.18), transparent 55%),
-    radial-gradient(520px 260px at 88% 12%, rgba(99,102,241,.14), transparent 55%);
+    radial-gradient(700px 260px at 18% 0%, rgba(29,78,216,.12), transparent 56%),
+    radial-gradient(560px 260px at 88% 12%, rgba(30,64,175,.08), transparent 58%);
   opacity:.95;
 }
 .tool > *{ position: relative; z-index: 1; }
@@ -344,7 +336,7 @@ strong,b{ font-weight: 800; }
 
   border: 1px solid rgba(15,23,42,.10);
   border-radius: 16px;
-  background: rgba(255,255,255,.50);
+  background: rgba(255,255,255,.52);
 }
 
 .statusLeft{
@@ -381,7 +373,9 @@ strong,b{ font-weight: 800; }
 @keyframes spin{ to { transform: rotate(360deg); } }
 
 /* =========================
-   MODE SELECTOR (true segmented control)
+   MODE SELECTOR (NO bubble buttons)
+   - new tab-style segmented control (.modeTabs + .modeTab)
+   - keeps old .modeOption styles (but de-bubbled)
 ========================= */
 .modeRow{
   display:flex;
@@ -394,54 +388,122 @@ strong,b{ font-weight: 800; }
   margin: 12px 0 14px 0;
 }
 
-.modeOption{
+/* New: tabs container */
+.modeTabs{
+  gap: 0;
+  padding: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255,255,255,.52);
+}
+
+/* New: tab button (label) */
+.modeTab{
   position: relative;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  border-radius: 999px;
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.70);
-  box-shadow: 0 10px 26px rgba(2,6,23,.06);
+  flex: 1 1 auto;
+  min-width: 140px;
+
+  border: 0;
+  border-right: 1px solid rgba(15,23,42,.10);
+  background: transparent;
+  box-shadow: none;
   overflow:hidden;
-  transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
+  transition: background .14s var(--ease), color .14s var(--ease);
 }
+.modeTab:last-of-type{ border-right: 0; }
 
-.modeOption span{
-  padding: 10px 14px;
-  font-weight: 750;
-  color: rgba(11,18,32,.76);
+.modeTab span{
+  padding: 12px 14px;
+  font-weight: 800;
+  color: rgba(11,18,32,.74);
   white-space: nowrap;
+  font-size: 13px;
 }
 
-.modeOption input{
+.modeTab input{
   position:absolute;
   inset:0;
   opacity:0;
   cursor:pointer;
 }
 
-.modeOption:hover{
-  border-color: rgba(15,23,42,.16);
-  box-shadow: 0 16px 44px rgba(2,6,23,.10);
-  transform: translateY(-1px);
+/* Hover */
+.modeTab:hover{
+  background: rgba(2,6,23,.03);
 }
 
-.modeOption:has(input:checked){
-  border-color: rgba(56,189,248,.38);
-  box-shadow: 0 18px 52px rgba(56,189,248,.14), 0 10px 24px rgba(2,6,23,.08);
-  transform: translateY(-1px);
-  background: linear-gradient(180deg, rgba(255,255,255,.90), rgba(255,255,255,.70));
+/* Selected */
+.modeTab:has(input:checked){
+  background: rgba(29,78,216,.10);
 }
-.modeOption:has(input:checked)::after{
-  content:"";
+.modeTab:has(input:checked) span{
+  color: rgba(11,18,32,.92);
+}
+
+/* Focus ring for tab labels */
+.modeTab:focus-within{
+  outline: 3px solid var(--ring);
+  outline-offset: -3px;
+}
+
+/* Mobile: allow wrapping but keep clean segments */
+@media (max-width: 720px){
+  .modeTabs{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+  }
+  .modeTab{
+    min-width: 0;
+    border-right: 1px solid rgba(15,23,42,.10);
+    border-bottom: 1px solid rgba(15,23,42,.10);
+  }
+  .modeTab:nth-child(2n){ border-right: 0; }
+  .modeTab:nth-last-child(-n+2){ border-bottom: 0; }
+}
+
+/* Old: modeOption (de-bubbled for safety if referenced anywhere) */
+.modeOption{
+  position: relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius: 14px;             /* was 999px */
+  border: 1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.72);
+  box-shadow: none;                 /* no floaty bubble shadow */
+  overflow:hidden;
+  transition: background .14s var(--ease), border-color .14s var(--ease);
+}
+.modeOption span{
+  padding: 10px 14px;
+  font-weight: 800;
+  color: rgba(11,18,32,.74);
+  white-space: nowrap;
+  font-size: 13px;
+}
+.modeOption input{
   position:absolute;
-  inset:-1px;
-  background:
-    radial-gradient(420px 180px at 20% 0%, rgba(56,189,248,.22), transparent 55%),
-    radial-gradient(420px 220px at 95% 20%, rgba(99,102,241,.16), transparent 60%);
-  pointer-events:none;
+  inset:0;
+  opacity:0;
+  cursor:pointer;
 }
+.modeOption:hover{
+  border-color: rgba(15,23,42,.16);
+  background: rgba(2,6,23,.02);
+  transform: none;
+  box-shadow: none;
+}
+.modeOption:has(input:checked){
+  border-color: rgba(29,78,216,.30);
+  background: rgba(29,78,216,.10);
+  box-shadow: none;
+  transform: none;
+}
+.modeOption:has(input:checked)::after{ display:none; }
 
 /* Controls row (convert + compress PDF) */
 .convertRow{
@@ -478,8 +540,8 @@ strong,b{ font-weight: 800; }
   box-shadow: 0 10px 20px rgba(2,6,23,.06);
 }
 .convertRow select:focus{
-  border-color: rgba(56,189,248,.45);
-  box-shadow: 0 0 0 4px rgba(56,189,248,.14), 0 10px 24px rgba(2,6,23,.08);
+  border-color: rgba(29,78,216,.35);
+  box-shadow: 0 0 0 4px rgba(29,78,216,.14), 0 10px 24px rgba(2,6,23,.08);
 }
 
 .convertHint{
@@ -496,7 +558,7 @@ strong,b{ font-weight: 800; }
   position: relative;
   border-radius: 20px;
   border: 1px solid rgba(15,23,42,.12);
-  background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.58));
+  background: linear-gradient(180deg, rgba(255,255,255,.80), rgba(255,255,255,.60));
   padding: 26px 18px;
   overflow:hidden;
   transition: border-color .16s var(--ease), box-shadow .16s var(--ease), transform .10s var(--ease);
@@ -507,7 +569,7 @@ strong,b{ font-weight: 800; }
   position:absolute;
   inset:0;
   pointer-events:none;
-  background: radial-gradient(820px 240px at 50% 0%, rgba(37,99,235,.10), rgba(255,255,255,0) 62%);
+  background: radial-gradient(820px 240px at 50% 0%, rgba(29,78,216,.10), rgba(255,255,255,0) 64%);
   opacity:.75;
 }
 .dropzone:hover{
@@ -516,8 +578,8 @@ strong,b{ font-weight: 800; }
 }
 
 .dropzone.isDrag{
-  border-color: rgba(56,189,248,.42);
-  box-shadow: 0 22px 70px rgba(56,189,248,.16), 0 26px 80px rgba(2,6,23,.10);
+  border-color: rgba(29,78,216,.32);
+  box-shadow: 0 22px 70px rgba(29,78,216,.10), 0 26px 80px rgba(2,6,23,.10);
   transform: translateY(-1px);
 }
 
@@ -541,9 +603,9 @@ strong,b{ font-weight: 800; }
 
   box-shadow: 0 14px 40px rgba(2,6,23,.10);
   background:
-    radial-gradient(24px 24px at 30% 30%, rgba(56,189,248,.45), transparent 65%),
-    radial-gradient(24px 24px at 70% 60%, rgba(99,102,241,.30), transparent 68%),
-    rgba(255,255,255,.80);
+    radial-gradient(24px 24px at 30% 30%, rgba(29,78,216,.26), transparent 66%),
+    radial-gradient(24px 24px at 70% 60%, rgba(30,64,175,.18), transparent 70%),
+    rgba(255,255,255,.84);
   border: 1px solid rgba(15,23,42,.10);
 }
 
@@ -636,7 +698,7 @@ strong,b{ font-weight: 800; }
 
   border: 1px solid rgba(15,23,42,.10);
   border-radius: 14px;
-  background: rgba(255,255,255,.78);
+  background: rgba(255,255,255,.82);
   box-shadow: 0 12px 26px rgba(2,6,23,.06);
   transition: transform .12s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease), background .16s var(--ease);
 }
@@ -698,7 +760,7 @@ strong,b{ font-weight: 800; }
 .iconBtn:active{ transform: translateY(1px); }
 
 /* =========================
-   BUTTONS
+   BUTTONS (professional, not bubbly)
 ========================= */
 button{
   appearance:none;
@@ -723,18 +785,18 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   background: linear-gradient(180deg, #0b1220, #111827);
   border-color: rgba(17,24,39,.70);
   color:#fff;
-  box-shadow: 0 18px 60px rgba(56,189,248,.16), 0 12px 26px rgba(2,6,23,.12);
+  box-shadow: 0 16px 48px rgba(2,6,23,.18);
 }
 .btnPrimary::after{
   content:"";
   position:absolute;
   inset:-2px;
   border-radius: inherit;
-  background: radial-gradient(420px 140px at 20% 0%, rgba(56,189,248,.22), transparent 60%);
-  opacity: .85;
+  background: radial-gradient(420px 140px at 20% 0%, rgba(29,78,216,.14), transparent 62%);
+  opacity: .75;
   pointer-events:none;
 }
-.btnPrimary:hover{ box-shadow: 0 22px 76px rgba(56,189,248,.18), 0 16px 34px rgba(2,6,23,.14); }
+.btnPrimary:hover{ box-shadow: 0 18px 60px rgba(2,6,23,.20); }
 
 .btnStrong{
   background: linear-gradient(180deg, #0b1220, #0b1220);
@@ -853,7 +915,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 .howCard{
   text-align:left;
   border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.82);
+  background: rgba(255,255,255,.84);
   border-radius: 18px;
   padding: 14px 14px;
   box-shadow: var(--shadow-0);
@@ -890,7 +952,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 .faqItem{
   text-align:left;
   border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.86);
+  background: rgba(255,255,255,.88);
   border-radius: 18px;
   padding: 12px 14px;
   box-shadow: var(--shadow-0);
@@ -907,7 +969,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 .faqItem summary::-webkit-details-marker{ display:none; }
 
 .faqItem[open]{
-  border-color: rgba(56,189,248,.24);
+  border-color: rgba(29,78,216,.22);
   box-shadow: 0 24px 80px rgba(2,6,23,.10);
   background: rgba(255,255,255,.94);
 }
@@ -979,7 +1041,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   border-radius: var(--r-2xl);
   padding: 34px 28px;
   border: 1px solid rgba(15,23,42,.10);
-  background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.60));
+  background: linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.64));
   box-shadow:
     0 1px 0 rgba(255,255,255,.70) inset,
     var(--shadow-2);
@@ -992,7 +1054,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   inset:-1px;
   border-radius: var(--r-2xl);
   pointer-events:none;
-  background: radial-gradient(1200px 300px at 50% 0%, rgba(37,99,235,.08), rgba(255,255,255,0) 60%);
+  background: radial-gradient(1200px 300px at 50% 0%, rgba(29,78,216,.08), rgba(255,255,255,0) 62%);
   opacity:.9;
 }
 
@@ -1082,7 +1144,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   border-color: rgba(15,23,42,.14);
 }
 .pdfThumb.dragging{ opacity: .5; transform: scale(.98); }
-.pdfThumb.over{ outline: 2px solid rgba(56,189,248,.45); }
+.pdfThumb.over{ outline: 2px solid rgba(29,78,216,.30); }
 
 .pdfThumb canvas{ width: 100%; display:block; }
 .pdfThumbMeta{
@@ -1326,9 +1388,9 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   background: rgba(2,6,23,.02);
 }
 .priceRow.isChosen{
-  border-color: rgba(37,99,235,.40);
-  background: rgba(37,99,235,.08);
-  box-shadow: 0 18px 52px rgba(37,99,235,.12);
+  border-color: rgba(29,78,216,.30);
+  background: rgba(29,78,216,.08);
+  box-shadow: 0 18px 52px rgba(29,78,216,.10);
 }
 .priceName{ font-weight: 850; font-size: 13px; }
 .priceDesc{ font-size: 12px; color: rgba(75,85,99,.95); }

@@ -1,4 +1,4 @@
-// public/app.js — ZipPixel frontend (v17.3 - ADD COMPRESS PDF MODE + QUALITY SELECTOR)
+// public/app.js — ZipPixel frontend (v17.4 - PRO COPY CLEANUP + NO INLINE “TIP” STYLING)
 // Matches: index.html IDs + server.js routes:
 // /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/jobs/:jobId/mode, /api/checkout
 (() => {
@@ -70,7 +70,7 @@
 
   // Mode UI (optional; only exists on index)
   const modeCompress = document.getElementById("modeCompress");
-  const modeCompressPdf = document.getElementById("modeCompressPdf"); // ✅ NEW
+  const modeCompressPdf = document.getElementById("modeCompressPdf");
   const modeConvert = document.getElementById("modeConvert");
   const modeMergePdf = document.getElementById("modeMergePdf");
   const modeSplitPdf = document.getElementById("modeSplitPdf");
@@ -80,8 +80,8 @@
   const convertTarget = document.getElementById("convertTarget");
 
   // Compress PDF controls (index.html)
-  const pdfCompressRow = document.getElementById("pdfCompressRow"); // ✅ NEW
-  const pdfCompressLevel = document.getElementById("pdfCompressLevel"); // ✅ NEW
+  const pdfCompressRow = document.getElementById("pdfCompressRow");
+  const pdfCompressLevel = document.getElementById("pdfCompressLevel");
 
   // PDF reorder UI
   let pdfPageOrder = [];
@@ -113,7 +113,7 @@
   const LS = {
     lastMode: "zp:lastMode",
     lastTarget: "zp:lastTarget",
-    lastPdfLevel: "zp:lastPdfLevel", // ✅ NEW
+    lastPdfLevel: "zp:lastPdfLevel",
     sharePref: "zp:sharePref",       // "on" | "off"
     shareSeen: "zp:shareSeen",       // "1" once they've seen the modal
     lastJob: "zp:lastJobId",
@@ -154,7 +154,6 @@
   };
 
   const setUploaderEnabled = (enabled) => {
-    // Hard guarantee: no silent dead input
     try { filesEl.disabled = !enabled; } catch {}
     try { chooseBtn.disabled = !enabled; } catch {}
     dropzone.setAttribute("aria-disabled", enabled ? "false" : "true");
@@ -303,13 +302,13 @@
     return null;
   };
 
-  // ====== SMART UPSELL LOGIC ======
+  // ====== SHARE DEFAULT (kept, but copy de-hyped) ======
   const shouldRecommendShare = () => {
     const n = selected.length;
     const totalBytes = selected.reduce((a, f) => a + (f?.size || 0), 0);
     if (mode === "merge_pdf") return true;
     if (mode === "split_pdf") return true;
-    if (mode === "compress_pdf") return true; // sending “smaller PDF” is often the point
+    if (mode === "compress_pdf") return true;
     if (n >= 8) return true;
     if (totalBytes >= 20 * 1024 * 1024) return true;
     return false;
@@ -364,7 +363,6 @@
 
     continueBtn.textContent = "Continue →";
 
-    // Uploader enabled unless actively creating/uploading
     setUploaderEnabled(!(uploading || creatingJob));
 
     if (!hasFiles) {
@@ -409,10 +407,7 @@
 
     if (uploadedMeta.length) {
       setStatus("Uploaded");
-      setHint(shouldRecommendShare()
-        ? `Upload complete. Continue to checkout.<br/><span style="color: rgba(11,18,32,.56)">Tip: a share link is great for sending to clients.</span>`
-        : "Upload complete. Continue to checkout."
-      );
+      setHint("Upload complete. Continue to checkout.");
       return;
     }
 
@@ -464,7 +459,7 @@
         const lvl =
           pdfCompressLevelValue === "max" ? "Maximum" :
           pdfCompressLevelValue === "light" ? "Light" : "Balanced";
-        priceModalLead.innerHTML = `You’re compressing <b>1</b> PDF at <b>${lvl}</b> level to reduce file size.`;
+        priceModalLead.innerHTML = `You’re compressing <b>1</b> PDF at <b>${lvl}</b> level.`;
       } else if (mode === "convert") {
         priceModalLead.innerHTML = `You’re converting <b>${n}</b> file${n === 1 ? "" : "s"} to <b>${escapeHtml((convertTargetValue || "jpg").toUpperCase())}</b>.`;
       } else {
@@ -623,7 +618,6 @@
       hardResetJob("Mode changed — please upload again.");
     }
 
-    // If switching into PDF-only modes with non-PDFs selected, clear them
     if ((mode === "merge_pdf" || mode === "split_pdf" || mode === "compress_pdf") && selected.length) {
       const hasNonPdf = selected.some((f) => !isPdfFile(f));
       if (hasNonPdf) {
@@ -643,7 +637,6 @@
       }
     }
 
-    // Split / Compress PDF: enforce exactly 1 file (keep first)
     if ((mode === "split_pdf" || mode === "compress_pdf") && selected.length > 1) {
       selected = [selected[0]];
       uploadedMeta = [];
@@ -676,7 +669,6 @@
     renderSelected();
   });
 
-  // Compress PDF level change (resets job like target)
   pdfCompressLevel?.addEventListener("change", () => {
     pdfCompressLevelValue = pdfCompressLevel?.value || "balanced";
     safeLocalSet(LS.lastPdfLevel, pdfCompressLevelValue);
@@ -783,7 +775,7 @@
       setHint(errors.slice(0, 2).map(e => escapeHtml(e)).join("<br/>") + (errors.length > 2 ? "<br/>…" : ""));
     }
 
-    // ✅ Split / Compress PDF: selecting another PDF REPLACES
+    // Split / Compress PDF: selecting another PDF REPLACES
     if (mode === "split_pdf" || mode === "compress_pdf") {
       if (!incomingValid.length) {
         setPrimaryStates();
@@ -962,11 +954,11 @@
 
       if (!r.ok) {
         setStatus("Mode error");
-        setHint("Couldn’t set mode. Please refresh and try again.");
+        setHint("Couldn’t set mode. Refresh and try again.");
       }
     } catch {
       setStatus("Mode error");
-      setHint("Couldn’t set mode. Please refresh and try again.");
+      setHint("Couldn’t set mode. Refresh and try again.");
     }
   };
 
@@ -1058,10 +1050,7 @@
       if (reg?.error) throw new Error(reg.error);
 
       setStatus("Uploaded");
-      setHint(uploadedMeta.length && shouldRecommendShare()
-        ? `Upload complete. Continue to checkout.<br/><span style="color: rgba(11,18,32,.56)">Recommended: add a share link if you’re sending this to someone.</span>`
-        : "Upload complete. Continue to checkout."
-      );
+      setHint("Upload complete. Continue to checkout.");
 
       if (progressLabel) progressLabel.textContent = "Uploaded";
       if (progressFill) progressFill.style.width = "100%";
@@ -1099,7 +1088,7 @@
         rememberSharePref();
         syncModalTotalUI();
         if (priceModalNote && optShareLink.checked) {
-          priceModalNote.textContent = "You’ll be redirected to secure Stripe Checkout. Share link makes sending easier.";
+          priceModalNote.textContent = "You’ll be redirected to secure Stripe Checkout. Share link enabled.";
         } else if (priceModalNote) {
           priceModalNote.textContent = "You’ll be redirected to secure Stripe Checkout.";
         }
@@ -1109,7 +1098,7 @@
 
     if (priceModalNote) {
       priceModalNote.textContent = shouldRecommendShare()
-        ? "You’ll be redirected to secure Stripe Checkout. Share link is recommended for sending to clients."
+        ? "You’ll be redirected to secure Stripe Checkout. Share link is often useful for sending."
         : "You’ll be redirected to secure Stripe Checkout.";
     }
 
@@ -1191,7 +1180,6 @@
   continueBtn.textContent = "Continue →";
   continueBtn.style.display = "";
 
-  // Initialize compress level from DOM if present
   pdfCompressLevelValue = pdfCompressLevel?.value || safeLocalGet(LS.lastPdfLevel) || "balanced";
 
   setStatus("Ready");
