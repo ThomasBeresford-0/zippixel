@@ -1721,7 +1721,6 @@
     }
   };
 
-  // Continue: open modal if present; otherwise go straight to redirect
   continueBtn.addEventListener("click", async () => {
     if (!jobId) return;
     if (!uploadedMeta.length) {
@@ -1730,15 +1729,15 @@
       return;
     }
 
+    // 🔒 HARD SYNC MODE BEFORE CHECKOUT (prevents stale order)
+    try {
+      await setBackendMode();
+    } catch {}
+
     const opened = openPriceModal();
     if (!opened) {
       await startCheckout();
     }
-  });
-
-  modalPayBtn?.addEventListener("click", async () => {
-    closePriceModal();
-    await startCheckout();
   });
 
   // ====== INIT ======

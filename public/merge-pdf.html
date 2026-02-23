@@ -5,6 +5,7 @@
      ✅ Exposes window.__pdfopsPageOrder (["fileIndex:pageNumber", ...]) + dispatches "pdfops:pageorder"
      ✅ IMPORTANT FIX: if preview is clipped, non-preview pages are STILL included in __pdfopsPageOrder
         (they just aren’t draggable). This prevents “missing pages” merges.
+     ✅ FIX v6.1: modal/page sections respect [hidden] even if global style.css overrides it
 -->
 <!doctype html>
 <html lang="en">
@@ -204,6 +205,20 @@
       margin-top: 10px;
       font-size: 12px;
       opacity: .75;
+    }
+
+    /* =========================
+       FIX v6.1 — PROTECT [hidden]
+       If global style.css overrides [hidden], the modal becomes visible on load.
+       These rules force native hidden behavior on this page.
+    ========================== */
+    #pdfPreviewModal[hidden],
+    #pdfReorderWrap[hidden],
+    #fileMeta[hidden]{
+      display:none !important;
+    }
+    [hidden]{
+      display:none !important;
     }
   </style>
 </head>
@@ -451,6 +466,7 @@
    - CLIP SAFE: if thumbnails are clipped for performance, we STILL
      include all remaining pages in __pdfopsPageOrder so merges
      never drop pages.
+   - FIX v6.1: forces modal hidden at boot (CSS + JS) to defeat global [hidden] overrides
 ========================================================= */
 (() => {
   const fileInput = document.getElementById("files");
@@ -469,6 +485,15 @@
 
   // Safety: only run on merge tool page
   if (!document.body || document.body.dataset.tool !== "merge_pdf") return;
+
+  // =========================
+  // FIX v6.1 — HARD FORCE HIDE ON BOOT
+  // (in case global CSS fights the hidden attribute)
+  // =========================
+  if (modal) {
+    modal.hidden = true;
+    modal.setAttribute("aria-hidden", "true");
+  }
 
   // Limits (thumb rendering can be heavy)
   const MAX_THUMB_PAGES = 160;     // thumbs rendered across all PDFs
