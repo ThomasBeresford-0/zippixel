@@ -1,16 +1,16 @@
-/* public/style.css — ZipPixel (v29.1 - NO RAINBOW, NO BUBBLES, PRO PRODUCT UI)
-   ✅ Removes rainbow/green brand strip + removes “bubble/pill” feel
-   ✅ Professional, calm, neutral glass (still premium)
-   ✅ Adds proper tab-style segmented control for modes (no rounded pills)
-   ✅ Keeps ALL existing IDs/classes used by index.html + app.js + modal + success pages
-   ✅ Backwards compatible: .modeOption still works if any older HTML exists
+/* public/style.css — PDFOperations (v28.1 - FULL RAMBO HERO FRAME + ENTERPRISE POLISH)
+   ✅ Matches index.html v31 (two-column hero + tool card)
+   ✅ Adds premium framed hero container around BOTH columns (no dead whitespace)
+   ✅ Professional neutral glass, no bubbles/rainbow
+   ✅ Tab-style segmented modes (no pills)
+   ✅ Keeps ALL existing IDs/classes used by index.html + app.js + modal + success/share pages
+   ✅ Backwards compatible: .modeOption still works if older HTML exists
 */
 
 /* =========================
    TOKENS
 ========================= */
 :root{
-  /* Core */
   --bg: #f6f7fb;
   --panel: #ffffff;
 
@@ -21,7 +21,6 @@
   --border: rgba(15,23,42,.10);
   --border2: rgba(15,23,42,.16);
 
-  /* Single, serious accent (NO green / NO rainbow) */
   --accent: #1d4ed8;
   --ring: rgba(29,78,216,.22);
 
@@ -38,13 +37,11 @@
   --container: 1100px;
   --ease: cubic-bezier(.2,.8,.2,1);
 
-  /* Nav */
   --navInk: rgba(255,255,255,.92);
   --navInkMuted: rgba(255,255,255,.68);
   --navHover: rgba(255,255,255,.10);
   --navBorder: rgba(255,255,255,.10);
 
-  /* Calm background glow (subtle, not “rainbow”) */
   --glowA: rgba(29,78,216,.10);
   --glowB: rgba(30,64,175,.07);
   --glowC: rgba(2,6,23,.04);
@@ -65,6 +62,8 @@ body{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+body.premium{}
 
 img{ max-width:100%; display:block; }
 a{ color: inherit; text-decoration:none; }
@@ -95,7 +94,7 @@ strong,b{ font-weight: 800; }
 }
 
 /* =========================
-   NAV (premium dark top — NO rainbow strip)
+   NAV (premium dark top)
 ========================= */
 .nav{
   position: sticky;
@@ -127,7 +126,7 @@ strong,b{ font-weight: 800; }
   display:flex;
   align-items:center;
   gap: 10px;
-  font-weight: 850;
+  font-weight: 900;
   letter-spacing: -0.02em;
   color: var(--navInk);
 }
@@ -151,7 +150,7 @@ strong,b{ font-weight: 800; }
   padding: 8px 10px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0);
-  transition: background .16s var(--ease), border-color .16s var(--ease), color .16s var(--ease);
+  transition: transform .12s var(--ease), background .16s var(--ease), border-color .16s var(--ease), color .16s var(--ease), opacity .16s var(--ease);
   color: var(--navInkMuted);
 }
 .navLinks a:hover{
@@ -159,9 +158,10 @@ strong,b{ font-weight: 800; }
   border-color: rgba(255,255,255,.14);
   color: var(--navInk);
   opacity: 1;
+  transform: translateY(-1px);
 }
 
-/* New: Start CTA (used by index v29) */
+/* Start CTA */
 .navCta{
   border: 1px solid rgba(255,255,255,.18);
   background: rgba(255,255,255,.08);
@@ -177,113 +177,108 @@ strong,b{ font-weight: 800; }
 }
 
 /* =========================
-   HERO (framed)
+   HERO (FULL RAMBO framed container)
+   - Frame wraps BOTH columns (text + tool)
 ========================= */
 .hero{
   position: relative;
-  padding: 56px 0 34px;
-  text-align: center;
+  padding: 52px 0 34px;
 }
 
+/* Add a boutique "artifact" frame to the hero grid itself */
 .heroInner{
-  max-width: 980px;
-  margin: 0 auto;
   position: relative;
+  display:grid;
+  grid-template-columns: 1.05fr .95fr;
+  gap: 22px;
+  align-items:start;
+
   border-radius: var(--r-2xl);
-  padding: 38px 30px 28px;
+  padding: 28px 26px;
   border: 1px solid rgba(15,23,42,.10);
-  background: linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.64));
+  background: linear-gradient(180deg, rgba(255,255,255,.84), rgba(255,255,255,.62));
   box-shadow:
-    0 1px 0 rgba(255,255,255,.70) inset,
+    0 1px 0 rgba(255,255,255,.72) inset,
     var(--shadow-2);
-  overflow: hidden;
+  overflow:hidden;
 }
+
+/* subtle inner glow + top spotlight (no rainbow) */
 .heroInner::before{
   content:"";
   position:absolute;
   inset:-1px;
-  border-radius: var(--r-2xl);
+  border-radius: inherit;
   pointer-events:none;
   background:
-    radial-gradient(1200px 320px at 50% 0%,
-      rgba(29,78,216,.10),
-      rgba(255,255,255,0) 62%);
-  opacity:.95;
+    radial-gradient(1100px 360px at 50% 0%,
+      rgba(29,78,216,.12),
+      rgba(255,255,255,0) 62%),
+    radial-gradient(800px 380px at 18% 12%,
+      rgba(30,64,175,.08),
+      rgba(255,255,255,0) 60%);
+  opacity: .95;
+}
+.heroInner::after{
+  content:"";
+  position:absolute;
+  left:18px; right:18px; top:14px;
+  height:1px;
+  background: linear-gradient(90deg, rgba(15,23,42,0), rgba(15,23,42,.10), rgba(15,23,42,0));
+  opacity:.65;
+  pointer-events:none;
 }
 
 .heroText{
-  max-width: 920px;
-  margin: 0 auto 18px;
   position: relative;
   z-index: 2;
-}
-
-/* legacy kicker (kept for compatibility; neutralised) */
-.heroKicker{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-size: 12px;
-  letter-spacing: .02em;
-  color: rgba(11,18,32,.58);
-  margin-bottom: 14px;
-}
-.heroKicker .kDot{
-  width:10px; height:10px; border-radius:999px;
-  background: rgba(11,18,32,.28);
-  box-shadow: 0 0 0 4px rgba(11,18,32,.06);
+  padding: 10px 2px 6px;
 }
 
 .hero h1{
   margin: 0;
-  font-size: clamp(34px, 4.2vw, 56px);
-  letter-spacing: -0.055em;
-  line-height: 1.03;
-  font-weight: 850;
+  font-size: clamp(34px, 4vw, 54px);
+  letter-spacing: -0.06em;
+  line-height: 1.02;
+  font-weight: 900;
 }
 
 .heroSub{
-  margin: 12px auto 0;
+  margin: 12px 0 0;
   max-width: 58ch;
   font-size: 16px;
-  line-height: 1.60;
+  line-height: 1.62;
   color: rgba(11,18,32,.70);
 }
 
-/* New: clean meta line (no pills) */
 .heroMeta{
-  margin: 14px auto 0;
+  margin: 14px 0 0;
   max-width: 72ch;
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 12px;
   color: rgba(11,18,32,.56);
   line-height: 1.55;
 }
-.heroMetaItem{ white-space: nowrap; }
-.heroMetaSep{ margin: 0 8px; opacity: .55; }
 
-/* Old pill/chip UI — keep classes but kill the “bubble” look */
+/* legacy chip UI (neutralised) */
 .heroChips,
-.heroMetaRow{
-  display:none !important;
-}
+.heroMetaRow,
 .chip,
-.metaPill{
-  display:none !important;
-}
+.metaPill{ display:none !important; }
 
-/* Optional trust line if present */
-.heroTrust{
-  margin: 14px auto 0;
-  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-size: 12px;
-  color: rgba(11,18,32,.56);
+.heroPremium{}
+
+@media (max-width: 980px){
+  .heroInner{
+    grid-template-columns: 1fr;
+    padding: 22px 16px;
+  }
+  .heroText{ text-align:center; padding: 4px 0 0; }
+  .heroSub, .heroMeta{ margin-left:auto; margin-right:auto; text-align:center; }
 }
 
 /* =========================
-   TOOL (glass card)
+   TOOL (glass card + authority)
 ========================= */
 .tool{
   text-align: left;
@@ -293,34 +288,45 @@ strong,b{ font-weight: 800; }
   overflow:hidden;
   z-index: 2;
 
-  background: linear-gradient(180deg, rgba(255,255,255,.90), rgba(255,255,255,.72));
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.74));
   border: 1px solid rgba(15,23,42,.12);
   box-shadow: var(--shadow-3);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
+
+/* more "artifact edge" for the tool */
+.tool::after{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  border-radius: inherit;
+  pointer-events:none;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.55) inset;
+  opacity:.9;
+}
+
 .tool::before{
   content:"";
   position:absolute;
   inset:-2px;
   pointer-events:none;
   background:
-    radial-gradient(700px 260px at 18% 0%, rgba(29,78,216,.12), transparent 56%),
-    radial-gradient(560px 260px at 88% 12%, rgba(30,64,175,.08), transparent 58%);
+    radial-gradient(740px 280px at 18% 0%, rgba(29,78,216,.13), transparent 56%),
+    radial-gradient(580px 280px at 88% 12%, rgba(30,64,175,.09), transparent 58%);
   opacity:.95;
 }
 .tool > *{ position: relative; z-index: 1; }
 
-/* premium hooks from HTML (safe even if not present) */
+/* premium hooks */
 .toolPremium{}
-.heroPremium{}
 .dropzonePremium{}
 .actionRowPremium{}
 .modeRowPremium{}
 .convertRowPremium{}
 .dropzoneUltra{}
-.dzIconPremium{}
 .footerPremium{}
+.premiumModal{}
 
 /* =========================
    STATUS
@@ -348,7 +354,7 @@ strong,b{ font-weight: 800; }
 
 .status{
   font-size: 13px;
-  font-weight: 850;
+  font-weight: 900;
   letter-spacing: -0.01em;
 }
 
@@ -373,9 +379,7 @@ strong,b{ font-weight: 800; }
 @keyframes spin{ to { transform: rotate(360deg); } }
 
 /* =========================
-   MODE SELECTOR (NO bubble buttons)
-   - new tab-style segmented control (.modeTabs + .modeTab)
-   - keeps old .modeOption styles (but de-bubbled)
+   MODE SELECTOR (segmented tabs)
 ========================= */
 .modeRow{
   display:flex;
@@ -388,16 +392,16 @@ strong,b{ font-weight: 800; }
   margin: 12px 0 14px 0;
 }
 
-/* New: tabs container */
+/* tabs container */
 .modeTabs{
   gap: 0;
   padding: 0;
   border-radius: 16px;
   overflow: hidden;
-  background: rgba(255,255,255,.52);
+  background: rgba(255,255,255,.56);
+  box-shadow: 0 10px 26px rgba(2,6,23,.06);
 }
 
-/* New: tab button (label) */
 .modeTab{
   position: relative;
   display:inline-flex;
@@ -411,13 +415,13 @@ strong,b{ font-weight: 800; }
   background: transparent;
   box-shadow: none;
   overflow:hidden;
-  transition: background .14s var(--ease), color .14s var(--ease);
+  transition: background .14s var(--ease), color .14s var(--ease), transform .12s var(--ease);
 }
 .modeTab:last-of-type{ border-right: 0; }
 
 .modeTab span{
   padding: 12px 14px;
-  font-weight: 800;
+  font-weight: 900;
   color: rgba(11,18,32,.74);
   white-space: nowrap;
   font-size: 13px;
@@ -430,26 +434,25 @@ strong,b{ font-weight: 800; }
   cursor:pointer;
 }
 
-/* Hover */
 .modeTab:hover{
   background: rgba(2,6,23,.03);
+  transform: translateY(-1px);
 }
 
-/* Selected */
+/* selected */
 .modeTab:has(input:checked){
   background: rgba(29,78,216,.10);
 }
 .modeTab:has(input:checked) span{
-  color: rgba(11,18,32,.92);
+  color: rgba(11,18,32,.94);
 }
 
-/* Focus ring for tab labels */
+/* focus ring */
 .modeTab:focus-within{
   outline: 3px solid var(--ring);
   outline-offset: -3px;
 }
 
-/* Mobile: allow wrapping but keep clean segments */
 @media (max-width: 720px){
   .modeTabs{
     display:grid;
@@ -465,22 +468,22 @@ strong,b{ font-weight: 800; }
   .modeTab:nth-last-child(-n+2){ border-bottom: 0; }
 }
 
-/* Old: modeOption (de-bubbled for safety if referenced anywhere) */
+/* old modeOption (de-bubbled) */
 .modeOption{
   position: relative;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  border-radius: 14px;             /* was 999px */
+  border-radius: 14px;
   border: 1px solid rgba(15,23,42,.10);
   background: rgba(255,255,255,.72);
-  box-shadow: none;                 /* no floaty bubble shadow */
+  box-shadow: none;
   overflow:hidden;
   transition: background .14s var(--ease), border-color .14s var(--ease);
 }
 .modeOption span{
   padding: 10px 14px;
-  font-weight: 800;
+  font-weight: 900;
   color: rgba(11,18,32,.74);
   white-space: nowrap;
   font-size: 13px;
@@ -503,16 +506,15 @@ strong,b{ font-weight: 800; }
   box-shadow: none;
   transform: none;
 }
-.modeOption:has(input:checked)::after{ display:none; }
 
-/* Controls row (convert + compress PDF) */
+/* controls row */
 .convertRow{
   width:100%;
   margin-top: 10px;
   padding: 12px;
   border-radius: 16px;
   border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.68);
+  background: rgba(255,255,255,.72);
   box-shadow: 0 14px 34px rgba(2,6,23,.06);
   display:flex;
   align-items:center;
@@ -533,9 +535,9 @@ strong,b{ font-weight: 800; }
   padding: 0 14px;
   border-radius: 12px;
   border: 1px solid rgba(15,23,42,.14);
-  background: rgba(255,255,255,.94);
-  color: rgba(11,18,32,.84);
-  font-weight: 750;
+  background: rgba(255,255,255,.96);
+  color: rgba(11,18,32,.86);
+  font-weight: 850;
   outline: none;
   box-shadow: 0 10px 20px rgba(2,6,23,.06);
 }
@@ -558,7 +560,7 @@ strong,b{ font-weight: 800; }
   position: relative;
   border-radius: 20px;
   border: 1px solid rgba(15,23,42,.12);
-  background: linear-gradient(180deg, rgba(255,255,255,.80), rgba(255,255,255,.60));
+  background: linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.60));
   padding: 26px 18px;
   overflow:hidden;
   transition: border-color .16s var(--ease), box-shadow .16s var(--ease), transform .10s var(--ease);
@@ -570,7 +572,7 @@ strong,b{ font-weight: 800; }
   inset:0;
   pointer-events:none;
   background: radial-gradient(820px 240px at 50% 0%, rgba(29,78,216,.10), rgba(255,255,255,0) 64%);
-  opacity:.75;
+  opacity:.78;
 }
 .dropzone:hover{
   border-color: rgba(15,23,42,.18);
@@ -583,7 +585,6 @@ strong,b{ font-weight: 800; }
   transform: translateY(-1px);
 }
 
-/* Center content */
 .dzCenter{
   position: relative;
   display:grid;
@@ -605,19 +606,19 @@ strong,b{ font-weight: 800; }
   background:
     radial-gradient(24px 24px at 30% 30%, rgba(29,78,216,.26), transparent 66%),
     radial-gradient(24px 24px at 70% 60%, rgba(30,64,175,.18), transparent 70%),
-    rgba(255,255,255,.84);
+    rgba(255,255,255,.86);
   border: 1px solid rgba(15,23,42,.10);
 }
 
 .dzArrow{
   font-size: 18px;
-  font-weight: 850;
+  font-weight: 900;
   color: rgba(11,18,32,.92);
   line-height: 1;
 }
 
 .dzTitle{
-  font-weight: 850;
+  font-weight: 900;
   letter-spacing:-0.02em;
   font-size: 16px;
 }
@@ -636,7 +637,6 @@ strong,b{ font-weight: 800; }
 
 /* =========================
    MOBILE-SAFE FILE PICKER
-   (input overlays ONLY the button)
 ========================= */
 .filePick{
   position: relative;
@@ -658,7 +658,7 @@ strong,b{ font-weight: 800; }
   z-index: 1;
 }
 
-/* File meta */
+/* file meta */
 .fileMeta{
   position: relative;
   margin-top: 14px;
@@ -698,14 +698,14 @@ strong,b{ font-weight: 800; }
 
   border: 1px solid rgba(15,23,42,.10);
   border-radius: 14px;
-  background: rgba(255,255,255,.82);
+  background: rgba(255,255,255,.86);
   box-shadow: 0 12px 26px rgba(2,6,23,.06);
   transition: transform .12s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease), background .16s var(--ease);
 }
 .fileCard:hover{
   border-color: rgba(15,23,42,.16);
   transform: translateY(-1px);
-  box-shadow: 0 18px 40px rgba(2,6,23,.08);
+  box-shadow: 0 18px 44px rgba(2,6,23,.08);
 }
 
 .thumb{
@@ -713,7 +713,7 @@ strong,b{ font-weight: 800; }
   height: 42px;
   border-radius: 12px;
   border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.92);
+  background: rgba(255,255,255,.94);
   display:grid;
   place-items:center;
   overflow:hidden;
@@ -723,13 +723,13 @@ strong,b{ font-weight: 800; }
 .thumbPdf{
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 12px;
-  font-weight: 650;
+  font-weight: 700;
   color: rgba(11,18,32,.70);
 }
 
 .fileInfo{ min-width: 0; flex: 1 1 auto; }
 .fileName{
-  font-weight: 850;
+  font-weight: 900;
   font-size: 13px;
   letter-spacing: -0.01em;
   white-space: nowrap;
@@ -748,7 +748,7 @@ strong,b{ font-weight: 800; }
   box-shadow: none;
   padding: 8px 10px;
   border-radius: 12px;
-  font-weight: 850;
+  font-weight: 900;
   font-size: 12px;
   color: rgba(11,18,32,.68);
   transition: background .16s var(--ease), border-color .16s var(--ease), transform .10s var(--ease);
@@ -760,7 +760,7 @@ strong,b{ font-weight: 800; }
 .iconBtn:active{ transform: translateY(1px); }
 
 /* =========================
-   BUTTONS (professional, not bubbly)
+   BUTTONS
 ========================= */
 button{
   appearance:none;
@@ -769,7 +769,7 @@ button{
   color: var(--ink);
   border-radius: 14px;
   padding: 11px 14px;
-  font-weight: 850;
+  font-weight: 900;
   letter-spacing: -0.01em;
   cursor:pointer;
   transition: transform .10s var(--ease), background .16s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease), opacity .16s var(--ease);
@@ -779,7 +779,6 @@ button:hover{ border-color: rgba(15,23,42,.22); box-shadow: var(--shadow-1); }
 button:active{ transform: translateY(1px); }
 button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: none; }
 
-/* Primary */
 .btnPrimary{
   position: relative;
   background: linear-gradient(180deg, #0b1220, #111827);
@@ -796,7 +795,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   opacity: .75;
   pointer-events:none;
 }
-.btnPrimary:hover{ box-shadow: 0 18px 60px rgba(2,6,23,.20); }
+.btnPrimary:hover{ box-shadow: 0 18px 64px rgba(2,6,23,.22); }
 
 .btnStrong{
   background: linear-gradient(180deg, #0b1220, #0b1220);
@@ -805,7 +804,6 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 
 .btnLarge{ padding: 12px 16px; border-radius: 16px; }
 
-/* Soft */
 .btnSoft{
   background: rgba(2,6,23,.04);
   border-color: rgba(2,6,23,.12);
@@ -814,7 +812,6 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 }
 .btnSoft:hover{ background: rgba(2,6,23,.06); }
 
-/* Ghost */
 .btnGhost{
   background: transparent;
   border: none;
@@ -824,10 +821,6 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 }
 .btnGhost:hover{ background: rgba(2,6,23,.04); border-radius: 12px; }
 
-/* For HTML classes (safe) */
-.btnGlow{}
-
-/* Actions */
 .actionRow{
   display:flex;
   gap: 12px;
@@ -859,6 +852,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   gap: 10px;
   margin-bottom: 8px;
   font-size: 13px;
+  font-weight: 850;
 }
 .progressBar{
   height: 10px;
@@ -883,9 +877,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 /* =========================
    SECTIONS (How + FAQ)
 ========================= */
-.section{
-  padding: 56px 0 0;
-}
+.section{ padding: 56px 0 0; }
 
 .sectionHead{
   text-align:center;
@@ -896,7 +888,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   margin: 0 0 10px;
   font-size: 22px;
   letter-spacing: -0.04em;
-  font-weight: 850;
+  font-weight: 900;
 }
 .sectionSub{
   margin: 0 auto;
@@ -905,7 +897,6 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   font-size: 14px;
 }
 
-/* How grid */
 .howGrid{
   display:grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -928,7 +919,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 }
 .howNum{
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-weight: 750;
+  font-weight: 800;
   font-size: 12px;
   letter-spacing: .10em;
   text-transform: uppercase;
@@ -936,7 +927,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 }
 .howTitle{
   margin-top: 8px;
-  font-weight: 850;
+  font-weight: 900;
   letter-spacing: -0.02em;
   color: rgba(11,18,32,.92);
 }
@@ -947,7 +938,6 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   font-size: 13px;
 }
 
-/* FAQ */
 .faqList{ margin-top: 14px; }
 .faqItem{
   text-align:left;
@@ -962,7 +952,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 }
 .faqItem summary{
   cursor:pointer;
-  font-weight: 850;
+  font-weight: 900;
   list-style:none;
   letter-spacing: -0.01em;
 }
@@ -1008,7 +998,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   display:flex;
   align-items:center;
   gap: 10px;
-  font-weight: 850;
+  font-weight: 900;
   letter-spacing: -0.02em;
   color: rgba(11,18,32,.86);
 }
@@ -1047,7 +1037,6 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
     var(--shadow-2);
   overflow:hidden;
 }
-
 .pageInner::before{
   content:"";
   position:absolute;
@@ -1065,7 +1054,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   font-size: clamp(26px, 3vw, 38px);
   letter-spacing: -0.055em;
   line-height: 1.06;
-  font-weight: 850;
+  font-weight: 900;
 }
 
 .pageLead{
@@ -1083,14 +1072,12 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   margin-top: 18px;
   max-width: 78ch;
 }
-
 .doc h2{
   margin: 22px 0 10px;
   font-size: 15px;
   letter-spacing: -0.02em;
-  font-weight: 850;
+  font-weight: 900;
 }
-
 .doc p, .doc li{
   color: rgba(11,18,32,.78);
   line-height: 1.75;
@@ -1103,7 +1090,6 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   color: rgba(11,18,32,.55);
   margin-top: 10px;
 }
-
 #actionsRow{ display:grid; gap:10px; }
 
 /* =========================
@@ -1120,7 +1106,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 }
 
 .pdfReorderHead{ margin-bottom: 14px; }
-.pdfReorderTitle{ font-weight: 800; font-size: 15px; }
+.pdfReorderTitle{ font-weight: 900; font-size: 15px; }
 .pdfReorderSub{ font-size: 12px; color: rgba(11,18,32,.60); margin-top: 4px; }
 
 .pdfThumbGrid{
@@ -1183,7 +1169,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 }
 
 .successTitle{
-  font-weight: 900;
+  font-weight: 950;
   letter-spacing: -0.02em;
   color: rgba(11,18,32,.92);
   margin-top: 2px;
@@ -1245,7 +1231,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   border: 1px solid rgba(15,23,42,.12);
   background: rgba(255,255,255,.92);
   padding: 11px 12px;
-  font-weight: 850;
+  font-weight: 900;
   font-size: 13px;
   color: rgba(11,18,32,.86);
   box-shadow: 0 1px 0 rgba(255,255,255,.70) inset;
@@ -1270,8 +1256,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 }
 
 @media (max-width: 720px){
-  .hero{ padding: 46px 0 26px; }
-  .heroInner{ padding: 26px 16px 18px; }
+  .hero{ padding: 44px 0 26px; }
   .tool{ padding: 14px; }
   .dropzone{ padding: 22px 14px; }
   .actionRow{ flex-direction: column; }
@@ -1324,7 +1309,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   gap: 12px;
   background: linear-gradient(180deg, rgba(2,6,23,.04), rgba(255,255,255,0));
 }
-.modalTitle{ font-weight: 850; letter-spacing: -0.02em; font-size: 14px; }
+.modalTitle{ font-weight: 900; letter-spacing: -0.02em; font-size: 14px; }
 
 .modalClose{
   border: 1px solid rgba(2,6,23,.12);
@@ -1332,7 +1317,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   border-radius: 14px;
   padding: 8px 10px;
   cursor:pointer;
-  font-weight: 850;
+  font-weight: 900;
   font-size: 12px;
   box-shadow: var(--shadow-0);
 }
@@ -1360,21 +1345,21 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 .modalSummaryKicker{
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   color: rgba(107,114,128,.98);
   text-transform: uppercase;
   letter-spacing: .08em;
 }
 .modalSummaryMain{
   font-size: 14px;
-  font-weight: 850;
+  font-weight: 900;
   color: rgba(11,18,32,.95);
   overflow:hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 420px;
 }
-.modalSummaryAmt{ font-size: 16px; font-weight: 850; white-space: nowrap; color: rgba(11,18,32,.95); }
+.modalSummaryAmt{ font-size: 16px; font-weight: 900; white-space: nowrap; color: rgba(11,18,32,.95); }
 
 .priceGrid{ display:grid; gap: 10px; margin-top: 12px; }
 .priceRow{
@@ -1392,10 +1377,10 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   background: rgba(29,78,216,.08);
   box-shadow: 0 18px 52px rgba(29,78,216,.10);
 }
-.priceName{ font-weight: 850; font-size: 13px; }
+.priceName{ font-weight: 900; font-size: 13px; }
 .priceDesc{ font-size: 12px; color: rgba(75,85,99,.95); }
-.priceAmt{ font-weight: 850; font-size: 13px; white-space: nowrap; }
-.priceAmt label{ display:inline-flex; align-items:center; gap: 8px; font-weight: 850; cursor:pointer; }
+.priceAmt{ font-weight: 900; font-size: 13px; white-space: nowrap; }
+.priceAmt label{ display:inline-flex; align-items:center; gap: 8px; font-weight: 900; cursor:pointer; }
 .priceAmt input[type="checkbox"]{ width: 16px; height: 16px; accent-color: var(--accent); }
 
 .modalNote{ margin-top: 10px; font-size: 12px; color: rgba(107,114,128,.98); line-height: 1.45; }
