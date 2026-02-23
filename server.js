@@ -1,9 +1,10 @@
-// server.js — ZipPixel (RENDER SAFE MONEY MODE v16.1 - MERGE PDF MODE FIXED)
+// server.js — ZipPixel (RENDER SAFE MONEY MODE v16.2 - ADD SPLIT PDF MODE)
 // ✅ Pricing tiers: £2.99 (≤10) / £9.99 (11–50) + optional share link (+£2.49)
 // ✅ Server-side enforcement: max 50 files (client enforces size; server enforces count + mode validation)
 // ✅ Routes: /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/jobs/:jobId/mode, /api/checkout
 // ✅ Webhook + Stripe self-heal preserved
 // ✅ merge_pdf mode — PAID download returns a single merged PDF (in upload order)
+// ✅ split_pdf mode — PAID download returns a ZIP of per-page PDFs (in page order)
 
 require("dotenv").config();
 
@@ -25,14 +26,14 @@ try {
   );
 }
 
-// pdf-lib is required for merge_pdf (but we fail gracefully if missing)
+// pdf-lib is required for merge_pdf + split_pdf (but we fail gracefully if missing)
 let PDFDocumentLib = null; // <-- THIS is the one we use everywhere
 try {
   const pdfLib = require("pdf-lib");
   PDFDocumentLib = pdfLib.PDFDocument;
 } catch (e) {
   console.warn(
-    "⚠️ pdf-lib failed to load. merge_pdf mode will error until you install `pdf-lib`."
+    "⚠️ pdf-lib failed to load. merge_pdf/split_pdf modes will error until you install `pdf-lib`."
   );
 }
 
@@ -175,7 +176,7 @@ function computeTotalPence(job) {
 }
 
 // ====== MODE HELPERS ======
-const VALID_MODES = new Set(["compress", "convert", "merge_pdf"]);
+const VALID_MODES = new Set(["compress", "convert", "merge_pdf", "split_pdf"]);
 const VALID_CONVERT_TARGETS = new Set(["jpg", "jpeg", "png", "webp", "pdf"]);
 
 function normalizeConvertTarget(t) {
@@ -197,11 +198,17 @@ function validateJobFilesForMode(job) {
   if (files.length > MAX_FILES) throw new Error(`Too many files (max ${MAX_FILES}).`);
 
   if (job.mode === "merge_pdf") {
-    // ✅ FIX: correct variable name
     if (!PDFDocumentLib) throw new Error("PDF merge is unavailable (pdf-lib not installed).");
     if (files.length < 2) throw new Error("Merge PDFs requires at least 2 PDFs.");
     const nonPdf = files.find((f) => !isPdfMeta(f));
     if (nonPdf) throw new Error("Merge PDFs only accepts PDF files.");
+  }
+
+  if (job.mode === "split_pdf") {
+    if (!PDFDocumentLib) throw new Error("PDF split is unavailable (pdf-lib not installed).");
+    if (files.length !== 1) throw new Error("Split PDF requires exactly 1 PDF.");
+    const nonPdf = files.find((f) => !isPdfMeta(f));
+    if (nonPdf) throw new Error("Split PDF only accepts a PDF file.");
   }
 
   if (job.mode === "convert") {
@@ -344,7 +351,7 @@ app.post("/api/jobs", (_, res) => {
 
     options: { shareLink: false },
 
-    mode: "compress",     // compress | convert | merge_pdf
+    mode: "compress",     // compress | convert | merge_pdf | split_pdf
     convertTarget: null,  // jpg|png|webp|pdf (convert only)
 
     shareToken: null,
@@ -417,7 +424,7 @@ app.post("/api/jobs/:jobId/register", (req, res) => {
   }
 });
 
-// Set job mode (compress | convert | merge_pdf)
+// Set job mode (compress | convert | merge_pdf | split_pdf)
 app.post("/api/jobs/:jobId/mode", (req, res) => {
   try {
     const job = getJob(req.params.jobId);
@@ -473,9 +480,11 @@ app.post("/api/checkout", async (req, res) => {
     const modeLabel =
       job.mode === "merge_pdf"
         ? "Merge PDFs"
-        : (job.mode === "convert"
-          ? `Convert to ${String(job.convertTarget || "").toUpperCase() || "format"}`
-          : "ZIP download");
+        : (job.mode === "split_pdf"
+            ? "Split PDF"
+            : (job.mode === "convert"
+                ? `Convert to ${String(job.convertTarget || "").toUpperCase() || "format"}`
+                : "ZIP download"));
 
     const productName = `${productNameBase} — ${modeLabel}`;
 
@@ -580,6 +589,56 @@ app.get("/api/download/:jobId", async (req, res) => {
         `attachment; filename="zippixel_merged_${job.jobId}.pdf"`
       );
       return res.send(Buffer.from(mergedBytes));
+    }
+
+    // ====== SPLIT PDF MODE ======
+    if (job.mode === "split_pdf") {
+      if (!PDFDocumentLib) throw new Error("PDF split is unavailable (pdf-lib not installed).");
+
+      const only = job.files[0];
+      const obj = await r2.send(
+        new GetObjectCommand({ Bucket: R2_BUCKET, Key: only.key })
+      );
+      const buf = await streamToBuffer(obj.Body);
+
+      const src = await PDFDocumentLib.load(buf);
+      const indices = src.getPageIndices(); // [0..n-1]
+      const totalPages = indices.length;
+
+      const safeBase = sanitizeName(String(only.originalname || "document").replace(/\.pdf$/i, ""));
+      const pad = String(totalPages).length; // neat padding
+
+      res.setHeader("Content-Type", "application/zip");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="zippixel_split_${job.jobId}.zip"`
+      );
+
+      const archive = archiver("zip", { zlib: { level: 9 } });
+      archive.on("error", (err) => {
+        try { res.status(500).send(err.message); } catch {}
+      });
+      archive.pipe(res);
+
+      const used = new Set();
+
+      for (let i = 0; i < totalPages; i++) {
+        const out = await PDFDocumentLib.create();
+        const [copied] = await out.copyPages(src, [i]);
+        out.addPage(copied);
+        const bytes = await out.save();
+
+        const pageNo = String(i + 1).padStart(pad, "0");
+        const filename = makeUniqueName(
+          sanitizeName(`${safeBase}_page_${pageNo}.pdf`),
+          used
+        );
+
+        archive.append(Buffer.from(bytes), { name: filename });
+      }
+
+      await archive.finalize();
+      return;
     }
 
     // ====== ZIP MODES ======

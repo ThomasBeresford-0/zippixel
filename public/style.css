@@ -213,63 +213,6 @@ strong,b{ font-weight: 800; }
   color: rgba(11,18,32,.70);
 }
 
-/* New hero bits */
-.heroSteps{
-  margin: 16px auto 0;
-  display:flex;
-  justify-content:center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.heroStep{
-  display:flex;
-  align-items:center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 16px;
-  border: 1px solid rgba(2,6,23,.10);
-  background: rgba(255,255,255,.70);
-  box-shadow: 0 1px 0 rgba(255,255,255,.70) inset;
-}
-.heroStepKicker{
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  display:grid;
-  place-items:center;
-  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-size: 12px;
-  font-weight: 700;
-  color: rgba(11,18,32,.85);
-  background: rgba(2,6,23,.04);
-  border: 1px solid rgba(2,6,23,.10);
-}
-.heroStepText{
-  font-size: 13px;
-  font-weight: 850;
-  letter-spacing: -0.01em;
-  color: rgba(11,18,32,.90);
-}
-
-.heroTrust{
-  margin: 12px auto 0;
-  display:flex;
-  justify-content:center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.trustPill{
-  display:inline-flex;
-  align-items:center;
-  padding: 8px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(2,6,23,.10);
-  background: rgba(2,6,23,.03);
-  color: rgba(11,18,32,.78);
-  font-size: 12px;
-  font-weight: 750;
-}
-
 /* =========================
    TOOL
 ========================= */
@@ -503,14 +446,6 @@ strong,b{ font-weight: 800; }
   color: rgba(11,18,32,.58);
   font-size: 13px;
   margin-bottom: 10px;
-}
-
-/* New: micro step hint under the button */
-.dzAfter{
-  margin-top: 10px;
-  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-size: 12px;
-  color: rgba(11,18,32,.54);
 }
 
 /* Drag state */
@@ -1149,35 +1084,6 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
     cursor: pointer;
     -webkit-appearance: none;
     appearance: none;
-  }
-
-  /* Tiny trust row inside tool (uses your design language without touching style.css) */
-  .toolTrust{
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(2,6,23,.08);
-    display:flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
-    color: rgba(11,18,32,.62);
-    font-size: 12px;
-    text-align:center;
-  }
-  .toolTrustItem{
-    display:inline-flex;
-    align-items:center;
-    gap: 8px;
-    padding: 8px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(2,6,23,.10);
-    background: rgba(2,6,23,.02);
-  }
-  .toolTrustDot{
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background: rgba(11,18,32,.75);
   }
 
   /* =========================
