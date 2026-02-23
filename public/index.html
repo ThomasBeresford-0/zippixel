@@ -1,9 +1,8 @@
-<!-- public/index.html — ZipPixel (v27 - FULL HOMEPAGE UPGRADE: TRUST BAR + CONVERSION RHYTHM + MOBILE SAFE)
-     ✅ Payment stays hidden until modal (no pricing on page)
+<!-- public/index.html — ZipPixel (v27.1 - CLEAN HERO: REMOVED STEPS/TRUST PILLS/EXTRA DZ LINES)
+     ✅ Removed: heroSteps (1/2/3), heroTrust pills, dzAfter lines you listed
      ✅ Keeps ALL required IDs/classes for app.js + modal (no hook breaks)
-     ✅ Adds “money mode” conversion scaffolding: subhead, steps, trust bar, use-cases
      ✅ Mobile-safe file picker preserved (input overlays only button)
-     ✅ Version sync: style.css?v=26 + app.js?v=16 (keep as-is unless you bump)
+     ✅ Version sync unchanged: style.css?v=26 + app.js?v=16
 -->
 <!doctype html>
 <html lang="en">
@@ -58,35 +57,9 @@
       <div class="heroText">
         <h1>Compress, convert, or merge PDFs.</h1>
 
-        <!-- ✅ Better subhead = sets intent + reduces bounce (no price mentioned) -->
         <p class="heroSub">
           Upload your files, choose a mode, and get a clean download in minutes — built for email, clients, and quick handovers.
         </p>
-
-        <!-- ✅ Micro-commitment steps (no pricing) -->
-        <div class="heroSteps" aria-label="How ZipPixel works">
-          <div class="heroStep">
-            <div class="heroStepKicker">1</div>
-            <div class="heroStepText">Add files</div>
-          </div>
-          <div class="heroStep">
-            <div class="heroStepKicker">2</div>
-            <div class="heroStepText">Upload</div>
-          </div>
-          <div class="heroStep">
-            <div class="heroStepKicker">3</div>
-            <div class="heroStepText">Checkout &amp; download</div>
-          </div>
-        </div>
-
-        <!-- ✅ Trust pills: objection killers (no prices) -->
-        <div class="heroTrust" aria-label="Trust and security">
-          <span class="trustPill">Stripe secure checkout</span>
-          <span class="trustPill">No signup</span>
-          <span class="trustPill">Works on mobile</span>
-          <span class="trustPill">Fast download</span>
-          <span class="trustPill">UK-friendly</span>
-        </div>
       </div>
 
       <div class="tool toolPremium" aria-label="ZipPixel tool">
@@ -154,7 +127,7 @@
           <div class="dzCenter">
             <div class="dzIcon" aria-hidden="true"><span class="dzArrow">↑</span></div>
             <div class="dzTitle" id="dzTitle">Drop files here</div>
-            <div class="dzSub" id="dzSub">Up to 50 files • Drag & drop or select</div>
+            <div class="dzSub" id="dzSub">Up to 50 files • Drag &amp; drop or select</div>
 
             <!-- ✅ MOBILE-SAFE PICKER -->
             <div class="filePick">
@@ -164,15 +137,6 @@
 
               <!-- keep id="files" exactly for app.js -->
               <input id="files" type="file" multiple aria-label="Choose files" />
-            </div>
-
-            <div class="dzAfter" id="dzAfter">
-              Upload → review options → secure checkout → instant download
-            </div>
-
-            <!-- ✅ Contextual “why” line (helps conversions, not pricing) -->
-            <div class="dzAfter" style="margin-top:8px;">
-              Use it for: emailing folders • sending to clients • quick PDF merges • bulk format fixes
             </div>
           </div>
 
@@ -225,7 +189,7 @@
     </div>
   </section>
 
-  <!-- ✅ HOW IT WORKS section (kept tight, reinforces flow) -->
+  <!-- ✅ HOW IT WORKS section -->
   <section id="how" class="section">
     <div class="container">
       <div class="sectionHead">

@@ -99,7 +99,8 @@
   const LS = {
     lastMode: "zp:lastMode",
     lastTarget: "zp:lastTarget",
-    sharePref: "zp:sharePref", // "on" | "off"
+    sharePref: "zp:sharePref",   // "on" | "off"
+    shareSeen: "zp:shareSeen",   // "1" once they've seen the modal
     lastJob: "zp:lastJobId",
     lastFilesCount: "zp:lastFilesCount"
   };
@@ -251,28 +252,29 @@
 
   // ====== SMART UPSELL LOGIC (NO PRESSURE, JUST RELEVANCE) ======
   const shouldRecommendShare = () => {
-    // Only recommend after the user has “committed” (has uploaded files)
-    if (!uploadedMeta.length) return false;
-
     const n = selected.length;
     const totalBytes = selected.reduce((a, f) => a + (f?.size || 0), 0);
 
     // High-intent situations:
-    if (mode === "merge_pdf") return true;          // merged doc is often sent to someone
-    if (n >= 8) return true;                         // “folder / camera roll”
-    if (totalBytes >= 20 * 1024 * 1024) return true; // email attachment pain threshold
+    if (mode === "merge_pdf") return true;
+    if (n >= 8) return true;
+    if (totalBytes >= 20 * 1024 * 1024) return true;
     return false;
   };
 
   const applyShareDefault = () => {
     if (!optShareLink) return;
 
-    // If user has a stored preference, respect it.
+    const seen = safeLocalGet(LS.shareSeen) === "1";
     const pref = safeLocalGet(LS.sharePref);
-    if (pref === "on") { optShareLink.checked = true; return; }
-    if (pref === "off") { optShareLink.checked = false; return; }
 
-    // Otherwise, smart default based on context.
+    // Only "lock in" their preference after they've actually seen the modal at least once
+    if (seen) {
+      if (pref === "on") { optShareLink.checked = true; return; }
+      if (pref === "off") { optShareLink.checked = false; return; }
+    }
+
+    // Otherwise, smart default based on context
     optShareLink.checked = shouldRecommendShare();
   };
 
@@ -876,7 +878,7 @@
       setStatus("Uploaded");
 
       // Revenue: subtle share recommendation only if relevant
-      if (shouldRecommendShare()) {
+      if (uploadedMeta.length && shouldRecommendShare()) {
         setHint(`Upload complete. Continue to checkout.<br/><span style="color: rgba(11,18,32,.56)">Recommended: add a share link if you’re sending this to someone.</span>`);
       } else {
         setHint("Upload complete. Continue to checkout.");
@@ -909,6 +911,8 @@
 
     // Smart default for share link (no pressure, but boosts attach rate)
     applyShareDefault();
+    safeLocalSet(LS.shareSeen, "1");  
+
 
     syncModalTierUI();
     syncModalTotalUI();

@@ -1,9 +1,9 @@
-// server.js — ZipPixel (RENDER SAFE MONEY MODE v16 - MERGE PDF MODE)
+// server.js — ZipPixel (RENDER SAFE MONEY MODE v16.1 - MERGE PDF MODE FIXED)
 // ✅ Pricing tiers: £2.99 (≤10) / £9.99 (11–50) + optional share link (+£2.49)
-// ✅ Server-side enforcement: max 50 files, 25MB each (client enforces size; server enforces count + mode validation)
+// ✅ Server-side enforcement: max 50 files (client enforces size; server enforces count + mode validation)
 // ✅ Routes: /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/jobs/:jobId/mode, /api/checkout
 // ✅ Webhook + Stripe self-heal preserved
-// ✅ NEW: merge_pdf mode — PAID download returns a single merged PDF (in upload order)
+// ✅ merge_pdf mode — PAID download returns a single merged PDF (in upload order)
 
 require("dotenv").config();
 
@@ -26,12 +26,14 @@ try {
 }
 
 // pdf-lib is required for merge_pdf (but we fail gracefully if missing)
-let PDFDocumentLib = null;
+let PDFDocumentLib = null; // <-- THIS is the one we use everywhere
 try {
   const pdfLib = require("pdf-lib");
   PDFDocumentLib = pdfLib.PDFDocument;
 } catch (e) {
-  console.warn("⚠️ pdf-lib failed to load. merge_pdf mode will error until you install `pdf-lib`.");
+  console.warn(
+    "⚠️ pdf-lib failed to load. merge_pdf mode will error until you install `pdf-lib`."
+  );
 }
 
 // R2 (S3-compatible)
@@ -55,7 +57,6 @@ const MAX_FILES = Number(process.env.MAX_FILES || 50); // v15+
 const MAX_MB_EACH = Number(process.env.MAX_MB_EACH || 25);
 
 // ====== PRICING TIERS ======
-// You can override via env, but defaults are the money-mode tiers.
 const TIER_10_LIMIT = Number(process.env.TIER_10_LIMIT || 10);
 const TIER_10_PRICE_GBP_PENCE = Number(process.env.TIER_10_PRICE_GBP_PENCE || 299);
 
@@ -65,14 +66,10 @@ const TIER_50_PRICE_GBP_PENCE = Number(process.env.TIER_50_PRICE_GBP_PENCE || 99
 const SHARE_LINK_UPSELL_PENCE = Number(process.env.SHARE_LINK_UPSELL_PENCE || 249);
 
 // ====== TTLs ======
-// Unpaid jobs should expire quickly (abandoned uploads)
 const UNPAID_JOB_TTL_MS = 30 * 60 * 1000; // 30 minutes
-// Paid jobs without share link: keep long enough for user to download reliably
 const PAID_JOB_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
-// Paid jobs with share link: must match your promise
 const SHARE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-// Cleanup cadence
 const CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 // ====== STRIPE ======
@@ -108,9 +105,9 @@ const requireR2 = () => {
 };
 
 // ====== JOB STORE (IN-MEMORY MVP) ======
-// NOTE: This will reset on redeploy. For real durability, move to Redis/D1/KV.
-// This code still self-heals paid state via Stripe checks when possible.
 const jobs = new Map();
+// Fast lookup for share tokens (prevents O(n) scan)
+const shareIndex = new Map(); // token -> jobId
 
 const newId = () => `job_${crypto.randomBytes(8).toString("hex")}`;
 const newShareToken = () => crypto.randomBytes(16).toString("hex");
@@ -147,12 +144,12 @@ function getJob(id) {
   const job = jobs.get(id);
   if (!job) throw new Error("Job not found");
 
-  // If expired, remove from memory (cleanup loop also handles this)
   if (job.expiresAt && Date.now() > job.expiresAt) {
+    // Remove + clean share index if present
+    if (job.shareToken) shareIndex.delete(job.shareToken);
     jobs.delete(id);
     throw new Error("Job expired");
   }
-
   return job;
 }
 
@@ -166,7 +163,6 @@ function inferTierFromFileCount(count) {
   if (n <= TIER_50_LIMIT)
     return { key: "zip50", limit: TIER_50_LIMIT, price: TIER_50_PRICE_GBP_PENCE };
 
-  // Past 50 is not allowed; clamp to protect server math; caller should already have been rejected.
   return { key: "zip50", limit: TIER_50_LIMIT, price: TIER_50_PRICE_GBP_PENCE };
 }
 
@@ -201,7 +197,8 @@ function validateJobFilesForMode(job) {
   if (files.length > MAX_FILES) throw new Error(`Too many files (max ${MAX_FILES}).`);
 
   if (job.mode === "merge_pdf") {
-    if (!PDFLibDocument) throw new Error("PDF merge is unavailable (pdf-lib not installed).");
+    // ✅ FIX: correct variable name
+    if (!PDFDocumentLib) throw new Error("PDF merge is unavailable (pdf-lib not installed).");
     if (files.length < 2) throw new Error("Merge PDFs requires at least 2 PDFs.");
     const nonPdf = files.find((f) => !isPdfMeta(f));
     if (nonPdf) throw new Error("Merge PDFs only accepts PDF files.");
@@ -218,7 +215,6 @@ function validateJobFilesForMode(job) {
 async function deleteJobObjectsFromR2(jobId) {
   if (!r2Configured) return;
 
-  // Delete all objects under prefix `${jobId}/`
   let continuationToken = undefined;
 
   while (true) {
@@ -247,7 +243,6 @@ async function deleteJobObjectsFromR2(jobId) {
 }
 
 // ====== PAYMENT SELF-HEAL (webhook fallback) ======
-// If webhook is delayed/missed, verify payment via Stripe session.
 async function ensurePaid(job) {
   if (job.status === "PAID") return true;
   if (!stripeConfigured) return false;
@@ -256,32 +251,35 @@ async function ensurePaid(job) {
   try {
     const session = await stripe.checkout.sessions.retrieve(job.checkoutSessionId);
     if (session?.payment_status === "paid") {
-      // Mark paid + issue share token if purchased
       markJobPaid(job);
       return true;
     }
   } catch {
-    // ignore stripe errors here; caller can treat as "not paid yet"
+    // ignore
   }
   return false;
 }
 
 function markJobPaid(job) {
-  // idempotent
   if (job.status === "PAID") return;
 
   job.status = "PAID";
   job.paidAt = Date.now();
 
-  // If they bought share link, generate token + extend TTL to SHARE_TTL_MS
   if (job.options?.shareLink) {
     job.shareToken = job.shareToken || newShareToken();
     job.shareExpiresAt = job.shareExpiresAt || Date.now() + SHARE_TTL_MS;
-    job.expiresAt = Date.now() + SHARE_TTL_MS; // keep files as long as share link is valid
+    job.expiresAt = Date.now() + SHARE_TTL_MS;
+
+    // ✅ add to index
+    shareIndex.set(job.shareToken, job.jobId);
   } else {
+    // if previously had token (edge), remove it
+    if (job.shareToken) shareIndex.delete(job.shareToken);
+
     job.shareToken = null;
     job.shareExpiresAt = null;
-    job.expiresAt = Date.now() + PAID_JOB_TTL_MS; // keep paid downloads available reliably
+    job.expiresAt = Date.now() + PAID_JOB_TTL_MS;
   }
 }
 
@@ -324,7 +322,9 @@ app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
 
 ["/", "/success", "/cancel", "/privacy", "/terms", "/pricing"].forEach((route) => {
   app.get(route, (_, res) =>
-    res.sendFile(path.join(PUBLIC_DIR, route === "/" ? "index.html" : `${route.slice(1)}.html`))
+    res.sendFile(
+      path.join(PUBLIC_DIR, route === "/" ? "index.html" : `${route.slice(1)}.html`)
+    )
   );
 });
 
@@ -370,8 +370,6 @@ app.post("/api/upload-url", async (req, res) => {
     const job = getJob(jobId);
     if (job.status !== "CREATED") throw new Error("Invalid job state");
 
-    // (We can't enforce file size here without a signed policy; client enforces MAX_MB_EACH.)
-    // We *do* keep the server-side count enforcement at register-time.
     const key = `${jobId}/${Date.now()}_${sanitizeName(filename)}`;
 
     const url = await getSignedUrl(
@@ -406,12 +404,10 @@ app.post("/api/jobs/:jobId/register", (req, res) => {
       mimetype: String(f.mimetype || "application/octet-stream"),
     }));
 
-    // Safety: ensure keys are under job prefix
     for (const f of job.files) {
       if (!f.key.startsWith(`${job.jobId}/`)) throw new Error("Invalid file key");
     }
 
-    // Mode-aware validation (merge PDFs must be PDFs-only + 2+)
     validateJobFilesForMode(job);
 
     job.status = "UPLOADED";
@@ -430,7 +426,6 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
     const m = String(mode || "").toLowerCase().trim();
     if (!VALID_MODES.has(m)) throw new Error("Invalid mode");
 
-    // Don’t allow changing mode after upload/checkout has begun
     if (job.status !== "CREATED") throw new Error("Invalid state");
 
     job.mode = m;
@@ -461,12 +456,12 @@ app.post("/api/checkout", async (req, res) => {
     if (!job.files?.length) throw new Error("No files registered");
     if (job.files.length > MAX_FILES) throw new Error(`Too many files (max ${MAX_FILES}).`);
 
-    // Mode-aware validation (again, belt & braces)
     validateJobFilesForMode(job);
 
     job.options.shareLink = !!shareLink;
 
     // Clear any old token until payment confirmed
+    if (job.shareToken) shareIndex.delete(job.shareToken);
     job.shareToken = null;
     job.shareExpiresAt = null;
 
@@ -520,19 +515,18 @@ app.post("/api/checkout", async (req, res) => {
   }
 });
 
-// Status endpoint for success page polling (webhook + stripe fallback)
+// Status endpoint for success page polling
 app.get("/api/status/:jobId", async (req, res) => {
   try {
     const job = getJob(req.params.jobId);
 
-    // If not paid yet, try to self-heal via Stripe
     if (job.status !== "PAID") {
       await ensurePaid(job);
     }
 
     res.json({
       ok: true,
-      status: job.status, // CREATED | UPLOADED | PAID
+      status: job.status,
       paid: job.status === "PAID",
       shareToken: job.shareToken || null,
       expiresAt: job.expiresAt || null,
@@ -546,9 +540,7 @@ app.get("/api/status/:jobId", async (req, res) => {
   }
 });
 
-// Download — PAID ONLY (webhook + stripe fallback)
-// - compress/convert: ZIP stream
-// - merge_pdf: single PDF buffer
+// Download — PAID ONLY
 app.get("/api/download/:jobId", async (req, res) => {
   try {
     requireR2();
@@ -560,33 +552,22 @@ app.get("/api/download/:jobId", async (req, res) => {
       if (!ok) return res.status(402).send("Payment required");
     }
 
-    // Final safety validation
     validateJobFilesForMode(job);
-
     job.downloadCount++;
 
-    // ====== MERGE PDF MODE (returns a single PDF) ======
+    // ====== MERGE PDF MODE ======
     if (job.mode === "merge_pdf") {
-      if (!PDFLibDocument) throw new Error("PDF merge is unavailable (pdf-lib not installed).");
+      if (!PDFDocumentLib) throw new Error("PDF merge is unavailable (pdf-lib not installed).");
 
-      // Fetch all PDFs as buffers (in job.files order)
-      const pdfBuffers = [];
+      const merged = await PDFDocumentLib.create();
+
       for (const f of job.files) {
         const obj = await r2.send(
-          new GetObjectCommand({
-            Bucket: R2_BUCKET,
-            Key: f.key,
-          })
+          new GetObjectCommand({ Bucket: R2_BUCKET, Key: f.key })
         );
         const buf = await streamToBuffer(obj.Body);
-        pdfBuffers.push(buf);
-      }
 
-      // Merge with pdf-lib (preserves page order)
-        const merged = await PDFDocumentLib.create();
-
-        for (const buf of pdfBuffers) {
-          const src = await PDFDocumentLib.load(buf);
+        const src = await PDFDocumentLib.load(buf);
         const pages = await merged.copyPages(src, src.getPageIndices());
         for (const p of pages) merged.addPage(p);
       }
@@ -596,14 +577,14 @@ app.get("/api/download/:jobId", async (req, res) => {
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="zippixel_merged_${Date.now()}.pdf"`
+        `attachment; filename="zippixel_merged_${job.jobId}.pdf"`
       );
       return res.send(Buffer.from(mergedBytes));
     }
 
-    // ====== ZIP MODES (compress / convert) ======
+    // ====== ZIP MODES ======
     res.setHeader("Content-Type", "application/zip");
-    res.setHeader("Content-Disposition", `attachment; filename="zippixel_${Date.now()}.zip"`);
+    res.setHeader("Content-Disposition", `attachment; filename="zippixel_${job.jobId}.zip"`);
 
     const archive = archiver("zip", { zlib: { level: 9 } });
     archive.on("error", (err) => {
@@ -625,14 +606,10 @@ app.get("/api/download/:jobId", async (req, res) => {
 
       // ====== CONVERT MODE (SAFE + NON-BREAKING) ======
       if (job.mode === "convert" && sharp && job.convertTarget) {
-        // We must buffer the object because:
-        // 1) conversion needs a buffer
-        // 2) if conversion fails, we can still append the original bytes (buffer) safely
         let buffer;
         try {
           buffer = await streamToBuffer(obj.Body);
         } catch {
-          // If we can't read it, skip conversion and try streaming original (best-effort)
           archive.append(obj.Body, {
             name: makeUniqueName(sanitizeName(f.originalname), used),
           });
@@ -647,7 +624,6 @@ app.get("/api/download/:jobId", async (req, res) => {
         let newExt = "";
 
         try {
-          // ===== IMAGE INPUTS =====
           if (isImage) {
             const image = sharp(buffer);
 
@@ -666,17 +642,19 @@ app.get("/api/download/:jobId", async (req, res) => {
             }
           }
 
-          // ===== PDF INPUTS (first page only) =====
-          // Note: this only works if your Sharp build supports PDF input (pdfium/poppler).
           if (!converted && isPdf) {
             if (job.convertTarget === "jpg") {
-              converted = await sharp(buffer, { density: 300 }).jpeg({ quality: 90 }).toBuffer();
+              converted = await sharp(buffer, { density: 300 })
+                .jpeg({ quality: 90 })
+                .toBuffer();
               newExt = ".jpg";
             } else if (job.convertTarget === "png") {
               converted = await sharp(buffer, { density: 300 }).png().toBuffer();
               newExt = ".png";
             } else if (job.convertTarget === "webp") {
-              converted = await sharp(buffer, { density: 300 }).webp({ quality: 85 }).toBuffer();
+              converted = await sharp(buffer, { density: 300 })
+                .webp({ quality: 85 })
+                .toBuffer();
               newExt = ".webp";
             }
           }
@@ -692,7 +670,6 @@ app.get("/api/download/:jobId", async (req, res) => {
           continue;
         }
 
-        // Conversion not possible → append original bytes (buffer) with original name
         archive.append(buffer, {
           name: makeUniqueName(sanitizeName(f.originalname), used),
         });
@@ -715,11 +692,11 @@ app.get("/api/download/:jobId", async (req, res) => {
 app.get("/api/share/:token", async (req, res) => {
   try {
     const token = String(req.params.token || "");
-    const job = [...jobs.values()].find((j) => j.shareToken === token);
+    const jobId = shareIndex.get(token);
+    if (!jobId) return res.status(404).json({ error: "Not found" });
 
-    if (!job) return res.status(404).json({ error: "Not found" });
+    const job = getJob(jobId);
 
-    // Stripe fallback if webhook missed
     if (job.status !== "PAID") {
       await ensurePaid(job);
     }
@@ -745,17 +722,18 @@ app.get("/api/share/:token", async (req, res) => {
 app.get("/s/:token", async (req, res) => {
   try {
     const token = String(req.params.token || "");
-    const job = [...jobs.values()].find((j) => j.shareToken === token);
+    const jobId = shareIndex.get(token);
+    if (!jobId) return res.status(404).send("Not found");
 
-    if (!job) return res.status(404).send("Not found");
+    const job = getJob(jobId);
 
-    // Stripe fallback if webhook missed
     if (job.status !== "PAID") {
       await ensurePaid(job);
     }
 
     if (job.status !== "PAID") return res.status(404).send("Not found");
-    if (job.shareExpiresAt && Date.now() > job.shareExpiresAt) return res.status(410).send("Link expired");
+    if (job.shareExpiresAt && Date.now() > job.shareExpiresAt)
+      return res.status(410).send("Link expired");
 
     res.sendFile(path.join(PUBLIC_DIR, "share.html"));
   } catch {
@@ -776,14 +754,16 @@ function webhookHandler(req, res) {
 
     const type = event.type;
 
-    if (type === "checkout.session.completed" || type === "checkout.session.async_payment_succeeded") {
+    if (
+      type === "checkout.session.completed" ||
+      type === "checkout.session.async_payment_succeeded"
+    ) {
       const session = event.data.object;
       const jobId = session?.metadata?.jobId;
 
       if (jobId && jobs.has(jobId)) {
         const job = jobs.get(jobId);
 
-        // Extra safety: only mark paid if Stripe says paid
         const paymentStatus = session?.payment_status;
         if (paymentStatus === "paid") {
           markJobPaid(job);
@@ -810,19 +790,17 @@ async function cleanupExpiredJobs() {
 
   if (!expired.length) return;
 
-  // Remove from memory first (so we don’t keep serving it)
   for (const jobId of expired) {
+    const job = jobs.get(jobId);
+    if (job?.shareToken) shareIndex.delete(job.shareToken);
     jobs.delete(jobId);
   }
 
-  // Best-effort R2 cleanup
   if (r2Configured) {
     for (const jobId of expired) {
       try {
         await deleteJobObjectsFromR2(jobId);
-      } catch {
-        // best-effort only
-      }
+      } catch {}
     }
   }
 }
@@ -831,6 +809,7 @@ setInterval(() => {
   cleanupExpiredJobs().catch(() => {});
 }, CLEANUP_INTERVAL_MS);
 
+// ====== UTILS ======
 const { PassThrough } = require("stream");
 const PDFKitDocument = require("pdfkit");
 

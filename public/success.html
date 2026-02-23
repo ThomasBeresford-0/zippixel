@@ -1,8 +1,8 @@
-<!-- public/success.html — ZipPixel (v23 - MERGE PDF AWARE SUCCESS)
+<!-- public/success.html — ZipPixel (v23.1 - AUTO DOWNLOAD + iOS SAFE + STYLED ACTIONS)
      ✅ Uses /api/status/:jobId (webhook + fallback)
-     ✅ No backend changes
-     ✅ Mode-aware copy + correct download button label (ZIP vs PDF)
-     ✅ Updates stylesheet version to match your current premium system
+     ✅ Mode-aware copy + correct download label (ZIP vs PDF)
+     ✅ Auto-download once paid (best effort), with iOS-safe fallback button
+     ✅ Uses style.css?v=26 (and relies on added Success CSS block)
 -->
 <!doctype html>
 <html lang="en">
@@ -19,7 +19,6 @@
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <!-- Premium fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -49,7 +48,6 @@
   <section class="pageShell">
     <div class="container">
       <div class="pageInner">
-
         <h1 class="pageTitle">Payment received.</h1>
         <p class="pageLead" id="sub">Finalising your download…</p>
 
@@ -70,7 +68,6 @@
             Please keep this tab open. If it takes longer than ~30 seconds, use “Check again”.
           </p>
         </div>
-
       </div>
     </div>
   </section>
@@ -127,7 +124,7 @@
     }
   };
 
-  // ---- helpers (mode-aware labels)
+  // ---- mode-aware helpers
   const normalizeMode = (m) => {
     const v = String(m || "").toLowerCase().trim();
     if (v === "merge_pdf") return "merge_pdf";
@@ -165,14 +162,17 @@
     // waiting | notPaid | ready | failed
     let viewState = "waiting";
 
-    // Mode snapshot (we learn this from status endpoint)
+    // Mode snapshot
     let currentMode = "compress";
     let currentConvertTarget = null;
 
+    // Auto-download: best effort (avoid infinite loops)
+    let autoDownloadAttempted = false;
+
     const renderWaiting = (msg) => {
       viewState = "waiting";
-
       const kind = downloadKind(currentMode);
+
       sub.textContent = "Finalising your download…";
       titleLine.textContent = `Preparing your ${kind}`;
       desc.textContent = msg || "This usually takes a few seconds.";
@@ -205,23 +205,35 @@
 
     const renderFailed = () => {
       viewState = "failed";
-
       const kind = downloadKind(currentMode);
+
       sub.textContent = "Still not ready.";
       titleLine.textContent = "Taking longer than expected";
       desc.textContent = "Try once more. If it still doesn’t work, email support and we’ll sort it.";
       hint.innerHTML = supportHtml;
 
       setActions(`
-        <a class="btnPrimary btnBlock" href="${downloadUrl}">Try download</a>
+        <a class="btnPrimary btnBlock" href="${downloadUrl}" target="_blank" rel="noopener">Try download</a>
         <button class="btnSoft btnBlock" id="retryBtn2" type="button">Check again</button>
       `);
 
       const b = document.getElementById("retryBtn2");
       if (b) b.onclick = () => poll(true);
+    };
 
-      // Keep copy consistent with kind
-      // (button label is generic here on purpose — backend enforces paid anyway)
+    const tryAutoDownload = () => {
+      // Best-effort: only once, only when paid.
+      if (autoDownloadAttempted) return;
+      autoDownloadAttempted = true;
+
+      // Use a programmatic click (works in most browsers)
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.rel = "noopener";
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     };
 
     const renderReady = (shareToken) => {
@@ -255,11 +267,16 @@
         `;
       }
 
+      // iOS-safe: include an explicit "Open download" too
       setActions(`
-        <a class="btnPrimary btnBlock" href="${downloadUrl}">${downloadBtnLabel}</a>
+        <a class="btnPrimary btnBlock" id="downloadBtn" href="${downloadUrl}">${downloadBtnLabel}</a>
+        <a class="btnSoft btnBlock" href="${downloadUrl}" target="_blank" rel="noopener">Open download in new tab</a>
         ${shareHtml}
         <a class="btnGhost btnBlock" href="/">Back to ZipPixel</a>
       `);
+
+      // Auto-download best effort (still leaves buttons visible)
+      tryAutoDownload();
 
       if (shareToken) {
         const link = `${location.origin}/s/${shareToken}`;
@@ -281,11 +298,15 @@
     const checkStatus = async () => {
       try {
         const r = await fetch(statusUrl, { cache: "no-store" });
+
+        // If job is missing/expired, treat as dead-end
+        if (r.status === 404) return { ok: false, notFound: true };
+
         if (!r.ok) return { ok: false, paid: false, status: "UNKNOWN", shareToken: null, mode: "compress", convertTarget: null };
+
         const j = await r.json();
 
-        const m = normalizeMode(j.mode);
-        currentMode = m;
+        currentMode = normalizeMode(j.mode);
         currentConvertTarget = j.convertTarget || null;
 
         return {
@@ -293,8 +314,8 @@
           paid: !!j.paid,
           status: j.status || "UNKNOWN",
           shareToken: j.shareToken || null,
-          mode: m,
-          convertTarget: j.convertTarget || null
+          mode: currentMode,
+          convertTarget: currentConvertTarget
         };
       } catch {
         return { ok: false, paid: false, status: "UNKNOWN", shareToken: null, mode: currentMode, convertTarget: currentConvertTarget };
@@ -302,6 +323,18 @@
     };
 
     const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+
+    const renderExpired = () => {
+      sub.textContent = "This download is no longer available.";
+      titleLine.textContent = "Link expired or not found";
+      desc.textContent = "If you just paid and this looks wrong, email support with the time you paid.";
+      hint.innerHTML = supportHtml;
+
+      setActions(`
+        <a class="btnPrimary btnBlock" href="/">Back to ZipPixel</a>
+        <a class="btnSoft btnBlock" href="/terms">Terms</a>
+      `);
+    };
 
     const poll = async (manual = false) => {
       attempt++;
@@ -311,6 +344,7 @@
 
       const st = await checkStatus();
 
+      if (st?.notFound) return renderExpired();
       if (st.paid) return renderReady(st.shareToken);
 
       if (waited > 6000) {
