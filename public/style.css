@@ -577,6 +577,68 @@ strong,b{ font-weight: 800; }
   /* v33: gives the controls a full-row identity */
 }
 
+/* =========================
+   COMPRESS PDF — PRESETS (compress-pdf.html)
+========================= */
+.presetRow{
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 14px 34px rgba(2,6,23,.06);
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.presetLabel{
+  font-size: 12px;
+  font-weight: 950;
+  color: rgba(11,18,32,.68);
+  letter-spacing: -0.01em;
+}
+
+.presetButtons{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.presetBtn{
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 950;
+  border: 1px solid rgba(15,23,42,.12);
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 10px 22px rgba(2,6,23,.06);
+  color: rgba(11,18,32,.78);
+  transition: transform .10s var(--ease), background .16s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease), opacity .16s var(--ease);
+}
+
+.presetBtn:hover{
+  border-color: rgba(15,23,42,.18);
+  background: rgba(2,6,23,.02);
+  box-shadow: 0 14px 34px rgba(2,6,23,.08);
+}
+
+.presetBtn.isActive,
+.presetBtn[aria-pressed="true"]{
+  border-color: rgba(14,165,164,.34);
+  background: rgba(14,165,164,.12);
+  box-shadow: 0 18px 52px rgba(14,165,164,.10);
+  color: rgba(11,18,32,.92);
+}
+
+@media (max-width: 720px){
+  .presetButtons{ width: 100%; margin-left: 0; }
+  .presetBtn{ flex: 1 1 auto; text-align: center; }
+}
+
 .convertGroup{ min-width: 160px; }
 .convertGroupWide{ min-width: 280px; }
 

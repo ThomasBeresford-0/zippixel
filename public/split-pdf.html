@@ -1,12 +1,11 @@
-<!-- public/split-pdf.html — PDFOperations (v1 - FULL RAMBO SPLIT PAGE + PAGE DRAG UI READY)
+<!-- public/split-pdf.html — PDFOperations (v2 - FULL RAMBO SPLIT + CHECKOUT MODAL INCLUDED)
      ✅ Dedicated SEO landing page for "split pdf"
      ✅ Preselects split_pdf mode
      ✅ Keeps ALL app.js IDs unchanged
-     ✅ Includes page thumbnail grid + drag UI container (pdfReorderWrap/pdfThumbGrid) for post-upload control
-     ✅ Stripe modal untouched (handled by app.js on /success flow)
+     ✅ Includes page thumbnail grid containers (pdfReorderWrap/pdfThumbGrid)
+     ✅ Includes FULL checkout modal markup (required for app.js to actually proceed)
+     ✅ Uses pdf.js for thumbnails
      ✅ No backend changes required to deploy this page
-     ⚠️ NOTE: This page includes the drag/reorder UI for pages. If your current app.js only enables page thumbnails in merge mode,
-        we’ll update app.js next to enable the same thumbnail + drag UX for split mode (single PDF).
 -->
 <!doctype html>
 <html lang="en">
@@ -27,6 +26,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/split-pdf" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
+  <meta property="og:image:alt" content="PDFOperations — Split PDF" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
@@ -37,7 +37,8 @@
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
-  <link rel="stylesheet" href="/style.css?v=29" />
+  <!-- IMPORTANT: keep version in sync with your deployed stylesheet -->
+  <link rel="stylesheet" href="/style.css?v=33" />
 </head>
 
 <body class="premium" data-tool="split_pdf">
@@ -96,6 +97,9 @@
           <input type="radio" name="mode" id="modeSplitPdf" checked>
         </fieldset>
 
+        <!-- Convert + CompressPDF rows (optional in app.js, but safe if omitted)
+             We leave them out cleanly on this dedicated page. -->
+
         <!-- DROPZONE -->
         <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
 
@@ -106,11 +110,11 @@
 
             <div class="filePick">
               <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
-              <input id="files" type="file" accept="application/pdf" />
+              <input id="files" type="file" accept="application/pdf,.pdf" />
             </div>
 
             <div class="dzFine">
-              You can preview pages before splitting. Checkout appears only when you request download.
+              Preview pages before splitting. Checkout appears only when you request download.
             </div>
           </div>
 
@@ -133,11 +137,6 @@
 
               <!-- pdfThumbGrid is where app.js/pdf.js renders thumbnails -->
               <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
-
-              <!-- Extra UX copy (no new JS required) -->
-              <div class="fineprint" style="margin-top:12px;">
-                Tip: If you only need a few pages (e.g., 3–7), we’ll add page-range extraction next.
-              </div>
             </div>
           </div>
 
@@ -167,7 +166,7 @@
 
       </div>
 
-      <!-- BELOW FOLD: TRUST + FAQ (keeps page “complete” for SEO) -->
+      <!-- BELOW FOLD: TRUST + FAQ -->
       <section class="section sectionSupport" style="padding-top: 18px;">
         <div class="container">
           <div class="supportCard">
@@ -197,7 +196,7 @@
                 <div class="stepNum">3</div>
                 <div class="stepBody">
                   <div class="stepTitle">Reorder output</div>
-                  <div class="stepText">Drag pages to set the output order (perfect for re-assembling later).</div>
+                  <div class="stepText">Drag pages to set the output order before continuing.</div>
                 </div>
               </div>
             </div>
@@ -218,14 +217,14 @@
               <details class="faqItemPro">
                 <summary>Does this split every page?</summary>
                 <div class="faqBodyPro">
-                  Yes — the download is a ZIP containing one PDF per page. (Next up: extract a page range like 3–7.)
+                  Yes — the download is a ZIP containing one PDF per page.
                 </div>
               </details>
 
               <details class="faqItemPro">
                 <summary>Can I reorder pages before splitting?</summary>
                 <div class="faqBodyPro">
-                  Yes — use the page preview grid to drag pages into the order you want before continuing.
+                  Yes — drag pages in the preview grid to set the output order.
                 </div>
               </details>
 
@@ -269,6 +268,76 @@
   </div>
 </footer>
 
+<!-- =========================================================
+     CHECKOUT MODAL (REQUIRED for app.js continue → checkout flow)
+     Keep IDs EXACTLY as app.js expects
+========================================================= -->
+<div class="modalOverlay" id="priceModal" aria-hidden="true">
+  <div class="modalCard premiumModal">
+    <div class="modalTop">
+      <div class="modalTitle">Checkout</div>
+      <button class="modalClose" id="modalCloseBtn" type="button">Close</button>
+    </div>
+
+    <div class="modalBody">
+      <p class="modalLead" id="priceModalLead">Review your upload.</p>
+
+      <div class="modalSummary">
+        <div>
+          <div class="modalSummaryKicker">Selected</div>
+          <div class="modalSummaryMain">
+            <span id="countInline">0</span> file(s) • <span id="tierInline">Split PDF</span>
+          </div>
+        </div>
+        <div class="modalSummaryAmt" id="priceInline">£0.00</div>
+      </div>
+
+      <div class="priceGrid">
+        <div class="priceRow isChosen" id="rowStandard">
+          <div class="priceName">ZIP (up to 10 files)</div>
+          <div class="priceAmt">£2.99</div>
+        </div>
+
+        <div class="priceRow" id="rowPro">
+          <div class="priceName">Pro ZIP (up to 50 files)</div>
+          <div class="priceAmt">£9.99</div>
+        </div>
+
+        <div class="priceRow" id="rowShare">
+          <div>
+            <div class="priceName">Share link</div>
+            <div class="priceDesc">Send one link instead of attachments.</div>
+          </div>
+          <div class="priceAmt">
+            <label>
+              <input type="checkbox" id="optShareLink" />
+              +£2.49
+            </label>
+          </div>
+        </div>
+
+        <!-- Legacy hidden options (keep IDs for app.js compatibility) -->
+        <div style="display:none">
+          <input type="checkbox" id="optPrintReady" />
+          <input type="checkbox" id="optEmailSafe" />
+          <input type="checkbox" id="optKeepNames" />
+          <input type="checkbox" id="optListingNames" />
+          <input type="checkbox" id="optDayPass" />
+        </div>
+      </div>
+
+      <div class="modalNote" id="priceModalNote">
+        You’ll be redirected to secure Stripe Checkout.
+      </div>
+    </div>
+
+    <div class="modalFoot">
+      <button class="btnSoft" id="modalBackBtn" type="button">Back</button>
+      <button class="btnPrimary btnStrong" id="modalPayBtn" type="button">Pay & continue →</button>
+    </div>
+  </div>
+</div>
+
 <!-- pdf.js (needed for thumbnails) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
@@ -276,6 +345,7 @@
     "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 </script>
 
-<script src="/app.js?v=17.3" defer></script>
+<!-- IMPORTANT: keep version in sync with your deployed app.js -->
+<script src="/app.js?v=17.4" defer></script>
 </body>
 </html>

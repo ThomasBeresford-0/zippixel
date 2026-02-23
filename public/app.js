@@ -1,5 +1,5 @@
-// public/app.js — ZipPixel frontend (v17.4 - PRO COPY CLEANUP + NO INLINE “TIP” STYLING)
-// Matches: index.html IDs + server.js routes:
+// public/app.js — PDFOperations frontend (v17.5 - PRESET BUTTONS + PAGE-AWARE MODES + CLEAN COPY)
+// Matches: index.html + compress-pdf.html IDs + server.js routes:
 // /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/jobs/:jobId/mode, /api/checkout
 (() => {
   // ====== YEAR ======
@@ -40,7 +40,7 @@
   const progressLabel = document.getElementById("progressLabel");
   const progressMeta = document.getElementById("progressMeta");
 
-  // Optional dropzone copy hooks (added in index.html)
+  // Optional dropzone copy hooks
   const dzTitleEl = document.getElementById("dzTitle");
   const dzSubEl = document.getElementById("dzSub");
   const dzAfterEl = document.getElementById("dzAfter"); // may not exist
@@ -68,7 +68,7 @@
   const priceModalLead = document.getElementById("priceModalLead");
   const priceModalNote = document.getElementById("priceModalNote");
 
-  // Mode UI (optional; only exists on index)
+  // Mode UI (exists on index; hidden radios exist on tool pages)
   const modeCompress = document.getElementById("modeCompress");
   const modeCompressPdf = document.getElementById("modeCompressPdf");
   const modeConvert = document.getElementById("modeConvert");
@@ -79,15 +79,21 @@
   const convertFrom = document.getElementById("convertFrom"); // informational
   const convertTarget = document.getElementById("convertTarget");
 
-  // Compress PDF controls (index.html)
+  // Compress PDF controls
   const pdfCompressRow = document.getElementById("pdfCompressRow");
   const pdfCompressLevel = document.getElementById("pdfCompressLevel");
+
+  // Presets on compress-pdf page (and can exist elsewhere)
+  const presetButtons = Array.from(document.querySelectorAll("[data-preset-level]"));
 
   // PDF reorder UI
   let pdfPageOrder = [];
   let pdfDocRef = null;
   const pdfReorderWrap = document.getElementById("pdfReorderWrap");
   const pdfThumbGrid = document.getElementById("pdfThumbGrid");
+
+  // Page tool hint (optional)
+  const pageTool = (document.body?.dataset?.tool || "").trim(); // e.g. "compress_pdf"
 
   // If this page doesn’t have the tool, bail quietly
   if (!dropzone || !filesEl || !chooseBtn || !uploadBtn || !continueBtn) return;
@@ -111,13 +117,13 @@
 
   // ====== UX MEMORY (localStorage) ======
   const LS = {
-    lastMode: "zp:lastMode",
-    lastTarget: "zp:lastTarget",
-    lastPdfLevel: "zp:lastPdfLevel",
-    sharePref: "zp:sharePref",       // "on" | "off"
-    shareSeen: "zp:shareSeen",       // "1" once they've seen the modal
-    lastJob: "zp:lastJobId",
-    lastFilesCount: "zp:lastFilesCount"
+    lastMode: "po:lastMode",
+    lastTarget: "po:lastTarget",
+    lastPdfLevel: "po:lastPdfLevel",
+    sharePref: "po:sharePref",       // "on" | "off"
+    shareSeen: "po:shareSeen",       // "1" once they've seen the modal
+    lastJob: "po:lastJobId",
+    lastFilesCount: "po:lastFilesCount"
   };
 
   // ====== HELPERS ======
@@ -302,7 +308,7 @@
     return null;
   };
 
-  // ====== SHARE DEFAULT (kept, but copy de-hyped) ======
+  // ====== SHARE DEFAULT ======
   const shouldRecommendShare = () => {
     const n = selected.length;
     const totalBytes = selected.reduce((a, f) => a + (f?.size || 0), 0);
@@ -501,6 +507,7 @@
                 )
             )
       );
+
       setDropzoneCopy();
       setFileInputAccept();
       setPrimaryStates();
@@ -568,8 +575,66 @@
     renderSelected();
   });
 
+  // ====== PRESETS (compress PDF page) ======
+  const normalizePdfLevel = (lvl) => {
+    const v = String(lvl || "").toLowerCase().trim();
+    if (v === "max" || v === "maximum") return "max";
+    if (v === "light") return "light";
+    return "balanced";
+  };
+
+  const setPresetActive = (lvl) => {
+    if (!presetButtons.length) return;
+    const wanted = normalizePdfLevel(lvl);
+
+    presetButtons.forEach((btn) => {
+      const bLvl = normalizePdfLevel(btn.getAttribute("data-preset-level"));
+      const active = bLvl === wanted;
+      btn.classList.toggle("isActive", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+  };
+
+  const applyPdfLevel = (lvl, reason) => {
+    const next = normalizePdfLevel(lvl);
+    pdfCompressLevelValue = next;
+
+    if (pdfCompressLevel) pdfCompressLevel.value = next;
+    safeLocalSet(LS.lastPdfLevel, next);
+    setPresetActive(next);
+
+    if (reason && (uploadedMeta.length || jobId)) {
+      hardResetJob(`${reason} — please upload again.`);
+    }
+
+    setDropzoneCopy();
+    setPrimaryStates();
+    renderSelected();
+  };
+
+  presetButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      // Only meaningful in compress_pdf mode; ignore elsewhere safely
+      const lvl = btn.getAttribute("data-preset-level");
+      applyPdfLevel(lvl, "Preset changed");
+    });
+  });
+
   // ====== MODE SYNC ======
+  const enforceModeFromPage = () => {
+    // If the page declares a tool, force the correct hidden radio state.
+    // (compress-pdf.html has hidden radios; we keep IDs unchanged)
+    if (!pageTool) return;
+
+    if (pageTool === "compress_pdf" && modeCompressPdf) {
+      modeCompressPdf.checked = true;
+    }
+    // If you later add data-tool="merge_pdf" etc., you can extend here.
+  };
+
   const syncMode = () => {
+    enforceModeFromPage();
+
     const isCompressPdf = !!modeCompressPdf?.checked;
     const isConvert = !!modeConvert?.checked;
     const isMerge = !!modeMergePdf?.checked;
@@ -670,16 +735,7 @@
   });
 
   pdfCompressLevel?.addEventListener("change", () => {
-    pdfCompressLevelValue = pdfCompressLevel?.value || "balanced";
-    safeLocalSet(LS.lastPdfLevel, pdfCompressLevelValue);
-
-    if (uploadedMeta.length || jobId) {
-      hardResetJob("Compression level changed — please upload again.");
-    }
-
-    setDropzoneCopy();
-    setPrimaryStates();
-    renderSelected();
+    applyPdfLevel(pdfCompressLevel?.value || "balanced", "Compression level changed");
   });
 
   const restoreModePrefs = () => {
@@ -693,12 +749,18 @@
 
     if (savedPdfLevel && pdfCompressLevel) {
       pdfCompressLevel.value = savedPdfLevel;
-      pdfCompressLevelValue = savedPdfLevel;
+      pdfCompressLevelValue = normalizePdfLevel(savedPdfLevel);
     } else {
-      pdfCompressLevelValue = pdfCompressLevel?.value || "balanced";
+      pdfCompressLevelValue = normalizePdfLevel(pdfCompressLevel?.value || "balanced");
     }
 
-    if (savedMode && (modeCompress || modeCompressPdf || modeConvert || modeMergePdf || modeSplitPdf)) {
+    // Only restore lastMode if we're on the index (tabs exist).
+    // Tool pages should force their own mode via data-tool.
+    const onTabbedIndex =
+      !!(modeCompress && modeCompressPdf && modeConvert && modeMergePdf && modeSplitPdf) &&
+      !pageTool; // no data-tool on index
+
+    if (onTabbedIndex && savedMode) {
       if (savedMode === "merge_pdf" && modeMergePdf) modeMergePdf.checked = true;
       else if (savedMode === "split_pdf" && modeSplitPdf) modeSplitPdf.checked = true;
       else if (savedMode === "compress_pdf" && modeCompressPdf) modeCompressPdf.checked = true;
@@ -708,6 +770,8 @@
   };
 
   restoreModePrefs();
+  // Ensure preset pills show correct active state on load (if present)
+  setPresetActive(pdfCompressLevelValue);
   syncMode();
 
   // ====== JOB CREATION ======
@@ -1180,7 +1244,14 @@
   continueBtn.textContent = "Continue →";
   continueBtn.style.display = "";
 
-  pdfCompressLevelValue = pdfCompressLevel?.value || safeLocalGet(LS.lastPdfLevel) || "balanced";
+  pdfCompressLevelValue = normalizePdfLevel(
+    pdfCompressLevel?.value ||
+    safeLocalGet(LS.lastPdfLevel) ||
+    "balanced"
+  );
+
+  // Ensure preset highlight matches selected level
+  setPresetActive(pdfCompressLevelValue);
 
   setStatus("Ready");
   setHint("Choose a mode and add files.");

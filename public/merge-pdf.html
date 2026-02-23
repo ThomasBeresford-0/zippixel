@@ -1,9 +1,9 @@
-<!-- public/merge-pdf.html — PDFOperations (v1 - HIGH-INTENT MERGE PAGE)
+<!-- public/merge-pdf.html — PDFOperations (v2 - HIGH-INTENT MERGE PAGE + REORDER READY)
      ✅ Dedicated SEO landing page for "merge pdf"
-     ✅ Preselects merge_pdf mode
+     ✅ Preselects merge_pdf mode (hidden radios)
      ✅ Keeps ALL app.js IDs unchanged
-     ✅ Keeps page reordering functionality
-     ✅ Keeps Stripe modal untouched
+     ✅ Keeps page reordering UI hooks (#pdfReorderWrap / #pdfThumbGrid)
+     ✅ Keeps Stripe modal untouched (modal lives on index; app.js safe without it)
      ✅ No backend changes required
 -->
 <!doctype html>
@@ -25,6 +25,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/merge-pdf" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
+  <meta property="og:image:alt" content="PDFOperations — Merge PDF" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
@@ -35,133 +36,213 @@
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
+  <!-- Fonts (match index) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="/style.css?v=29" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "PDFOperations",
+    "url": "https://pdfoperations.com/merge-pdf",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "All",
+    "description": "Merge PDF files online instantly. Combine multiple PDF documents into one file. Drag to reorder pages and download when ready.",
+    "browserRequirements": "Requires JavaScript. Works in modern browsers."
+  }
+  </script>
 </head>
 
 <body class="premium" data-tool="merge_pdf">
 
+<a href="#tool" class="srOnly">Skip to the tool</a>
+
 <header class="nav">
   <div class="container navInner">
-    <a class="brand" href="/">
+    <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/favicon.svg" width="26" height="26" alt="">
       <span>PDFOperations</span>
     </a>
     <nav class="navLinks">
       <a href="/">All tools</a>
       <a href="/compress-pdf">Compress PDF</a>
+      <a href="/split-pdf">Split PDF</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
+      <a href="#tool" class="navCta">Start</a>
     </nav>
   </div>
 </header>
 
 <main>
 
-<section class="hero heroPremium heroToolFirst">
-  <div class="container heroWide">
+  <section class="hero heroPremium heroToolFirst">
+    <div class="container heroWide">
 
-    <div id="tool" class="tool toolPremium toolMega">
+      <div id="tool" class="tool toolPremium toolMega">
 
-      <!-- HEADLINE -->
-      <div class="toolHead toolHeadMinimal">
-        <h1 class="toolTitle">
-          Merge PDF Files Online
-        </h1>
-        <p class="toolSub">
-          Combine multiple PDF documents into one file. Drag to reorder pages and download your merged PDF when ready.
-        </p>
-      </div>
+        <!-- HEADLINE -->
+        <div class="toolHead toolHeadMinimal">
+          <h1 class="toolTitle">Merge PDF Files</h1>
+          <p class="toolSub">
+            Combine multiple PDFs into a single file. Upload your PDFs, reorder pages, then download when ready.
+          </p>
 
-      <!-- STATUS -->
-      <div class="statusWrap">
-        <div class="statusLeft">
-          <div class="status" id="status">Ready</div>
-          <div class="spinner" id="spinner"></div>
-        </div>
-        <div class="statusHint" id="statusHint">
-          Add two or more PDF files to begin merging.
-        </div>
-      </div>
-
-      <!-- HIDDEN MODE INPUTS (REQUIRED FOR JS) -->
-      <fieldset class="modeRow" style="display:none;">
-        <input type="radio" name="mode" id="modeCompress">
-        <input type="radio" name="mode" id="modeCompressPdf">
-        <input type="radio" name="mode" id="modeConvert">
-        <input type="radio" name="mode" id="modeMergePdf" checked>
-        <input type="radio" name="mode" id="modeSplitPdf">
-      </fieldset>
-
-      <!-- DROPZONE -->
-      <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
-
-        <div class="dzCenter">
-          <div class="dzIcon"><span class="dzArrow">↑</span></div>
-          <div class="dzTitle" id="dzTitle">Drop PDF files here</div>
-          <div class="dzSub" id="dzSub">Drag & drop or select multiple PDF files</div>
-
-          <div class="filePick">
-            <button class="btnPrimary btnLarge" id="chooseBtn" type="button">
-              Select PDFs
-            </button>
-            <input id="files" type="file" accept="application/pdf" multiple />
-          </div>
-
-          <div class="dzFine">
-            Add at least two PDF files. You can reorder pages before download.
+          <!-- Optional trust pills (styled in your CSS; harmless if unused) -->
+          <div class="trustBar" aria-label="Trust indicators">
+            <div class="trustPill">No signup</div>
+            <div class="trustPill">PDFs only</div>
+            <div class="trustPill">Reorder pages</div>
+            <div class="trustPill">Pay only at download</div>
           </div>
         </div>
 
-        <!-- FILE META (REQUIRED FOR REORDER) -->
-        <div class="fileMeta" id="fileMeta" hidden>
-          <div class="fileMetaTop">
-            <div class="fileSummary" id="fileSummary"></div>
-            <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+        <!-- STATUS -->
+        <div class="statusWrap">
+          <div class="statusLeft">
+            <div class="status" id="status">Ready</div>
+            <div class="spinner" id="spinner"></div>
           </div>
-          <ol class="fileList" id="fileList"></ol>
+          <div class="statusHint" id="statusHint">
+            Add <b>2+</b> PDFs to begin merging.
+          </div>
+        </div>
 
-          <!-- PAGE REORDER WRAP (IMPORTANT FOR MERGE MODE) -->
-          <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
-            <div class="pdfReorderHead">
-              <div class="pdfReorderTitle">Reorder pages</div>
-              <div class="pdfReorderSub">
-                Drag pages to control the final document order.
-              </div>
+        <!-- REQUIRED MODE INPUTS (hidden, but must exist for app.js) -->
+        <fieldset style="display:none;">
+          <input type="radio" name="mode" id="modeCompress">
+          <input type="radio" name="mode" id="modeCompressPdf">
+          <input type="radio" name="mode" id="modeConvert">
+          <input type="radio" name="mode" id="modeMergePdf" checked>
+          <input type="radio" name="mode" id="modeSplitPdf">
+        </fieldset>
+
+        <!-- REQUIRED rows for app.js safety (hidden on this page) -->
+        <div id="pdfCompressRow" style="display:none;">
+          <select id="pdfCompressLevel">
+            <option value="balanced" selected>Balanced</option>
+            <option value="light">Light</option>
+            <option value="max">Maximum</option>
+          </select>
+        </div>
+
+        <div id="convertRow" style="display:none;">
+          <select id="convertFrom">
+            <option value="auto" selected>Auto detect</option>
+          </select>
+          <select id="convertTarget">
+            <option value="jpg" selected>JPG</option>
+          </select>
+        </div>
+
+        <!-- DROPZONE -->
+        <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
+
+          <div class="dzCenter">
+            <div class="dzIcon"><span class="dzArrow">↑</span></div>
+            <div class="dzTitle" id="dzTitle">Drop PDFs here</div>
+            <div class="dzSub" id="dzSub">PDFs only • Add 2 or more</div>
+
+            <div class="filePick">
+              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDFs</button>
+              <input id="files" type="file" accept="application/pdf,.pdf" multiple />
             </div>
-            <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
+
+            <div class="dzFine">
+              Tip: if you add the wrong file, remove it from the list below.
+            </div>
           </div>
+
+          <!-- FILE META -->
+          <div class="fileMeta" id="fileMeta" hidden>
+            <div class="fileMetaTop">
+              <div class="fileSummary" id="fileSummary"></div>
+              <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+            </div>
+
+            <ol class="fileList" id="fileList"></ol>
+
+            <!-- PAGE REORDER WRAP (merge mode UI hooks used by app.js) -->
+            <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
+              <div class="pdfReorderHead">
+                <div class="pdfReorderTitle">Reorder pages</div>
+                <div class="pdfReorderSub">Drag pages to control the final document order.</div>
+              </div>
+              <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
+            </div>
+          </div>
+
         </div>
 
-      </div>
-
-      <!-- PROGRESS -->
-      <div class="progressWrap" id="progressWrap" hidden>
-        <div class="progressTop">
-          <div id="progressLabel">Uploading…</div>
-          <div id="progressPct">0%</div>
+        <!-- PROGRESS -->
+        <div class="progressWrap" id="progressWrap" hidden>
+          <div class="progressTop">
+            <div id="progressLabel">Uploading…</div>
+            <div id="progressPct">0%</div>
+          </div>
+          <div class="progressBar">
+            <div class="progressFill" id="progressFill"></div>
+          </div>
+          <div id="progressMeta"></div>
         </div>
-        <div class="progressBar">
-          <div class="progressFill" id="progressFill"></div>
+
+        <!-- ACTIONS -->
+        <div class="actionRow actionRowWide">
+          <button class="btnSoft" id="upload" disabled>Upload PDFs</button>
+          <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
         </div>
-        <div id="progressMeta"></div>
-      </div>
 
-      <!-- ACTIONS -->
-      <div class="actionRow actionRowWide">
-        <button class="btnSoft" id="upload" disabled>Upload files</button>
-        <button class="btnPrimary btnStrong" id="continue" disabled>
-          Continue →
-        </button>
-      </div>
+        <div class="fineprint">
+          No signup. Prepare first. Pay only when you request the download.
+        </div>
 
-      <div class="fineprint">
-        No signup. Prepare first. Pay only when you request the download.
       </div>
 
     </div>
+  </section>
 
-  </div>
-</section>
+  <!-- OPTIONAL SUPPORT SECTION (keeps the page looking “finished” without new JS hooks) -->
+  <section class="section sectionSupport" id="how">
+    <div class="container">
+      <div class="supportCard">
+        <div class="supportHead">
+          <h2>How merging works</h2>
+          <p class="supportSub">Upload PDFs, reorder pages, then download the merged file. Checkout only appears when you request the download.</p>
+        </div>
+
+        <div class="supportGrid">
+          <div class="supportStep">
+            <div class="stepNum">1</div>
+            <div class="stepBody">
+              <div class="stepTitle">Add 2+ PDFs</div>
+              <div class="stepText">Drag & drop or select your files. PDFs only.</div>
+            </div>
+          </div>
+
+          <div class="supportStep">
+            <div class="stepNum">2</div>
+            <div class="stepBody">
+              <div class="stepTitle">Reorder pages</div>
+              <div class="stepText">Use the page grid to set the final order.</div>
+            </div>
+          </div>
+
+          <div class="supportStep">
+            <div class="stepNum">3</div>
+            <div class="stepBody">
+              <div class="stepTitle">Download when ready</div>
+              <div class="stepText">Pay only when you request the download.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
 
 </main>
 
@@ -172,17 +253,20 @@
         <img src="/favicon.svg" width="18" height="18" alt="">
         <span>PDFOperations</span>
       </div>
-      <div class="footerNote">
-        Secure PDF merging online.
-      </div>
+      <div class="footerNote">Secure PDF merging online.</div>
+    </div>
+    <div class="footerRight">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
     </div>
   </div>
 </footer>
 
+<!-- pdf.js required for thumbnails -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 </script>
 
 <script src="/app.js?v=17.3" defer></script>
