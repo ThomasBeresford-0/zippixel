@@ -347,12 +347,36 @@ app.get("/health", (_, res) => {
 // ====== STATIC ======
 app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
 
-["/", "/success", "/cancel", "/privacy", "/terms", "/pricing"].forEach((route) => {
-  app.get(route, (_, res) =>
-    res.sendFile(
-      path.join(PUBLIC_DIR, route === "/" ? "index.html" : `${route.slice(1)}.html`)
-    )
-  );
+// Core pages
+[
+  { route: "/", file: "index.html" },
+  { route: "/success", file: "success.html" },
+  { route: "/cancel", file: "cancel.html" },
+  { route: "/privacy", file: "privacy.html" },
+  { route: "/terms", file: "terms.html" },
+  { route: "/pricing", file: "pricing.html" }
+].forEach(({ route, file }) => {
+  app.get(route, (_, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, file));
+  });
+});
+
+// ====== SEO TOOL PAGES ======
+const TOOL_PAGES = [
+  "compress-pdf",
+  "merge-pdf",
+  "split-pdf",
+  "pdf-to-jpg",
+  "jpg-to-pdf",
+  "rotate-pdf",
+  "reduce-pdf-size",
+  "compress-pdf-to-5mb"
+];
+
+TOOL_PAGES.forEach((slug) => {
+  app.get(`/${slug}`, (_, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, `${slug}.html`));
+  });
 });
 
 // ====== API ======
