@@ -243,11 +243,19 @@ strong,b{ font-weight: 800; }
 }
 
 .hero h1{
-  margin: 0;
-  font-size: clamp(34px, 4.2vw, 62px);
-  letter-spacing: -0.07em;
-  line-height: 1.02;
-  font-weight: 950;
+  margin: 0 auto;
+  max-width: 1100px;
+  font-size: clamp(32px, 3.5vw, 52px);
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  font-weight: 900;
+  text-align: center;
+}
+
+.heroSub{
+  max-width: 720px;
+  margin: 14px auto 0;
+  text-align: center;
 }
 
 .heroSub{
