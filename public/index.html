@@ -1,20 +1,20 @@
-<!-- public/index.html — PDFOperations (Enterprise Landing Upgrade) -->
+<!-- public/index.html — PDFOperations (Platform Landing v34) -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Compress PDF Online — Fast, Secure & Professional | PDFOperations</title>
-  <meta name="description" content="Compress PDF files online. Reduce file size for email, portals and uploads. Secure processing. No signup required." />
+  <title>PDFOperations — Professional PDF Tools Online</title>
+  <meta name="description" content="Professional online PDF tools. Compress, merge, split, convert and optimise documents securely. No account required." />
   <link rel="canonical" href="https://pdfoperations.com/" />
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light" />
 
-  <meta property="og:title" content="Compress PDF Online — Fast, Secure & Professional" />
-  <meta property="og:description" content="Reduce PDF file size instantly. Secure processing. No signup required." />
+  <meta property="og:title" content="PDFOperations — Professional PDF Tools Online" />
+  <meta property="og:description" content="Compress, merge, split and convert PDF files securely in seconds." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
@@ -37,7 +37,7 @@
     </a>
 
     <nav class="navLinks">
-      <a href="/" aria-current="page">Compress PDF</a>
+      <a href="/" aria-current="page">Compress</a>
       <a href="/merge-pdf.html">Merge</a>
       <a href="/split-pdf.html">Split</a>
       <a href="/convert.html">Convert</a>
@@ -58,21 +58,23 @@
 
     <div class="heroIntro">
       <h1 class="heroTitle">
-        Compress PDF Files Instantly
+        Professional PDF Tools.
+        <br>
+        Clean. Fast. Secure.
       </h1>
       <p class="heroTag">
-        Reduce file size for email, portals and client delivery.
-        Professional compression with zero clutter.
+        Compress, merge, split, convert and optimise PDF files directly in your browser.
+        Built for everyday workflows — email, portals, client delivery.
       </p>
     </div>
 
-    <!-- TOOL -->
+    <!-- PRIMARY TOOL (Compress) -->
     <div id="tool" class="tool toolPremium toolMega">
 
       <div class="toolHead toolHeadMinimal">
-        <h2 class="toolTitle">Upload your PDF</h2>
+        <h2 class="toolTitle">Compress PDF</h2>
         <p class="toolSub">
-          Choose your compression level and optimise your document in seconds.
+          Reduce file size while maintaining clarity and layout.
         </p>
       </div>
 
@@ -84,6 +86,7 @@
         <div class="statusHint" id="statusHint">Upload one PDF to begin.</div>
       </div>
 
+      <!-- Hidden mode controls (JS compatibility preserved) -->
       <fieldset style="display:none;">
         <input type="radio" name="mode" id="modeCompress">
         <input type="radio" name="mode" id="modeCompressPdf" checked>
@@ -92,6 +95,7 @@
         <input type="radio" name="mode" id="modeSplitPdf">
       </fieldset>
 
+      <!-- Presets -->
       <div class="presetRow">
         <div class="presetLabel">Common limits:</div>
         <div class="presetButtons">
@@ -102,6 +106,7 @@
         </div>
       </div>
 
+      <!-- Compression Controls -->
       <div class="convertRow convertRowPremium convertRowFull" id="pdfCompressRow">
         <div class="convertGroup convertGroupWide">
           <div class="convertLabel">Compression level</div>
@@ -116,11 +121,7 @@
         </div>
       </div>
 
-      <div id="convertRow" style="display:none;">
-        <select id="convertFrom"></select>
-        <select id="convertTarget"></select>
-      </div>
-
+      <!-- Dropzone -->
       <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
         <div class="dzCenter">
           <div class="dzIcon"><span class="dzArrow">↑</span></div>
@@ -142,6 +143,7 @@
         </div>
       </div>
 
+      <!-- Progress -->
       <div class="progressWrap" id="progressWrap" hidden>
         <div class="progressTop">
           <div id="progressLabel">Uploading…</div>
@@ -158,50 +160,65 @@
         <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
       </div>
 
-      <div class="fineprint">
-        Secure compression. Clean interface.
-      </div>
-
     </div>
 
   </div>
 </section>
 
-<!-- TRUST STRIP -->
-<section class="trustStrip">
-  <div class="container trustInner">
-    <div class="trustItem">
-      <strong>Secure Processing</strong>
-      <span>Your documents are handled safely.</span>
-    </div>
-    <div class="trustItem">
-      <strong>No Signup</strong>
-      <span>Compress instantly without creating an account.</span>
-    </div>
-    <div class="trustItem">
-      <strong>Professional Quality</strong>
-      <span>Balanced, Light or Maximum compression.</span>
-    </div>
-  </div>
-</section>
+<!-- TOOL OVERVIEW -->
+<section class="sectionSupport">
+  <div class="container">
+    <div class="supportCard">
 
-<!-- HOW IT WORKS -->
-<section class="infoSection">
-  <div class="container infoInner">
-    <h2>How it works</h2>
-    <div class="infoGrid">
-      <div>
-        <h3>Upload</h3>
-        <p>Select your PDF and choose a compression level.</p>
+      <div class="supportHead">
+        <h2>All PDF Tools</h2>
+        <p class="supportSub">
+          A complete set of essential PDF operations — built for speed and everyday document workflows.
+        </p>
       </div>
-      <div>
-        <h3>Optimise</h3>
-        <p>Your file is processed and reduced in size.</p>
+
+      <div class="supportGrid">
+        <a href="/" class="supportStep">
+          <div class="stepNum">1</div>
+          <div>
+            <div class="stepTitle">Compress PDF</div>
+            <div class="stepText">Reduce file size for email and uploads.</div>
+          </div>
+        </a>
+
+        <a href="/merge-pdf.html" class="supportStep">
+          <div class="stepNum">2</div>
+          <div>
+            <div class="stepTitle">Merge PDF</div>
+            <div class="stepText">Combine multiple PDFs into one document.</div>
+          </div>
+        </a>
+
+        <a href="/split-pdf.html" class="supportStep">
+          <div class="stepNum">3</div>
+          <div>
+            <div class="stepTitle">Split PDF</div>
+            <div class="stepText">Extract pages or divide large documents.</div>
+          </div>
+        </a>
+
+        <a href="/convert.html" class="supportStep">
+          <div class="stepNum">4</div>
+          <div>
+            <div class="stepTitle">Convert</div>
+            <div class="stepText">Convert between PDF and common formats.</div>
+          </div>
+        </a>
+
+        <a href="/rotate-pdf.html" class="supportStep">
+          <div class="stepNum">5</div>
+          <div>
+            <div class="stepTitle">Rotate PDF</div>
+            <div class="stepText">Correct orientation in seconds.</div>
+          </div>
+        </a>
       </div>
-      <div>
-        <h3>Download</h3>
-        <p>Get your smaller PDF ready for email or upload.</p>
-      </div>
+
     </div>
   </div>
 </section>
@@ -216,7 +233,7 @@
         <span>PDFOperations</span>
       </div>
       <div class="footerNote">
-        Professional PDF tools built for speed and clarity.
+        Professional PDF tools for modern workflows.
       </div>
     </div>
     <div class="footerRight">
