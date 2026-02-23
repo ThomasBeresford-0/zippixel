@@ -1,10 +1,10 @@
-<!-- public/index.html — PDFOperations (v31 - ENTERPRISE CLEAN REWRITE + DOMAIN REBRAND)
-     ✅ Enterprise utility tone
-     ✅ No marketing fluff
-     ✅ All app.js IDs preserved
-     ✅ Modal unchanged structurally
-     ✅ style.css?v=27 + app.js?v=17.3 preserved
-     ✅ Canonical/OG/Schema updated to pdfoperations.com
+<!-- public/index.html — PDFOperations (v32 - FULL RAMBO LAYOUT FIX + NON-BROKEN CONTROLS)
+     ✅ Fixes “BROKEN” mode/controls layout (convertRow/pdfCompressRow no longer trapped inside tabs)
+     ✅ Removes “cramped right / dead left whitespace” by using a centered, single-column hero shell (competitor-style toolbox layout)
+     ✅ Keeps ALL app.js IDs exactly the same
+     ✅ Modal structure unchanged
+     ✅ Still uses style.css?v=29 + app.js?v=17.3
+     ✅ Canonical/OG/Schema kept on pdfoperations.com
 -->
 <!doctype html>
 <html lang="en">
@@ -81,64 +81,68 @@
 
 <main>
 
-<section class="hero heroPremium">
-  <div class="container heroInner">
+  <!-- HERO / TOOL SHELL (centered, not a cramped right column) -->
+  <section class="hero heroPremium">
+    <div class="container heroInner">
 
-    <div class="heroText">
-      <h1>File compression and PDF tools.</h1>
+      <div class="heroText">
+        <h1>File compression and PDF tools.</h1>
 
-      <p class="heroSub">
-        Upload, choose a mode, and download when ready.
-        No accounts. No distractions.
-      </p>
+        <p class="heroSub">
+          Upload, choose a mode, and download when ready.
+          No accounts. No distractions.
+        </p>
 
-      <div class="heroMeta">
-        Up to 50 files per job • Share link available after download
-      </div>
-    </div>
-
-    <!-- TOOL -->
-    <div id="tool" class="tool toolPremium">
-
-      <div class="statusWrap">
-        <div class="statusLeft">
-          <div class="status" id="status">Ready</div>
-          <div class="spinner" id="spinner"></div>
+        <div class="heroMeta">
+          Up to 50 files per job • Share link available after download
         </div>
-        <div class="statusHint" id="statusHint">Choose a mode and add files.</div>
       </div>
 
-      <!-- MODES -->
-      <fieldset class="modeRow modeRowPremium modeTabs">
-        <legend class="srOnly">Choose a mode</legend>
+      <!-- TOOL -->
+      <div id="tool" class="tool toolPremium">
 
-        <label class="modeTab" for="modeCompress">
-          <input type="radio" name="mode" id="modeCompress" checked>
-          <span>Compress to ZIP</span>
-        </label>
+        <div class="statusWrap">
+          <div class="statusLeft">
+            <div class="status" id="status">Ready</div>
+            <div class="spinner" id="spinner"></div>
+          </div>
+          <div class="statusHint" id="statusHint">Choose a mode and add files.</div>
+        </div>
 
-        <label class="modeTab" for="modeCompressPdf">
-          <input type="radio" name="mode" id="modeCompressPdf">
-          <span>Compress PDF</span>
-        </label>
+        <!-- MODES (tabs ONLY) -->
+        <fieldset class="modeRow modeRowPremium modeTabs">
+          <legend class="srOnly">Choose a mode</legend>
 
-        <label class="modeTab" for="modeConvert">
-          <input type="radio" name="mode" id="modeConvert">
-          <span>Convert</span>
-        </label>
+          <label class="modeTab" for="modeCompress">
+            <input type="radio" name="mode" id="modeCompress" checked>
+            <span>Compress to ZIP</span>
+          </label>
 
-        <label class="modeTab" for="modeMergePdf">
-          <input type="radio" name="mode" id="modeMergePdf">
-          <span>Merge PDFs</span>
-        </label>
+          <label class="modeTab" for="modeCompressPdf">
+            <input type="radio" name="mode" id="modeCompressPdf">
+            <span>Compress PDF</span>
+          </label>
 
-        <label class="modeTab" for="modeSplitPdf">
-          <input type="radio" name="mode" id="modeSplitPdf">
-          <span>Split PDF</span>
-        </label>
+          <label class="modeTab" for="modeConvert">
+            <input type="radio" name="mode" id="modeConvert">
+            <span>Convert</span>
+          </label>
+
+          <label class="modeTab" for="modeMergePdf">
+            <input type="radio" name="mode" id="modeMergePdf">
+            <span>Merge PDFs</span>
+          </label>
+
+          <label class="modeTab" for="modeSplitPdf">
+            <input type="radio" name="mode" id="modeSplitPdf">
+            <span>Split PDF</span>
+          </label>
+        </fieldset>
+
+        <!-- CONTROLS (MOVED OUTSIDE THE TABS so it cannot “break” the segmented control) -->
 
         <!-- Compress PDF controls -->
-        <div class="convertRow" id="pdfCompressRow" style="display:none;">
+        <div class="convertRow convertRowPremium" id="pdfCompressRow" style="display:none;">
           <div class="convertGroup convertGroupWide">
             <select id="pdfCompressLevel">
               <option value="balanced" selected>Balanced</option>
@@ -146,10 +150,11 @@
               <option value="max">Maximum</option>
             </select>
           </div>
+          <div class="convertHint">Choose how aggressively to reduce file size.</div>
         </div>
 
         <!-- Convert controls -->
-        <div class="convertRow" id="convertRow" style="display:none;">
+        <div class="convertRow convertRowPremium" id="convertRow" style="display:none;">
           <div class="convertGroup">
             <select id="convertFrom">
               <option value="auto">Auto detect</option>
@@ -160,7 +165,7 @@
             </select>
           </div>
 
-          <span class="convertArrow">→</span>
+          <span class="convertArrow" aria-hidden="true">→</span>
 
           <div class="convertGroup">
             <select id="convertTarget">
@@ -170,73 +175,72 @@
               <option value="pdf">PDF</option>
             </select>
           </div>
-        </div>
-      </fieldset>
 
-      <!-- DROPZONE -->
-      <div class="dropzone dropzonePremium dropzoneUltra" id="dropzone">
-
-        <div class="dzCenter">
-          <div class="dzIcon"><span class="dzArrow">↑</span></div>
-          <div class="dzTitle" id="dzTitle">Drop files here</div>
-          <div class="dzSub" id="dzSub">Drag & drop or select (up to 50 files)</div>
-
-          <div class="filePick">
-            <button class="btnPrimary btnLarge" id="chooseBtn" type="button">
-              Select files
-            </button>
-            <input id="files" type="file" multiple />
-          </div>
-
-          <div class="dzFine">
-            Your files are prepared first. Checkout appears only when you request the download.
-          </div>
+          <div class="convertHint">Pick a target format.</div>
         </div>
 
-        <div class="fileMeta" id="fileMeta" hidden>
-          <div class="fileMetaTop">
-            <div class="fileSummary" id="fileSummary"></div>
-            <button class="btnGhost" id="clearBtn" type="button">Clear</button>
-          </div>
-          <ol class="fileList" id="fileList"></ol>
+        <!-- DROPZONE -->
+        <div class="dropzone dropzonePremium dropzoneUltra" id="dropzone">
 
-          <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
-            <div class="pdfReorderHead">
-              <div class="pdfReorderTitle">Reorder pages</div>
-              <div class="pdfReorderSub">Drag pages to set the final order.</div>
+          <div class="dzCenter">
+            <div class="dzIcon"><span class="dzArrow">↑</span></div>
+            <div class="dzTitle" id="dzTitle">Drop files here</div>
+            <div class="dzSub" id="dzSub">Drag & drop or select (up to 50 files)</div>
+
+            <div class="filePick">
+              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">
+                Select files
+              </button>
+              <input id="files" type="file" multiple />
             </div>
-            <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
+
+            <div class="dzFine">
+              Your files are prepared first. Checkout appears only when you request the download.
+            </div>
+          </div>
+
+          <div class="fileMeta" id="fileMeta" hidden>
+            <div class="fileMetaTop">
+              <div class="fileSummary" id="fileSummary"></div>
+              <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+            </div>
+            <ol class="fileList" id="fileList"></ol>
+
+            <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
+              <div class="pdfReorderHead">
+                <div class="pdfReorderTitle">Reorder pages</div>
+                <div class="pdfReorderSub">Drag pages to set the final order.</div>
+              </div>
+              <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="progressWrap" id="progressWrap" hidden>
-        <div class="progressTop">
-          <div id="progressLabel">Uploading…</div>
-          <div id="progressPct">0%</div>
+        <div class="progressWrap" id="progressWrap" hidden>
+          <div class="progressTop">
+            <div id="progressLabel">Uploading…</div>
+            <div id="progressPct">0%</div>
+          </div>
+          <div class="progressBar">
+            <div class="progressFill" id="progressFill"></div>
+          </div>
+          <div id="progressMeta"></div>
         </div>
-        <div class="progressBar">
-          <div class="progressFill" id="progressFill"></div>
+
+        <div class="actionRow">
+          <button class="btnSoft" id="upload" disabled>Upload files</button>
+          <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
         </div>
-        <div id="progressMeta"></div>
-      </div>
 
-      <div class="actionRow">
-        <button class="btnSoft" id="upload" disabled>Upload files</button>
-        <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
-      </div>
+        <div class="fineprint">
+          No signup. Prepare first. Pay only when you request the download.
+        </div>
 
-      <div class="fineprint">
-        No signup. Prepare first. Pay only when you request the download.
       </div>
-
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- OPTIONAL: Keep your #how/#faq sections wherever they currently live in your build.
-     If you already have them below in your real file, leave them there.
-     This rewrite preserves nav links, but doesn’t invent new copy. -->
+  <!-- OPTIONAL: Keep your #how/#faq sections wherever they currently live in your build. -->
 
 </main>
 
