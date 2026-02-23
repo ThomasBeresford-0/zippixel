@@ -1,5 +1,5 @@
-// public/app.js — ZipPixel frontend (v17.1 - ADD SPLIT PDF MODE + DZ COPY SAFE + STRICT SPLIT VALIDATION)
-// Matches: index.html IDs + server.js v15 routes:
+// public/app.js — ZipPixel frontend (v17.2 - FIX GREYED OUT PDF + SPLIT MIN FIX + REPLACE PDF UX)
+// Matches: index.html IDs + server.js routes:
 // /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/jobs/:jobId/mode, /api/checkout
 (() => {
   // ====== YEAR ======
@@ -43,14 +43,13 @@
   // Optional dropzone copy hooks (added in index.html)
   const dzTitleEl = document.getElementById("dzTitle");
   const dzSubEl = document.getElementById("dzSub");
-  const dzAfterEl = document.getElementById("dzAfter"); // may not exist (index cleaned)
+  const dzAfterEl = document.getElementById("dzAfter"); // may not exist
 
   // Modal
   const priceModal = document.getElementById("priceModal");
   const modalCloseBtn = document.getElementById("modalCloseBtn");
   const modalBackBtn = document.getElementById("modalBackBtn");
   const modalPayBtn = document.getElementById("modalPayBtn");
-
   const optShareLink = document.getElementById("optShareLink");
 
   // Legacy IDs (kept)
@@ -73,10 +72,16 @@
   const modeCompress = document.getElementById("modeCompress");
   const modeConvert = document.getElementById("modeConvert");
   const modeMergePdf = document.getElementById("modeMergePdf");
-  const modeSplitPdf = document.getElementById("modeSplitPdf"); // ✅ NEW
+  const modeSplitPdf = document.getElementById("modeSplitPdf");
   const convertRow = document.getElementById("convertRow");
   const convertFrom = document.getElementById("convertFrom"); // informational
   const convertTarget = document.getElementById("convertTarget");
+
+  // PDF reorder UI
+  let pdfPageOrder = [];
+  let pdfDocRef = null;
+  const pdfReorderWrap = document.getElementById("pdfReorderWrap");
+  const pdfThumbGrid = document.getElementById("pdfThumbGrid");
 
   // If this page doesn’t have the tool, bail quietly
   if (!dropzone || !filesEl || !chooseBtn || !uploadBtn || !continueBtn) return;
@@ -87,11 +92,6 @@
   let uploading = false;
 
   let selected = [];            // Array<File>
-  // ====== PDF REORDER STATE ======
-  let pdfPageOrder = [];        // e.g. [2,0,1]
-  let pdfDocRef = null;         // PDF.js document reference
-  const pdfReorderWrap = document.getElementById("pdfReorderWrap");
-  const pdfThumbGrid = document.getElementById("pdfThumbGrid");
   const thumbUrls = new Map();  // keyOf(file) -> objectURL (images only)
   let uploadedMeta = [];        // [{ key, originalname, mimetype }]
 
@@ -101,7 +101,6 @@
   let convertTargetValue = null;
 
   // ====== UX MEMORY (localStorage) ======
-  // Used to make repeat visits feel “account-like” without accounts.
   const LS = {
     lastMode: "zp:lastMode",
     lastTarget: "zp:lastTarget",
@@ -137,6 +136,14 @@
     if (isPdfFile(f)) return "PDF";
     const ext = getExt(f.name);
     return ext || (f.type ? f.type.toUpperCase() : "FILE");
+  };
+
+  const setUploaderEnabled = (enabled) => {
+    // Hard guarantee: no silent dead input
+    try { filesEl.disabled = !enabled; } catch {}
+    try { chooseBtn.disabled = !enabled; } catch {}
+    dropzone.setAttribute("aria-disabled", enabled ? "false" : "true");
+    dropzone.classList.toggle("isDisabled", !enabled);
   };
 
   const resetProgress = () => {
@@ -205,7 +212,6 @@
   };
 
   // ====== SMART COPY ======
-  // NOTE: dzAfter may not exist on the cleaned index. Do not bail if it's missing.
   const setDropzoneCopy = () => {
     if (!dzTitleEl || !dzSubEl) return;
 
@@ -218,7 +224,7 @@
 
     if (mode === "split_pdf") {
       dzTitleEl.textContent = "Drop a PDF here";
-      dzSubEl.textContent = "PDF only • 1 file";
+      dzSubEl.textContent = "PDF only • 1 file (replaces the current PDF)";
       if (dzAfterEl) dzAfterEl.textContent = "";
       return;
     }
@@ -243,7 +249,7 @@
 
   const modeMinFilesSatisfied = () => {
     if (mode === "merge_pdf") return selected.length >= 2;
-    if (mode === "split_pdf") return selected.length === 2;
+    if (mode === "split_pdf") return selected.length === 1; // ✅ FIX
     return selected.length >= 1;
   };
 
@@ -267,14 +273,12 @@
     return null;
   };
 
-  // ====== SMART UPSELL LOGIC (NO PRESSURE, JUST RELEVANCE) ======
+  // ====== SMART UPSELL LOGIC ======
   const shouldRecommendShare = () => {
     const n = selected.length;
     const totalBytes = selected.reduce((a, f) => a + (f?.size || 0), 0);
-
-    // High-intent situations:
     if (mode === "merge_pdf") return true;
-    if (mode === "split_pdf") return true; // split often used to send pages around
+    if (mode === "split_pdf") return true;
     if (n >= 8) return true;
     if (totalBytes >= 20 * 1024 * 1024) return true;
     return false;
@@ -286,13 +290,11 @@
     const seen = safeLocalGet(LS.shareSeen) === "1";
     const pref = safeLocalGet(LS.sharePref);
 
-    // Only "lock in" their preference after they've actually seen the modal at least once
     if (seen) {
       if (pref === "on") { optShareLink.checked = true; return; }
       if (pref === "off") { optShareLink.checked = false; return; }
     }
 
-    // Otherwise, smart default based on context
     optShareLink.checked = shouldRecommendShare();
   };
 
@@ -319,7 +321,6 @@
     uploadBtn.disabled = !canUpload;
     showContinue(canContinue);
 
-    // Copy tuning
     if (mode === "merge_pdf") {
       uploadBtn.textContent = uploading ? "Uploading…" : (uploadedMeta.length ? "Re-upload PDFs" : "Upload PDFs");
     } else if (mode === "split_pdf") {
@@ -330,7 +331,9 @@
 
     continueBtn.textContent = "Continue →";
 
-    // Status guidance ladder (no price leaks)
+    // Uploader enabled unless actively creating/uploading
+    setUploaderEnabled(!(uploading || creatingJob));
+
     if (!hasFiles) {
       setStatus("Ready");
       setHint(
@@ -351,8 +354,8 @@
     }
 
     if (mode === "split_pdf" && !meetsMin) {
-      setStatus(selected.length > 1 ? "Only one PDF" : "Add a PDF");
-      setHint(selected.length > 1 ? "Split PDF accepts <b>1</b> PDF only." : "Add <b>1</b> PDF to split into pages.");
+      setStatus("Add a PDF");
+      setHint("Split PDF accepts <b>1</b> PDF only.");
       return;
     }
 
@@ -364,11 +367,10 @@
 
     if (uploadedMeta.length) {
       setStatus("Uploaded");
-      if (shouldRecommendShare()) {
-        setHint("Upload complete. Continue to checkout.<br/><span style=\"color: rgba(11,18,32,.56)\">Tip: a share link is great for sending to clients.</span>");
-      } else {
-        setHint("Upload complete. Continue to checkout.");
-      }
+      setHint(shouldRecommendShare()
+        ? `Upload complete. Continue to checkout.<br/><span style="color: rgba(11,18,32,.56)">Tip: a share link is great for sending to clients.</span>`
+        : "Upload complete. Continue to checkout."
+      );
       return;
     }
 
@@ -435,6 +437,10 @@
       resetProgress();
       revokeRemovedThumbs(new Set());
 
+      if (pdfReorderWrap) pdfReorderWrap.hidden = true;
+      if (pdfThumbGrid) pdfThumbGrid.innerHTML = "";
+      pdfPageOrder = [];
+
       setStatus("Ready");
       setHint(
         mode === "merge_pdf"
@@ -489,117 +495,7 @@
     setDropzoneCopy();
     setFileInputAccept();
     setPrimaryStates();
-    renderPdfThumbnails();
   };
-  // ====== PDF THUMBNAILS (MERGE MODE) ======
-const renderPdfThumbnails = async () => {
-  if (!pdfReorderWrap || !pdfThumbGrid) return;
-
-  if (mode !== "merge_pdf") {
-    pdfReorderWrap.hidden = true;
-    pdfThumbGrid.innerHTML = "";
-    pdfPageOrder = [];
-    return;
-  }
-
-  if (selected.length !== 1) {
-    // Only render preview when exactly 1 PDF (clean UX)
-    pdfReorderWrap.hidden = true;
-    pdfThumbGrid.innerHTML = "";
-    pdfPageOrder = [];
-    return;
-  }
-
-  const file = selected[0];
-  if (!isPdfFile(file)) return;
-
-  const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-
-  pdfDocRef = pdf;
-  pdfPageOrder = Array.from({ length: pdf.numPages }, (_, i) => i);
-
-  pdfThumbGrid.innerHTML = "";
-  pdfReorderWrap.hidden = false;
-
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const viewport = page.getViewport({ scale: 0.3 });
-
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-
-    await page.render({ canvasContext: ctx, viewport }).promise;
-
-    const wrapper = document.createElement("div");
-    wrapper.className = "pdfThumb";
-    wrapper.draggable = true;
-    wrapper.dataset.index = i - 1;
-
-    const meta = document.createElement("div");
-    meta.className = "pdfThumbMeta";
-    meta.textContent = `Page ${i}`;
-
-    wrapper.appendChild(canvas);
-    wrapper.appendChild(meta);
-    pdfThumbGrid.appendChild(wrapper);
-  }
-
-  enableDragReorder();
-};
-
-const enableDragReorder = () => {
-  const items = pdfThumbGrid.querySelectorAll(".pdfThumb");
-
-  let dragged = null;
-
-  items.forEach((item) => {
-    item.addEventListener("dragstart", () => {
-      dragged = item;
-      item.classList.add("dragging");
-    });
-
-    item.addEventListener("dragend", () => {
-      item.classList.remove("dragging");
-      dragged = null;
-      updateOrderArray();
-    });
-
-    item.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      item.classList.add("over");
-    });
-
-    item.addEventListener("dragleave", () => {
-      item.classList.remove("over");
-    });
-
-    item.addEventListener("drop", (e) => {
-      e.preventDefault();
-      item.classList.remove("over");
-
-      if (!dragged || dragged === item) return;
-
-      const grid = pdfThumbGrid;
-      const nodes = Array.from(grid.children);
-      const draggedIndex = nodes.indexOf(dragged);
-      const targetIndex = nodes.indexOf(item);
-
-      if (draggedIndex < targetIndex) {
-        grid.insertBefore(dragged, item.nextSibling);
-      } else {
-        grid.insertBefore(dragged, item);
-      }
-    });
-  });
-};
-
-const updateOrderArray = () => {
-  const nodes = pdfThumbGrid.querySelectorAll(".pdfThumb");
-  pdfPageOrder = Array.from(nodes).map((n) => Number(n.dataset.index));
-};
 
   // Remove item
   fileList?.addEventListener("click", (e) => {
@@ -628,8 +524,6 @@ const updateOrderArray = () => {
     const isSplit = !!modeSplitPdf?.checked;
 
     mode = isMerge ? "merge_pdf" : (isSplit ? "split_pdf" : (isConvert ? "convert" : "compress"));
-
-    // Persist mode for repeat visits
     safeLocalSet(LS.lastMode, mode);
 
     if (convertRow) convertRow.style.display = (mode === "convert") ? "flex" : "none";
@@ -652,12 +546,11 @@ const updateOrderArray = () => {
     setDropzoneCopy();
     setFileInputAccept();
 
-    // If mode changes after any upload/job, start fresh (server locks)
     if (uploadedMeta.length || jobId) {
       hardResetJob("Mode changed — please upload again.");
     }
 
-    // Merge/Split: if non-PDFs selected, clear
+    // If switching into PDF modes with non-PDFs selected, clear them
     if ((mode === "merge_pdf" || mode === "split_pdf") && selected.length) {
       const hasNonPdf = selected.some((f) => !isPdfFile(f));
       if (hasNonPdf) {
@@ -673,9 +566,9 @@ const updateOrderArray = () => {
       }
     }
 
-    // Split: enforce exactly 1 file
+    // Split: enforce exactly 1 file (keep first)
     if (mode === "split_pdf" && selected.length > 1) {
-      selected = selected.slice(0, 1);
+      selected = [selected[0]];
       uploadedMeta = [];
       resetProgress();
       setStatus("Only one PDF");
@@ -705,7 +598,6 @@ const updateOrderArray = () => {
     renderSelected();
   });
 
-  // Restore last mode/target on load (no surprises; only if controls exist)
   const restoreModePrefs = () => {
     const savedMode = safeLocalGet(LS.lastMode);
     const savedTarget = safeLocalGet(LS.lastTarget);
@@ -756,7 +648,6 @@ const updateOrderArray = () => {
 
       jobId = j.jobId;
 
-      // Save last job id (useful for future “recent job” experiences)
       safeLocalSet(LS.lastJob, jobId);
       safeLocalSet(LS.lastFilesCount, String(selected.length || 0));
 
@@ -791,16 +682,16 @@ const updateOrderArray = () => {
       setHint(errors.slice(0, 2).map(e => escapeHtml(e)).join("<br/>") + (errors.length > 2 ? "<br/>…" : ""));
     }
 
-    // Split mode: only keep 1 PDF total (best UX: keep first valid)
+    // ✅ Split mode: selecting another PDF REPLACES (no “stuck grey” UX)
     if (mode === "split_pdf") {
-      // If we already have one, ignore additional
-      if (selected.length >= 1) {
-        setStatus("Only one PDF");
-        setHint("Split PDF accepts <b>1</b> PDF only.");
-      } else {
-        // Add the first valid PDF only
-        if (incomingValid.length) selected = [incomingValid[0]];
+      if (!incomingValid.length) {
+        setPrimaryStates();
+        return;
       }
+
+      // Replace with the first valid PDF
+      selected = [incomingValid[0]];
+
       uploadedMeta = [];
       resetProgress();
       renderSelected();
@@ -854,9 +745,6 @@ const updateOrderArray = () => {
     setPrimaryStates();
   };
 
-  // IMPORTANT:
-  // On mobile, the file input sits on top of the button (index.html .filePick).
-  // So the button click handler is optional — but keeping it is fine.
   chooseBtn.addEventListener("click", (e) => {
     e.preventDefault();
     try { filesEl.click(); } catch {}
@@ -942,14 +830,8 @@ const updateOrderArray = () => {
     setOverall(0);
 
     return {
-      commitFile: (fileSize) => {
-        uploadedBytes += fileSize;
-        setOverall(uploadedBytes);
-      },
-      currentFile: (loaded) => {
-        const bytesSoFar = uploadedBytes + loaded;
-        setOverall(bytesSoFar);
-      },
+      commitFile: (fileSize) => { uploadedBytes += fileSize; setOverall(uploadedBytes); },
+      currentFile: (loaded) => { setOverall(uploadedBytes + loaded); },
       done: () => setOverall(totalBytes),
     };
   };
@@ -988,39 +870,15 @@ const updateOrderArray = () => {
     if (uploading) return;
     if (selected.length === 0) return;
 
-    if (mode === "merge_pdf" && !modeMinFilesSatisfied()) {
-      setStatus("Add one more PDF");
-      setHint("Merge PDFs needs <b>2+</b> PDF files.");
-      return;
-    }
-
-    if (mode === "split_pdf" && !modeMinFilesSatisfied()) {
-      setStatus(selected.length > 1 ? "Only one PDF" : "Add a PDF");
-      setHint(selected.length > 1 ? "Split PDF accepts <b>1</b> PDF only." : "Add <b>1</b> PDF to split into pages.");
-      return;
-    }
-
-    if (mode === "merge_pdf") {
-      const bad = selected.find((f) => !isPdfFile(f));
-      if (bad) {
-        setStatus("PDFs only");
-        setHint("Merge PDFs only accepts PDF files. Remove non-PDF files and try again.");
-        return;
-      }
-    }
-
-    if (mode === "split_pdf") {
-      const bad = selected.find((f) => !isPdfFile(f));
-      if (bad) {
-        setStatus("PDFs only");
-        setHint("Split PDF only accepts a PDF file.");
-        return;
-      }
-      if (selected.length !== 1) {
-        setStatus("Only one PDF");
+    if (!modeMinFilesSatisfied()) {
+      if (mode === "merge_pdf") {
+        setStatus("Add one more PDF");
+        setHint("Merge PDFs needs <b>2+</b> PDF files.");
+      } else if (mode === "split_pdf") {
+        setStatus("Add a PDF");
         setHint("Split PDF accepts <b>1</b> PDF only.");
-        return;
       }
+      return;
     }
 
     try { await ensureJob(); } catch {
@@ -1093,12 +951,10 @@ const updateOrderArray = () => {
       if (reg?.error) throw new Error(reg.error);
 
       setStatus("Uploaded");
-
-      if (uploadedMeta.length && shouldRecommendShare()) {
-        setHint(`Upload complete. Continue to checkout.<br/><span style="color: rgba(11,18,32,.56)">Recommended: add a share link if you’re sending this to someone.</span>`);
-      } else {
-        setHint("Upload complete. Continue to checkout.");
-      }
+      setHint(uploadedMeta.length && shouldRecommendShare()
+        ? `Upload complete. Continue to checkout.<br/><span style="color: rgba(11,18,32,.56)">Recommended: add a share link if you’re sending this to someone.</span>`
+        : "Upload complete. Continue to checkout."
+      );
 
       if (progressLabel) progressLabel.textContent = "Uploaded";
       if (progressFill) progressFill.style.width = "100%";
@@ -1173,26 +1029,11 @@ const updateOrderArray = () => {
 
   continueBtn.addEventListener("click", () => {
     if (!jobId) return;
-    if (selected.length === 0) return;
-
-    if (mode === "merge_pdf" && !modeMinFilesSatisfied()) {
-      setStatus("Add one more PDF");
-      setHint("Merge PDFs needs <b>2+</b> PDF files.");
-      return;
-    }
-
-    if (mode === "split_pdf" && !modeMinFilesSatisfied()) {
-      setStatus(selected.length > 1 ? "Only one PDF" : "Add a PDF");
-      setHint(selected.length > 1 ? "Split PDF accepts <b>1</b> PDF only." : "Add <b>1</b> PDF to split into pages.");
-      return;
-    }
-
     if (!uploadedMeta.length) {
       setStatus("Upload first");
       setHint("Please upload your files before continuing.");
       return;
     }
-
     openPriceModal();
   });
 
@@ -1241,7 +1082,7 @@ const updateOrderArray = () => {
 
   // ====== INIT ======
   continueBtn.textContent = "Continue →";
-  continueBtn.style.display = ""; // never hidden
+  continueBtn.style.display = "";
 
   setStatus("Ready");
   setHint(
