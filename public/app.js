@@ -718,6 +718,7 @@
     if (pageTool === "convert" && modeConvert) modeConvert.checked = true;
     if (pageTool === "merge_pdf" && modeMergePdf) modeMergePdf.checked = true;
     if (pageTool === "split_pdf" && modeSplitPdf) modeSplitPdf.checked = true;
+    if (pageTool === "rotate_pdf" && modeRotatePdf) modeRotatePdf.checked = true;
   };
 
   const syncMode = () => {
