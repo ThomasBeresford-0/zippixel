@@ -1,10 +1,11 @@
-// server.js — ZipPixel (RENDER SAFE MONEY MODE v16.2 - ADD SPLIT PDF MODE)
+// server.js — ZipPixel (RENDER SAFE MONEY MODE v16.3 - ADD COMPRESS PDF MODE)
 // ✅ Pricing tiers: £2.99 (≤10) / £9.99 (11–50) + optional share link (+£2.49)
 // ✅ Server-side enforcement: max 50 files (client enforces size; server enforces count + mode validation)
 // ✅ Routes: /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/jobs/:jobId/mode, /api/checkout
 // ✅ Webhook + Stripe self-heal preserved
-// ✅ merge_pdf mode — PAID download returns a single merged PDF (in upload order)
+// ✅ merge_pdf mode — PAID download returns a single merged PDF (in upload order / optional page order)
 // ✅ split_pdf mode — PAID download returns a ZIP of per-page PDFs (in page order)
+// ✅ compress_pdf mode — PAID download returns a single compressed PDF (raster-based; level: light/balanced/max)
 
 require("dotenv").config();
 
@@ -176,13 +177,21 @@ function computeTotalPence(job) {
 }
 
 // ====== MODE HELPERS ======
-const VALID_MODES = new Set(["compress", "convert", "merge_pdf", "split_pdf"]);
+const VALID_MODES = new Set(["compress", "compress_pdf", "convert", "merge_pdf", "split_pdf"]);
 const VALID_CONVERT_TARGETS = new Set(["jpg", "jpeg", "png", "webp", "pdf"]);
+const VALID_PDF_COMPRESS_LEVELS = new Set(["light", "balanced", "max"]);
 
 function normalizeConvertTarget(t) {
   const v = String(t || "").toLowerCase().trim();
   if (!v) return null;
   if (v === "jpeg") return "jpg";
+  return v;
+}
+
+function normalizePdfLevel(lvl) {
+  const v = String(lvl || "").toLowerCase().trim();
+  if (!v) return "balanced";
+  if (!VALID_PDF_COMPRESS_LEVELS.has(v)) return "balanced";
   return v;
 }
 
@@ -209,6 +218,16 @@ function validateJobFilesForMode(job) {
     if (files.length !== 1) throw new Error("Split PDF requires exactly 1 PDF.");
     const nonPdf = files.find((f) => !isPdfMeta(f));
     if (nonPdf) throw new Error("Split PDF only accepts a PDF file.");
+  }
+
+  if (job.mode === "compress_pdf") {
+    // NOTE: This compression method is raster-based (pages rendered to images then re-packed).
+    // It massively reduces size for scanned/image-heavy PDFs. It can reduce text-select/search.
+    if (!sharp) throw new Error("PDF compression is unavailable (sharp not installed).");
+    if (files.length !== 1) throw new Error("Compress PDF requires exactly 1 PDF.");
+    const nonPdf = files.find((f) => !isPdfMeta(f));
+    if (nonPdf) throw new Error("Compress PDF only accepts a PDF file.");
+    job.pdfCompressLevel = normalizePdfLevel(job.pdfCompressLevel);
   }
 
   if (job.mode === "convert") {
@@ -321,6 +340,7 @@ app.get("/health", (_, res) => {
     },
     limits: { maxFiles: MAX_FILES, maxMBEach: MAX_MB_EACH },
     modes: Array.from(VALID_MODES),
+    pdfCompressLevels: Array.from(VALID_PDF_COMPRESS_LEVELS),
   });
 });
 
@@ -351,9 +371,12 @@ app.post("/api/jobs", (_, res) => {
 
     options: { shareLink: false },
 
-    mode: "compress",     // compress | convert | merge_pdf | split_pdf
+    mode: "compress", // compress | compress_pdf | convert | merge_pdf | split_pdf
     convertTarget: null,
     pageOrder: null,
+
+    // compress_pdf options
+    pdfCompressLevel: "balanced",
 
     shareToken: null,
     shareExpiresAt: null,
@@ -425,42 +448,49 @@ app.post("/api/jobs/:jobId/register", (req, res) => {
   }
 });
 
-// Set job mode (compress | convert | merge_pdf | split_pdf)
-  app.post("/api/jobs/:jobId/mode", (req, res) => {
-    try {
-      const job = getJob(req.params.jobId);
-      const { mode, target, order } = req.body || {};
+// Set job mode (compress | compress_pdf | convert | merge_pdf | split_pdf)
+app.post("/api/jobs/:jobId/mode", (req, res) => {
+  try {
+    const job = getJob(req.params.jobId);
+    const { mode, target, order, level } = req.body || {};
 
-      const m = String(mode || "").toLowerCase().trim();
-      if (!VALID_MODES.has(m)) throw new Error("Invalid mode");
+    const m = String(mode || "").toLowerCase().trim();
+    if (!VALID_MODES.has(m)) throw new Error("Invalid mode");
 
-      if (job.status !== "CREATED") throw new Error("Invalid state");
+    if (job.status !== "CREATED") throw new Error("Invalid state");
 
-      job.mode = m;
+    job.mode = m;
 
-      if (m === "convert") {
-        const t = normalizeConvertTarget(target);
-        if (t && !VALID_CONVERT_TARGETS.has(t)) throw new Error("Invalid convert target");
-        job.convertTarget = t || null;
-        job.pageOrder = null;
-      } else if (m === "merge_pdf") {
-        job.convertTarget = null;
+    if (m === "convert") {
+      const t = normalizeConvertTarget(target);
+      if (t && !VALID_CONVERT_TARGETS.has(t)) throw new Error("Invalid convert target");
+      job.convertTarget = t || null;
+      job.pageOrder = null;
+      job.pdfCompressLevel = "balanced";
+    } else if (m === "merge_pdf") {
+      job.convertTarget = null;
+      job.pdfCompressLevel = "balanced";
 
-        if (Array.isArray(order) && order.length) {
-          job.pageOrder = order.map((n) => Number(n)).filter((n) => Number.isInteger(n) && n >= 0);
-        } else {
-          job.pageOrder = null;
-        }
+      if (Array.isArray(order) && order.length) {
+        job.pageOrder = order.map((n) => Number(n)).filter((n) => Number.isInteger(n) && n >= 0);
       } else {
-        job.convertTarget = null;
         job.pageOrder = null;
       }
-
-      res.json({ ok: true });
-    } catch (e) {
-      res.status(400).json({ error: e.message });
+    } else if (m === "compress_pdf") {
+      job.convertTarget = null;
+      job.pageOrder = null;
+      job.pdfCompressLevel = normalizePdfLevel(level);
+    } else {
+      job.convertTarget = null;
+      job.pageOrder = null;
+      job.pdfCompressLevel = "balanced";
     }
-  });
+
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
 
 // Checkout
 app.post("/api/checkout", async (req, res) => {
@@ -488,14 +518,23 @@ app.post("/api/checkout", async (req, res) => {
     const productNameBase =
       tier.key === "zip50" ? "ZipPixel Pro (up to 50 files)" : "ZipPixel (up to 10 files)";
 
+    const levelLabel = (() => {
+      const lvl = normalizePdfLevel(job.pdfCompressLevel);
+      if (lvl === "max") return "Maximum";
+      if (lvl === "light") return "Light";
+      return "Balanced";
+    })();
+
     const modeLabel =
       job.mode === "merge_pdf"
         ? "Merge PDFs"
         : (job.mode === "split_pdf"
             ? "Split PDF"
-            : (job.mode === "convert"
-                ? `Convert to ${String(job.convertTarget || "").toUpperCase() || "format"}`
-                : "ZIP download"));
+            : (job.mode === "compress_pdf"
+                ? `Compress PDF (${levelLabel})`
+                : (job.mode === "convert"
+                    ? `Convert to ${String(job.convertTarget || "").toUpperCase() || "format"}`
+                    : "ZIP download")));
 
     const productName = `${productNameBase} — ${modeLabel}`;
 
@@ -522,6 +561,7 @@ app.post("/api/checkout", async (req, res) => {
         tier: tier.key,
         mode: job.mode,
         convertTarget: job.convertTarget || "",
+        pdfLevel: job.mode === "compress_pdf" ? normalizePdfLevel(job.pdfCompressLevel) : "",
         fileCount: String(job.files.length),
         totalPence: String(total),
       },
@@ -554,6 +594,7 @@ app.get("/api/status/:jobId", async (req, res) => {
       fileCount: job.files?.length || 0,
       mode: job.mode || "compress",
       convertTarget: job.convertTarget || null,
+      pdfLevel: job.pdfCompressLevel || null,
     });
   } catch {
     res.status(404).json({ ok: false, error: "Not found" });
@@ -575,63 +616,122 @@ app.get("/api/download/:jobId", async (req, res) => {
     validateJobFilesForMode(job);
     job.downloadCount++;
 
-    // ====== MERGE PDF MODE ======
-if (job.mode === "merge_pdf") {
-  if (!PDFDocumentLib) throw new Error("PDF merge is unavailable (pdf-lib not installed).");
+    // ====== COMPRESS PDF MODE ======
+    if (job.mode === "compress_pdf") {
+      if (!sharp) throw new Error("PDF compression is unavailable (sharp not installed).");
 
-  const merged = await PDFDocumentLib.create();
-
-  // We only support single-PDF page reorder for now
-  if (job.files.length === 1) {
-    const f = job.files[0];
-
-    const obj = await r2.send(
-      new GetObjectCommand({ Bucket: R2_BUCKET, Key: f.key })
-    );
-    const buf = await streamToBuffer(obj.Body);
-
-    const src = await PDFDocumentLib.load(buf);
-    const totalPages = src.getPageCount();
-
-    let indices = src.getPageIndices();
-
-    if (Array.isArray(job.pageOrder) && job.pageOrder.length === totalPages) {
-      // Validate order strictly
-      const isValid =
-        job.pageOrder.every((n) => Number.isInteger(n) && n >= 0 && n < totalPages) &&
-        new Set(job.pageOrder).size === totalPages;
-
-      if (isValid) {
-        indices = job.pageOrder;
-      }
-    }
-
-    const pages = await merged.copyPages(src, indices);
-    for (const p of pages) merged.addPage(p);
-  } else {
-    // Default multi-file merge (no page reorder)
-    for (const f of job.files) {
+      const only = job.files[0];
       const obj = await r2.send(
-        new GetObjectCommand({ Bucket: R2_BUCKET, Key: f.key })
+        new GetObjectCommand({ Bucket: R2_BUCKET, Key: only.key })
       );
-      const buf = await streamToBuffer(obj.Body);
+      const inputBuf = await streamToBuffer(obj.Body);
 
-      const src = await PDFDocumentLib.load(buf);
-      const pages = await merged.copyPages(src, src.getPageIndices());
-      for (const p of pages) merged.addPage(p);
+      const lvl = normalizePdfLevel(job.pdfCompressLevel);
+
+      // Level tuning (raster-based)
+      // - light: higher DPI + higher JPEG quality (gentler)
+      // - balanced: good default for email/client
+      // - max: aggressive size reduction
+      const settings =
+        lvl === "light"
+          ? { density: 170, quality: 82 }
+          : (lvl === "max"
+              ? { density: 110, quality: 60 }
+              : { density: 140, quality: 72 });
+
+      // Determine page count (sharp metadata.pages when supported)
+      let pages = 1;
+      try {
+        const meta = await sharp(inputBuf, { density: settings.density }).metadata();
+        if (meta && Number.isFinite(meta.pages) && meta.pages > 0) pages = meta.pages;
+      } catch {
+        pages = 1;
+      }
+
+      // Safety cap (prevents insane PDFs nuking your instance)
+      const MAX_PAGES_COMPRESS = Number(process.env.MAX_PDF_COMPRESS_PAGES || 80);
+      if (pages > MAX_PAGES_COMPRESS) {
+        throw new Error(`PDF too long to compress (max ${MAX_PAGES_COMPRESS} pages).`);
+      }
+
+      // Build new PDF via PDFKit using compressed page renders
+      const outBuf = await pdfFromRenderedPages(inputBuf, pages, settings);
+
+      // If compression backfires (rare, but possible), return original
+      if (outBuf && outBuf.length && outBuf.length < inputBuf.length) {
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename="zippixel_compressed_${job.jobId}.pdf"`
+        );
+        return res.send(outBuf);
+      }
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="zippixel_${job.jobId}.pdf"`
+      );
+      return res.send(inputBuf);
     }
-  }
 
-  const mergedBytes = await merged.save();
+    // ====== MERGE PDF MODE ======
+    if (job.mode === "merge_pdf") {
+      if (!PDFDocumentLib) throw new Error("PDF merge is unavailable (pdf-lib not installed).");
 
-  res.setHeader("Content-Type", "application/pdf");
-  res.setHeader(
-    "Content-Disposition",
-    `attachment; filename="zippixel_merged_${job.jobId}.pdf"`
-  );
+      const merged = await PDFDocumentLib.create();
 
-  return res.send(Buffer.from(mergedBytes));
-}
+      // We only support single-PDF page reorder for now
+      if (job.files.length === 1) {
+        const f = job.files[0];
+
+        const obj = await r2.send(
+          new GetObjectCommand({ Bucket: R2_BUCKET, Key: f.key })
+        );
+        const buf = await streamToBuffer(obj.Body);
+
+        const src = await PDFDocumentLib.load(buf);
+        const totalPages = src.getPageCount();
+
+        let indices = src.getPageIndices();
+
+        if (Array.isArray(job.pageOrder) && job.pageOrder.length === totalPages) {
+          // Validate order strictly
+          const isValid =
+            job.pageOrder.every((n) => Number.isInteger(n) && n >= 0 && n < totalPages) &&
+            new Set(job.pageOrder).size === totalPages;
+
+          if (isValid) {
+            indices = job.pageOrder;
+          }
+        }
+
+        const pages = await merged.copyPages(src, indices);
+        for (const p of pages) merged.addPage(p);
+      } else {
+        // Default multi-file merge (no page reorder)
+        for (const f of job.files) {
+          const obj = await r2.send(
+            new GetObjectCommand({ Bucket: R2_BUCKET, Key: f.key })
+          );
+          const buf = await streamToBuffer(obj.Body);
+
+          const src = await PDFDocumentLib.load(buf);
+          const pages = await merged.copyPages(src, src.getPageIndices());
+          for (const p of pages) merged.addPage(p);
+        }
+      }
+
+      const mergedBytes = await merged.save();
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="zippixel_merged_${job.jobId}.pdf"`
+      );
+
+      return res.send(Buffer.from(mergedBytes));
+    }
 
     // ====== SPLIT PDF MODE ======
     if (job.mode === "split_pdf") {
@@ -813,6 +913,7 @@ app.get("/api/share/:token", async (req, res) => {
       expiresAt: job.shareExpiresAt,
       mode: job.mode || "compress",
       convertTarget: job.convertTarget || null,
+      pdfLevel: job.pdfCompressLevel || null,
     });
   } catch (e) {
     res.status(400).json({ error: e.message });
@@ -940,6 +1041,52 @@ function imageToPdf(buffer) {
       valign: "center",
     });
     doc.end();
+  });
+}
+
+// Render PDF pages via sharp and rebuild as compressed PDF (raster-based)
+async function pdfFromRenderedPages(pdfBuffer, pageCount, settings) {
+  // settings: { density, quality }
+  return new Promise(async (resolve, reject) => {
+    try {
+      const doc = new PDFKitDocument({ autoFirstPage: false, compress: true });
+      const stream = new PassThrough();
+      const chunks = [];
+
+      stream.on("data", (c) => chunks.push(c));
+      stream.on("end", () => resolve(Buffer.concat(chunks)));
+      stream.on("error", reject);
+
+      doc.pipe(stream);
+
+      for (let page = 0; page < pageCount; page++) {
+        // Render page to JPEG buffer
+        let img;
+        try {
+          img = await sharp(pdfBuffer, { density: settings.density, page })
+            .jpeg({ quality: settings.quality, mozjpeg: true })
+            .toBuffer();
+        } catch (e) {
+          throw new Error("Could not render PDF pages for compression.");
+        }
+
+        // Determine rendered page dimensions to preserve aspect ratio
+        let meta = null;
+        try {
+          meta = await sharp(img).metadata();
+        } catch {}
+
+        const w = meta?.width || 595;  // fallback A4-ish
+        const h = meta?.height || 842;
+
+        doc.addPage({ size: [w, h], margin: 0 });
+        doc.image(img, 0, 0, { width: w, height: h });
+      }
+
+      doc.end();
+    } catch (e) {
+      reject(e);
+    }
   });
 }
 

@@ -1,4 +1,4 @@
-// public/app.js — ZipPixel frontend (v17.2 - FIX GREYED OUT PDF + SPLIT MIN FIX + REPLACE PDF UX)
+// public/app.js — ZipPixel frontend (v17.3 - ADD COMPRESS PDF MODE + QUALITY SELECTOR)
 // Matches: index.html IDs + server.js routes:
 // /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/jobs/:jobId/mode, /api/checkout
 (() => {
@@ -70,12 +70,18 @@
 
   // Mode UI (optional; only exists on index)
   const modeCompress = document.getElementById("modeCompress");
+  const modeCompressPdf = document.getElementById("modeCompressPdf"); // ✅ NEW
   const modeConvert = document.getElementById("modeConvert");
   const modeMergePdf = document.getElementById("modeMergePdf");
   const modeSplitPdf = document.getElementById("modeSplitPdf");
+
   const convertRow = document.getElementById("convertRow");
   const convertFrom = document.getElementById("convertFrom"); // informational
   const convertTarget = document.getElementById("convertTarget");
+
+  // Compress PDF controls (index.html)
+  const pdfCompressRow = document.getElementById("pdfCompressRow"); // ✅ NEW
+  const pdfCompressLevel = document.getElementById("pdfCompressLevel"); // ✅ NEW
 
   // PDF reorder UI
   let pdfPageOrder = [];
@@ -96,16 +102,20 @@
   let uploadedMeta = [];        // [{ key, originalname, mimetype }]
 
   // ====== MODE STATE ======
-  // compress | convert | merge_pdf | split_pdf
+  // compress | compress_pdf | convert | merge_pdf | split_pdf
   let mode = "compress";
   let convertTargetValue = null;
+
+  // Compress PDF level
+  let pdfCompressLevelValue = "balanced"; // balanced | light | max
 
   // ====== UX MEMORY (localStorage) ======
   const LS = {
     lastMode: "zp:lastMode",
     lastTarget: "zp:lastTarget",
-    sharePref: "zp:sharePref",   // "on" | "off"
-    shareSeen: "zp:shareSeen",   // "1" once they've seen the modal
+    lastPdfLevel: "zp:lastPdfLevel", // ✅ NEW
+    sharePref: "zp:sharePref",       // "on" | "off"
+    shareSeen: "zp:shareSeen",       // "1" once they've seen the modal
     lastJob: "zp:lastJobId",
     lastFilesCount: "zp:lastFilesCount"
   };
@@ -128,7 +138,7 @@
     const name = String(f?.name || "");
     return /\.pdf$/i.test(name);
   };
-  
+
   const getExt = (name) => {
     const base = String(name || "").trim();
     const idx = base.lastIndexOf(".");
@@ -234,6 +244,13 @@
       return;
     }
 
+    if (mode === "compress_pdf") {
+      dzTitleEl.textContent = "Drop a PDF here";
+      dzSubEl.textContent = "PDF only • 1 file • Reduce file size";
+      if (dzAfterEl) dzAfterEl.textContent = "";
+      return;
+    }
+
     if (mode === "convert") {
       dzTitleEl.textContent = "Drop files here";
       dzSubEl.textContent = "Up to 50 files • Drag & drop or select";
@@ -248,13 +265,17 @@
 
   const setFileInputAccept = () => {
     if (!filesEl) return;
-    if (mode === "merge_pdf" || mode === "split_pdf") filesEl.setAttribute("accept", "application/pdf,.pdf");
-    else filesEl.removeAttribute("accept");
+    if (mode === "merge_pdf" || mode === "split_pdf" || mode === "compress_pdf") {
+      filesEl.setAttribute("accept", "application/pdf,.pdf");
+    } else {
+      filesEl.removeAttribute("accept");
+    }
   };
 
   const modeMinFilesSatisfied = () => {
     if (mode === "merge_pdf") return selected.length >= 2;
-    if (mode === "split_pdf") return selected.length === 1; // ✅ FIX
+    if (mode === "split_pdf") return selected.length === 1;
+    if (mode === "compress_pdf") return selected.length === 1;
     return selected.length >= 1;
   };
 
@@ -270,9 +291,13 @@
     const baseErr = validateFileBase(f);
     if (baseErr) return baseErr;
 
-    if (mode === "merge_pdf" || mode === "split_pdf") {
+    if (mode === "merge_pdf" || mode === "split_pdf" || mode === "compress_pdf") {
       if (!isPdfFile(f)) {
-        return `“${f.name}” isn’t a PDF. ${mode === "merge_pdf" ? "Merge PDFs" : "Split PDF"} only accepts PDF files.`;
+        const label =
+          mode === "merge_pdf" ? "Merge PDFs" :
+          mode === "split_pdf" ? "Split PDF" :
+          "Compress PDF";
+        return `“${f.name}” isn’t a PDF. ${label} only accepts PDF files.`;
       }
     }
     return null;
@@ -284,6 +309,7 @@
     const totalBytes = selected.reduce((a, f) => a + (f?.size || 0), 0);
     if (mode === "merge_pdf") return true;
     if (mode === "split_pdf") return true;
+    if (mode === "compress_pdf") return true; // sending “smaller PDF” is often the point
     if (n >= 8) return true;
     if (totalBytes >= 20 * 1024 * 1024) return true;
     return false;
@@ -330,6 +356,8 @@
       uploadBtn.textContent = uploading ? "Uploading…" : (uploadedMeta.length ? "Re-upload PDFs" : "Upload PDFs");
     } else if (mode === "split_pdf") {
       uploadBtn.textContent = uploading ? "Uploading…" : (uploadedMeta.length ? "Re-upload PDF" : "Upload PDF");
+    } else if (mode === "compress_pdf") {
+      uploadBtn.textContent = uploading ? "Uploading…" : (uploadedMeta.length ? "Re-upload PDF" : "Upload PDF");
     } else {
       uploadBtn.textContent = uploading ? "Uploading…" : (uploadedMeta.length ? "Re-upload" : "Upload files");
     }
@@ -346,7 +374,10 @@
           ? "Add <b>2+</b> PDFs to merge."
           : (mode === "split_pdf"
               ? "Add <b>1</b> PDF to split into pages."
-              : (mode === "convert" ? "Choose a target format, then add files." : "Add up to <b>50</b> files to begin.")
+              : (mode === "compress_pdf"
+                  ? "Add <b>1</b> PDF to compress."
+                  : (mode === "convert" ? "Choose a target format, then add files." : "Add up to <b>50</b> files to begin.")
+                )
             )
       );
       return;
@@ -361,6 +392,12 @@
     if (mode === "split_pdf" && !meetsMin) {
       setStatus("Add a PDF");
       setHint("Split PDF accepts <b>1</b> PDF only.");
+      return;
+    }
+
+    if (mode === "compress_pdf" && !meetsMin) {
+      setStatus("Add a PDF");
+      setHint("Compress PDF accepts <b>1</b> PDF only.");
       return;
     }
 
@@ -385,7 +422,10 @@
         ? "Upload your PDFs to merge."
         : (mode === "split_pdf"
             ? "Upload your PDF to split into pages."
-            : (mode === "convert" ? "Upload files to convert." : "Upload your files to continue.")
+            : (mode === "compress_pdf"
+                ? "Upload your PDF to reduce file size."
+                : (mode === "convert" ? "Upload files to convert." : "Upload your files to continue.")
+              )
           )
     );
   };
@@ -400,9 +440,12 @@
         ? "Merged PDF"
         : (mode === "split_pdf"
             ? "Split PDF"
-            : (mode === "convert"
-                ? `Convert → ${(convertTargetValue || "JPG").toUpperCase()}`
-                : (tier.key === "zip50" ? "Pro ZIP" : "ZIP")
+            : (mode === "compress_pdf"
+                ? "Compressed PDF"
+                : (mode === "convert"
+                    ? `Convert → ${(convertTargetValue || "JPG").toUpperCase()}`
+                    : (tier.key === "zip50" ? "Pro ZIP" : "ZIP")
+                  )
               )
           );
 
@@ -417,6 +460,11 @@
         priceModalLead.innerHTML = `You’re merging <b>${n}</b> PDF${n === 1 ? "" : "s"} into a single <b>PDF</b>.`;
       } else if (mode === "split_pdf") {
         priceModalLead.innerHTML = `You’re splitting <b>1</b> PDF into separate <b>pages</b>.`;
+      } else if (mode === "compress_pdf") {
+        const lvl =
+          pdfCompressLevelValue === "max" ? "Maximum" :
+          pdfCompressLevelValue === "light" ? "Light" : "Balanced";
+        priceModalLead.innerHTML = `You’re compressing <b>1</b> PDF at <b>${lvl}</b> level to reduce file size.`;
       } else if (mode === "convert") {
         priceModalLead.innerHTML = `You’re converting <b>${n}</b> file${n === 1 ? "" : "s"} to <b>${escapeHtml((convertTargetValue || "jpg").toUpperCase())}</b>.`;
       } else {
@@ -452,7 +500,10 @@
           ? "Add <b>2+</b> PDFs to merge."
           : (mode === "split_pdf"
               ? "Add <b>1</b> PDF to split."
-              : (mode === "convert" ? "Choose a target format, then drop files." : "Drop files to begin.")
+              : (mode === "compress_pdf"
+                  ? "Add <b>1</b> PDF to compress."
+                  : (mode === "convert" ? "Choose a target format, then drop files." : "Drop files to begin.")
+                )
             )
       );
       setDropzoneCopy();
@@ -524,14 +575,25 @@
 
   // ====== MODE SYNC ======
   const syncMode = () => {
+    const isCompressPdf = !!modeCompressPdf?.checked;
     const isConvert = !!modeConvert?.checked;
     const isMerge = !!modeMergePdf?.checked;
     const isSplit = !!modeSplitPdf?.checked;
 
-    mode = isMerge ? "merge_pdf" : (isSplit ? "split_pdf" : (isConvert ? "convert" : "compress"));
+    mode = isMerge
+      ? "merge_pdf"
+      : (isSplit
+          ? "split_pdf"
+          : (isCompressPdf
+              ? "compress_pdf"
+              : (isConvert ? "convert" : "compress")
+            )
+        );
+
     safeLocalSet(LS.lastMode, mode);
 
     if (convertRow) convertRow.style.display = (mode === "convert") ? "flex" : "none";
+    if (pdfCompressRow) pdfCompressRow.style.display = (mode === "compress_pdf") ? "flex" : "none";
 
     if (mode === "convert") {
       convertTargetValue = convertTarget?.value || "jpg";
@@ -543,6 +605,12 @@
     } else if (mode === "split_pdf") {
       convertTargetValue = null;
       setHint("Upload <b>1</b> PDF to split into separate pages.");
+    } else if (mode === "compress_pdf") {
+      convertTargetValue = null;
+      const lvl =
+        pdfCompressLevelValue === "max" ? "Maximum" :
+        pdfCompressLevelValue === "light" ? "Light" : "Balanced";
+      setHint(`Upload <b>1</b> PDF to compress. Level: <b>${lvl}</b>.`);
     } else {
       convertTargetValue = null;
       setHint("Upload files to create a ZIP.");
@@ -555,8 +623,8 @@
       hardResetJob("Mode changed — please upload again.");
     }
 
-    // If switching into PDF modes with non-PDFs selected, clear them
-    if ((mode === "merge_pdf" || mode === "split_pdf") && selected.length) {
+    // If switching into PDF-only modes with non-PDFs selected, clear them
+    if ((mode === "merge_pdf" || mode === "split_pdf" || mode === "compress_pdf") && selected.length) {
       const hasNonPdf = selected.some((f) => !isPdfFile(f));
       if (hasNonPdf) {
         selected = [];
@@ -565,19 +633,23 @@
         for (const url of thumbUrls.values()) URL.revokeObjectURL(url);
         thumbUrls.clear();
         setStatus("PDFs only");
-        setHint(`${mode === "merge_pdf" ? "Merge PDFs" : "Split PDF"} only accepts PDF files.`);
+        const label =
+          mode === "merge_pdf" ? "Merge PDFs" :
+          mode === "split_pdf" ? "Split PDF" :
+          "Compress PDF";
+        setHint(`${label} only accepts PDF files.`);
         renderSelected();
         return;
       }
     }
 
-    // Split: enforce exactly 1 file (keep first)
-    if (mode === "split_pdf" && selected.length > 1) {
+    // Split / Compress PDF: enforce exactly 1 file (keep first)
+    if ((mode === "split_pdf" || mode === "compress_pdf") && selected.length > 1) {
       selected = [selected[0]];
       uploadedMeta = [];
       resetProgress();
       setStatus("Only one PDF");
-      setHint("Split PDF accepts <b>1</b> PDF only.");
+      setHint(`${mode === "split_pdf" ? "Split PDF" : "Compress PDF"} accepts <b>1</b> PDF only.`);
     }
 
     setPrimaryStates();
@@ -588,6 +660,7 @@
     modeCompress.addEventListener("change", syncMode);
     modeConvert.addEventListener("change", syncMode);
   }
+  if (modeCompressPdf) modeCompressPdf.addEventListener("change", syncMode);
   if (modeMergePdf) modeMergePdf.addEventListener("change", syncMode);
   if (modeSplitPdf) modeSplitPdf.addEventListener("change", syncMode);
 
@@ -603,17 +676,40 @@
     renderSelected();
   });
 
+  // Compress PDF level change (resets job like target)
+  pdfCompressLevel?.addEventListener("change", () => {
+    pdfCompressLevelValue = pdfCompressLevel?.value || "balanced";
+    safeLocalSet(LS.lastPdfLevel, pdfCompressLevelValue);
+
+    if (uploadedMeta.length || jobId) {
+      hardResetJob("Compression level changed — please upload again.");
+    }
+
+    setDropzoneCopy();
+    setPrimaryStates();
+    renderSelected();
+  });
+
   const restoreModePrefs = () => {
     const savedMode = safeLocalGet(LS.lastMode);
     const savedTarget = safeLocalGet(LS.lastTarget);
+    const savedPdfLevel = safeLocalGet(LS.lastPdfLevel);
 
     if (savedTarget && convertTarget) {
       convertTarget.value = savedTarget;
     }
 
-    if (savedMode && (modeCompress || modeConvert || modeMergePdf || modeSplitPdf)) {
+    if (savedPdfLevel && pdfCompressLevel) {
+      pdfCompressLevel.value = savedPdfLevel;
+      pdfCompressLevelValue = savedPdfLevel;
+    } else {
+      pdfCompressLevelValue = pdfCompressLevel?.value || "balanced";
+    }
+
+    if (savedMode && (modeCompress || modeCompressPdf || modeConvert || modeMergePdf || modeSplitPdf)) {
       if (savedMode === "merge_pdf" && modeMergePdf) modeMergePdf.checked = true;
       else if (savedMode === "split_pdf" && modeSplitPdf) modeSplitPdf.checked = true;
+      else if (savedMode === "compress_pdf" && modeCompressPdf) modeCompressPdf.checked = true;
       else if (savedMode === "convert" && modeConvert) modeConvert.checked = true;
       else if (modeCompress) modeCompress.checked = true;
     }
@@ -687,14 +783,13 @@
       setHint(errors.slice(0, 2).map(e => escapeHtml(e)).join("<br/>") + (errors.length > 2 ? "<br/>…" : ""));
     }
 
-    // ✅ Split mode: selecting another PDF REPLACES (no “stuck grey” UX)
-    if (mode === "split_pdf") {
+    // ✅ Split / Compress PDF: selecting another PDF REPLACES
+    if (mode === "split_pdf" || mode === "compress_pdf") {
       if (!incomingValid.length) {
         setPrimaryStates();
         return;
       }
 
-      // Replace with the first valid PDF
       selected = [incomingValid[0]];
 
       uploadedMeta = [];
@@ -855,6 +950,10 @@
         payload.order = pdfPageOrder;
       }
 
+      if (mode === "compress_pdf") {
+        payload.level = pdfCompressLevelValue || "balanced";
+      }
+
       const r = await fetch(`/api/jobs/${encodeURIComponent(jobId)}/mode`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -882,6 +981,9 @@
       } else if (mode === "split_pdf") {
         setStatus("Add a PDF");
         setHint("Split PDF accepts <b>1</b> PDF only.");
+      } else if (mode === "compress_pdf") {
+        setStatus("Add a PDF");
+        setHint("Compress PDF accepts <b>1</b> PDF only.");
       }
       return;
     }
@@ -1089,15 +1191,11 @@
   continueBtn.textContent = "Continue →";
   continueBtn.style.display = "";
 
+  // Initialize compress level from DOM if present
+  pdfCompressLevelValue = pdfCompressLevel?.value || safeLocalGet(LS.lastPdfLevel) || "balanced";
+
   setStatus("Ready");
-  setHint(
-    mode === "merge_pdf"
-      ? "Add <b>2+</b> PDFs to merge."
-      : (mode === "split_pdf"
-          ? "Add <b>1</b> PDF to split."
-          : (mode === "convert" ? "Choose a target format, then drop files." : "Drop files to begin.")
-        )
-  );
+  setHint("Choose a mode and add files.");
   setDropzoneCopy();
   setFileInputAccept();
   renderSelected();

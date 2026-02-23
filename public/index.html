@@ -1,11 +1,9 @@
-<!-- public/index.html — ZipPixel (v27.3 - SPLIT PDF MODE + CLEAN HERO + NO TRUST-ROW COPY)
-     ✅ Added: Split PDF mode (id="modeSplitPdf") alongside existing modes
-     ✅ Removed: hero step row + hero trust pills (already gone)
-     ✅ Removed: fineprint line + toolTrust row (“Stripe secure checkout / No signup / Works on mobile…”)
-     ✅ Keeps ALL required IDs/classes for app.js + modal (no hook breaks)
+<!-- public/index.html — ZipPixel (v28.1 - COMPRESS PDF MODE + BOUTIQUE HERO POLISH)
+     ✅ Added: subtle hero kicker + chips + micro trust row (NO pricing)
+     ✅ Keeps: ALL required IDs/classes for app.js + modal (no hook breaks)
      ✅ No pricing shown on page (modal only)
-     ✅ Mobile-safe file picker preserved (input overlays only button)
-     ✅ Version sync: style.css?v=26 + app.js?v=16 (unchanged here)
+     ✅ Mobile-safe file picker preserved
+     ✅ Version sync: style.css?v=27 + app.js?v=17.3
 -->
 <!doctype html>
 <html lang="en">
@@ -13,12 +11,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>ZipPixel — Compress, convert, merge, or split PDFs</title>
-  <meta name="description" content="Compress multiple files into one ZIP, convert between formats, or merge/split PDFs in seconds. No signup. Pay once." />
+  <title>ZipPixel — Compress, convert, merge, split, or shrink files.</title>
+  <meta name="description" content="Compress files into a ZIP, convert formats, merge/split PDFs, or compress a PDF to a smaller size. No signup." />
   <link rel="canonical" href="https://zippixel.it.com/" />
 
-  <meta property="og:title" content="ZipPixel — Compress, convert, merge, or split PDFs instantly" />
-  <meta property="og:description" content="ZIP multiple files, convert formats, or merge/split PDFs. Fast. Simple. Secure." />
+  <meta property="og:title" content="ZipPixel — Compress, convert, merge, split, or shrink PDFs" />
+  <meta property="og:description" content="ZIP multiple files, convert formats, merge/split PDFs, or compress a PDF to a smaller size." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zippixel.it.com/" />
   <meta property="og:image" content="https://zippixel.it.com/og.png" />
@@ -32,7 +30,7 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- ✅ VERSION SYNC -->
-  <link rel="stylesheet" href="/style.css?v=26" />
+  <link rel="stylesheet" href="/style.css?v=27" />
 </head>
 
 <body class="premium">
@@ -58,11 +56,30 @@
     <div class="container heroInner">
 
       <div class="heroText">
-        <h1>Compress, convert, merge, or split PDFs.</h1>
+        <div class="heroKicker">
+          <span class="kDot" aria-hidden="true"></span>
+          Built for email limits, client handovers, and “just get it done”.
+        </div>
+
+        <h1>Compress, convert, merge, split — and shrink PDFs.</h1>
 
         <p class="heroSub">
-          Upload your files, choose a mode, and get a clean download in minutes — built for email, clients, and quick handovers.
+          Upload, choose a mode, and get a clean download in minutes.
+          No accounts. No clutter. Just the tool.
         </p>
+
+        <div class="heroChips" aria-label="Highlights">
+          <span class="chip">Fast uploads</span>
+          <span class="chip">Clean downloads</span>
+          <span class="chip">Share link (optional)</span>
+          <span class="chip">Privacy-first</span>
+        </div>
+
+        <div class="heroMetaRow" aria-label="Details">
+          <div class="metaPill">Works in your browser</div>
+          <div class="metaPill">Up to 50 files per job</div>
+          <div class="metaPill">PDF tools included</div>
+        </div>
       </div>
 
       <div class="tool toolPremium" aria-label="ZipPixel tool">
@@ -76,12 +93,17 @@
         </div>
 
         <!-- MODE SELECTOR -->
-        <fieldset class="modeRow" aria-label="Mode">
+        <fieldset class="modeRow modeRowPremium" aria-label="Mode">
           <legend class="srOnly">Choose a mode</legend>
 
           <label class="modeOption" for="modeCompress">
             <input type="radio" name="mode" id="modeCompress" checked>
             <span>Compress to ZIP</span>
+          </label>
+
+          <label class="modeOption" for="modeCompressPdf" title="Reduce PDF file size">
+            <input type="radio" name="mode" id="modeCompressPdf">
+            <span>Compress PDF</span>
           </label>
 
           <label class="modeOption" for="modeConvert">
@@ -94,13 +116,28 @@
             <span>Merge PDFs</span>
           </label>
 
-          <!-- ✅ NEW: SPLIT PDF -->
           <label class="modeOption" for="modeSplitPdf" title="Split a PDF into separate pages">
             <input type="radio" name="mode" id="modeSplitPdf">
             <span>Split PDF</span>
           </label>
 
-          <div class="convertRow" id="convertRow" style="display:none;">
+          <!-- ✅ Compress PDF controls -->
+          <div class="convertRow convertRowPremium" id="pdfCompressRow" style="display:none;">
+            <div class="convertGroup convertGroupWide">
+              <label class="srOnly" for="pdfCompressLevel">Compression level</label>
+              <select id="pdfCompressLevel" aria-label="Compression level">
+                <option value="balanced" selected>Balanced (recommended)</option>
+                <option value="light">Light (best quality)</option>
+                <option value="max">Maximum (smallest size)</option>
+              </select>
+            </div>
+
+            <div class="convertHint">
+              Tip: “Maximum” for email limits. “Light” keeps quality.
+            </div>
+          </div>
+
+          <div class="convertRow convertRowPremium" id="convertRow" style="display:none;">
             <div class="convertGroup">
               <label class="srOnly" for="convertFrom">Convert from</label>
               <select id="convertFrom" aria-label="Convert from">
@@ -131,21 +168,23 @@
         </fieldset>
 
         <!-- DROPZONE -->
-        <div class="dropzone dropzonePremium" id="dropzone" aria-label="File dropzone">
+        <div class="dropzone dropzonePremium dropzoneUltra" id="dropzone" aria-label="File dropzone">
 
           <div class="dzCenter">
-            <div class="dzIcon" aria-hidden="true"><span class="dzArrow">↑</span></div>
+            <div class="dzIcon dzIconPremium" aria-hidden="true"><span class="dzArrow">↑</span></div>
             <div class="dzTitle" id="dzTitle">Drop files here</div>
             <div class="dzSub" id="dzSub">Up to 50 files • Drag &amp; drop or select</div>
 
-            <!-- ✅ MOBILE-SAFE PICKER -->
             <div class="filePick">
-              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">
+              <button class="btnPrimary btnLarge btnGlow" id="chooseBtn" type="button">
                 Select files
               </button>
 
-              <!-- keep id="files" exactly for app.js -->
               <input id="files" type="file" multiple aria-label="Choose files" />
+            </div>
+
+            <div class="dzFine">
+              Pro tip: PDFs feel best when you upload once, then adjust mode/level before continuing.
             </div>
           </div>
 
@@ -155,16 +194,13 @@
               <button class="btnGhost" id="clearBtn" type="button">Clear</button>
             </div>
             <ol class="fileList" id="fileList"></ol>
-            <!-- ✅ PREMIUM PDF REORDER PANEL (Merge Mode Only) -->
-            <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
 
+            <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
               <div class="pdfReorderHead">
                 <div class="pdfReorderTitle">Reorder pages</div>
                 <div class="pdfReorderSub">Drag pages to change the merge order.</div>
               </div>
-
               <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
-
             </div>
           </div>
         </div>
@@ -200,7 +236,7 @@
         <div class="howCard">
           <div class="howNum">Step 01</div>
           <div class="howTitle">Choose a mode</div>
-          <div class="howText">Compress into a ZIP, convert formats, merge PDFs, or split a PDF into pages.</div>
+          <div class="howText">Compress to ZIP, convert formats, merge/split PDFs, or compress a PDF to reduce size.</div>
         </div>
 
         <div class="howCard">
@@ -228,7 +264,12 @@
       <div class="faqList">
         <details class="faqItem">
           <summary>Do I need an account?</summary>
-          <div class="faqBody">No. ZipPixel is pay-once with instant access after checkout.</div>
+          <div class="faqBody">No. ZipPixel runs without accounts — upload, process, download.</div>
+        </details>
+
+        <details class="faqItem">
+          <summary>Can I compress a PDF to a smaller size?</summary>
+          <div class="faqBody">Yes — choose “Compress PDF”, upload one PDF, pick a compression level, and ZipPixel will reduce file size for easier email and uploads.</div>
         </details>
 
         <details class="faqItem">
@@ -248,7 +289,7 @@
 
         <details class="faqItem">
           <summary>How many files can I upload?</summary>
-          <div class="faqBody">Up to 50 files per job (Pro supports up to 50). Standard supports up to 10.</div>
+          <div class="faqBody">Up to 50 files per job.</div>
         </details>
 
         <details class="faqItem">
@@ -259,11 +300,6 @@
         <details class="faqItem">
           <summary>What happens to my files?</summary>
           <div class="faqBody">They’re processed for your job so you can download the result. See the Privacy page for details.</div>
-        </details>
-
-        <details class="faqItem">
-          <summary>Why hide pricing until later?</summary>
-          <div class="faqBody">Because most people only know what they need after they’ve added files. ZipPixel prepares your job first, then you checkout when you’re ready to download.</div>
         </details>
       </div>
     </div>
@@ -278,7 +314,7 @@
         <img src="/favicon.svg" width="18" height="18" alt="">
         <span>ZipPixel</span>
       </div>
-      <div class="footerNote">Compress, convert, merge, and split PDFs — pay once, download instantly.</div>
+      <div class="footerNote">Compress, convert, merge, split, and shrink PDFs — clean handover every time.</div>
     </div>
     <div class="footerRight" aria-label="Footer links">
       <a href="/privacy">Privacy</a>
@@ -361,7 +397,8 @@
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 </script>
-<script src="/app.js?v=16" defer></script>
+
+<script src="/app.js?v=17.3" defer></script>
 
 </body>
 </html>
