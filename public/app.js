@@ -1,4 +1,4 @@
-// public/app.js — PDFOperations frontend (v17.6 - ROTATE PDF + NO PAYMENT COPY OUTSIDE MODAL + MODAL FALLBACK)
+// public/app.js — PDFOperations frontend (v17.7 - PAGE-LEVEL PDF MERGE (DRAG PAGES) + ORDER SYNC)
 // Matches: index.html + tool pages + server.js routes:
 // /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/jobs/:jobId/mode, /api/checkout
 (() => {
@@ -93,11 +93,21 @@
   const rotateButtons = Array.from(document.querySelectorAll("[data-rotate-deg]"));
   const rotateSelect = document.getElementById("rotateDegrees"); // optional
 
-  // PDF reorder UI
-  let pdfPageOrder = [];
-  let pdfDocRef = null;
+  // PDF reorder UI (merge page)
+  let pdfPageOrder = []; // array of keys like "0:1" (fileIndex:pageNumber1based)
   const pdfReorderWrap = document.getElementById("pdfReorderWrap");
   const pdfThumbGrid = document.getElementById("pdfThumbGrid");
+
+  // Optional elements (if present on your merge page)
+  const pdfReorderResetBtn = document.getElementById("pdfReorderReset"); // optional
+  const pdfReorderCountEl = document.getElementById("pdfReorderCount");   // optional
+  const pdfThumbNoteEl = document.getElementById("pdfThumbNote");         // optional
+
+  // Optional preview modal (if present)
+  const pdfPreviewModal = document.getElementById("pdfPreviewModal");
+  const pdfPreviewClose = document.getElementById("pdfPreviewClose");
+  const pdfPreviewTitle = document.getElementById("pdfPreviewTitle");
+  const pdfPreviewCanvas = document.getElementById("pdfPreviewCanvas");
 
   // Page tool hint (optional)
   const pageTool = (document.body?.dataset?.tool || "").trim(); // e.g. "compress_pdf"
@@ -567,6 +577,377 @@
     if (priceInline) priceInline.textContent = `£${total.toFixed(2)}`;
   };
 
+  // =========================================================
+  // PAGE-LEVEL MERGE (DRAG PAGES) — FRONTEND ENGINE
+  // - Works on merge tool page when #pdfReorderWrap/#pdfThumbGrid exist and pdf.js is available.
+  // - Builds a grid of ALL pages across ALL selected PDFs and lets user drag pages into any order.
+  // - pdfPageOrder becomes array of "fileIndex:pageNumber" (1-based pageNumber) in desired final order.
+  // - Whenever order changes and a job exists, we POST /mode again to persist order server-side.
+  // =========================================================
+
+  const hasPdfJs = () => typeof window !== "undefined" && !!window.pdfjsLib && typeof window.pdfjsLib.getDocument === "function";
+
+  const PAGE_MERGE = {
+    MAX_THUMBS: 180,     // hard cap for speed
+    THUMB_W: 240,        // render width target
+    RENDER_CONCURRENCY: 1 // keep it safe for memory
+  };
+
+  let _mergeBuildToken = 0;
+  let _mergeBytesByFile = []; // Array<ArrayBuffer> aligned with selected
+  let _mergeOriginalOrder = []; // keys
+  let _mergeDragKey = null;
+  let _mergeThrottledModeTimer = null;
+
+  const setPdfOrder = (nextOrder) => {
+    pdfPageOrder = Array.isArray(nextOrder) ? nextOrder.slice() : [];
+    // expose for debugging / other scripts
+    try { window.__pdfopsPageOrder = pdfPageOrder.slice(); } catch {}
+
+    // persist order to backend if we already have a job (important: user may reorder AFTER upload)
+    if (mode === "merge_pdf" && jobId) {
+      if (_mergeThrottledModeTimer) clearTimeout(_mergeThrottledModeTimer);
+      _mergeThrottledModeTimer = setTimeout(() => {
+        setBackendMode().catch(() => {});
+      }, 180);
+    }
+  };
+
+  // If any page script dispatches this (like your merge-pdf.html inline), we accept it too.
+  document.addEventListener("pdfops:pageorder", (e) => {
+    const order = e?.detail?.order;
+    if (Array.isArray(order) && order.length) setPdfOrder(order);
+  });
+
+  const mergeUpdateCount = () => {
+    if (!pdfReorderCountEl) return;
+    if (!pdfPageOrder.length) { pdfReorderCountEl.textContent = ""; return; }
+    pdfReorderCountEl.textContent = ` • ${pdfPageOrder.length} page${pdfPageOrder.length === 1 ? "" : "s"}`;
+  };
+
+  const mergeShowNote = (msg) => {
+    if (!pdfThumbNoteEl) return;
+    if (!msg) { pdfThumbNoteEl.hidden = true; pdfThumbNoteEl.textContent = ""; return; }
+    pdfThumbNoteEl.hidden = false;
+    pdfThumbNoteEl.textContent = msg;
+  };
+
+  const mergeClearUI = () => {
+    if (pdfThumbGrid) pdfThumbGrid.innerHTML = "";
+    if (pdfReorderWrap) pdfReorderWrap.hidden = true;
+    _mergeBytesByFile = [];
+    _mergeOriginalOrder = [];
+    _mergeDragKey = null;
+    mergeShowNote("");
+    setPdfOrder([]);
+    mergeUpdateCount();
+  };
+
+  const mergeEnsureModal = () => {
+    // If your page already has modal elements, use them.
+    if (pdfPreviewModal && pdfPreviewCanvas && pdfPreviewClose && pdfPreviewTitle) return true;
+
+    // No modal in the page: we don't force-create one (keeps safe).
+    // Click-to-preview will be disabled gracefully.
+    return false;
+  };
+
+  const mergeOpenModal = (title) => {
+    if (!mergeEnsureModal()) return false;
+    pdfPreviewTitle.textContent = title || "Preview";
+    pdfPreviewModal.hidden = false;
+    pdfPreviewModal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    return true;
+  };
+
+  const mergeCloseModal = () => {
+    if (!mergeEnsureModal()) return;
+    pdfPreviewModal.hidden = true;
+    pdfPreviewModal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  };
+
+  pdfPreviewClose?.addEventListener("click", mergeCloseModal);
+  pdfPreviewModal?.addEventListener("click", (e) => { if (e.target === pdfPreviewModal) mergeCloseModal(); });
+  window.addEventListener("keydown", (e) => { if (e.key === "Escape" && pdfPreviewModal && !pdfPreviewModal.hidden) mergeCloseModal(); });
+
+  const mergeRenderPreview = async (fileIndex, pageNumber1Based, title) => {
+    if (!mergeEnsureModal()) return;
+    const bytes = _mergeBytesByFile[fileIndex];
+    if (!bytes) return;
+
+    mergeOpenModal(title);
+
+    const loadingTask = window.pdfjsLib.getDocument({ data: bytes });
+    const pdfDoc = await loadingTask.promise;
+
+    const page = await pdfDoc.getPage(pageNumber1Based);
+    const vp0 = page.getViewport({ scale: 1 });
+
+    const maxW = Math.min(920, window.innerWidth * 0.92);
+    const scale = Math.min(3.0, maxW / vp0.width);
+    const viewport = page.getViewport({ scale });
+
+    const ctx = pdfPreviewCanvas.getContext("2d", { alpha: false });
+    pdfPreviewCanvas.width = Math.floor(viewport.width);
+    pdfPreviewCanvas.height = Math.floor(viewport.height);
+
+    await page.render({ canvasContext: ctx, viewport }).promise;
+  };
+
+  const mergeRenderThumb = async (pdfDoc, pageNumber1Based) => {
+    const page = await pdfDoc.getPage(pageNumber1Based);
+    const vp0 = page.getViewport({ scale: 1 });
+    const scale = Math.min(2.2, PAGE_MERGE.THUMB_W / vp0.width);
+    const viewport = page.getViewport({ scale });
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d", { alpha: false });
+
+    canvas.width = Math.floor(viewport.width);
+    canvas.height = Math.floor(viewport.height);
+
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    return canvas.toDataURL("image/jpeg", 0.86);
+  };
+
+  const mergeMove = (arr, fromIdx, toIdx) => {
+    const next = arr.slice();
+    const [item] = next.splice(fromIdx, 1);
+    next.splice(toIdx, 0, item);
+    return next;
+  };
+
+  const mergeWireDnD = () => {
+    if (!pdfThumbGrid) return;
+
+    const items = Array.from(pdfThumbGrid.querySelectorAll(".pdfThumb"));
+
+    items.forEach((node) => {
+      const key = node.getAttribute("data-page-key");
+      if (!key) return;
+
+      node.addEventListener("dragstart", (e) => {
+        _mergeDragKey = key;
+        node.classList.add("isDragging");
+        e.dataTransfer.effectAllowed = "move";
+        try { e.dataTransfer.setData("text/plain", key); } catch {}
+      });
+
+      node.addEventListener("dragend", () => {
+        _mergeDragKey = null;
+        node.classList.remove("isDragging");
+        items.forEach(n => n.classList.remove("isOver"));
+      });
+
+      node.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        node.classList.add("isOver");
+        e.dataTransfer.dropEffect = "move";
+      });
+
+      node.addEventListener("dragleave", () => node.classList.remove("isOver"));
+
+      node.addEventListener("drop", (e) => {
+        e.preventDefault();
+        node.classList.remove("isOver");
+
+        const fromKey = _mergeDragKey || (() => {
+          try { return e.dataTransfer.getData("text/plain"); } catch { return null; }
+        })();
+
+        const toKey = key;
+        if (!fromKey || !toKey || fromKey === toKey) return;
+
+        const fromIdx = pdfPageOrder.indexOf(fromKey);
+        const toIdx = pdfPageOrder.indexOf(toKey);
+        if (fromIdx === -1 || toIdx === -1) return;
+
+        const next = mergeMove(pdfPageOrder, fromIdx, toIdx);
+        setPdfOrder(next);
+
+        // Rebuild DOM order cheaply
+        const frag = document.createDocumentFragment();
+        next.forEach((k) => {
+          const el = pdfThumbGrid.querySelector(`[data-page-key="${CSS.escape(k)}"]`);
+          if (el) frag.appendChild(el);
+        });
+        pdfThumbGrid.innerHTML = "";
+        pdfThumbGrid.appendChild(frag);
+
+        mergeWireDnD();
+        mergeUpdateCount();
+      });
+
+      // click-to-preview (only if modal exists on page)
+      node.addEventListener("click", async () => {
+        if (!mergeEnsureModal()) return; // gracefully do nothing if no modal in this page
+        const [fiStr, pStr] = String(key).split(":");
+        const fi = Number(fiStr);
+        const p1 = Number(pStr);
+        if (!Number.isFinite(fi) || !Number.isFinite(p1)) return;
+
+        const label = node.getAttribute("data-page-label") || `PDF • page ${p1}`;
+        try { await mergeRenderPreview(fi, p1, label); } catch {}
+      });
+    });
+  };
+
+  const mergeBuildPageGrid = async () => {
+    // only on merge tool, only when UI hooks exist, only when pdf.js exists
+    if (mode !== "merge_pdf") { mergeClearUI(); return; }
+    if (!pdfReorderWrap || !pdfThumbGrid) return;
+    if (!hasPdfJs()) {
+      // If pdf.js isn't included on this page, just hide page reorder UI.
+      mergeClearUI();
+      return;
+    }
+
+    // Must have at least 1 PDF selected to preview; merge needs 2+, but preview can show earlier.
+    if (!selected.length || selected.some(f => !isPdfFile(f))) {
+      mergeClearUI();
+      return;
+    }
+
+    const token = ++_mergeBuildToken;
+
+    // Reset UI
+    pdfThumbGrid.innerHTML = "";
+    pdfReorderWrap.hidden = false;
+    mergeShowNote("");
+
+    // Read bytes aligned with current selected order
+    try {
+      _mergeBytesByFile = await Promise.all(selected.map((f) => f.arrayBuffer()));
+    } catch {
+      mergeClearUI();
+      return;
+    }
+
+    // Build thumbs sequentially to avoid memory spikes
+    const nextOrder = [];
+    let totalPagesRendered = 0;
+    let clipped = false;
+
+    for (let fi = 0; fi < selected.length; fi++) {
+      if (token !== _mergeBuildToken) return; // cancelled by new selection
+
+      const name = selected[fi]?.name || `PDF ${fi + 1}`;
+      const bytes = _mergeBytesByFile[fi];
+
+      const loadingTask = window.pdfjsLib.getDocument({ data: bytes });
+      let pdfDoc;
+      try {
+        pdfDoc = await loadingTask.promise;
+      } catch {
+        continue;
+      }
+
+      const pageCount = pdfDoc.numPages || 0;
+      for (let p1 = 1; p1 <= pageCount; p1++) {
+        if (token !== _mergeBuildToken) return;
+
+        if (totalPagesRendered >= PAGE_MERGE.MAX_THUMBS) { clipped = true; break; }
+
+        const key = `${fi}:${p1}`;
+        nextOrder.push(key);
+        totalPagesRendered++;
+
+        // Create card
+        const card = document.createElement("div");
+        card.className = "pdfThumb";
+        card.draggable = true;
+        card.setAttribute("data-page-key", key);
+        card.setAttribute("data-page-label", `${name} • page ${p1}`);
+
+        const imgWrap = document.createElement("div");
+        imgWrap.className = "pdfThumbImg";
+        const img = document.createElement("img");
+        img.alt = `${name} page ${p1}`;
+        imgWrap.appendChild(img);
+
+        const meta = document.createElement("div");
+        meta.className = "pdfThumbMeta";
+        const pill1 = document.createElement("div");
+        pill1.className = "pdfThumbPill";
+        pill1.textContent = `p${p1}`;
+        const pill2 = document.createElement("div");
+        pill2.className = "pdfThumbPill";
+        pill2.textContent = name;
+        meta.appendChild(pill1);
+        meta.appendChild(pill2);
+
+        card.appendChild(imgWrap);
+        card.appendChild(meta);
+
+        pdfThumbGrid.appendChild(card);
+
+        // Render thumb
+        try {
+          const url = await mergeRenderThumb(pdfDoc, p1);
+          img.src = url;
+        } catch {
+          // keep blank if render fails
+        }
+      }
+
+      if (clipped) break;
+    }
+
+    _mergeOriginalOrder = nextOrder.slice();
+
+    // Set initial order (or preserve current if it matches same key set)
+    const haveSameKeySet =
+      pdfPageOrder.length === nextOrder.length &&
+      pdfPageOrder.every((k, i) => k === nextOrder[i]); // strict match
+
+    if (!pdfPageOrder.length || !haveSameKeySet) {
+      setPdfOrder(nextOrder);
+    }
+
+    // if user already reordered earlier, we need to re-apply their order DOM-wise
+    if (pdfPageOrder.length) {
+      const frag = document.createDocumentFragment();
+      pdfPageOrder.forEach((k) => {
+        const el = pdfThumbGrid.querySelector(`[data-page-key="${CSS.escape(k)}"]`);
+        if (el) frag.appendChild(el);
+      });
+      pdfThumbGrid.innerHTML = "";
+      pdfThumbGrid.appendChild(frag);
+    }
+
+    mergeWireDnD();
+    mergeUpdateCount();
+
+    if (clipped) {
+      mergeShowNote(`Preview limited to the first ${PAGE_MERGE.MAX_THUMBS} pages for speed.`);
+    }
+  };
+
+  const mergeResetOrder = () => {
+    if (mode !== "merge_pdf") return;
+    if (!_mergeOriginalOrder.length) return;
+    setPdfOrder(_mergeOriginalOrder);
+
+    // reorder DOM
+    if (!pdfThumbGrid) return;
+    const frag = document.createDocumentFragment();
+    _mergeOriginalOrder.forEach((k) => {
+      const el = pdfThumbGrid.querySelector(`[data-page-key="${CSS.escape(k)}"]`);
+      if (el) frag.appendChild(el);
+    });
+    pdfThumbGrid.innerHTML = "";
+    pdfThumbGrid.appendChild(frag);
+    mergeWireDnD();
+    mergeUpdateCount();
+  };
+
+  pdfReorderResetBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    mergeResetOrder();
+  });
+
   // ====== RENDER SELECTED ======
   const renderSelected = () => {
     if (!fileMeta || !fileSummary || !fileList) return;
@@ -579,9 +960,7 @@
       resetProgress();
       revokeRemovedThumbs(new Set());
 
-      if (pdfReorderWrap) pdfReorderWrap.hidden = true;
-      if (pdfThumbGrid) pdfThumbGrid.innerHTML = "";
-      pdfPageOrder = [];
+      mergeClearUI();
 
       setStatus("Ready");
       setHint(
@@ -644,6 +1023,10 @@
     setDropzoneCopy();
     setFileInputAccept();
     setPrimaryStates();
+
+    // Build page-level merge grid whenever selection changes on merge page
+    // (covers file picker AND drag/drop additions)
+    mergeBuildPageGrid().catch(() => {});
   };
 
   // Remove item
@@ -805,6 +1188,14 @@
       resetProgress();
       setStatus("Only one PDF");
       setHint(`${mode === "split_pdf" ? "Split PDF" : (mode === "compress_pdf" ? "Compress PDF" : "Rotate PDF")} accepts <b>1</b> PDF only.`);
+    }
+
+    // entering/leaving merge mode: keep UI consistent
+    if (mode !== "merge_pdf") {
+      mergeClearUI();
+    } else {
+      // attempt to build immediately if we already have selected PDFs
+      mergeBuildPageGrid().catch(() => {});
     }
 
     setPrimaryStates();
@@ -1103,7 +1494,9 @@
         from: convertFrom?.value || "auto",
       };
 
-      if (mode === "merge_pdf" && pdfPageOrder.length) payload.order = pdfPageOrder;
+      // ✅ merge: send page-level order if available
+      if (mode === "merge_pdf" && Array.isArray(pdfPageOrder) && pdfPageOrder.length) payload.order = pdfPageOrder;
+
       if (mode === "compress_pdf") payload.level = pdfCompressLevelValue || "balanced";
       if (mode === "rotate_pdf") payload.degrees = rotateDegreesValue || 90;
 
@@ -1169,6 +1562,7 @@
     const totalBytes = selected.reduce((a, f) => a + f.size, 0);
     const prog = makeProgressReporter(totalBytes);
 
+    // ✅ IMPORTANT: set mode (and page order) BEFORE upload
     await setBackendMode();
 
     try {
@@ -1220,6 +1614,7 @@
       if (progressFill) progressFill.style.width = "100%";
       if (progressPct) progressPct.textContent = "100%";
 
+      // ✅ user can still reorder pages after upload — that will POST /mode again automatically
       setPrimaryStates();
     } catch (e) {
       setStatus("Upload failed");

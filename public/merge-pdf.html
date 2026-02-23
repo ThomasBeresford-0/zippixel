@@ -1,8 +1,10 @@
-<!-- public/merge-pdf.html — PDFOperations (v5 - PAGE PREVIEW + DRAG REORDER UPGRADE)
-     ✅ Header routes fixed (no ZIP / no /compress-pdf.html)
+<!-- public/merge-pdf.html — PDFOperations (v6 - PAGE PREVIEW + DRAG REORDER (SAFE WITH CLIPPED PAGES) + CANONICAL FIX)
+     ✅ Uses pretty URL routes (no .html in nav/canonical)
      ✅ Keeps ALL existing app.js IDs unchanged
-     ✅ Adds real PDF page thumbnails + drag & drop reorder + click-to-preview modal
-     ✅ Exposes window.__pdfopsPageOrder + dispatches "pdfops:pageorder" event (backend/app.js can consume)
+     ✅ Real PDF page thumbnails + drag & drop reorder + click-to-preview modal
+     ✅ Exposes window.__pdfopsPageOrder (["fileIndex:pageNumber", ...]) + dispatches "pdfops:pageorder"
+     ✅ IMPORTANT FIX: if preview is clipped, non-preview pages are STILL included in __pdfopsPageOrder
+        (they just aren’t draggable). This prevents “missing pages” merges.
 -->
 <!doctype html>
 <html lang="en">
@@ -12,7 +14,9 @@
 
   <title>Merge PDF Files Online — Combine PDFs Instantly | PDFOperations</title>
   <meta name="description" content="Merge PDF files online instantly. Combine multiple PDF documents into one file. Drag, reorder pages and download when ready. Secure. No signup required." />
-  <link rel="canonical" href="https://pdfoperations.com/merge-pdf.html" />
+
+  <!-- ✅ canonical should be the pretty route you actually serve/index -->
+  <link rel="canonical" href="https://pdfoperations.com/merge-pdf" />
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
@@ -22,7 +26,7 @@
   <meta property="og:title" content="Merge PDF Files Online — Combine PDFs Instantly" />
   <meta property="og:description" content="Combine multiple PDF files into one document. Drag, reorder and download securely." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://pdfoperations.com/merge-pdf.html" />
+  <meta property="og:url" content="https://pdfoperations.com/merge-pdf" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
   <meta property="og:image:alt" content="PDFOperations — Merge PDF" />
 
@@ -47,7 +51,7 @@
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "PDFOperations",
-    "url": "https://pdfoperations.com/merge-pdf.html",
+    "url": "https://pdfoperations.com/merge-pdf",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "All",
     "description": "Merge PDF files online instantly. Combine multiple PDF documents into one file. Drag to reorder pages and download when ready.",
@@ -57,7 +61,7 @@
 
   <style>
     /* =========================
-       Merge v5 — page preview UX
+       Merge v6 — page preview UX
        (scoped, safe, no style.css edits)
     ========================== */
 
@@ -218,13 +222,13 @@
 
     <nav class="navLinks" aria-label="Primary navigation">
       <a href="/">Compress</a>
-      <a href="/merge-pdf.html" aria-current="page">Merge</a>
-      <a href="/split-pdf.html">Split</a>
-      <a href="/convert.html">Convert</a>
-      <a href="/rotate-pdf.html">Rotate</a>
-      <a href="/pricing.html">Pricing</a>
-      <a href="/privacy.html">Privacy</a>
-      <a href="/terms.html">Terms</a>
+      <a href="/merge-pdf" aria-current="page">Merge</a>
+      <a href="/split-pdf">Split</a>
+      <a href="/convert">Convert</a>
+      <a href="/rotate-pdf">Rotate</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
       <a href="#tool" class="navCta">Start</a>
     </nav>
 
@@ -411,8 +415,8 @@
       <div class="footerNote">Secure PDF merging online.</div>
     </div>
     <div class="footerRight">
-      <a href="/privacy.html">Privacy</a>
-      <a href="/terms.html">Terms</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
     </div>
   </div>
 </footer>
@@ -431,6 +435,7 @@
 </div>
 <!-- ===================================== -->
 
+<!-- pdf.js (CDN) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
   pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -439,10 +444,13 @@
 
 <script>
 /* =========================================================
-   Merge v5 — PDF page thumbnails + drag reorder + preview
+   Merge v6 — PDF page thumbnails + drag reorder + preview
    - Coexists with /app.js (does not change existing IDs)
-   - Sets window.__pdfopsPageOrder (array of page keys)
+   - Sets window.__pdfopsPageOrder (array of "fileIndex:pageNumber")
    - Dispatches "pdfops:pageorder" event after any reorder
+   - CLIP SAFE: if thumbnails are clipped for performance, we STILL
+     include all remaining pages in __pdfopsPageOrder so merges
+     never drop pages.
 ========================================================= */
 (() => {
   const fileInput = document.getElementById("files");
@@ -462,14 +470,14 @@
   // Safety: only run on merge tool page
   if (!document.body || document.body.dataset.tool !== "merge_pdf") return;
 
-  // Limits (keep sane – thumbnails can be heavy)
-  const MAX_THUMB_PAGES = 160;     // total pages thumb-rendered across all PDFs
-  const THUMB_TARGET_W = 260;      // used to scale thumb renders
+  // Limits (thumb rendering can be heavy)
+  const MAX_THUMB_PAGES = 160;     // thumbs rendered across all PDFs
+  const THUMB_TARGET_W = 260;      // scale target
 
-  let originalOrder = []; // pageKey[] in initial order
-  let currentOrder = [];  // pageKey[] current order
-  let pageMap = new Map(); // pageKey -> { fileIndex, pageNumber, name, bytes }
-  let pdfBytesByFile = []; // arrayBuffer per file (for preview rendering)
+  let originalOrder = [];   // all pageKey[] in initial order (includes non-thumb pages too)
+  let currentOrder = [];    // all pageKey[] current order (includes non-thumb pages too)
+  let pageMap = new Map();  // pageKey -> { fileIndex, pageNumber, name } (ONLY for thumb pages)
+  let pdfBytesByFile = [];  // arrayBuffer per file (for preview)
 
   let dragKey = null;
 
@@ -527,11 +535,13 @@
     grid.innerHTML = "";
     wrap.hidden = true;
     noteEl.hidden = true;
+
     originalOrder = [];
     currentOrder = [];
     pageMap.clear();
     pdfBytesByFile = [];
     dragKey = null;
+
     setOrder([]);
     updateCount();
   }
@@ -551,7 +561,7 @@
     await page.render({ canvasContext: ctx, viewport }).promise;
 
     const url = canvas.toDataURL("image/jpeg", 0.86);
-    return { url, w: canvas.width, h: canvas.height };
+    return { url };
   }
 
   async function renderPreviewPage(fileIndex, pageNumber) {
@@ -564,7 +574,6 @@
     const page = await pdfDoc.getPage(pageNumber);
     const vp0 = page.getViewport({ scale: 1 });
 
-    // fit to modal width
     const maxW = Math.min(920, window.innerWidth * 0.92);
     const scale = Math.min(3.0, maxW / vp0.width);
     const viewport = page.getViewport({ scale });
@@ -577,45 +586,27 @@
   }
 
   function rebuildGridFromOrder() {
+    // Only rebuild visible thumbs (keys present in pageMap)
     const frag = document.createDocumentFragment();
-    currentOrder.forEach((key, idx) => {
+
+    currentOrder.forEach((key) => {
       const meta = pageMap.get(key);
       if (!meta) return;
 
-      // existing node?
-      let node = grid.querySelector(`[data-page-key="${CSS.escape(key)}"]`);
-      if (node) {
-        frag.appendChild(node);
-        return;
+      let node = null;
+      try {
+        node = grid.querySelector(`[data-page-key="${CSS.escape(key)}"]`);
+      } catch {
+        node = grid.querySelector(`[data-page-key="${key.replace(/"/g, '\\"')}"]`);
       }
 
-      // create node (should exist already, but safe)
-      node = el("div", { class: "pdfThumb", draggable: true });
-      node.setAttribute("data-page-key", key);
-
-      node.appendChild(el("div", { class: "pdfThumbImg" }, [
-        el("img", { alt: `Page ${meta.pageNumber}` })
-      ]));
-
-      node.appendChild(el("div", { class: "pdfThumbMeta" }, [
-        el("div", { class: "pdfThumbPill", text: `p${meta.pageNumber}` }),
-        el("div", { class: "pdfThumbPill", text: meta.name || "PDF" })
-      ]));
-
-      frag.appendChild(node);
+      if (node) {
+        frag.appendChild(node);
+      }
     });
 
     grid.innerHTML = "";
     grid.appendChild(frag);
-
-    // update visible ordering pills
-    [...grid.querySelectorAll(".pdfThumb")].forEach((node, i) => {
-      const key = node.getAttribute("data-page-key");
-      const meta = pageMap.get(key);
-      const pill = node.querySelector(".pdfThumbMeta .pdfThumbPill");
-      if (pill && meta) pill.textContent = `p${meta.pageNumber}`;
-      node.setAttribute("aria-label", `Page ${meta?.pageNumber || ""}`);
-    });
   }
 
   function wireDragAndClick() {
@@ -681,15 +672,15 @@
     clearThumbs();
     if (!files || files.length < 1) return;
 
-    // Only show for PDFs
     const pdfs = [...files].filter(f => (f.type === "application/pdf") || /\.pdf$/i.test(f.name));
     if (pdfs.length < 1) return;
 
     // Read bytes for preview rendering
     pdfBytesByFile = await Promise.all(pdfs.map(f => f.arrayBuffer()));
 
-    let totalThumbs = 0;
+    let thumbsRendered = 0;
     let clipped = false;
+    let clippedTotalPages = 0;
 
     for (let fileIndex = 0; fileIndex < pdfs.length; fileIndex++) {
       const name = pdfs[fileIndex].name || `PDF ${fileIndex + 1}`;
@@ -699,20 +690,22 @@
       const pdfDoc = await loadingTask.promise;
 
       const numPages = pdfDoc.numPages;
+      clippedTotalPages += numPages;
 
       for (let p = 1; p <= numPages; p++) {
-        if (totalThumbs >= MAX_THUMB_PAGES) { clipped = true; break; }
+        const pageKey = `${fileIndex}:${p}`; // stable key for backend
 
-        const pageKey = `${fileIndex}:${p}`; // stable key
-
-        pageMap.set(pageKey, {
-          fileIndex,
-          pageNumber: p,
-          name,
-        });
-
+        // Always include ALL pages in the final order (even if not thumb-rendered)
         originalOrder.push(pageKey);
-        totalThumbs++;
+
+        // Only render thumbs for the first MAX_THUMB_PAGES pages
+        if (thumbsRendered >= MAX_THUMB_PAGES) {
+          clipped = true;
+          continue;
+        }
+
+        pageMap.set(pageKey, { fileIndex, pageNumber: p, name });
+        thumbsRendered++;
 
         // create thumb node
         const node = el("div", { class: "pdfThumb", draggable: true });
@@ -730,20 +723,16 @@
         node.appendChild(meta);
         grid.appendChild(node);
 
-        // render thumb async (sequential per page to avoid hammering)
         try {
           const { url } = await renderThumbForPage(pdfDoc, p);
           imgEl.src = url;
-        } catch (e) {
-          // leave blank gradient if render fails
-          // (don’t break the whole flow)
+        } catch {
+          // keep gradient placeholder if rendering fails
         }
       }
-
-      if (clipped) break;
     }
 
-    // Show UI
+    // Start with default order (ALL pages included)
     setOrder(originalOrder);
     wrap.hidden = false;
     updateCount();
@@ -751,8 +740,9 @@
 
     if (clipped) {
       noteEl.hidden = false;
+      const hiddenCount = Math.max(0, clippedTotalPages - thumbsRendered);
       noteEl.textContent =
-        `Preview limited to the first ${MAX_THUMB_PAGES} pages for speed. Reordering still applies to visible pages.`;
+        `Preview limited to ${thumbsRendered} pages for speed. ${hiddenCount} page${hiddenCount === 1 ? "" : "s"} will remain in their original relative position. (Nothing will be dropped.)`;
     }
   }
 
@@ -773,7 +763,6 @@
   // When file input changes (works alongside app.js listeners)
   fileInput?.addEventListener("change", async () => {
     const files = fileInput.files;
-    // Only render if user has at least 1 pdf (merge needs 2+, but preview can show anyway)
     if (!files || files.length < 1) {
       clearThumbs();
       return;
@@ -788,6 +777,7 @@
 })();
 </script>
 
+<!-- Keep your existing frontend logic -->
 <script src="/app.js?v=17.3" defer></script>
 
 </body>

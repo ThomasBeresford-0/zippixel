@@ -1,9 +1,12 @@
-// server.js — ZipPixel (RENDER SAFE MONEY MODE v16.4 - ADD ROTATE PDF MODE)
+// server.js — ZipPixel (RENDER SAFE MONEY MODE v16.5 - TRUE PAGE-LEVEL MERGE (CROSS-PDF) + ROTATE PDF MODE)
 // ✅ Pricing tiers: £2.99 (≤10) / £9.99 (11–50) + optional share link (+£2.49)
 // ✅ Server-side enforcement: max 50 files (client enforces size; server enforces count + mode validation)
 // ✅ Routes: /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/jobs/:jobId/mode, /api/checkout
 // ✅ Webhook + Stripe self-heal preserved
-// ✅ merge_pdf mode — PAID download returns a single merged PDF (in upload order / optional page order)
+// ✅ merge_pdf mode — PAID download returns a single merged PDF
+//    - default: file order + natural page order
+//    - optional: cross-PDF page order via ["fileIndex:pageNumber", ...] (e.g. ["0:1","1:2","0:3"])
+//    - optional legacy: single-PDF reorder via [0,2,1,...] when ONLY 1 PDF registered
 // ✅ split_pdf mode — PAID download returns a ZIP of per-page PDFs (in page order)
 // ✅ compress_pdf mode — PAID download returns a single compressed PDF (raster-based; level: light/balanced/max)
 // ✅ rotate_pdf mode — PAID download returns a single rotated PDF (degrees: 90/180/270)
@@ -30,7 +33,7 @@ try {
 
 // pdf-lib is required for merge_pdf + split_pdf + rotate_pdf (but we fail gracefully if missing)
 let PDFDocumentLib = null; // PDFDocument
-let PDFDegrees = null;     // degrees()
+let PDFDegrees = null; // degrees()
 try {
   const pdfLib = require("pdf-lib");
   PDFDocumentLib = pdfLib.PDFDocument;
@@ -220,6 +223,53 @@ function isPdfMeta(fileMeta) {
   return mt === "application/pdf" || name.endsWith(".pdf");
 }
 
+// ====== PAGE ORDER (MERGE) ======
+// Supports 2 formats:
+// 1) Cross-PDF page order: ["fileIndex:pageNumber", ...] where pageNumber is 1-based.
+//    e.g. ["0:1","1:2","0:3","1:1","0:2"]
+// 2) Legacy single-PDF reorder: [0,2,1,...] used only when there is exactly 1 PDF.
+const MAX_PAGE_ORDER_LEN = Number(process.env.MAX_PAGE_ORDER_LEN || 2000);
+
+function parseCrossKey(k) {
+  const s = String(k || "").trim();
+  if (!s) return null;
+  const parts = s.split(":");
+  if (parts.length !== 2) return null;
+
+  const fi = Number(parts[0]);
+  const p1 = Number(parts[1]); // 1-based
+  if (!Number.isInteger(fi) || fi < 0) return null;
+  if (!Number.isInteger(p1) || p1 < 1) return null;
+
+  return { fi, p1, key: `${fi}:${p1}` };
+}
+
+function normalizeMergeOrder(order) {
+  if (!Array.isArray(order) || !order.length) return { type: "none", order: null };
+
+  // If it looks like cross keys, treat as cross
+  const hasCross = order.some((x) => typeof x === "string" && String(x).includes(":"));
+  if (hasCross) {
+    const out = [];
+    for (const x of order) {
+      const parsed = parseCrossKey(x);
+      if (parsed) out.push(parsed.key);
+      if (out.length >= MAX_PAGE_ORDER_LEN) break;
+    }
+    if (!out.length) return { type: "none", order: null };
+    return { type: "cross", order: out };
+  }
+
+  // Otherwise: legacy numeric reorder
+  const nums = order
+    .map((n) => Number(n))
+    .filter((n) => Number.isInteger(n) && n >= 0)
+    .slice(0, MAX_PAGE_ORDER_LEN);
+
+  if (!nums.length) return { type: "none", order: null };
+  return { type: "single", order: nums };
+}
+
 function validateJobFilesForMode(job) {
   const files = Array.isArray(job.files) ? job.files : [];
   if (!files.length) throw new Error("No files registered");
@@ -365,6 +415,11 @@ app.get("/health", (_, res) => {
     modes: Array.from(VALID_MODES),
     pdfCompressLevels: Array.from(VALID_PDF_COMPRESS_LEVELS),
     rotateDegrees: Array.from(VALID_ROTATE_DEGREES),
+    mergeOrder: {
+      crossFormat: "['fileIndex:pageNumber', ...] (pageNumber is 1-based)",
+      legacySingleFormat: "[0,2,1,...] only for 1-PDF reorder",
+      maxOrderLen: MAX_PAGE_ORDER_LEN,
+    },
   });
 });
 
@@ -422,7 +477,10 @@ app.post("/api/jobs", (_, res) => {
 
     mode: "compress", // compress | compress_pdf | convert | merge_pdf | split_pdf | rotate_pdf
     convertTarget: null,
-    pageOrder: null,
+
+    // merge options
+    pageOrder: null,      // either ["0:1","1:2",...] OR [0,2,1,...] legacy OR null
+    pageOrderType: "none",// "none" | "cross" | "single"
 
     // compress_pdf options
     pdfCompressLevel: "balanced",
@@ -491,6 +549,7 @@ app.post("/api/jobs/:jobId/register", (req, res) => {
       if (!f.key.startsWith(`${job.jobId}/`)) throw new Error("Invalid file key");
     }
 
+    // If they had a page order set already, keep it; validity is enforced at download time too.
     validateJobFilesForMode(job);
 
     job.status = "UPLOADED";
@@ -517,7 +576,10 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
       const t = normalizeConvertTarget(target);
       if (t && !VALID_CONVERT_TARGETS.has(t)) throw new Error("Invalid convert target");
       job.convertTarget = t || null;
+
       job.pageOrder = null;
+      job.pageOrderType = "none";
+
       job.pdfCompressLevel = "balanced";
       job.rotateDegrees = 90;
     } else if (m === "merge_pdf") {
@@ -525,31 +587,37 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
       job.pdfCompressLevel = "balanced";
       job.rotateDegrees = 90;
 
-      if (Array.isArray(order) && order.length) {
-        job.pageOrder = order.map((n) => Number(n)).filter((n) => Number.isInteger(n) && n >= 0);
-      } else {
-        job.pageOrder = null;
-      }
+      const norm = normalizeMergeOrder(order);
+      job.pageOrderType = norm.type;
+      job.pageOrder = norm.order;
+
     } else if (m === "compress_pdf") {
       job.convertTarget = null;
+
       job.pageOrder = null;
+      job.pageOrderType = "none";
+
       job.pdfCompressLevel = normalizePdfLevel(level);
       job.rotateDegrees = 90;
     } else if (m === "rotate_pdf") {
       job.convertTarget = null;
+
       job.pageOrder = null;
+      job.pageOrderType = "none";
+
       job.pdfCompressLevel = "balanced";
-      job.rotateDegrees = normalizeRotateDegrees(
-        degrees != null ? degrees : angle
-      );
+      job.rotateDegrees = normalizeRotateDegrees(degrees != null ? degrees : angle);
     } else {
       job.convertTarget = null;
+
       job.pageOrder = null;
+      job.pageOrderType = "none";
+
       job.pdfCompressLevel = "balanced";
       job.rotateDegrees = 90;
     }
 
-    res.json({ ok: true });
+    res.json({ ok: true, pageOrderType: job.pageOrderType });
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
@@ -635,6 +703,7 @@ app.post("/api/checkout", async (req, res) => {
         rotateDeg: job.mode === "rotate_pdf" ? String(normalizeRotateDegrees(job.rotateDegrees)) : "",
         fileCount: String(job.files.length),
         totalPence: String(total),
+        mergeOrderType: job.mode === "merge_pdf" ? String(job.pageOrderType || "none") : "",
       },
     });
 
@@ -667,6 +736,7 @@ app.get("/api/status/:jobId", async (req, res) => {
       convertTarget: job.convertTarget || null,
       pdfLevel: job.pdfCompressLevel || null,
       rotateDegrees: job.rotateDegrees || null,
+      pageOrderType: job.pageOrderType || "none",
     });
   } catch {
     res.status(404).json({ ok: false, error: "Not found" });
@@ -768,48 +838,88 @@ app.get("/api/download/:jobId", async (req, res) => {
       return res.send(inputBuf);
     }
 
-    // ====== MERGE PDF MODE ======
+    // ====== MERGE PDF MODE (TRUE PAGE-LEVEL) ======
     if (job.mode === "merge_pdf") {
       if (!PDFDocumentLib) throw new Error("PDF merge is unavailable (pdf-lib not installed).");
 
       const merged = await PDFDocumentLib.create();
 
-      if (job.files.length === 1) {
-        const f = job.files[0];
+      // Load all PDFs once
+      const srcDocs = [];
+      const srcPageCounts = [];
 
-        const obj = await r2.send(
-          new GetObjectCommand({ Bucket: R2_BUCKET, Key: f.key })
-        );
+      for (const f of job.files) {
+        const obj = await r2.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: f.key }));
         const buf = await streamToBuffer(obj.Body);
 
         const src = await PDFDocumentLib.load(buf);
-        const totalPages = src.getPageCount();
+        srcDocs.push(src);
+        srcPageCounts.push(src.getPageCount());
+      }
 
-        let indices = src.getPageIndices();
-
-        if (Array.isArray(job.pageOrder) && job.pageOrder.length === totalPages) {
-          const isValid =
-            job.pageOrder.every((n) => Number.isInteger(n) && n >= 0 && n < totalPages) &&
-            new Set(job.pageOrder).size === totalPages;
-
-          if (isValid) {
-            indices = job.pageOrder;
-          }
-        }
-
-        const pages = await merged.copyPages(src, indices);
-        for (const p of pages) merged.addPage(p);
-      } else {
-        for (const f of job.files) {
-          const obj = await r2.send(
-            new GetObjectCommand({ Bucket: R2_BUCKET, Key: f.key })
-          );
-          const buf = await streamToBuffer(obj.Body);
-
-          const src = await PDFDocumentLib.load(buf);
+      // Helper: add pages in default order (file order + natural pages)
+      const addDefaultOrder = async () => {
+        for (let fi = 0; fi < srcDocs.length; fi++) {
+          const src = srcDocs[fi];
           const pages = await merged.copyPages(src, src.getPageIndices());
           for (const p of pages) merged.addPage(p);
         }
+      };
+
+      // Cross-PDF page order:
+      // job.pageOrder = ["fi:p1", ...] where p1 is 1-based.
+      if (job.pageOrderType === "cross" && Array.isArray(job.pageOrder) && job.pageOrder.length) {
+        let added = 0;
+        for (const key of job.pageOrder) {
+          const parsed = parseCrossKey(key);
+          if (!parsed) continue;
+
+          const fi = parsed.fi;
+          const p1 = parsed.p1;
+
+          if (fi < 0 || fi >= srcDocs.length) continue;
+          const total = srcPageCounts[fi] || 0;
+          if (p1 < 1 || p1 > total) continue;
+
+          const src = srcDocs[fi];
+          const pageIdx0 = p1 - 1;
+
+          const [copied] = await merged.copyPages(src, [pageIdx0]);
+          merged.addPage(copied);
+          added++;
+          if (added >= MAX_PAGE_ORDER_LEN) break;
+        }
+
+        // If something went wrong and we added nothing, fallback safely
+        if (added === 0) {
+          await addDefaultOrder();
+        }
+      }
+      // Legacy single-PDF reorder:
+      // job.pageOrder = [0..n-1] only meaningful when there is exactly 1 PDF.
+      else if (job.pageOrderType === "single" && Array.isArray(job.pageOrder) && job.pageOrder.length) {
+        // If multiple PDFs exist, we ignore legacy numeric order and do default
+        if (srcDocs.length === 1) {
+          const src = srcDocs[0];
+          const totalPages = srcPageCounts[0] || 0;
+
+          let indices = src.getPageIndices();
+
+          if (job.pageOrder.length === totalPages) {
+            const isValid =
+              job.pageOrder.every((n) => Number.isInteger(n) && n >= 0 && n < totalPages) &&
+              new Set(job.pageOrder).size === totalPages;
+
+            if (isValid) indices = job.pageOrder;
+          }
+
+          const pages = await merged.copyPages(src, indices);
+          for (const p of pages) merged.addPage(p);
+        } else {
+          await addDefaultOrder();
+        }
+      } else {
+        await addDefaultOrder();
       }
 
       const mergedBytes = await merged.save();
@@ -1003,6 +1113,7 @@ app.get("/api/share/:token", async (req, res) => {
       convertTarget: job.convertTarget || null,
       pdfLevel: job.pdfCompressLevel || null,
       rotateDegrees: job.rotateDegrees || null,
+      pageOrderType: job.pageOrderType || "none",
     });
   } catch (e) {
     res.status(400).json({ error: e.message });
