@@ -87,6 +87,11 @@
   let uploading = false;
 
   let selected = [];            // Array<File>
+  // ====== PDF REORDER STATE ======
+  let pdfPageOrder = [];        // e.g. [2,0,1]
+  let pdfDocRef = null;         // PDF.js document reference
+  const pdfReorderWrap = document.getElementById("pdfReorderWrap");
+  const pdfThumbGrid = document.getElementById("pdfThumbGrid");
   const thumbUrls = new Map();  // keyOf(file) -> objectURL (images only)
   let uploadedMeta = [];        // [{ key, originalname, mimetype }]
 
@@ -238,7 +243,7 @@
 
   const modeMinFilesSatisfied = () => {
     if (mode === "merge_pdf") return selected.length >= 2;
-    if (mode === "split_pdf") return selected.length === 1;
+    if (mode === "split_pdf") return selected.length === 2;
     return selected.length >= 1;
   };
 
@@ -484,7 +489,117 @@
     setDropzoneCopy();
     setFileInputAccept();
     setPrimaryStates();
+    renderPdfThumbnails();
   };
+  // ====== PDF THUMBNAILS (MERGE MODE) ======
+const renderPdfThumbnails = async () => {
+  if (!pdfReorderWrap || !pdfThumbGrid) return;
+
+  if (mode !== "merge_pdf") {
+    pdfReorderWrap.hidden = true;
+    pdfThumbGrid.innerHTML = "";
+    pdfPageOrder = [];
+    return;
+  }
+
+  if (selected.length !== 1) {
+    // Only render preview when exactly 1 PDF (clean UX)
+    pdfReorderWrap.hidden = true;
+    pdfThumbGrid.innerHTML = "";
+    pdfPageOrder = [];
+    return;
+  }
+
+  const file = selected[0];
+  if (!isPdfFile(file)) return;
+
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+  pdfDocRef = pdf;
+  pdfPageOrder = Array.from({ length: pdf.numPages }, (_, i) => i);
+
+  pdfThumbGrid.innerHTML = "";
+  pdfReorderWrap.hidden = false;
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const viewport = page.getViewport({ scale: 0.3 });
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+
+    await page.render({ canvasContext: ctx, viewport }).promise;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "pdfThumb";
+    wrapper.draggable = true;
+    wrapper.dataset.index = i - 1;
+
+    const meta = document.createElement("div");
+    meta.className = "pdfThumbMeta";
+    meta.textContent = `Page ${i}`;
+
+    wrapper.appendChild(canvas);
+    wrapper.appendChild(meta);
+    pdfThumbGrid.appendChild(wrapper);
+  }
+
+  enableDragReorder();
+};
+
+const enableDragReorder = () => {
+  const items = pdfThumbGrid.querySelectorAll(".pdfThumb");
+
+  let dragged = null;
+
+  items.forEach((item) => {
+    item.addEventListener("dragstart", () => {
+      dragged = item;
+      item.classList.add("dragging");
+    });
+
+    item.addEventListener("dragend", () => {
+      item.classList.remove("dragging");
+      dragged = null;
+      updateOrderArray();
+    });
+
+    item.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      item.classList.add("over");
+    });
+
+    item.addEventListener("dragleave", () => {
+      item.classList.remove("over");
+    });
+
+    item.addEventListener("drop", (e) => {
+      e.preventDefault();
+      item.classList.remove("over");
+
+      if (!dragged || dragged === item) return;
+
+      const grid = pdfThumbGrid;
+      const nodes = Array.from(grid.children);
+      const draggedIndex = nodes.indexOf(dragged);
+      const targetIndex = nodes.indexOf(item);
+
+      if (draggedIndex < targetIndex) {
+        grid.insertBefore(dragged, item.nextSibling);
+      } else {
+        grid.insertBefore(dragged, item);
+      }
+    });
+  });
+};
+
+const updateOrderArray = () => {
+  const nodes = pdfThumbGrid.querySelectorAll(".pdfThumb");
+  pdfPageOrder = Array.from(nodes).map((n) => Number(n.dataset.index));
+};
 
   // Remove item
   fileList?.addEventListener("click", (e) => {
@@ -841,16 +956,24 @@
 
   const setBackendMode = async () => {
     if (!jobId) return;
+
     try {
+      const payload = {
+        mode,
+        target: convertTargetValue,
+        from: convertFrom?.value || "auto",
+      };
+
+      if (mode === "merge_pdf" && pdfPageOrder.length) {
+        payload.order = pdfPageOrder;
+      }
+
       const r = await fetch(`/api/jobs/${encodeURIComponent(jobId)}/mode`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode,
-          target: convertTargetValue,
-          from: convertFrom?.value || "auto",
-        }),
+        body: JSON.stringify(payload),
       });
+
       if (!r.ok) {
         setStatus("Mode error");
         setHint("Couldn’t set mode. Please refresh and try again.");

@@ -155,6 +155,17 @@
               <button class="btnGhost" id="clearBtn" type="button">Clear</button>
             </div>
             <ol class="fileList" id="fileList"></ol>
+            <!-- ✅ PREMIUM PDF REORDER PANEL (Merge Mode Only) -->
+            <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
+
+              <div class="pdfReorderHead">
+                <div class="pdfReorderTitle">Reorder pages</div>
+                <div class="pdfReorderSub">Drag pages to change the merge order.</div>
+              </div>
+
+              <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
+
+            </div>
           </div>
         </div>
 
@@ -344,6 +355,12 @@
   </div>
 </div>
 
+<!-- PDF.js (for thumbnail rendering) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+</script>
 <script src="/app.js?v=16" defer></script>
 
 </body>

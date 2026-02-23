@@ -352,7 +352,8 @@ app.post("/api/jobs", (_, res) => {
     options: { shareLink: false },
 
     mode: "compress",     // compress | convert | merge_pdf | split_pdf
-    convertTarget: null,  // jpg|png|webp|pdf (convert only)
+    convertTarget: null,
+    pageOrder: null,
 
     shareToken: null,
     shareExpiresAt: null,
@@ -425,31 +426,41 @@ app.post("/api/jobs/:jobId/register", (req, res) => {
 });
 
 // Set job mode (compress | convert | merge_pdf | split_pdf)
-app.post("/api/jobs/:jobId/mode", (req, res) => {
-  try {
-    const job = getJob(req.params.jobId);
-    const { mode, target } = req.body || {};
+  app.post("/api/jobs/:jobId/mode", (req, res) => {
+    try {
+      const job = getJob(req.params.jobId);
+      const { mode, target, order } = req.body || {};
 
-    const m = String(mode || "").toLowerCase().trim();
-    if (!VALID_MODES.has(m)) throw new Error("Invalid mode");
+      const m = String(mode || "").toLowerCase().trim();
+      if (!VALID_MODES.has(m)) throw new Error("Invalid mode");
 
-    if (job.status !== "CREATED") throw new Error("Invalid state");
+      if (job.status !== "CREATED") throw new Error("Invalid state");
 
-    job.mode = m;
+      job.mode = m;
 
-    if (m === "convert") {
-      const t = normalizeConvertTarget(target);
-      if (t && !VALID_CONVERT_TARGETS.has(t)) throw new Error("Invalid convert target");
-      job.convertTarget = t || null;
-    } else {
-      job.convertTarget = null;
+      if (m === "convert") {
+        const t = normalizeConvertTarget(target);
+        if (t && !VALID_CONVERT_TARGETS.has(t)) throw new Error("Invalid convert target");
+        job.convertTarget = t || null;
+        job.pageOrder = null;
+      } else if (m === "merge_pdf") {
+        job.convertTarget = null;
+
+        if (Array.isArray(order) && order.length) {
+          job.pageOrder = order.map((n) => Number(n)).filter((n) => Number.isInteger(n) && n >= 0);
+        } else {
+          job.pageOrder = null;
+        }
+      } else {
+        job.convertTarget = null;
+        job.pageOrder = null;
+      }
+
+      res.json({ ok: true });
+    } catch (e) {
+      res.status(400).json({ error: e.message });
     }
-
-    res.json({ ok: true });
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
-});
+  });
 
 // Checkout
 app.post("/api/checkout", async (req, res) => {
@@ -565,31 +576,62 @@ app.get("/api/download/:jobId", async (req, res) => {
     job.downloadCount++;
 
     // ====== MERGE PDF MODE ======
-    if (job.mode === "merge_pdf") {
-      if (!PDFDocumentLib) throw new Error("PDF merge is unavailable (pdf-lib not installed).");
+if (job.mode === "merge_pdf") {
+  if (!PDFDocumentLib) throw new Error("PDF merge is unavailable (pdf-lib not installed).");
 
-      const merged = await PDFDocumentLib.create();
+  const merged = await PDFDocumentLib.create();
 
-      for (const f of job.files) {
-        const obj = await r2.send(
-          new GetObjectCommand({ Bucket: R2_BUCKET, Key: f.key })
-        );
-        const buf = await streamToBuffer(obj.Body);
+  // We only support single-PDF page reorder for now
+  if (job.files.length === 1) {
+    const f = job.files[0];
 
-        const src = await PDFDocumentLib.load(buf);
-        const pages = await merged.copyPages(src, src.getPageIndices());
-        for (const p of pages) merged.addPage(p);
+    const obj = await r2.send(
+      new GetObjectCommand({ Bucket: R2_BUCKET, Key: f.key })
+    );
+    const buf = await streamToBuffer(obj.Body);
+
+    const src = await PDFDocumentLib.load(buf);
+    const totalPages = src.getPageCount();
+
+    let indices = src.getPageIndices();
+
+    if (Array.isArray(job.pageOrder) && job.pageOrder.length === totalPages) {
+      // Validate order strictly
+      const isValid =
+        job.pageOrder.every((n) => Number.isInteger(n) && n >= 0 && n < totalPages) &&
+        new Set(job.pageOrder).size === totalPages;
+
+      if (isValid) {
+        indices = job.pageOrder;
       }
-
-      const mergedBytes = await merged.save();
-
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="zippixel_merged_${job.jobId}.pdf"`
-      );
-      return res.send(Buffer.from(mergedBytes));
     }
+
+    const pages = await merged.copyPages(src, indices);
+    for (const p of pages) merged.addPage(p);
+  } else {
+    // Default multi-file merge (no page reorder)
+    for (const f of job.files) {
+      const obj = await r2.send(
+        new GetObjectCommand({ Bucket: R2_BUCKET, Key: f.key })
+      );
+      const buf = await streamToBuffer(obj.Body);
+
+      const src = await PDFDocumentLib.load(buf);
+      const pages = await merged.copyPages(src, src.getPageIndices());
+      for (const p of pages) merged.addPage(p);
+    }
+  }
+
+  const mergedBytes = await merged.save();
+
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="zippixel_merged_${job.jobId}.pdf"`
+  );
+
+  return res.send(Buffer.from(mergedBytes));
+}
 
     // ====== SPLIT PDF MODE ======
     if (job.mode === "split_pdf") {
