@@ -189,7 +189,7 @@ strong,b{ font-weight: 800; }
 ========================= */
 .hero{
   position: relative;
-  padding: 44px 0 34px;
+  padding: 28px 0 18px;
 }
 
 /* v33: container wrapper for tool-first layout */
@@ -301,7 +301,7 @@ strong,b{ font-weight: 800; }
 
 /* premium hooks (kept) */
 .toolPremium{}
-.toolMega{ padding: 22px; } /* v33: bigger breathing room */
+.toolMega{ padding: 18px; }
 .dropzonePremium{}
 .actionRowPremium{}
 .modeRowPremium{}
@@ -316,6 +316,22 @@ strong,b{ font-weight: 800; }
 .toolHead{
   padding: 6px 4px 14px;
   text-align: center;
+}
+
+/* =========================
+   TOOL HEAD — MINIMAL (v34)
+========================= */
+.toolHeadMinimal{
+  padding: 4px 0 6px;
+  text-align: center;
+}
+
+.toolHeadMinimal .toolTitle{
+  margin: 0;
+  font-size: clamp(26px, 2.8vw, 40px);
+  letter-spacing: -0.05em;
+  line-height: 1.05;
+  font-weight: 950;
 }
 
 .toolKicker{
@@ -375,7 +391,7 @@ strong,b{ font-weight: 800; }
   justify-content: space-between;
   gap: 12px;
 
-  margin: 8px 0 12px;
+  margin: 6px 0 10px;
   padding: 10px 12px;
 
   border: 1px solid rgba(15,23,42,.10);
