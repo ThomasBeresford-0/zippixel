@@ -1,10 +1,9 @@
-/* public/style.css — PDFOperations (v28.1 - FULL RAMBO HERO FRAME + ENTERPRISE POLISH)
-   ✅ Matches index.html v31 (two-column hero + tool card)
-   ✅ Adds premium framed hero container around BOTH columns (no dead whitespace)
-   ✅ Professional neutral glass, no bubbles/rainbow
-   ✅ Tab-style segmented modes (no pills)
+/* public/style.css — PDFOperations (v29.0 - FULL PROFESSIONAL REDESIGN / TOOL-FIRST HERO)
+   ✅ Fixes “cramped to the right” + dead whitespace (tool becomes the dominant product object)
+   ✅ Competitor-like layout: tool-first, copy constrained, clean enterprise spacing
+   ✅ Tabs never wrap weirdly (5-col segmented control on desktop)
    ✅ Keeps ALL existing IDs/classes used by index.html + app.js + modal + success/share pages
-   ✅ Backwards compatible: .modeOption still works if older HTML exists
+   ✅ Backwards compatible: .modeOption still works
 */
 
 /* =========================
@@ -34,7 +33,7 @@
   --shadow-2: 0 40px 120px rgba(2,6,23,.14);
   --shadow-3: 0 70px 200px rgba(2,6,23,.22);
 
-  --container: 1100px;
+  --container: 1180px; /* slightly wider = more room for the tool */
   --ease: cubic-bezier(.2,.8,.2,1);
 
   --navInk: rgba(255,255,255,.92);
@@ -76,7 +75,7 @@ strong,b{ font-weight: 800; }
   margin: 0 auto;
 }
 .container.narrow{
-  width: min(860px, calc(100% - 44px));
+  width: min(900px, calc(100% - 44px));
 }
 
 :focus-visible{
@@ -177,33 +176,32 @@ strong,b{ font-weight: 800; }
 }
 
 /* =========================
-   HERO (FULL RAMBO framed container)
-   - Frame wraps BOTH columns (text + tool)
+   HERO (TOOL-FIRST PROFESSIONAL)
 ========================= */
 .hero{
   position: relative;
-  padding: 52px 0 34px;
+  padding: 54px 0 34px;
 }
 
-/* Add a boutique "artifact" frame to the hero grid itself */
+/* Frame wraps both, but the tool is dominant */
 .heroInner{
   position: relative;
   display:grid;
-  grid-template-columns: 1.05fr .95fr;
-  gap: 22px;
+  grid-template-columns: minmax(360px, 440px) minmax(560px, 1fr); /* tool-first */
+  gap: 28px;
   align-items:start;
 
   border-radius: var(--r-2xl);
-  padding: 28px 26px;
+  padding: 30px 28px;
   border: 1px solid rgba(15,23,42,.10);
-  background: linear-gradient(180deg, rgba(255,255,255,.84), rgba(255,255,255,.62));
+  background: linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,255,255,.62));
   box-shadow:
     0 1px 0 rgba(255,255,255,.72) inset,
     var(--shadow-2);
   overflow:hidden;
 }
 
-/* subtle inner glow + top spotlight (no rainbow) */
+/* subtle inner glow */
 .heroInner::before{
   content:"";
   position:absolute;
@@ -219,12 +217,16 @@ strong,b{ font-weight: 800; }
       rgba(255,255,255,0) 60%);
   opacity: .95;
 }
+
+/* column separator hint (very subtle) */
 .heroInner::after{
   content:"";
   position:absolute;
-  left:18px; right:18px; top:14px;
-  height:1px;
-  background: linear-gradient(90deg, rgba(15,23,42,0), rgba(15,23,42,.10), rgba(15,23,42,0));
+  top: 22px;
+  bottom: 22px;
+  left: calc(minmax(360px, 440px) + 14px); /* harmless if ignored by browser */
+  width:1px;
+  background: linear-gradient(180deg, rgba(15,23,42,0), rgba(15,23,42,.08), rgba(15,23,42,0));
   opacity:.65;
   pointer-events:none;
 }
@@ -232,22 +234,23 @@ strong,b{ font-weight: 800; }
 .heroText{
   position: relative;
   z-index: 2;
-  padding: 10px 2px 6px;
+  padding: 10px 0 6px;
+  max-width: 440px; /* prevents massive left whitespace */
 }
 
 .hero h1{
   margin: 0;
-  font-size: clamp(34px, 4vw, 54px);
-  letter-spacing: -0.06em;
-  line-height: 1.02;
-  font-weight: 900;
+  font-size: clamp(34px, 3.8vw, 56px);
+  letter-spacing: -0.065em;
+  line-height: 1.01;
+  font-weight: 950;
 }
 
 .heroSub{
   margin: 12px 0 0;
-  max-width: 58ch;
+  max-width: 60ch;
   font-size: 16px;
-  line-height: 1.62;
+  line-height: 1.65;
   color: rgba(11,18,32,.70);
 }
 
@@ -268,17 +271,8 @@ strong,b{ font-weight: 800; }
 
 .heroPremium{}
 
-@media (max-width: 980px){
-  .heroInner{
-    grid-template-columns: 1fr;
-    padding: 22px 16px;
-  }
-  .heroText{ text-align:center; padding: 4px 0 0; }
-  .heroSub, .heroMeta{ margin-left:auto; margin-right:auto; text-align:center; }
-}
-
 /* =========================
-   TOOL (glass card + authority)
+   TOOL (dominant product object)
 ========================= */
 .tool{
   text-align: left;
@@ -293,9 +287,13 @@ strong,b{ font-weight: 800; }
   box-shadow: var(--shadow-3);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+
+  width: 100%;
+  max-width: 740px;     /* bigger, more “product” */
+  justify-self: end;    /* anchors to the right edge cleanly */
 }
 
-/* more "artifact edge" for the tool */
+/* artifact edge */
 .tool::after{
   content:"";
   position:absolute;
@@ -354,7 +352,7 @@ strong,b{ font-weight: 800; }
 
 .status{
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 950;
   letter-spacing: -0.01em;
 }
 
@@ -379,7 +377,7 @@ strong,b{ font-weight: 800; }
 @keyframes spin{ to { transform: rotate(360deg); } }
 
 /* =========================
-   MODE SELECTOR (segmented tabs)
+   MODE SELECTOR (segmented tabs - NEVER wraps ugly)
 ========================= */
 .modeRow{
   display:flex;
@@ -392,8 +390,10 @@ strong,b{ font-weight: 800; }
   margin: 12px 0 14px 0;
 }
 
-/* tabs container */
+/* Tabs: use a grid so 5 modes are always on one clean row (desktop) */
 .modeTabs{
+  display:grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0;
   padding: 0;
   border-radius: 16px;
@@ -404,27 +404,27 @@ strong,b{ font-weight: 800; }
 
 .modeTab{
   position: relative;
-  display:inline-flex;
+  display:flex;
   align-items:center;
   justify-content:center;
-  flex: 1 1 auto;
-  min-width: 140px;
 
   border: 0;
   border-right: 1px solid rgba(15,23,42,.10);
   background: transparent;
   box-shadow: none;
   overflow:hidden;
-  transition: background .14s var(--ease), color .14s var(--ease), transform .12s var(--ease);
+  transition: background .14s var(--ease), color .14s var(--ease);
+  min-width: 0;
 }
 .modeTab:last-of-type{ border-right: 0; }
 
 .modeTab span{
-  padding: 12px 14px;
-  font-weight: 900;
+  padding: 12px 10px;
+  font-weight: 950;
   color: rgba(11,18,32,.74);
   white-space: nowrap;
-  font-size: 13px;
+  font-size: 12.5px; /* slightly smaller so it fits clean */
+  letter-spacing: -0.01em;
 }
 
 .modeTab input{
@@ -436,7 +436,6 @@ strong,b{ font-weight: 800; }
 
 .modeTab:hover{
   background: rgba(2,6,23,.03);
-  transform: translateY(-1px);
 }
 
 /* selected */
@@ -453,17 +452,10 @@ strong,b{ font-weight: 800; }
   outline-offset: -3px;
 }
 
-@media (max-width: 720px){
-  .modeTabs{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    overflow: hidden;
-  }
-  .modeTab{
-    min-width: 0;
-    border-right: 1px solid rgba(15,23,42,.10);
-    border-bottom: 1px solid rgba(15,23,42,.10);
-  }
+/* Small screens: 2 columns grid */
+@media (max-width: 820px){
+  .modeTabs{ grid-template-columns: 1fr 1fr; }
+  .modeTab{ border-right: 1px solid rgba(15,23,42,.10); border-bottom: 1px solid rgba(15,23,42,.10); }
   .modeTab:nth-child(2n){ border-right: 0; }
   .modeTab:nth-last-child(-n+2){ border-bottom: 0; }
 }
@@ -483,7 +475,7 @@ strong,b{ font-weight: 800; }
 }
 .modeOption span{
   padding: 10px 14px;
-  font-weight: 900;
+  font-weight: 950;
   color: rgba(11,18,32,.74);
   white-space: nowrap;
   font-size: 13px;
@@ -497,14 +489,10 @@ strong,b{ font-weight: 800; }
 .modeOption:hover{
   border-color: rgba(15,23,42,.16);
   background: rgba(2,6,23,.02);
-  transform: none;
-  box-shadow: none;
 }
 .modeOption:has(input:checked){
   border-color: rgba(29,78,216,.30);
   background: rgba(29,78,216,.10);
-  box-shadow: none;
-  transform: none;
 }
 
 /* controls row */
@@ -521,13 +509,9 @@ strong,b{ font-weight: 800; }
   gap:12px;
   flex-wrap:wrap;
 }
-
 .convertGroup{ min-width: 160px; }
 .convertGroupWide{ min-width: 260px; }
-.convertArrow{
-  font-weight: 900;
-  color: rgba(11,18,32,.62);
-}
+.convertArrow{ font-weight: 950; color: rgba(11,18,32,.62); }
 
 .convertRow select{
   width: 100%;
@@ -537,7 +521,7 @@ strong,b{ font-weight: 800; }
   border: 1px solid rgba(15,23,42,.14);
   background: rgba(255,255,255,.96);
   color: rgba(11,18,32,.86);
-  font-weight: 850;
+  font-weight: 900;
   outline: none;
   box-shadow: 0 10px 20px rgba(2,6,23,.06);
 }
@@ -545,7 +529,6 @@ strong,b{ font-weight: 800; }
   border-color: rgba(29,78,216,.35);
   box-shadow: 0 0 0 4px rgba(29,78,216,.14), 0 10px 24px rgba(2,6,23,.08);
 }
-
 .convertHint{
   margin-left:auto;
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
@@ -578,7 +561,6 @@ strong,b{ font-weight: 800; }
   border-color: rgba(15,23,42,.18);
   box-shadow: 0 30px 92px rgba(2,6,23,.12);
 }
-
 .dropzone.isDrag{
   border-color: rgba(29,78,216,.32);
   box-shadow: 0 22px 70px rgba(29,78,216,.10), 0 26px 80px rgba(2,6,23,.10);
@@ -593,7 +575,6 @@ strong,b{ font-weight: 800; }
   gap: 6px;
   padding: 18px 10px 8px;
 }
-
 .dzIcon{
   width: 46px;
   height: 46px;
@@ -609,39 +590,15 @@ strong,b{ font-weight: 800; }
     rgba(255,255,255,.86);
   border: 1px solid rgba(15,23,42,.10);
 }
-
-.dzArrow{
-  font-size: 18px;
-  font-weight: 900;
-  color: rgba(11,18,32,.92);
-  line-height: 1;
-}
-
-.dzTitle{
-  font-weight: 900;
-  letter-spacing:-0.02em;
-  font-size: 16px;
-}
-
-.dzSub{
-  color: rgba(11,18,32,.58);
-  font-size: 13px;
-  margin-bottom: 10px;
-}
-
-.dzFine{
-  margin-top: 12px;
-  font-size: 12px;
-  color: rgba(11,18,32,.56);
-}
+.dzArrow{ font-size: 18px; font-weight: 950; color: rgba(11,18,32,.92); line-height: 1; }
+.dzTitle{ font-weight: 950; letter-spacing:-0.02em; font-size: 16px; }
+.dzSub{ color: rgba(11,18,32,.58); font-size: 13px; margin-bottom: 10px; }
+.dzFine{ margin-top: 12px; font-size: 12px; color: rgba(11,18,32,.56); }
 
 /* =========================
    MOBILE-SAFE FILE PICKER
 ========================= */
-.filePick{
-  position: relative;
-  display: inline-block;
-}
+.filePick{ position: relative; display: inline-block; }
 .filePick #files{
   position: absolute;
   inset: 0;
@@ -653,10 +610,7 @@ strong,b{ font-weight: 800; }
   appearance: none;
   z-index: 2;
 }
-.filePick #chooseBtn{
-  position: relative;
-  z-index: 1;
-}
+.filePick #chooseBtn{ position: relative; z-index: 1; }
 
 /* file meta */
 .fileMeta{
@@ -665,7 +619,6 @@ strong,b{ font-weight: 800; }
   padding-top: 14px;
   border-top: 1px solid rgba(15,23,42,.08);
 }
-
 .fileMetaTop{
   display:flex;
   align-items:center;
@@ -673,13 +626,11 @@ strong,b{ font-weight: 800; }
   gap: 10px;
   margin-bottom: 10px;
 }
-
 .fileSummary{
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   color: rgba(11,18,32,.66);
   font-size: 12px;
 }
-
 .fileList{
   margin: 0;
   padding: 0;
@@ -688,14 +639,12 @@ strong,b{ font-weight: 800; }
   grid-template-columns: 1fr;
   gap: 8px;
 }
-
 .fileCard{
   display:flex;
   align-items:center;
   justify-content: space-between;
   gap: 12px;
   padding: 10px 12px;
-
   border: 1px solid rgba(15,23,42,.10);
   border-radius: 14px;
   background: rgba(255,255,255,.86);
@@ -707,7 +656,6 @@ strong,b{ font-weight: 800; }
   transform: translateY(-1px);
   box-shadow: 0 18px 44px rgba(2,6,23,.08);
 }
-
 .thumb{
   width: 42px;
   height: 42px;
@@ -723,24 +671,19 @@ strong,b{ font-weight: 800; }
 .thumbPdf{
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   color: rgba(11,18,32,.70);
 }
-
 .fileInfo{ min-width: 0; flex: 1 1 auto; }
 .fileName{
-  font-weight: 900;
+  font-weight: 950;
   font-size: 13px;
   letter-spacing: -0.01em;
   white-space: nowrap;
   overflow:hidden;
   text-overflow: ellipsis;
 }
-.fileMetaLine{
-  margin-top: 2px;
-  font-size: 12px;
-  color: rgba(11,18,32,.60);
-}
+.fileMetaLine{ margin-top: 2px; font-size: 12px; color: rgba(11,18,32,.60); }
 
 .iconBtn{
   background: transparent;
@@ -748,15 +691,12 @@ strong,b{ font-weight: 800; }
   box-shadow: none;
   padding: 8px 10px;
   border-radius: 12px;
-  font-weight: 900;
+  font-weight: 950;
   font-size: 12px;
   color: rgba(11,18,32,.68);
   transition: background .16s var(--ease), border-color .16s var(--ease), transform .10s var(--ease);
 }
-.iconBtn:hover{
-  background: rgba(2,6,23,.04);
-  border-color: rgba(15,23,42,.18);
-}
+.iconBtn:hover{ background: rgba(2,6,23,.04); border-color: rgba(15,23,42,.18); }
 .iconBtn:active{ transform: translateY(1px); }
 
 /* =========================
@@ -769,7 +709,7 @@ button{
   color: var(--ink);
   border-radius: 14px;
   padding: 11px 14px;
-  font-weight: 900;
+  font-weight: 950;
   letter-spacing: -0.01em;
   cursor:pointer;
   transition: transform .10s var(--ease), background .16s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease), opacity .16s var(--ease);
@@ -801,7 +741,6 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   background: linear-gradient(180deg, #0b1220, #0b1220);
   border-color: rgba(2,6,23,.85);
 }
-
 .btnLarge{ padding: 12px 16px; border-radius: 16px; }
 
 .btnSoft{
@@ -852,7 +791,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   gap: 10px;
   margin-bottom: 8px;
   font-size: 13px;
-  font-weight: 850;
+  font-weight: 900;
 }
 .progressBar{
   height: 10px;
@@ -888,7 +827,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   margin: 0 0 10px;
   font-size: 22px;
   letter-spacing: -0.04em;
-  font-weight: 900;
+  font-weight: 950;
 }
 .sectionSub{
   margin: 0 auto;
@@ -919,7 +858,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 }
 .howNum{
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-weight: 800;
+  font-weight: 850;
   font-size: 12px;
   letter-spacing: .10em;
   text-transform: uppercase;
@@ -927,7 +866,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 }
 .howTitle{
   margin-top: 8px;
-  font-weight: 900;
+  font-weight: 950;
   letter-spacing: -0.02em;
   color: rgba(11,18,32,.92);
 }
@@ -952,7 +891,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 }
 .faqItem summary{
   cursor:pointer;
-  font-weight: 900;
+  font-weight: 950;
   list-style:none;
   letter-spacing: -0.01em;
 }
@@ -998,7 +937,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   display:flex;
   align-items:center;
   gap: 10px;
-  font-weight: 900;
+  font-weight: 950;
   letter-spacing: -0.02em;
   color: rgba(11,18,32,.86);
 }
@@ -1008,7 +947,6 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   line-height: 1.55;
   max-width: 52ch;
 }
-
 .footerRight{
   display:flex;
   align-items:center;
@@ -1054,9 +992,8 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   font-size: clamp(26px, 3vw, 38px);
   letter-spacing: -0.055em;
   line-height: 1.06;
-  font-weight: 900;
+  font-weight: 950;
 }
-
 .pageLead{
   position: relative;
   z-index: 2;
@@ -1065,7 +1002,6 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   line-height: 1.6;
   max-width: 70ch;
 }
-
 .doc{
   position: relative;
   z-index: 2;
@@ -1076,7 +1012,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   margin: 22px 0 10px;
   font-size: 15px;
   letter-spacing: -0.02em;
-  font-weight: 900;
+  font-weight: 950;
 }
 .doc p, .doc li{
   color: rgba(11,18,32,.78);
@@ -1104,9 +1040,8 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
-
 .pdfReorderHead{ margin-bottom: 14px; }
-.pdfReorderTitle{ font-weight: 900; font-size: 15px; }
+.pdfReorderTitle{ font-weight: 950; font-size: 15px; }
 .pdfReorderSub{ font-size: 12px; color: rgba(11,18,32,.60); margin-top: 4px; }
 
 .pdfThumbGrid{
@@ -1114,7 +1049,6 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   grid-template-columns: repeat(auto-fill, minmax(110px,1fr));
   gap: 14px;
 }
-
 .pdfThumb{
   border-radius: 14px;
   overflow: hidden;
@@ -1131,7 +1065,6 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 }
 .pdfThumb.dragging{ opacity: .5; transform: scale(.98); }
 .pdfThumb.over{ outline: 2px solid rgba(29,78,216,.30); }
-
 .pdfThumb canvas{ width: 100%; display:block; }
 .pdfThumbMeta{
   padding: 6px 8px;
@@ -1154,7 +1087,6 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   background: rgba(255,255,255,.86);
   box-shadow: var(--shadow-0);
 }
-
 .successIcon{
   width: 34px;
   height: 34px;
@@ -1167,47 +1099,33 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   background: linear-gradient(180deg, #0b1220, #111827);
   box-shadow: 0 18px 50px rgba(2,6,23,.18);
 }
-
 .successTitle{
   font-weight: 950;
   letter-spacing: -0.02em;
   color: rgba(11,18,32,.92);
   margin-top: 2px;
 }
-
 .successDesc{
   margin-top: 6px;
   color: rgba(11,18,32,.68);
   line-height: 1.55;
   font-size: 13px;
 }
-
 .successActions{
   display:grid;
   gap: 10px;
   margin-top: 14px;
 }
+.btnBlock{ display:block; width: 100%; text-align:center; }
+.btnSm{ padding: 9px 12px; border-radius: 12px; font-size: 12px; }
 
-.btnBlock{
-  display:block;
-  width: 100%;
-  text-align:center;
-}
-
-.btnSm{
-  padding: 9px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-}
-
-/* Share box */
+/* share */
 .shareBox{
   border: 1px solid rgba(15,23,42,.10);
   background: rgba(255,255,255,.60);
   border-radius: 18px;
   padding: 12px;
 }
-
 .shareLabel{
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 12px;
@@ -1216,13 +1134,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   text-transform: uppercase;
   margin-bottom: 10px;
 }
-
-.shareRow{
-  display:flex;
-  gap: 10px;
-  align-items:center;
-}
-
+.shareRow{ display:flex; gap: 10px; align-items:center; }
 .shareInput{
   flex: 1 1 auto;
   min-width: 0;
@@ -1231,19 +1143,17 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   border: 1px solid rgba(15,23,42,.12);
   background: rgba(255,255,255,.92);
   padding: 11px 12px;
-  font-weight: 900;
+  font-weight: 950;
   font-size: 13px;
   color: rgba(11,18,32,.86);
   box-shadow: 0 1px 0 rgba(255,255,255,.70) inset;
 }
-
 .shareHint{
   margin-top: 8px;
   font-size: 12px;
   color: rgba(11,18,32,.58);
   line-height: 1.45;
 }
-
 @media (max-width: 520px){
   .shareRow{ flex-direction: column; align-items: stretch; }
 }
@@ -1251,6 +1161,24 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 /* =========================
    RESPONSIVE
 ========================= */
+@media (max-width: 980px){
+  .heroInner{
+    grid-template-columns: 1fr;
+    padding: 22px 16px;
+  }
+  .heroText{
+    max-width: 760px;
+    text-align:center;
+    margin: 0 auto;
+    padding: 4px 0 0;
+  }
+  .heroSub, .heroMeta{ margin-left:auto; margin-right:auto; text-align:center; }
+  .tool{
+    max-width: 760px;
+    justify-self: center;
+  }
+}
+
 @media (max-width: 860px){
   .howGrid{ grid-template-columns: 1fr; }
 }
@@ -1309,7 +1237,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   gap: 12px;
   background: linear-gradient(180deg, rgba(2,6,23,.04), rgba(255,255,255,0));
 }
-.modalTitle{ font-weight: 900; letter-spacing: -0.02em; font-size: 14px; }
+.modalTitle{ font-weight: 950; letter-spacing: -0.02em; font-size: 14px; }
 
 .modalClose{
   border: 1px solid rgba(2,6,23,.12);
@@ -1317,7 +1245,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   border-radius: 14px;
   padding: 8px 10px;
   cursor:pointer;
-  font-weight: 900;
+  font-weight: 950;
   font-size: 12px;
   box-shadow: var(--shadow-0);
 }
@@ -1345,21 +1273,21 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
 .modalSummaryKicker{
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 850;
   color: rgba(107,114,128,.98);
   text-transform: uppercase;
   letter-spacing: .08em;
 }
 .modalSummaryMain{
   font-size: 14px;
-  font-weight: 900;
+  font-weight: 950;
   color: rgba(11,18,32,.95);
   overflow:hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 420px;
 }
-.modalSummaryAmt{ font-size: 16px; font-weight: 900; white-space: nowrap; color: rgba(11,18,32,.95); }
+.modalSummaryAmt{ font-size: 16px; font-weight: 950; white-space: nowrap; color: rgba(11,18,32,.95); }
 
 .priceGrid{ display:grid; gap: 10px; margin-top: 12px; }
 .priceRow{
@@ -1377,10 +1305,10 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   background: rgba(29,78,216,.08);
   box-shadow: 0 18px 52px rgba(29,78,216,.10);
 }
-.priceName{ font-weight: 900; font-size: 13px; }
+.priceName{ font-weight: 950; font-size: 13px; }
 .priceDesc{ font-size: 12px; color: rgba(75,85,99,.95); }
-.priceAmt{ font-weight: 900; font-size: 13px; white-space: nowrap; }
-.priceAmt label{ display:inline-flex; align-items:center; gap: 8px; font-weight: 900; cursor:pointer; }
+.priceAmt{ font-weight: 950; font-size: 13px; white-space: nowrap; }
+.priceAmt label{ display:inline-flex; align-items:center; gap: 8px; font-weight: 950; cursor:pointer; }
 .priceAmt input[type="checkbox"]{ width: 16px; height: 16px; accent-color: var(--accent); }
 
 .modalNote{ margin-top: 10px; font-size: 12px; color: rgba(107,114,128,.98); line-height: 1.45; }
