@@ -1871,3 +1871,20 @@ body.premium .heroToolFirst .heroWide {
 .container{
   width: min(1320px, calc(100% - 60px)) !important;
 }
+
+/* ===== Center Header Layout ===== */
+
+.navInner{
+  justify-content: center !important;
+  gap: 60px;
+}
+
+.brand{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.navLinks{
+  justify-content: center;
+}
