@@ -1,7 +1,9 @@
-<!-- public/index.html — ZipPixel (v26 - CLEAN HERO + MERGE PDFs + VERSION SYNC)
-     ✅ Removes all the extra hero clutter (no steps, no pills, no “upload your files…” paragraph)
-     ✅ Keeps ALL required IDs/classes for app.js + modal
-     ✅ Version sync: style.css?v=26 + app.js?v=16
+<!-- public/index.html — ZipPixel (v27 - FULL HOMEPAGE UPGRADE: TRUST BAR + CONVERSION RHYTHM + MOBILE SAFE)
+     ✅ Payment stays hidden until modal (no pricing on page)
+     ✅ Keeps ALL required IDs/classes for app.js + modal (no hook breaks)
+     ✅ Adds “money mode” conversion scaffolding: subhead, steps, trust bar, use-cases
+     ✅ Mobile-safe file picker preserved (input overlays only button)
+     ✅ Version sync: style.css?v=26 + app.js?v=16 (keep as-is unless you bump)
 -->
 <!doctype html>
 <html lang="en">
@@ -41,6 +43,7 @@
     </a>
 
     <nav class="navLinks" aria-label="Primary">
+      <a href="#how">How it works</a>
       <a href="#faq">FAQ</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
@@ -52,9 +55,38 @@
   <section class="hero heroPremium" aria-label="ZipPixel hero">
     <div class="container heroInner">
 
-      <!-- CLEAN: no extra hero text, no chips, no steps -->
       <div class="heroText">
         <h1>Compress, convert, or merge PDFs.</h1>
+
+        <!-- ✅ Better subhead = sets intent + reduces bounce (no price mentioned) -->
+        <p class="heroSub">
+          Upload your files, choose a mode, and get a clean download in minutes — built for email, clients, and quick handovers.
+        </p>
+
+        <!-- ✅ Micro-commitment steps (no pricing) -->
+        <div class="heroSteps" aria-label="How ZipPixel works">
+          <div class="heroStep">
+            <div class="heroStepKicker">1</div>
+            <div class="heroStepText">Add files</div>
+          </div>
+          <div class="heroStep">
+            <div class="heroStepKicker">2</div>
+            <div class="heroStepText">Upload</div>
+          </div>
+          <div class="heroStep">
+            <div class="heroStepKicker">3</div>
+            <div class="heroStepText">Checkout &amp; download</div>
+          </div>
+        </div>
+
+        <!-- ✅ Trust pills: objection killers (no prices) -->
+        <div class="heroTrust" aria-label="Trust and security">
+          <span class="trustPill">Stripe secure checkout</span>
+          <span class="trustPill">No signup</span>
+          <span class="trustPill">Works on mobile</span>
+          <span class="trustPill">Fast download</span>
+          <span class="trustPill">UK-friendly</span>
+        </div>
       </div>
 
       <div class="tool toolPremium" aria-label="ZipPixel tool">
@@ -118,19 +150,29 @@
 
         <!-- DROPZONE -->
         <div class="dropzone dropzonePremium" id="dropzone" aria-label="File dropzone">
-          <input id="files" type="file" multiple aria-label="Choose files" />
 
           <div class="dzCenter">
             <div class="dzIcon" aria-hidden="true"><span class="dzArrow">↑</span></div>
             <div class="dzTitle" id="dzTitle">Drop files here</div>
             <div class="dzSub" id="dzSub">Up to 50 files • Drag & drop or select</div>
 
-            <button class="btnPrimary btnLarge" id="chooseBtn" type="button">
-              Select files
-            </button>
+            <!-- ✅ MOBILE-SAFE PICKER -->
+            <div class="filePick">
+              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">
+                Select files
+              </button>
+
+              <!-- keep id="files" exactly for app.js -->
+              <input id="files" type="file" multiple aria-label="Choose files" />
+            </div>
 
             <div class="dzAfter" id="dzAfter">
-              Upload → review price → secure checkout → instant download
+              Upload → review options → secure checkout → instant download
+            </div>
+
+            <!-- ✅ Contextual “why” line (helps conversions, not pricing) -->
+            <div class="dzAfter" style="margin-top:8px;">
+              Use it for: emailing folders • sending to clients • quick PDF merges • bulk format fixes
             </div>
           </div>
 
@@ -160,9 +202,55 @@
         </div>
 
         <div class="fineprint">
-          Secure Stripe checkout • Instant download after payment
+          Stripe secure checkout • No signup • Instant download after payment
         </div>
 
+        <!-- ✅ “Trust bar” inside tool (subtle) -->
+        <div class="toolTrust" aria-label="Security notes">
+          <div class="toolTrustItem">
+            <span class="toolTrustDot" aria-hidden="true"></span>
+            <span>Payments handled by Stripe</span>
+          </div>
+          <div class="toolTrustItem">
+            <span class="toolTrustDot" aria-hidden="true"></span>
+            <span>Designed for quick client handovers</span>
+          </div>
+          <div class="toolTrustItem">
+            <span class="toolTrustDot" aria-hidden="true"></span>
+            <span>Works on desktop and mobile</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ HOW IT WORKS section (kept tight, reinforces flow) -->
+  <section id="how" class="section">
+    <div class="container">
+      <div class="sectionHead">
+        <h2>How it works</h2>
+        <p class="sectionSub">Upload first. Checkout only when your job is ready.</p>
+      </div>
+
+      <div class="howGrid">
+        <div class="howCard">
+          <div class="howNum">Step 01</div>
+          <div class="howTitle">Choose a mode</div>
+          <div class="howText">Compress into a ZIP, convert formats, or merge PDFs into one clean file.</div>
+        </div>
+
+        <div class="howCard">
+          <div class="howNum">Step 02</div>
+          <div class="howTitle">Add your files</div>
+          <div class="howText">Drag &amp; drop or select. ZipPixel supports up to 50 files per job.</div>
+        </div>
+
+        <div class="howCard">
+          <div class="howNum">Step 03</div>
+          <div class="howTitle">Checkout &amp; download</div>
+          <div class="howText">Secure Stripe checkout, then download instantly. Optional share link for sending to others.</div>
+        </div>
       </div>
     </div>
   </section>
@@ -203,6 +291,11 @@
         <details class="faqItem">
           <summary>What happens to my files?</summary>
           <div class="faqBody">They’re processed for your job so you can download the result. See the Privacy page for details.</div>
+        </details>
+
+        <details class="faqItem">
+          <summary>Why hide pricing until later?</summary>
+          <div class="faqBody">Because most people only know what they need after they’ve added files. ZipPixel prepares your job first, then you checkout when you’re ready to download.</div>
         </details>
       </div>
     </div>
@@ -264,7 +357,8 @@
 
         <div class="priceRow" id="rowShare">
           <div>
-            <div class="priceName">Share link</div>
+            <div class="priceName">Share link <span style="opacity:.7">(recommended)</span></div>
+            <div class="priceDesc">Send one link instead of attachments — great for clients.</div>
           </div>
           <div class="priceAmt">
             <label>
@@ -294,5 +388,6 @@
 </div>
 
 <script src="/app.js?v=16" defer></script>
+
 </body>
 </html>

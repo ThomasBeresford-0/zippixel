@@ -464,12 +464,7 @@ strong,b{ font-weight: 800; }
   border-color: rgba(2,6,23,.22);
 }
 
-.dropzone input[type="file"]{
-  position:absolute;
-  inset:0;
-  opacity:0;
-  cursor:pointer;
-}
+
 
 /* Center content */
 .dzCenter{
@@ -531,6 +526,33 @@ strong,b{ font-weight: 800; }
   margin-top: 14px;
   padding-top: 14px;
   border-top: 1px solid rgba(2,6,23,.08);
+}
+
+/* =========================
+   MOBILE-SAFE FILE PICKER
+   (input overlays ONLY the button, not the whole dropzone)
+========================= */
+.filePick{
+  position: relative;
+  display: inline-block;
+}
+
+.filePick #files{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  z-index: 2;
+}
+
+/* Ensure the visible button stays clickable/consistent */
+.filePick #chooseBtn{
+  position: relative;
+  z-index: 1;
 }
 
 .fileMetaTop{
@@ -1112,3 +1134,48 @@ button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; transform: no
   .modalCard{ margin: 12px auto; max-height: calc(100vh - 24px); }
   .modalBody{ max-height: calc(100vh - 24px - 60px - 72px); }
 }
+
+
+  .filePick{
+    position: relative;
+    display: inline-block;
+  }
+  .filePick #files{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* Tiny trust row inside tool (uses your design language without touching style.css) */
+  .toolTrust{
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(2,6,23,.08);
+    display:flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    color: rgba(11,18,32,.62);
+    font-size: 12px;
+    text-align:center;
+  }
+  .toolTrustItem{
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(2,6,23,.10);
+    background: rgba(2,6,23,.02);
+  }
+  .toolTrustDot{
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(11,18,32,.75);
+  }
