@@ -122,8 +122,13 @@
   const keyOf = (f) => `${f.name}__${f.size}__${f.lastModified}`;
 
   const isImageFile = (f) => (f?.type || "").startsWith("image/");
-  const isPdfFile = (f) => (f?.type || "") === "application/pdf";
-
+  const isPdfFile = (f) => {
+    const t = String(f?.type || "").toLowerCase();
+    if (t === "application/pdf") return true;
+    const name = String(f?.name || "");
+    return /\.pdf$/i.test(name);
+  };
+  
   const getExt = (name) => {
     const base = String(name || "").trim();
     const idx = base.lastIndexOf(".");
@@ -920,7 +925,7 @@
           body: JSON.stringify({
             jobId,
             filename: f.name,
-            type: f.type || "application/octet-stream",
+            type: isPdfFile(f) ? "application/pdf" : (f.type || "application/octet-stream"),
           }),
         });
 
@@ -933,7 +938,7 @@
         uploadedMeta.push({
           key: presign.key,
           originalname: f.name,
-          mimetype: f.type || "application/octet-stream",
+          mimetype: isPdfFile(f) ? "application/pdf" : (f.type || "application/octet-stream"),
         });
 
         prog.commitFile(f.size);
