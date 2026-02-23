@@ -1,6 +1,7 @@
-<!-- public/index.html — PDFOperations (v32 - FULL RAMBO LAYOUT FIX + NON-BROKEN CONTROLS)
-     ✅ Fixes “BROKEN” mode/controls layout (convertRow/pdfCompressRow no longer trapped inside tabs)
-     ✅ Removes “cramped right / dead left whitespace” by using a centered, single-column hero shell (competitor-style toolbox layout)
+<!-- public/index.html — PDFOperations (v33 - FULL RAMBO ENTERPRISE REDESIGN)
+     ✅ FULL redesign (competitor-grade utility aesthetic)
+     ✅ Removes “soap / pill tabs” feel (hard segmented control)
+     ✅ Fixes alignment + dead whitespace (true two-column grid, tool anchored)
      ✅ Keeps ALL app.js IDs exactly the same
      ✅ Modal structure unchanged
      ✅ Still uses style.css?v=29 + app.js?v=17.3
@@ -42,7 +43,314 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/style.css?v=29" />
+  <link rel="stylesheet" href="/style.css?v=30" />
+
+  <!-- PAGE-OWNED OVERRIDES (FULL RAMBO look WITHOUT touching style.css yet) -->
+  <style>
+    :root{
+      --ink:#0b1220;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:rgba(15,23,42,.12);
+      --panel:#ffffff;
+      --bg:#f6f7fb;
+      --soft:#f1f5f9;
+      --shadow:0 18px 50px rgba(2,6,23,.10);
+      --shadow2:0 8px 20px rgba(2,6,23,.08);
+      --radius:14px;    /* tool panels */
+      --radius2:10px;   /* inputs/buttons */
+      --radiusTabs:10px;/* segmented control */
+    }
+
+    body.premium{
+      background:var(--bg);
+      color:var(--text);
+      font-family:"Plus Jakarta Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    /* NAV: sharper, cleaner */
+    .nav{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:rgba(246,247,251,.86);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+    }
+    .navInner{ height:72px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .brand{ display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); font-weight:800; letter-spacing:-.01em; }
+    .brand span{ font-size:15px; }
+    .navLinks{ display:flex; align-items:center; gap:14px; }
+    .navLinks a{ text-decoration:none; color:rgba(15,23,42,.78); font-weight:600; font-size:13px; padding:10px 10px; border-radius:10px; }
+    .navLinks a:hover{ background:rgba(15,23,42,.06); color:var(--ink); }
+    .navCta{
+      background:var(--ink);
+      color:#fff !important;
+      padding:10px 14px !important;
+      border-radius:12px !important;
+      box-shadow:0 10px 22px rgba(2,6,23,.16);
+    }
+    .navCta:hover{ background:#0a1020; }
+
+    /* HERO: competitor-style, tight, aligned */
+    .hero{
+      padding:56px 0 78px;
+    }
+    .heroInner{
+      display:grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap:34px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .heroInner{ grid-template-columns: 1fr; gap:18px; }
+      .hero{ padding:34px 0 58px; }
+    }
+
+    .heroText h1{
+      margin:0;
+      font-size:54px;
+      line-height:1.02;
+      letter-spacing:-.03em;
+      color:var(--ink);
+      font-weight:850;
+    }
+    @media (max-width:980px){
+      .heroText h1{ font-size:42px; }
+    }
+
+    .heroSub{
+      margin:14px 0 0;
+      font-size:16px;
+      line-height:1.5;
+      color:rgba(15,23,42,.74);
+      max-width:46ch;
+    }
+
+    .heroMeta{
+      margin-top:16px;
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      color:rgba(15,23,42,.58);
+      letter-spacing:.02em;
+    }
+
+    /* TOOL: sharp panel, not a rounded soap slab */
+    .toolPremium{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    /* status header */
+    .statusWrap{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(15,23,42,.03), rgba(15,23,42,0));
+    }
+    .statusLeft{ display:flex; align-items:center; gap:10px; }
+    #status{
+      font-weight:800;
+      color:var(--ink);
+      background:rgba(15,23,42,.06);
+      border:1px solid rgba(15,23,42,.10);
+      padding:7px 10px;
+      border-radius: 999px; /* status pill is fine */
+      font-size:13px;
+    }
+    .statusHint{
+      color:rgba(15,23,42,.62);
+      font-weight:600;
+      font-size:13px;
+    }
+
+    /* MODE TABS: HARD segmented control (NO soap pills) */
+    .modeRowPremium.modeTabs{
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap:0;
+      margin:14px 18px 0;
+      padding:0;
+      border:1px solid var(--line);
+      border-radius: var(--radiusTabs);
+      background:rgba(15,23,42,.03);
+      overflow:hidden;
+    }
+    @media (max-width: 980px){
+      .modeRowPremium.modeTabs{ grid-template-columns: 1fr; }
+    }
+    .modeTab{
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      user-select:none;
+      padding:12px 10px;
+      font-weight:800;
+      font-size:12.5px;
+      color:rgba(15,23,42,.75);
+      border-right:1px solid rgba(15,23,42,.10);
+      border-radius:0 !important; /* kill soap rounding */
+      background:transparent;
+    }
+    @media (max-width: 980px){
+      .modeTab{ border-right:none; border-bottom:1px solid rgba(15,23,42,.10); justify-content:flex-start; padding-left:14px; }
+      .modeTab:last-child{ border-bottom:none; }
+    }
+    .modeTab input{ position:absolute; opacity:0; pointer-events:none; }
+    .modeTab span{ pointer-events:none; }
+    .modeTab:has(input:checked){
+      background:#fff;
+      color:var(--ink);
+      box-shadow: inset 0 0 0 1px rgba(2,6,23,.06);
+    }
+    .modeTab:last-child{ border-right:none; }
+
+    /* CONTROLS */
+    .convertRowPremium{
+      margin:12px 18px 0;
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+      background:rgba(15,23,42,.02);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .convertGroup select,
+    #pdfCompressLevel,
+    #convertFrom,
+    #convertTarget{
+      appearance:none;
+      -webkit-appearance:none;
+      font-weight:700;
+      font-size:13px;
+      color:var(--ink);
+      padding:10px 12px;
+      border:1px solid rgba(15,23,42,.14);
+      border-radius: var(--radius2);
+      background:#fff;
+      box-shadow: 0 2px 0 rgba(2,6,23,.02);
+    }
+    .convertHint{
+      margin-left:auto;
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size:11.5px;
+      color:rgba(15,23,42,.55);
+    }
+    .convertArrow{ font-weight:900; color:rgba(15,23,42,.55); padding:0 6px; }
+
+    /* DROPZONE: strong, clean, not fluffy */
+    .dropzonePremium.dropzoneUltra{
+      margin:14px 18px 16px;
+      border-radius: var(--radius);
+      border:1.5px dashed rgba(15,23,42,.18);
+      background: linear-gradient(180deg, rgba(15,23,42,.02), rgba(15,23,42,0));
+      min-height: 240px;
+    }
+    .dzCenter{ padding:26px 18px; text-align:center; }
+    .dzIcon{
+      width:42px; height:42px;
+      border-radius: 12px;
+      border:1px solid rgba(15,23,42,.12);
+      display:flex; align-items:center; justify-content:center;
+      margin:0 auto 10px;
+      background:#fff;
+      box-shadow: var(--shadow2);
+    }
+    .dzArrow{ font-weight:900; color:rgba(15,23,42,.70); }
+    .dzTitle{ font-weight:900; font-size:16px; color:var(--ink); margin:0; }
+    .dzSub{ margin-top:6px; color:rgba(15,23,42,.62); font-weight:600; }
+
+    .btnPrimary.btnLarge{
+      border-radius: 12px !important;
+      background: var(--ink) !important;
+      border: 1px solid rgba(2,6,23,.18) !important;
+      box-shadow: 0 12px 24px rgba(2,6,23,.18) !important;
+      font-weight:850 !important;
+      padding:12px 16px !important;
+    }
+    .btnPrimary.btnLarge:hover{ filter:brightness(.95); }
+    .btnGhost{
+      border-radius:12px !important;
+      font-weight:800 !important;
+      border:1px solid rgba(15,23,42,.14) !important;
+      background:#fff !important;
+    }
+
+    /* ACTION ROW */
+    .actionRow{
+      display:flex;
+      gap:10px;
+      padding:0 18px 18px;
+    }
+    .btnSoft{
+      border-radius:12px !important;
+      font-weight:850 !important;
+      border:1px solid rgba(15,23,42,.14) !important;
+      background:#fff !important;
+    }
+    .btnPrimary.btnStrong{
+      border-radius:12px !important;
+      font-weight:900 !important;
+    }
+
+    .fineprint{
+      padding:0 18px 18px;
+      color:rgba(15,23,42,.58);
+      font-size:12.5px;
+      font-weight:600;
+    }
+
+    /* Footer */
+    .footerPremium{
+      border-top:1px solid var(--line);
+      background:rgba(246,247,251,.70);
+      padding:20px 0;
+    }
+    .footerInner{ display:flex; align-items:center; justify-content:space-between; gap:14px; }
+    .footerRight a{ color:rgba(15,23,42,.70); text-decoration:none; font-weight:700; font-size:13px; padding:8px 10px; border-radius:10px; }
+    .footerRight a:hover{ background:rgba(15,23,42,.06); color:var(--ink); }
+
+    /* Modal: make it match the new tone without changing structure */
+    .modalOverlay .modalCard{
+      border-radius: 16px;
+      border:1px solid rgba(15,23,42,.14);
+      box-shadow: 0 30px 90px rgba(2,6,23,.25);
+    }
+    .modalTop{
+      border-bottom:1px solid rgba(15,23,42,.10);
+      background: linear-gradient(180deg, rgba(15,23,42,.03), rgba(15,23,42,0));
+    }
+    .modalClose{
+      border-radius: 12px;
+      border:1px solid rgba(15,23,42,.14);
+      background:#fff;
+      font-weight:800;
+    }
+
+    /* Accessibility helper */
+    .srOnly{
+      position:absolute !important;
+      width:1px !important;
+      height:1px !important;
+      padding:0 !important;
+      margin:-1px !important;
+      overflow:hidden !important;
+      clip:rect(0, 0, 0, 0) !important;
+      white-space:nowrap !important;
+      border:0 !important;
+    }
+  </style>
 
   <script type="application/ld+json">
   {
@@ -81,7 +389,7 @@
 
 <main>
 
-  <!-- HERO / TOOL SHELL (centered, not a cramped right column) -->
+  <!-- HERO / TOOL (FULL RAMBO layout + alignment) -->
   <section class="hero heroPremium">
     <div class="container heroInner">
 
@@ -138,8 +446,6 @@
             <span>Split PDF</span>
           </label>
         </fieldset>
-
-        <!-- CONTROLS (MOVED OUTSIDE THE TABS so it cannot “break” the segmented control) -->
 
         <!-- Compress PDF controls -->
         <div class="convertRow convertRowPremium" id="pdfCompressRow" style="display:none;">
@@ -240,7 +546,8 @@
     </div>
   </section>
 
-  <!-- OPTIONAL: Keep your #how/#faq sections wherever they currently live in your build. -->
+  <!-- You can keep existing sections below (how/faq) as-is in your repo.
+       This file focuses on the hero + tool redesign. -->
 
 </main>
 
@@ -330,8 +637,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 </script>
 
 <script src="/app.js?v=17.3" defer></script>
