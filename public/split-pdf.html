@@ -1,14 +1,9 @@
-<!-- public/split-pdf.html — PDFOperations (v10 - PDF.JS ESM LOADER + DRAG FIXED + ORDER NUMBERS + DELETE + SAFE HOOKS)
-     ✅ style.css?v=36 + app.js?v=17.7
-     ✅ Replaces CDN pdf.js with self-hosted ESM module loader (same pattern as merge)
-     ✅ Fixes drag reorder reliably (event delegation + prevents inner elements stealing drag)
-     ✅ Adds clear, always-visible order numbers (1..N) on each thumb so users don’t get lost
-     ✅ Delete + Reset preserved
-     ✅ Exposes window.__PDFOPS_PAGE_ORDER__ (1-based) and keeps it updated after reorder/delete/reset
-     ✅ Keeps ALL app.js IDs unchanged
-     ✅ split_pdf preselected
-     ✅ Includes FULL checkout modal markup (required by app.js)
-     ✅ Protects [hidden] so modals/sections never flash
+<!-- public/split-pdf.html — PDFOperations (v11 - UX/SEO CLEAN LAYOUT + NO “BUBBLE” BOXES, NO FUNCTION CHANGES)
+     ✅ NO app.js hook/ID changes
+     ✅ Keeps your split reorder/delete/reset logic EXACTLY as-is
+     ✅ Keeps PDF.js ESM loader
+     ✅ UX: cleaner “WeCompress-style” below-fold layout (simple grid + clean FAQ + internal links)
+     ✅ Removes “pill/bubble” look via page-scoped CSS overrides (trust bar, related tools, FAQ)
 -->
 <!doctype html>
 <html lang="en">
@@ -174,12 +169,36 @@
     #pdfPreviewModal[hidden],
     #pdfReorderWrap[hidden],
     #fileMeta[hidden],
-    #priceModal[aria-hidden="true"]{
-      display:none !important;
-    }
+    #priceModal[aria-hidden="true"]{ display:none !important; }
     [hidden]{ display:none !important; }
 
-    /* ===== Page-owned styling for thumbs (does not fight global CSS) ===== */
+    /* ===== Kill “bubble/pill” look (page scoped) ===== */
+    .trustBar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 16px;
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1px solid rgba(15,23,42,.10);
+      color:rgba(11,18,32,.72);
+      font-size:13px;
+    }
+    .trustPill{
+      padding:0 !important;
+      border:0 !important;
+      background:transparent !important;
+      border-radius:0 !important;
+      box-shadow:none !important;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      color:rgba(11,18,32,.72);
+    }
+    .trustPill::before{ content:"•"; opacity:.55; }
+    .trustBar .trustPill:first-child::before{ content:""; }
+
+    /* ===== Tool: thumbs (kept) ===== */
     .pdfReorderWrap{
       margin-top: 14px;
       border-top: 1px solid rgba(15,23,42,.08);
@@ -193,11 +212,11 @@
       margin-bottom: 10px;
     }
     .pdfReorderTitle{
-      font-weight: 800;
-      letter-spacing: -.01em;
+      font-weight: 900;
+      letter-spacing: -.02em;
     }
     .pdfReorderSub{
-      opacity: .82;
+      opacity: .80;
       font-size: 13px;
       margin-top: 2px;
       line-height: 1.35;
@@ -217,9 +236,9 @@
 
     .pdfThumb{
       position: relative;
-      background: rgba(255,255,255,.82);
+      background: #fff;
       border: 1px solid rgba(15,23,42,.10);
-      border-radius: 18px;
+      border-radius: 14px;
       padding: 10px;
       box-shadow: 0 10px 30px rgba(2,6,23,.06);
       cursor: grab;
@@ -274,13 +293,13 @@
     .pdfThumbCanvas{
       width: 100%;
       height: auto;
-      border-radius: 14px;
+      border-radius: 12px;
       background: #fff;
       border: 1px solid rgba(15,23,42,.06);
       display:block;
     }
 
-    /* ===== ORDER NUMBER BADGE (NEW) ===== */
+    /* ORDER NUMBER BADGE */
     .pdfOrderBadge{
       position:absolute;
       top:10px; left:10px;
@@ -298,52 +317,152 @@
       z-index: 2;
     }
 
-    /* SEO section */
-    .seoWrap{ padding: 18px 0 42px; }
-    .seoCard{
-      background: rgba(255,255,255,.86);
-      border: 1px solid rgba(15,23,42,.10);
-      border-radius: 20px;
-      box-shadow: 0 18px 50px rgba(2,6,23,.06);
-      padding: 18px;
+    /* ===== Below-fold: clean, WeCompress-ish section ===== */
+    .contentSection{
+      padding: 56px 0 64px;
+      background: #fff;
+      border-top: 1px solid rgba(15,23,42,.08);
     }
-    .seoGrid{
+    .contentWrap{
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .contentHead h2{
+      margin:0;
+      font-size: 44px;
+      line-height: 1.05;
+      letter-spacing: -.03em;
+      font-weight: 950;
+      color: rgba(11,18,32,.98);
+    }
+    .contentHead p{
+      margin:10px 0 0;
+      font-size: 16px;
+      line-height: 1.55;
+      color: rgba(11,18,32,.72);
+      max-width: 78ch;
+    }
+
+    .contentGrid{
       display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap: 16px;
-      margin-top: 14px;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 42px;
+      margin-top: 36px;
+      align-items:start;
     }
-    @media (max-width: 920px){
-      .seoGrid{ grid-template-columns: 1fr; }
+    @media (max-width: 960px){
+      .contentHead h2{ font-size: 36px; }
+      .contentGrid{ grid-template-columns: 1fr; gap: 28px; }
     }
-    details.faq{
-      border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.78);
-      border-radius: 16px;
-      padding: 10px 12px;
+
+    .featureGrid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 22px 26px;
       margin-top: 10px;
     }
+    @media (max-width: 560px){
+      .featureGrid{ grid-template-columns: 1fr; }
+    }
+
+    .feature{
+      display:flex;
+      gap: 14px;
+      align-items:flex-start;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+    .featureIcon{
+      width: 34px;
+      height: 34px;
+      flex: 0 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .featureIcon svg{ width: 28px; height: 28px; }
+    .featureTitle{
+      font-weight: 900;
+      letter-spacing: -.02em;
+      margin: 0;
+      font-size: 18px;
+      color: rgba(11,18,32,.96);
+    }
+    .featureText{
+      margin: 6px 0 0;
+      font-size: 14px;
+      line-height: 1.55;
+      color: rgba(11,18,32,.70);
+    }
+
+    .sideBlock h3{
+      margin:0 0 10px;
+      font-size: 18px;
+      font-weight: 950;
+      letter-spacing: -.02em;
+      color: rgba(11,18,32,.96);
+    }
+
+    /* Clean FAQ: no bubbles */
+    .faqList{
+      border-top: 1px solid rgba(15,23,42,.12);
+      margin-top: 10px;
+    }
+    details.faq{
+      border:0 !important;
+      background:transparent !important;
+      border-radius:0 !important;
+      padding: 14px 0 !important;
+      margin:0 !important;
+      border-bottom: 1px solid rgba(15,23,42,.12) !important;
+    }
     details.faq summary{
-      cursor: pointer;
-      font-weight: 800;
+      cursor:pointer;
+      font-weight: 900;
       letter-spacing: -.01em;
-      list-style: none;
+      list-style:none;
+      color: rgba(11,18,32,.96);
     }
     details.faq summary::-webkit-details-marker{ display:none; }
+    .faqBody{
+      margin-top: 8px;
+      color: rgba(11,18,32,.72);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* Related tools: plain links */
     .relTools{
-      display:flex; flex-wrap:wrap; gap: 10px;
-      margin-top: 12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px 14px;
+      margin-top: 16px;
     }
     .relTools a{
-      display:inline-flex; align-items:center; gap: 8px;
-      padding: 9px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.75);
-      text-decoration: none;
-      font-weight: 800;
-      font-size: 13px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      text-decoration:none;
+      font-weight: 850;
+      font-size: 14px;
+      color: rgba(11,18,32,.92);
+      border-bottom: 1px solid rgba(11,18,32,.18);
+      padding-bottom: 2px;
     }
+    .relTools a:hover{
+      border-bottom-color: rgba(11,18,32,.40);
+    }
+
+    .legalNote{
+      margin-top: 14px;
+      font-size: 12px;
+      color: rgba(11,18,32,.62);
+    }
+    .legalNote a{ color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 
     /* Mobile: thumbs a bit larger and more tappable */
     @media (max-width: 520px){
@@ -524,75 +643,125 @@
   </section>
 
   <!-- =========================
-       SEO CONTENT (REAL)
+       CLEAN SEO / INFO SECTION (NO BUBBLES)
   ========================== -->
-  <section class="seoWrap" id="about">
-    <div class="container heroWide">
-      <div class="seoCard">
+  <section class="contentSection" id="about">
+    <div class="contentWrap">
 
+      <div class="contentHead">
         <h2>Split a PDF into separate pages</h2>
         <p>
-          Use this tool when you need to extract pages for uploads, portals, email attachments, or client delivery.
-          You can reorder pages, remove pages you don’t want, then download a ZIP with one PDF per page.
+          Extract pages for portals, uploads, and client delivery. Upload one PDF, set the output order,
+          remove anything you don’t need, and download a ZIP with one PDF per page.
         </p>
+      </div>
 
-        <div class="seoGrid">
-          <div>
-            <h3 style="margin:10px 0 6px;">Common uses</h3>
-            <ul style="margin:0 0 10px; padding-left:18px;">
-              <li>Extract signature pages</li>
-              <li>Remove blank / duplicate pages</li>
-              <li>Upload specific pages to a portal</li>
-              <li>Send only the pages a client needs</li>
-            </ul>
+      <div class="contentGrid">
+        <div>
+          <div class="featureGrid" aria-label="Split PDF features">
+            <div class="feature">
+              <div class="featureIcon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                  <path d="M7 3h7l3 3v15a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/>
+                  <path d="M14 3v4a1 1 0 0 0 1 1h4"/>
+                </svg>
+              </div>
+              <div>
+                <div class="featureTitle">One PDF in, ZIP out</div>
+                <p class="featureText">You’ll download a ZIP containing one PDF per page—clean and predictable.</p>
+              </div>
+            </div>
 
-            <h3 style="margin:10px 0 6px;">Related tools</h3>
+            <div class="feature">
+              <div class="featureIcon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                  <path d="M8 7h12M8 12h12M8 17h12"/>
+                  <path d="M4 7h.01M4 12h.01M4 17h.01"/>
+                </svg>
+              </div>
+              <div>
+                <div class="featureTitle">Reorder output</div>
+                <p class="featureText">Drag pages into the exact sequence you want before splitting.</p>
+              </div>
+            </div>
+
+            <div class="feature">
+              <div class="featureIcon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                  <path d="M3 6h18"/>
+                  <path d="M8 6V4h8v2"/>
+                  <path d="M6 6l1 16h10l1-16"/>
+                </svg>
+              </div>
+              <div>
+                <div class="featureTitle">Remove pages</div>
+                <p class="featureText">Delete pages from the output ZIP. Use Reset anytime to restore them.</p>
+              </div>
+            </div>
+
+            <div class="feature">
+              <div class="featureIcon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                  <path d="M20 7l-8-4-8 4v10l8 4 8-4V7z"/>
+                  <path d="M12 22V12"/>
+                  <path d="M20 7l-8 5-8-5"/>
+                </svg>
+              </div>
+              <div>
+                <div class="featureTitle">Made for portals & email</div>
+                <p class="featureText">Extract exactly what’s needed—signature pages, IDs, invoices, statements.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="sideBlock" style="margin-top:24px;">
+            <h3>Related tools</h3>
             <div class="relTools" aria-label="Related PDF tools">
               <a href="/merge-pdf">Merge PDF</a>
               <a href="/">Compress PDF</a>
               <a href="/rotate-pdf">Rotate PDF</a>
               <a href="/convert">Convert</a>
             </div>
-
-            <div style="margin-top:12px; font-size:12px; opacity:.75;">
+            <div class="legalNote">
               Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
             </div>
           </div>
+        </div>
 
-          <div>
-            <h3 style="margin:10px 0 6px;">FAQs</h3>
-
-            <details class="faq" id="faq">
+        <div class="sideBlock">
+          <h3>FAQs</h3>
+          <div class="faqList" id="faq">
+            <details class="faq">
               <summary>Can I remove pages before splitting?</summary>
-              <div style="margin-top:8px; opacity:.85;">
+              <div class="faqBody">
                 Yes. Delete removes pages from the output ZIP only. Use Reset to restore all pages.
               </div>
             </details>
 
             <details class="faq">
               <summary>Does reordering change the output?</summary>
-              <div style="margin-top:8px; opacity:.85;">
+              <div class="faqBody">
                 Yes. The ZIP is produced in the order shown in the page grid.
               </div>
             </details>
 
             <details class="faq">
               <summary>What do I download?</summary>
-              <div style="margin-top:8px; opacity:.85;">
+              <div class="faqBody">
                 A ZIP containing one PDF per page (in your selected order).
               </div>
             </details>
 
             <details class="faq">
               <summary>Do I need an account?</summary>
-              <div style="margin-top:8px; opacity:.85;">
+              <div class="faqBody">
                 No signup required. Upload, continue, then download.
               </div>
             </details>
           </div>
         </div>
-
       </div>
+
     </div>
   </section>
 
