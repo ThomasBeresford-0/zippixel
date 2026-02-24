@@ -1,10 +1,9 @@
-<!-- public/convert.html — PDFOperations (v2 - ROUTES FIXED + NO PAYMENT COPY)
-     ✅ Single conversion hub (PDF, JPG, PNG, WebP)
-     ✅ Uses convert mode
-     ✅ Keeps ALL app.js IDs unchanged
-     ✅ No mention of paying until payment screen
-     ✅ Header/footer nav uses REAL *.html pages
-     ✅ No backend changes required
+<!-- public/convert.html — PDFOperations (v3 - PREMIUM TOOL IDENTITY)
+     ✅ Stronger hierarchy
+     ✅ Trust bar
+     ✅ How it works card
+     ✅ Pro FAQ
+     ✅ All app.js IDs preserved
 -->
 <!doctype html>
 <html lang="en">
@@ -18,19 +17,10 @@
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
-  <meta name="color-scheme" content="light" />
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="Convert Files Online — PDF, JPG, PNG & WebP" />
-  <meta property="og:description" content="Convert between PDF, JPG, PNG and WebP. Fast, secure and no signup required." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://pdfoperations.com/convert.html" />
-  <meta property="og:image" content="https://pdfoperations.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-
-  <link rel="stylesheet" href="/style.css?v=29" />
+  <link rel="stylesheet" href="/style.css?v=33" />
 </head>
 
 <body class="premium" data-tool="convert">
@@ -39,12 +29,12 @@
 
 <header class="nav">
   <div class="container navInner">
-    <a class="brand" href="/index.html" aria-label="PDFOperations home">
+    <a class="brand" href="/index.html">
       <img src="/favicon.svg" width="26" height="26" alt="">
       <span>PDFOperations</span>
     </a>
 
-    <nav class="navLinks" aria-label="Primary navigation">
+    <nav class="navLinks">
       <a href="/index.html">ZIP</a>
       <a href="/compress-pdf.html">Compress PDF</a>
       <a href="/merge-pdf.html">Merge</a>
@@ -63,17 +53,25 @@
 
 <main>
 
-<section class="hero heroPremium heroToolFirst">
+<section class="hero heroToolFirst">
   <div class="container heroWide">
 
-    <div id="tool" class="tool toolPremium toolMega">
+    <div id="tool" class="tool toolMega">
 
-      <!-- HEADLINE -->
-      <div class="toolHead toolHeadMinimal">
-        <h1 class="toolTitle">Convert Files</h1>
+      <!-- TOOL HEAD -->
+      <div class="toolHeadMinimal">
+        <h1 class="toolTitle">Convert Files Instantly</h1>
         <p class="toolSub">
-          Convert between PDF, JPG, PNG and WebP. Upload files, choose a target format, and download the result.
+          Convert between <strong>PDF, JPG, PNG and WebP</strong>.
+          Upload your files, choose a format, and download the result.
         </p>
+
+        <div class="trustBar">
+          <div class="trustPill">No signup</div>
+          <div class="trustPill">Secure processing</div>
+          <div class="trustPill">Multiple files supported</div>
+          <div class="trustPill">Instant download</div>
+        </div>
       </div>
 
       <!-- STATUS -->
@@ -83,11 +81,11 @@
           <div class="spinner" id="spinner"></div>
         </div>
         <div class="statusHint" id="statusHint">
-          Choose a target format and upload your files.
+          Select a target format and upload your files.
         </div>
       </div>
 
-      <!-- REQUIRED MODE INPUTS (hidden but required for app.js) -->
+      <!-- REQUIRED MODE INPUTS -->
       <fieldset class="modeRow" style="display:none;">
         <input type="radio" name="mode" id="modeCompress">
         <input type="radio" name="mode" id="modeCompressPdf">
@@ -97,10 +95,11 @@
       </fieldset>
 
       <!-- CONVERT CONTROLS -->
-      <div class="convertRow convertRowPremium convertRowFull" id="convertRow">
+      <div class="convertRow convertRowFull">
+
         <div class="convertGroup">
           <div class="convertLabel">From</div>
-          <select id="convertFrom" aria-label="Convert from">
+          <select id="convertFrom">
             <option value="auto" selected>Auto detect</option>
             <option value="pdf">PDF</option>
             <option value="jpg">JPG</option>
@@ -109,11 +108,11 @@
           </select>
         </div>
 
-        <span class="convertArrow" aria-hidden="true">→</span>
+        <span class="convertArrow">→</span>
 
         <div class="convertGroup">
           <div class="convertLabel">To</div>
-          <select id="convertTarget" aria-label="Convert to">
+          <select id="convertTarget">
             <option value="pdf">PDF</option>
             <option value="jpg">JPG</option>
             <option value="png">PNG</option>
@@ -122,31 +121,18 @@
         </div>
 
         <div class="convertHint">
-          If multiple outputs are generated, they’ll be downloaded together in a ZIP.
+          Multiple outputs will be bundled into a ZIP.
         </div>
-      </div>
 
-      <!-- HIDDEN PDF COMPRESS CONTROLS (keep ID for app.js safety) -->
-      <div class="convertRow" id="pdfCompressRow" style="display:none;">
-        <div class="convertGroup convertGroupWide">
-          <div class="convertLabel">Compression level</div>
-          <select id="pdfCompressLevel">
-            <option value="balanced" selected>Balanced</option>
-            <option value="light">Light</option>
-            <option value="max">Maximum</option>
-          </select>
-        </div>
       </div>
 
       <!-- DROPZONE -->
-      <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
+      <div class="dropzone dropzoneMega" id="dropzone">
 
         <div class="dzCenter">
           <div class="dzIcon"><span class="dzArrow">↑</span></div>
-          <div class="dzTitle" id="dzTitle">Drop files here</div>
-          <div class="dzSub" id="dzSub">
-            Drag & drop or select (PDF, JPG, PNG, WebP)
-          </div>
+          <div class="dzTitle">Drop files here</div>
+          <div class="dzSub">Drag & drop or select your files</div>
 
           <div class="filePick">
             <button class="btnPrimary btnLarge" id="chooseBtn" type="button">
@@ -165,17 +151,7 @@
             <div class="fileSummary" id="fileSummary"></div>
             <button class="btnGhost" id="clearBtn" type="button">Clear</button>
           </div>
-
           <ol class="fileList" id="fileList"></ol>
-
-          <!-- Keep reorder container for compatibility -->
-          <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
-            <div class="pdfReorderHead">
-              <div class="pdfReorderTitle">Preview</div>
-              <div class="pdfReorderSub">Used for merge/split modes.</div>
-            </div>
-            <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
-          </div>
         </div>
 
       </div>
@@ -193,7 +169,7 @@
       </div>
 
       <!-- ACTIONS -->
-      <div class="actionRow actionRowWide">
+      <div class="actionRow">
         <button class="btnSoft" id="upload" disabled>Upload files</button>
         <button class="btnPrimary btnStrong" id="continue" disabled>
           Continue →
@@ -201,8 +177,90 @@
       </div>
 
       <div class="fineprint">
-        No signup. Secure processing.
+        Files are processed securely and prepared for download.
       </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="sectionSupport">
+  <div class="supportCard">
+
+    <div class="supportHead">
+      <h2>How conversion works</h2>
+      <p class="supportSub">
+        Convert your files in three simple steps. No installation required.
+      </p>
+    </div>
+
+    <div class="supportGrid">
+      <div class="supportStep">
+        <div class="stepNum">1</div>
+        <div>
+          <div class="stepTitle">Upload files</div>
+          <div class="stepText">
+            Add one or multiple files. We automatically detect the format.
+          </div>
+        </div>
+      </div>
+
+      <div class="supportStep">
+        <div class="stepNum">2</div>
+        <div>
+          <div class="stepTitle">Choose format</div>
+          <div class="stepText">
+            Select your target format (PDF, JPG, PNG, WebP).
+          </div>
+        </div>
+      </div>
+
+      <div class="supportStep">
+        <div class="stepNum">3</div>
+        <div>
+          <div class="stepTitle">Download result</div>
+          <div class="stepText">
+            Converted files are prepared instantly and bundled if needed.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sectionSupport">
+  <div class="supportCard">
+
+    <div class="supportHead">
+      <h2>Frequently asked questions</h2>
+    </div>
+
+    <div class="faqPro">
+
+      <details class="faqItemPro">
+        <summary>Can I convert multiple files at once?</summary>
+        <div class="faqBodyPro">
+          Yes. Multiple files can be converted in one session and downloaded together.
+        </div>
+      </details>
+
+      <details class="faqItemPro">
+        <summary>Is my file stored?</summary>
+        <div class="faqBodyPro">
+          Files are processed securely and prepared for download. They are not made public.
+        </div>
+      </details>
+
+      <details class="faqItemPro">
+        <summary>What formats are supported?</summary>
+        <div class="faqBodyPro">
+          PDF, JPG, PNG and WebP conversions are supported.
+        </div>
+      </details>
 
     </div>
 
@@ -219,7 +277,7 @@
         <span>PDFOperations</span>
       </div>
       <div class="footerNote">
-        File conversion made simple.
+        Professional online file tools.
       </div>
     </div>
     <div class="footerRight">
