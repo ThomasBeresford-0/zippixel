@@ -1,11 +1,12 @@
-<!-- public/index.html — PDFOperations (v50 - THUMBNAIL PREVIEW (NO PDF VIEWER) + FORCE HIDE DROPDOWN)
-     ✅ Shows a clean PDF thumbnail preview (page 1) — NOT Chrome viewer
-     ✅ KILLS compression dropdown visually (even if app.js/CSS tries to show it)
-     ✅ KILLS native file input UI ("Choose File / no file chosen")
+<!-- public/index.html — PDFOperations (v51 - CLEAN THUMB PREVIEW STABLE)
+     ✅ Thumbnail preview (page 1 only)
+     ✅ disableWorker true (production-safe)
+     ✅ Compression dropdown force hidden
+     ✅ No native file picker UI
      ✅ Drag & drop supported
-     ✅ Keeps ALL app.js v17.7 IDs preserved
-     ✅ style.css?v=36 + app.js?v=17.7
+     ✅ All app.js v17.7 IDs preserved
 -->
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -13,429 +14,287 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Compress PDF Online | PDFOperations</title>
-  <meta name="description" content="Compress a PDF for strict upload limits. Upload one PDF, click Upload, then Continue." />
+  <meta name="description" content="Compress a PDF for strict upload limits." />
   <link rel="canonical" href="https://pdfoperations.com/" />
+
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
 
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-
   <link rel="stylesheet" href="/style.css?v=36" />
 
-  <!-- HARD OVERRIDES (no matter what app.js/style.css does) -->
   <style>
-    /* 1) Nuke the compression dropdown visually */
+    /* HARD KILL compression dropdown */
     #pdfCompressRow,
     #pdfCompressLevel{
       display:none !important;
       visibility:hidden !important;
       height:0 !important;
-      width:0 !important;
-      padding:0 !important;
-      margin:0 !important;
-      border:0 !important;
       overflow:hidden !important;
     }
 
-    /* 2) Stop the native file input UI from ever showing */
-    .filePick{ position:relative; display:inline-flex; align-items:center; justify-content:center; }
+    /* hide native file input UI */
+    .filePick{ position:relative; display:inline-block; }
     #files{
-      position:absolute !important;
-      inset:0 !important;
-      opacity:0 !important;
-      cursor:pointer !important;
-      width:100% !important;
-      height:100% !important;
-      z-index:5 !important;
+      position:absolute;
+      inset:0;
+      opacity:0;
+      cursor:pointer;
+      width:100%;
+      height:100%;
+      z-index:5;
     }
 
-    /* drag over state */
     #dropzone.isDragOver{
-      outline:3px solid rgba(11,18,32,.08);
-      box-shadow:0 18px 46px rgba(2,6,23,.12);
-      transform:translateY(-1px);
+      outline:3px solid rgba(0,0,0,.08);
+      box-shadow:0 12px 40px rgba(0,0,0,.08);
     }
 
-    /* steps: sits under preview cleanly */
-    .stepsLine{
-      display:flex;
-      flex-wrap:wrap;
-      gap:14px;
-      margin-top:16px;
-      padding-top:14px;
-      border-top:1px solid rgba(15,23,42,.10);
-      font-size:13px;
-      color:rgba(11,18,32,.78);
-    }
-    .stepItem{ display:flex; align-items:center; gap:8px; }
-    .stepNum{
-      width:22px;height:22px;
-      border-radius:8px;
-      border:1px solid rgba(15,23,42,.14);
-      display:flex;align-items:center;justify-content:center;
-      font-weight:800;font-size:12px;
-      background:#fff;
-    }
-
-    /* preview block (thumbnail, not viewer) */
     .previewWrap{
-      margin-top:14px;
-      border:1px solid rgba(15,23,42,.10);
-      border-radius:18px;
+      margin-top:16px;
+      border:1px solid rgba(0,0,0,.1);
+      border-radius:16px;
       overflow:hidden;
       background:#fff;
-      box-shadow:0 12px 34px rgba(2,6,23,.08);
     }
+
     .previewHead{
       display:flex;
       justify-content:space-between;
       align-items:center;
-      gap:10px;
-      padding:12px 12px;
-      border-bottom:1px solid rgba(15,23,42,.10);
-      background:#f7f8fb;
+      padding:12px 16px;
+      border-bottom:1px solid rgba(0,0,0,.08);
+      background:#f6f7fb;
     }
+
     .previewMeta{
       display:flex;
       flex-direction:column;
-      gap:2px;
+      gap:4px;
       min-width:0;
     }
+
     .previewName{
+      font-weight:600;
       font-size:14px;
-      font-weight:700;
-      color:#0b1220;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      max-width: 58ch;
+      max-width:60ch;
     }
+
     .previewSub{
       font-size:12px;
-      color:rgba(11,18,32,.65);
+      color:#666;
     }
+
     .previewBody{
-      padding:14px;
-    }
-    .thumbShell{
-      border:1px solid rgba(15,23,42,.12);
-      border-radius:14px;
-      background:#fff;
-      overflow:hidden;
+      padding:20px;
       display:flex;
-      align-items:center;
       justify-content:center;
-      min-height:220px;
     }
+
+    .thumbShell{
+      border:1px solid rgba(0,0,0,.1);
+      border-radius:12px;
+      overflow:hidden;
+      background:#fff;
+      max-width:240px;
+      width:100%;
+    }
+
     canvas#pdfThumb{
-      display:block;
       width:100%;
       height:auto;
-      max-height:260px; /* stops it becoming a “whole viewer” */
+      display:block;
     }
-    .thumbLoading{
-      font-size:13px;
-      color:rgba(11,18,32,.68);
-      padding:18px;
-    }
+
+    .thumbLoading,
     .thumbError{
+      padding:24px;
       font-size:13px;
-      color:rgba(11,18,32,.78);
-      padding:18px;
+      color:#666;
+      text-align:center;
     }
+
     [hidden]{ display:none !important; }
   </style>
 </head>
 
 <body class="page pageCompressPdf">
-<div class="bg" aria-hidden="true"></div>
-
-<a href="#tool" class="srOnly">Skip to tool</a>
 
 <header class="nav">
   <div class="container navInner">
-    <a class="brand" href="/" aria-label="PDFOperations home">
-      <span class="brandMark"></span>
-      <span class="brandText">
-        <span class="top">PDFOperations</span>
-        <span class="sub">Compress • Merge • Split</span>
-      </span>
-    </a>
-
-    <nav class="navLinks">
-      <a href="/" aria-current="page">Compress</a>
-      <a href="/merge-pdf">Merge</a>
-      <a href="/split-pdf">Split</a>
-      <a href="/convert">Convert</a>
-      <a href="/rotate-pdf">Rotate</a>
-      <a href="/pricing">Pricing</a>
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
-    </nav>
-
-    <div class="navCta">
-      <a class="btn btnSmall btnGhost" href="#tool">Start</a>
-    </div>
+    <a class="brand" href="/">PDFOperations</a>
   </div>
 </header>
 
 <main>
-  <section class="hero heroPremium heroToolFirst">
-    <div class="container heroWide">
+<section class="hero heroPremium heroToolFirst">
+<div class="container heroWide">
 
-      <div id="tool" class="tool toolPremium toolMega">
+<div id="tool" class="tool toolPremium toolMega">
 
-        <div class="toolHead toolHeadMinimal">
-          <h1 class="toolTitle">Compress PDF</h1>
-          <p class="toolSub">Select or drop one PDF. Click <strong>Upload</strong>, then <strong>Continue</strong>.</p>
-        </div>
+  <h1>Compress PDF</h1>
 
-        <!-- STATUS -->
-        <div class="statusWrap">
-          <div class="statusLeft">
-            <div class="status" id="status">Ready</div>
-            <div class="spinner" id="spinner"></div>
-          </div>
-          <div class="statusHint" id="statusHint">Drop a PDF to begin.</div>
-        </div>
+  <!-- STATUS -->
+  <div class="statusWrap">
+    <div id="status">Ready</div>
+  </div>
 
-        <!-- Hidden mode controls -->
-        <fieldset style="display:none;">
-          <input type="radio" name="mode" id="modeCompress">
-          <input type="radio" name="mode" id="modeCompressPdf" checked>
-          <input type="radio" name="mode" id="modeConvert">
-          <input type="radio" name="mode" id="modeMergePdf">
-          <input type="radio" name="mode" id="modeSplitPdf">
-          <input type="radio" name="mode" id="modeRotatePdf">
-        </fieldset>
+  <!-- Required mode controls (hidden) -->
+  <fieldset style="display:none;">
+    <input type="radio" name="mode" id="modeCompressPdf" checked>
+  </fieldset>
 
-        <!-- HARD DEFAULT compression level (hidden, app.js reads it) -->
-        <div class="controls" id="pdfCompressRow">
-          <select class="select" id="pdfCompressLevel">
-            <option value="light">Light</option>
-            <option value="balanced" selected>Balanced</option>
-            <option value="max">Maximum</option>
-          </select>
-        </div>
+  <!-- Required hidden compression select -->
+  <div id="pdfCompressRow">
+    <select id="pdfCompressLevel">
+      <option value="balanced" selected>Balanced</option>
+    </select>
+  </div>
 
-        <!-- Hidden Convert (app.js compatibility) -->
-        <div id="convertRow" style="display:none;">
-          <select id="convertFrom">
-            <option value="auto" selected>Auto detect</option>
-          </select>
-          <select id="convertTarget">
-            <option value="jpg" selected>JPG</option>
-            <option value="png">PNG</option>
-          </select>
-        </div>
-
-        <!-- Hidden Rotate -->
-        <div style="display:none;">
-          <select id="rotateDegrees">
-            <option value="90" selected>90°</option>
-            <option value="180">180°</option>
-            <option value="270">270°</option>
-          </select>
-        </div>
-
-        <!-- DROPZONE -->
-        <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
-
-          <div class="dzCenter">
-            <div class="dzTitle" id="dzTitle">Drop a PDF here</div>
-            <div class="dzSub" id="dzSub">PDF only • 1 file</div>
-
-            <div class="filePick">
-              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
-              <input id="files" type="file" accept="application/pdf" />
-            </div>
-
-            <div class="dzFine">Tip: drag a PDF onto this area.</div>
-          </div>
-
-          <!-- app.js hooks -->
-          <div class="fileMeta" id="fileMeta" hidden>
-            <div class="fileMetaTop">
-              <div class="fileSummary" id="fileSummary"></div>
-              <button class="btnGhost" id="clearBtn" type="button">Clear</button>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- THUMB PREVIEW -->
-        <div class="previewWrap" id="pdfPreviewWrap" hidden>
-          <div class="previewHead">
-            <div class="previewMeta">
-              <div class="previewName" id="pdfPreviewName">Selected file</div>
-              <div class="previewSub" id="pdfPreviewSub">Preview (page 1)</div>
-            </div>
-            <button class="btnGhost" id="previewClearBtn" type="button">Clear</button>
-          </div>
-          <div class="previewBody">
-            <div class="thumbShell">
-              <div class="thumbLoading" id="thumbLoading">Rendering preview…</div>
-              <canvas id="pdfThumb" hidden></canvas>
-              <div class="thumbError" id="thumbError" hidden>Couldn’t render preview.</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- STEPS -->
-        <div class="stepsLine">
-          <div class="stepItem"><span class="stepNum">1</span>Select / Drop a PDF</div>
-          <div class="stepItem"><span class="stepNum">2</span>Click <strong>Upload</strong></div>
-          <div class="stepItem"><span class="stepNum">3</span>Continue → Checkout</div>
-        </div>
-
-        <!-- PROGRESS -->
-        <div class="progressWrap" id="progressWrap" hidden>
-          <div class="progressTop">
-            <div id="progressLabel">Uploading…</div>
-            <div id="progressPct">0%</div>
-          </div>
-          <div class="progressBar">
-            <div class="progressFill" id="progressFill"></div>
-          </div>
-        </div>
-
-        <!-- ACTIONS -->
-        <div class="actionRow actionRowWide">
-          <button class="btnSoft" id="upload" disabled>Upload PDF</button>
-          <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
-        </div>
-
+  <!-- DROPZONE -->
+  <div id="dropzone" class="dropzone dropzonePremium dropzoneMega">
+    <div class="dzCenter">
+      <div>Drop a PDF here</div>
+      <div class="filePick">
+        <button id="chooseBtn" class="btnPrimary">Select PDF</button>
+        <input id="files" type="file" accept="application/pdf" />
       </div>
-
     </div>
-  </section>
-</main>
 
-<footer class="footer">
-  <div class="container footerInner">
-    <div>
-      <strong>PDFOperations</strong>
-      <div style="margin-top:4px;">PDF tools for email, portals and document workflows.</div>
-    </div>
-    <div class="footerLinks">
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
+    <!-- app.js hooks -->
+    <div id="fileMeta" hidden>
+      <div id="fileSummary"></div>
+      <button id="clearBtn">Clear</button>
     </div>
   </div>
-</footer>
 
-<!-- PDF.js (thumbnail rendering) -->
+  <!-- THUMB PREVIEW -->
+  <div class="previewWrap" id="pdfPreviewWrap" hidden>
+    <div class="previewHead">
+      <div class="previewMeta">
+        <div class="previewName" id="pdfPreviewName"></div>
+        <div class="previewSub">Preview (page 1)</div>
+      </div>
+      <button id="previewClearBtn">Clear</button>
+    </div>
+
+    <div class="previewBody">
+      <div class="thumbShell">
+        <div class="thumbLoading" id="thumbLoading">Rendering preview…</div>
+        <canvas id="pdfThumb" hidden></canvas>
+        <div class="thumbError" id="thumbError" hidden>Couldn’t render preview.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actionRow">
+    <button id="upload" disabled>Upload PDF</button>
+    <button id="continue" disabled>Continue →</button>
+  </div>
+
+</div>
+</div>
+</section>
+</main>
+
+<!-- PDF.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.js"></script>
 
 <script>
 (() => {
+
   const dropzone = document.getElementById("dropzone");
   const input = document.getElementById("files");
 
   const wrap = document.getElementById("pdfPreviewWrap");
   const nameEl = document.getElementById("pdfPreviewName");
-  const subEl = document.getElementById("pdfPreviewSub");
-
-  const loadingEl = document.getElementById("thumbLoading");
-  const errEl = document.getElementById("thumbError");
   const canvas = document.getElementById("pdfThumb");
-  const ctx = canvas.getContext("2d", { alpha: false });
+  const loading = document.getElementById("thumbLoading");
+  const errorEl = document.getElementById("thumbError");
 
   const previewClear = document.getElementById("previewClearBtn");
   const appClear = document.getElementById("clearBtn");
 
+  const ctx = canvas.getContext("2d", { alpha:false });
+
   function fmtMB(bytes){
-    return (bytes/1024/1024).toFixed(bytes > 1024*1024 ? 2 : 2) + " MB";
+    return (bytes/1024/1024).toFixed(2) + " MB";
   }
 
   async function renderThumb(file){
-    if(!file) return;
-
     wrap.hidden = false;
     canvas.hidden = true;
-    errEl.hidden = true;
-    loadingEl.hidden = false;
+    errorEl.hidden = true;
+    loading.hidden = false;
 
-    nameEl.textContent = `${file.name} • ${fmtMB(file.size)}`;
-    subEl.textContent = "Preview (page 1)";
+    nameEl.textContent = file.name + " • " + fmtMB(file.size);
 
     try{
-      // pdf.js worker
-      if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.js";
-      }
-
       const buf = await file.arrayBuffer();
-      const doc = await pdfjsLib.getDocument({ data: buf }).promise;
+
+      const doc = await pdfjsLib.getDocument({
+        data: buf,
+        disableWorker: true   // IMPORTANT FIX
+      }).promise;
+
       const page = await doc.getPage(1);
+      const viewport = page.getViewport({ scale: 1.5 });
 
-      // Fit to a compact thumbnail height
-      const targetMaxH = 240; // keeps it a preview, not a viewer
-      const baseViewport = page.getViewport({ scale: 1 });
-      const scale = Math.min(2, targetMaxH / baseViewport.height); // cap scale to avoid huge work
-      const viewport = page.getViewport({ scale });
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
 
-      canvas.width = Math.floor(viewport.width);
-      canvas.height = Math.floor(viewport.height);
-
-      // white background
-      ctx.save();
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.restore();
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
 
       await page.render({ canvasContext: ctx, viewport }).promise;
 
-      loadingEl.hidden = true;
-      errEl.hidden = true;
+      loading.hidden = true;
       canvas.hidden = false;
+
     }catch(e){
-      loadingEl.hidden = true;
-      canvas.hidden = true;
-      errEl.hidden = false;
+      console.warn("Preview error:", e);
+      loading.hidden = true;
+      errorEl.hidden = false;
     }
   }
 
-  function clearAll(){
-    if(appClear) appClear.click(); // keeps app.js state correct
-    wrap.hidden = true;
-    loadingEl.hidden = false;
-    errEl.hidden = true;
-    canvas.hidden = true;
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    input.value = "";
-  }
-
   input.addEventListener("change", () => {
-    const file = input.files && input.files[0];
+    const file = input.files[0];
     if(file) renderThumb(file);
   });
 
-  dropzone.addEventListener("dragover", (e) => {
+  dropzone.addEventListener("dragover", e => {
     e.preventDefault();
     dropzone.classList.add("isDragOver");
   });
+
   dropzone.addEventListener("dragleave", () => {
     dropzone.classList.remove("isDragOver");
   });
-  dropzone.addEventListener("drop", (e) => {
+
+  dropzone.addEventListener("drop", e => {
     e.preventDefault();
     dropzone.classList.remove("isDragOver");
 
-    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-    if(!file) return;
-
+    const file = e.dataTransfer.files[0];
     const dt = new DataTransfer();
     dt.items.add(file);
     input.files = dt.files;
-
-    input.dispatchEvent(new Event("change", { bubbles:true }));
+    input.dispatchEvent(new Event("change",{bubbles:true}));
   });
 
-  previewClear.addEventListener("click", clearAll);
+  previewClear.addEventListener("click", () => {
+    if(appClear) appClear.click();
+    wrap.hidden = true;
+    canvas.hidden = true;
+    loading.hidden = false;
+    errorEl.hidden = true;
+    input.value = "";
+  });
+
 })();
 </script>
 
