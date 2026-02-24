@@ -105,6 +105,7 @@
     if (!window.__PDFOPS_PAGE_ORDER__.length) return null;
     return window.__PDFOPS_PAGE_ORDER__.slice(); // clone
   };
+
   const pdfReorderWrap = document.getElementById("pdfReorderWrap");
   const pdfThumbGrid = document.getElementById("pdfThumbGrid");
 
@@ -303,6 +304,29 @@
     if (i === 180) return 180;
     if (i === 270) return 270;
     return 90;
+  };
+
+    // Per-page rotate map (rotate-pdf.html sets this)
+  const getRotateMap = () => {
+    if (mode !== "rotate_pdf") return null;
+
+    const m = window.__PDFOPS_ROTATE_MAP__;
+    if (!Array.isArray(m) || m.length < 2) return null;
+
+    // Validate/sanitize: index = page number (1-based)
+    const out = m.slice();
+    for (let i = 1; i < out.length; i++) {
+      const raw = Number(out[i] || 0);
+      if (raw === 0) {
+        out[i] = 0;
+        continue;
+      }
+      const v = normalizeRotateDeg(raw);
+      out[i] = v;
+      if (![90, 180, 270].includes(out[i])) out[i] = 0;
+    }
+
+    return out;
   };
 
   const setRotateActive = (deg) => {
@@ -587,7 +611,7 @@
           : mode === "compress_pdf"
             ? "Compressed PDF"
             : mode === "rotate_pdf"
-              ? `Rotate PDF → ${rotateDegreesValue}°`
+              ? (getRotateMap() ? "Rotate PDF (per-page)" : `Rotate PDF → ${rotateDegreesValue}°`)
               : mode === "convert"
                 ? `Convert → ${(convertTargetValue || "JPG").toUpperCase()}`
                 : tier.key === "zip50"
@@ -609,16 +633,26 @@
         const lvl = pdfCompressLevelValue === "max" ? "Maximum" : pdfCompressLevelValue === "light" ? "Light" : "Balanced";
         priceModalLead.innerHTML = `You’re compressing <b>1</b> PDF at <b>${lvl}</b> level.`;
       } else if (mode === "rotate_pdf") {
-        priceModalLead.innerHTML = `You’re rotating <b>1</b> PDF by <b>${rotateDegreesValue}°</b>.`;
+        const rm = getRotateMap();
+        if (rm) {
+          const pages = rm.length - 1;
+          let changed = 0;
+          for (let i = 1; i <= pages; i++) if ((rm[i] || 0) !== 0) changed++;
+          priceModalLead.innerHTML = changed
+            ? `You’re rotating <b>${changed}</b> page${changed === 1 ? "" : "s"} inside <b>1</b> PDF.`
+            : `You’re rotating pages inside <b>1</b> PDF (no changes yet).`;
+        } else {
+          priceModalLead.innerHTML = `You’re rotating <b>1</b> PDF by <b>${rotateDegreesValue}°</b>.`;
+        }
+      }
       } else if (mode === "convert") {
-        priceModalLead.innerHTML = `You’re converting <b>${n}</b> file${n === 1 ? "" : "s"} to <b>${escapeHtml(
+          priceModalLead.innerHTML = `You’re converting <b>${n}</b> file${n === 1 ? "" : "s"} to <b>${escapeHtml(
           (convertTargetValue || "jpg").toUpperCase()
         )}</b>.`;
       } else {
         priceModalLead.innerHTML = `You’re continuing with <b>${n}</b> file${n === 1 ? "" : "s"}.`;
       }
     }
-  };
 
   const syncModalTotalUI = () => {
     const total = calcTotal();
@@ -671,6 +705,19 @@
     pdfReorderCountEl.textContent = ` • ${pdfPageOrder.length} page${pdfPageOrder.length === 1 ? "" : "s"}`;
   };
 
+    // Rotate map changes (rotate-pdf.html dispatches this)
+  document.addEventListener("pdfops:rotatemap", () => {
+    if (mode !== "rotate_pdf") return;
+
+    // If they changed rotations after upload, the backend needs the new plan
+    if (uploadedMeta.length || jobId) {
+      hardResetJob("Rotation changed — please upload again.");
+    }
+
+    setPrimaryStates();
+    renderSelected();
+  });
+  
   const mergeShowNote = (msg) => {
     if (!pdfThumbNoteEl) return;
     if (!msg) {
@@ -1193,7 +1240,7 @@
       setHint(`Upload <b>1</b> PDF to compress. Level: <b>${lvl}</b>.`);
     } else if (mode === "rotate_pdf") {
       convertTargetValue = null;
-      setHint(`Upload <b>1</b> PDF to rotate. Rotation: <b>${rotateDegreesValue}°</b>.`);
+      setHint(`Upload <b>1</b> PDF to rotate. Click pages to rotate them.`);
     } else {
       convertTargetValue = null;
       setHint("Upload files to create a ZIP.");
@@ -1574,8 +1621,17 @@
       }
 
       if (mode === "compress_pdf") payload.level = pdfCompressLevelValue || "balanced";
-      if (mode === "rotate_pdf") payload.degrees = rotateDegreesValue || 90;
-
+      if (mode === "rotate_pdf") {
+        const rotateMap = getRotateMap();
+        if (rotateMap) {
+          payload.rotateMap = rotateMap;
+          // keep a harmless fallback for older server code
+          payload.degrees = 90;
+        } else {
+          // legacy fallback
+          payload.degrees = rotateDegreesValue || 90;
+        }
+      }
       const r = await fetch(`/api/jobs/${encodeURIComponent(jobId)}/mode`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

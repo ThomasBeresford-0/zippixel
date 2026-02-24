@@ -587,6 +587,7 @@
   // Map index = page number; values = 0/90/180/270
   // index 0 unused for clarity.
   window.__PDFOPS_ROTATE_MAP__ = [];
+  let readyToEmit = false;
 
   function cleanup(){
     grid.innerHTML = "";
@@ -620,6 +621,13 @@
     return 0;
   }
 
+  function emitRotateMapChange(){
+    if (!readyToEmit) return;
+    document.dispatchEvent(new CustomEvent("pdfops:rotatemap", {
+      detail: { rotateMap: window.__PDFOPS_ROTATE_MAP__.slice() }
+    }));
+  }
+
   function setThumbRotation(card, deg){
     const c = card.querySelector("canvas");
     const rotPill = card.querySelector(".thumbRot");
@@ -631,6 +639,7 @@
     if (c) c.style.transform = deg ? `rotate(${deg}deg)` : "rotate(0deg)";
 
     updatePlanText();
+    emitRotateMapChange();
   }
 
   function updatePlanText(){
@@ -706,8 +715,10 @@
   }
 
   async function renderThumbs(){
+    readyToEmit = false;
     grid.innerHTML = "";
     window.__PDFOPS_ROTATE_MAP__ = [];
+
     for (let i = 1; i <= numPages; i++){
       window.__PDFOPS_ROTATE_MAP__[i] = 0;
     }
@@ -722,6 +733,9 @@
     if (meta) meta.textContent = `${numPages} page${numPages === 1 ? "" : "s"} • click pages to rotate`;
     if (wrap) wrap.hidden = false;
     updatePlanText();
+
+    readyToEmit = true;
+    emitRotateMapChange();
   }
 
   async function loadFromFile(file){

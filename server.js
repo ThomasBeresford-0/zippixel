@@ -214,6 +214,30 @@ function normalizeRotateDegrees(deg) {
   return 90;
 }
 
+function normalizeRotateMap(map) {
+  // Expected: array where index = page number (1-based). map[0] ignored.
+  // Values: 0 | 90 | 180 | 270
+  if (!Array.isArray(map) || map.length < 2) return null;
+
+  const out = [];
+  out.length = map.length;
+  out[0] = 0;
+
+  for (let i = 1; i < map.length; i++) {
+    const raw = Number(map[i] || 0);
+    if (raw === 0) {
+      out[i] = 0;
+      continue;
+    }
+    const n = Number(raw);
+    if (n === 90 || n === 180 || n === 270) out[i] = n;
+    else out[i] = 0;
+  }
+
+  // If everything is 0, still keep it (frontend may send “no-op” state)
+  return out;
+}
+
 function parseCrossKey(s) {
   const str = String(s || "");
   const m = str.match(/^(\d+):(\d+)$/);
@@ -310,6 +334,10 @@ function validateJobFilesForMode(job) {
     const nonPdf = files.find((f) => !isPdfMeta(f));
     if (nonPdf) throw new Error("Rotate PDF only accepts a PDF file.");
     job.rotateDegrees = normalizeRotateDegrees(job.rotateDegrees);
+        if (job.rotateMap != null) {
+      // keep as-is; we’ll validate against actual page count at download time
+      job.rotateMap = normalizeRotateMap(job.rotateMap);
+    }
   }
 
   if (job.mode === "convert") {
@@ -537,8 +565,9 @@ app.post("/api/jobs", (_, res) => {
     pdfCompressLevel: "balanced",
 
     // rotate_pdf options
+    // rotate_pdf options
     rotateDegrees: 90,
-
+    rotateMap: null, // [0, 90, 0, 180, ...] index = page (1-based); 0 means no rotation
     shareToken: null,
     shareExpiresAt: null,
 
@@ -636,7 +665,7 @@ app.post("/api/jobs/:jobId/register", (req, res) => {
 app.post("/api/jobs/:jobId/mode", (req, res) => {
   try {
     const job = getJob(req.params.jobId);
-    const { mode, target, order, splitOrder, level, degrees, angle } = req.body || {};
+    const { mode, target, order, splitOrder, level, degrees, angle, rotateMap } = req.body || {};
 
     const m = String(mode || "").toLowerCase().trim();
     if (!VALID_MODES.has(m)) throw new Error("Invalid mode");
@@ -656,10 +685,12 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
 
       job.pdfCompressLevel = "balanced";
       job.rotateDegrees = 90;
+      job.rotateMap = null;
     } else if (m === "merge_pdf") {
       job.convertTarget = null;
       job.pdfCompressLevel = "balanced";
       job.rotateDegrees = 90;
+      job.rotateMap = null;
 
       const norm = normalizeMergeOrder(order);
       job.pageOrderType = norm.type;
@@ -677,6 +708,7 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
 
       job.pdfCompressLevel = "balanced";
       job.rotateDegrees = 90;
+      job.rotateMap = null;
     } else if (m === "compress_pdf") {
       job.convertTarget = null;
 
@@ -686,6 +718,7 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
 
       job.pdfCompressLevel = normalizePdfLevel(level);
       job.rotateDegrees = 90;
+      job.rotateMap = null;
     } else if (m === "rotate_pdf") {
       job.convertTarget = null;
 
@@ -694,6 +727,12 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
       job.splitOrder = null;
 
       job.pdfCompressLevel = "balanced";
+
+      // Per-page rotate (preferred)
+      const rm = normalizeRotateMap(rotateMap);
+      job.rotateMap = rm;
+
+      // Fallback legacy whole-doc rotate
       job.rotateDegrees = normalizeRotateDegrees(degrees != null ? degrees : angle);
     } else {
       job.convertTarget = null;
@@ -704,6 +743,7 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
 
       job.pdfCompressLevel = "balanced";
       job.rotateDegrees = 90;
+      job.rotateMap = null;
     }
 
     res.json({ ok: true, pageOrderType: job.pageOrderType, splitOrderLen: job.splitOrder ? job.splitOrder.length : 0 });
@@ -744,8 +784,9 @@ app.post("/api/checkout", async (req, res) => {
       if (lvl === "light") return "Light";
       return "Balanced";
     })();
-
+    
     const rotateLabel = (() => {
+      if (Array.isArray(job.rotateMap) && job.rotateMap.length > 1) return "per-page";
       const d = normalizeRotateDegrees(job.rotateDegrees);
       return `${d}°`;
     })();
@@ -1020,6 +1061,55 @@ app.get("/api/download/:jobId", async (req, res) => {
 
       await archive.finalize();
       return;
+    }
+
+        // ====== ROTATE PDF MODE (PER-PAGE SUPPORT) ======
+    if (job.mode === "rotate_pdf") {
+      if (!PDFDocumentLib || !PDFDegrees)
+        throw new Error("PDF rotate is unavailable (pdf-lib not installed).");
+
+      const only = job.files[0];
+      const obj = await r2.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: only.key }));
+      const buf = await streamToBuffer(obj.Body);
+
+      const pdf = await PDFDocumentLib.load(buf);
+      const totalPages = pdf.getPageCount();
+
+      // If rotateMap exists and matches doc length, apply per-page
+      const rm = Array.isArray(job.rotateMap) ? job.rotateMap : null;
+
+      if (rm && rm.length >= totalPages + 1) {
+        for (let i = 0; i < totalPages; i++) {
+          const pageNo = i + 1; // 1-based
+          const deg = Number(rm[pageNo] || 0);
+
+          if (deg === 90 || deg === 180 || deg === 270) {
+            const page = pdf.getPage(i);
+            const current = page.getRotation()?.angle || 0;
+            const next = (current + deg) % 360;
+            page.setRotation(PDFDegrees(next));
+          }
+        }
+      } else {
+        // Legacy fallback: rotate whole document
+        const deg = normalizeRotateDegrees(job.rotateDegrees);
+        for (let i = 0; i < totalPages; i++) {
+          const page = pdf.getPage(i);
+          const current = page.getRotation()?.angle || 0;
+          const next = (current + deg) % 360;
+          page.setRotation(PDFDegrees(next));
+        }
+      }
+
+      const outBytes = await pdf.save();
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="pdfoperations_rotated_${job.jobId}.pdf"`
+      );
+
+      return res.send(Buffer.from(outBytes));
     }
 
     // ====== ZIP MODES ======
