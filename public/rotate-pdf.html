@@ -20,6 +20,7 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/style.css?v=36" />
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
   <!-- PDF.js — ESM loader (same pattern as merge page) -->
   <script type="module">
@@ -762,6 +763,70 @@ async function loadFromFile(f){
   // initial kick
   setTimeout(scheduleOnce, 250);
 })();
+
+// ======================================
+// REAL PDF ROTATION (MODIFIES FILE)
+// ======================================
+
+async function applyRealRotations(file, rotateMap) {
+  const { PDFDocument, degrees } = PDFLib;
+
+  const originalBytes = await file.arrayBuffer();
+  const pdfDoc = await PDFDocument.load(originalBytes);
+  const pages = pdfDoc.getPages();
+
+  pages.forEach((page, index) => {
+    const pageNumber = index + 1;
+    const rotation = rotateMap[pageNumber] || 0;
+
+    if (rotation !== 0) {
+      page.setRotation(degrees(rotation));
+    }
+  });
+
+  const newBytes = await pdfDoc.save();
+  return newBytes;
+}
+
+// ======================================
+// INTERCEPT CONTINUE BUTTON
+// ======================================
+
+document.addEventListener("click", async function (e) {
+
+  if (!e.target || e.target.id !== "continue") return;
+
+  const originalFile = window.__PDFOPS_SELECTED__?.[0];
+  if (!originalFile) return;
+
+  const rotateMap = window.__PDFOPS_ROTATE_MAP__ || [];
+
+  const hasRotation = rotateMap.some(v => v && v !== 0);
+  if (!hasRotation) return;
+
+  e.preventDefault();
+  e.stopImmediatePropagation();
+
+  try {
+    const rotatedBytes = await applyRealRotations(originalFile, rotateMap);
+
+    const rotatedFile = new File(
+      [rotatedBytes],
+      originalFile.name,
+      { type: "application/pdf" }
+    );
+
+    window.__PDFOPS_SELECTED__ = [rotatedFile];
+
+    setTimeout(() => {
+      document.getElementById("continue").click();
+    }, 100);
+
+  } catch (err) {
+    console.error("Rotation failed:", err);
+  }
+
+});
 
 })();
 </script>
