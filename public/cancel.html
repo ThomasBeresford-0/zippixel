@@ -1,4 +1,10 @@
-<!-- public/cancel.html — PDFOperations (v23 FULL RAMBO) -->
+<!-- public/cancel.html — PDFOperations (v24 FULL RAMBO - CLEAN RECOVERY + NO PRICING PUSH)
+     ✅ Matches style.css?v=36 (premium, light, enterprise)
+     ✅ Removes “View pricing” CTA (you don’t want pricing until upload)
+     ✅ Strong recovery UX: return to tool + helpful links (privacy/faq)
+     ✅ Cleaner nav (no Pricing link) + consistent brand
+     ✅ No messy stacked blocks / no random styles
+-->
 <!doctype html>
 <html lang="en">
 <head>
@@ -6,9 +12,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Checkout cancelled — PDFOperations</title>
-  <meta name="description" content="Checkout cancelled. Return to PDFOperations to try again." />
+  <meta name="description" content="Checkout cancelled. Nothing was charged. Return to PDFOperations to continue." />
   <link rel="canonical" href="https://pdfoperations.com/cancel" />
 
+  <meta name="robots" content="noindex,follow" />
   <meta name="theme-color" content="#0b1220" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -21,6 +28,172 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/style.css?v=36" />
+
+  <style>
+    /* Page-owned polish to avoid “template” look */
+    body.premium{
+      background: radial-gradient(900px 420px at 20% -10%, rgba(11,18,32,.06), transparent 60%),
+                  radial-gradient(900px 420px at 80% -10%, rgba(11,18,32,.04), transparent 60%),
+                  #f5f7fb;
+    }
+
+    .cancelWrap{
+      padding:72px 0 80px;
+    }
+
+    .cancelCard{
+      background:#fff;
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:22px;
+      box-shadow:0 22px 70px rgba(2,6,23,.08);
+      padding:28px;
+      overflow:hidden;
+    }
+
+    .cancelTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:18px;
+      margin-bottom:16px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(15,23,42,.10);
+      background:rgba(11,18,32,.03);
+      font-size:12px;
+      font-weight:900;
+      color:rgba(11,18,32,.78);
+      white-space:nowrap;
+    }
+
+    .badgeDot{
+      width:8px;height:8px;border-radius:999px;
+      background:rgba(245,158,11,.95);
+      box-shadow:0 0 0 4px rgba(245,158,11,.18);
+      flex:0 0 auto;
+    }
+
+    .cancelTitle{
+      margin:0;
+      font-size:34px;
+      letter-spacing:-.02em;
+      line-height:1.1;
+    }
+
+    .cancelLead{
+      margin:10px 0 0 0;
+      color:rgba(11,18,32,.72);
+      font-size:14px;
+      line-height:1.6;
+      max-width:56ch;
+    }
+
+    .recoveryBox{
+      margin-top:18px;
+      border:1px solid rgba(15,23,42,.10);
+      background:rgba(11,18,32,.02);
+      border-radius:18px;
+      padding:16px;
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+    }
+
+    .recoveryIcon{
+      width:40px;height:40px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#fff;
+      border:1px solid rgba(15,23,42,.10);
+      box-shadow:0 12px 30px rgba(2,6,23,.06);
+      flex:0 0 auto;
+      font-weight:900;
+      color:rgba(11,18,32,.86);
+    }
+
+    .recoveryTitle{
+      font-weight:950;
+      margin:0;
+      font-size:14px;
+      letter-spacing:-.01em;
+    }
+
+    .recoveryDesc{
+      margin:6px 0 0 0;
+      color:rgba(11,18,32,.72);
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    .ctaRow{
+      margin-top:18px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .ctaRow a{
+      text-align:center;
+      flex:1 1 180px;
+    }
+
+    .divider{
+      margin-top:18px;
+      border-top:1px solid rgba(15,23,42,.10);
+      padding-top:14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 16px;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .helpLinks{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px 14px;
+      align-items:center;
+    }
+
+    .helpLinks a{
+      font-size:12px;
+      font-weight:900;
+      color:rgba(11,18,32,.82);
+      text-decoration:none;
+      border-bottom:1px solid rgba(11,18,32,.25);
+      padding-bottom:2px;
+    }
+    .helpLinks a:hover{
+      border-bottom-color: rgba(11,18,32,.65);
+    }
+
+    .fineprint{
+      margin:0;
+      font-size:12px;
+      color:rgba(11,18,32,.58);
+    }
+    .fineprint a{
+      color:rgba(11,18,32,.82);
+      font-weight:900;
+      text-decoration:none;
+      border-bottom:1px solid rgba(11,18,32,.25);
+      padding-bottom:2px;
+    }
+    .fineprint a:hover{
+      border-bottom-color: rgba(11,18,32,.65);
+    }
+
+    /* Tighten nav brand icon alignment */
+    .brand img{ display:block; }
+  </style>
 </head>
 
 <body class="premium">
@@ -28,13 +201,12 @@
 <header class="nav">
   <div class="container navInner">
     <a class="brand" href="/" aria-label="PDFOperations home">
-      <img src="/favicon.svg" width="26" height="26" alt="">
+      <img src="/favicon.svg" width="26" height="26" alt="PDFOperations">
       <span>PDFOperations</span>
     </a>
 
     <nav class="navLinks" aria-label="Site">
       <a href="/">Tool</a>
-      <a href="/pricing">Pricing</a>
       <a href="/#faq">FAQ</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
@@ -43,36 +215,47 @@
 </header>
 
 <main>
-  <section class="pageShell">
-    <div class="container">
-      <div class="pageInner">
+  <section class="cancelWrap">
+    <div class="container" style="max-width:760px;">
+      <div class="cancelCard">
 
-        <h1 class="pageTitle">Checkout cancelled.</h1>
-        <p class="pageLead">
-          Nothing was charged. You can try again whenever you’re ready.
-        </p>
-
-        <div class="tool" style="margin-top:18px; padding:16px;">
-          <div class="successBox" aria-live="polite">
-            <div class="successIcon" aria-hidden="true">↩</div>
-            <div style="min-width:0;">
-              <div class="successTitle">No problem</div>
-              <div class="successDesc">
-                If you clicked back, closed the tab, or changed your mind — that’s fine.
-                Head back to the tool to upload your files and continue.
-              </div>
-            </div>
+        <div class="cancelTop">
+          <div>
+            <h1 class="cancelTitle">Checkout cancelled.</h1>
+            <p class="cancelLead">
+              Nothing was charged. If you closed the tab or clicked back, that’s fine — you can continue when you’re ready.
+            </p>
           </div>
 
-          <div class="successActions" style="margin-top:14px;">
-            <a class="btnPrimary btnBlock" href="/">Return to tool</a>
-            <a class="btnSoft btnBlock" href="/pricing">View pricing</a>
-            <a class="btnGhost btnBlock" href="/#faq">Read FAQ</a>
+          <div class="badge" aria-label="Status">
+            <span class="badgeDot" aria-hidden="true"></span>
+            No charge
+          </div>
+        </div>
+
+        <div class="recoveryBox" aria-live="polite">
+          <div class="recoveryIcon" aria-hidden="true">↩</div>
+          <div style="min-width:0;">
+            <p class="recoveryTitle">Return to the tool</p>
+            <p class="recoveryDesc">
+              Upload your PDF again and continue to secure checkout when your file is ready.
+            </p>
+          </div>
+        </div>
+
+        <div class="ctaRow">
+          <a class="btnPrimary btnLarge" href="/">Return to tool</a>
+          <a class="btnSoft btnLarge" href="/#faq">Read FAQ</a>
+        </div>
+
+        <div class="divider">
+          <div class="helpLinks" aria-label="Helpful links">
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
           </div>
 
-          <p class="fineprint" style="margin-top:12px;">
-            If something didn’t work as expected, email
-            <a href="mailto:support@pdfoperations.com">support@pdfoperations.com</a>.
+          <p class="fineprint">
+            Need help? Email <a href="mailto:support@pdfoperations.com">support@pdfoperations.com</a>.
           </p>
         </div>
 
