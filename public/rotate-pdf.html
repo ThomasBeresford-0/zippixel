@@ -1,10 +1,11 @@
-<!-- public/rotate-pdf.html — PDFOperations (v4.2 - MATCH MERGE FLOW + PDF.JS TRUE ROTATION + APP.JS SAFE)
-     ✅ Per-page rotation: click a page thumbnail to rotate (0/90/180/270)
+<!-- public/rotate-pdf.html — PDFOperations (v5 - MATCH MERGE FLOW + PDF.JS ESM + ROBUST THUMBS + PER-PAGE CLICK ROTATE)
+     ✅ Works with app.js even if it replaces/sets files without firing input change
+     ✅ REAL PDF previews via self-hosted PDF.js ESM (canvas thumbs)
      ✅ TRUE rotation previews: re-render via PDF.js viewport rotation (no CSS rotate clipping)
-     ✅ Uses PDF.js getDocument({ data }) like merge-pdf (more reliable than objectURL)
-     ✅ Guards against app.js hiding #pdfReorderWrap by re-unhiding when thumbs exist
-     ✅ Keeps ALL app.js IDs unchanged
+     ✅ Per-page rotation: click a page thumbnail to rotate (0/90/180/270)
      ✅ Exposes window.__PDFOPS_ROTATE_MAP__ (index = page number; value = degrees)
+     ✅ Keeps ALL app.js IDs unchanged (#modeRotatePdf, #dropzone, #files, #chooseBtn, #upload, #continue, modal IDs, etc.)
+     ✅ No payment mentions outside modal
      ✅ Version sync: style.css?v=36 + app.js?v=17.7
 -->
 <!doctype html>
@@ -38,7 +39,7 @@
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
-  <!-- Fonts -->
+  <!-- Fonts (match the suite) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -81,7 +82,7 @@
   </script>
 
   <style>
-    /* Protect [hidden] (merge-style) */
+    /* Protect [hidden] */
     #pdfReorderWrap[hidden],
     #fileMeta[hidden]{ display:none !important; }
     [hidden]{ display:none !important; }
@@ -165,7 +166,7 @@
       height:auto;
       display:block;
       background:#fff;
-      /* no CSS rotation; we re-render with PDF.js rotation for perfect fit */
+      /* no CSS rotation; we re-render with PDF.js rotation */
     }
 
     .thumbBadge{
@@ -262,7 +263,6 @@
 </head>
 
 <body class="premium" data-tool="rotate_pdf">
-
 <a href="#tool" class="srOnly">Skip to the tool</a>
 
 <header class="nav">
@@ -433,7 +433,9 @@
   </div>
 </footer>
 
-<!-- Checkout modal (kept for suite consistency) -->
+<!-- =========================================================
+     CHECKOUT MODAL (REQUIRED for consistent flow)
+========================================================= -->
 <div class="modalOverlay" id="priceModal" aria-hidden="true">
   <div class="modalCard premiumModal">
     <div class="modalTop">
@@ -497,60 +499,23 @@
 <script src="/app.js?v=17.7" defer></script>
 
 <!-- =========================================================
-     PER-PAGE ROTATION PREVIEW (page-owned)
+     PER-PAGE ROTATION PREVIEW (single script, bottom only)
 ========================================================= -->
 <script defer>
 (() => {
-  const filesEl = document.getElementById("files");
-  const clearBtn = document.getElementById("clearBtn");
-
-  const wrap = document.getElementById("pdfReorderWrap");
-  const grid = document.getElementById("pdfThumbGrid");
-  const meta = document.getElementById("rotatePreviewMeta");
-
-  const rotateBar = document.getElementById("rotateBar");
-  const rotatePlanText = document.getElementById("rotatePlanText");
-  const rotateAll90 = document.getElementById("rotateAll90");
-  const resetRotations = document.getElementById("resetRotations");
+  const $ = (id) => document.getElementById(id);
 
   let pdfDoc = null;
   let numPages = 0;
+  let lastSig = "";
+  let readyToEmit = false;
 
   // Map index = page number; values = 0/90/180/270 (index 0 unused)
   window.__PDFOPS_ROTATE_MAP__ = [];
-  let readyToEmit = false;
-
-  function hasThumbs(){
-    return !!(grid && grid.children && grid.children.length > 0);
-  }
-
-  function forceShowWrapIfReady(){
-    if (!wrap) return;
-    if (!hasThumbs()) return;
-    // app.js sometimes hides this for rotate; we override once thumbs exist
-    wrap.hidden = false;
-  }
-
-  // Keep #pdfReorderWrap visible if app.js toggles hidden after we render
-  const mo = new MutationObserver(() => forceShowWrapIfReady());
-  if (wrap) mo.observe(wrap, { attributes: true, attributeFilter: ["hidden", "style", "class"] });
-
-  function cleanup(){
-    if (grid) grid.innerHTML = "";
-    if (wrap) wrap.hidden = true;
-    if (meta) meta.textContent = "—";
-    if (rotateBar) rotateBar.hidden = true;
-
-    pdfDoc = null;
-    numPages = 0;
-    window.__PDFOPS_ROTATE_MAP__ = [];
-  }
 
   async function ensurePdfJs(){
     if (window.__pdfjsReady) await window.__pdfjsReady;
-    if (!window.pdfjsLib || !window.pdfjsLib.getDocument) {
-      throw new Error("pdfjsLib not available");
-    }
+    if (!window.pdfjsLib?.getDocument) throw new Error("pdfjsLib not available");
   }
 
   function nextDeg(d){
@@ -569,21 +534,47 @@
   }
 
   function updatePlanText(){
+    const rotatePlanText = $("rotatePlanText");
+    const rotateBar = $("rotateBar");
     if (!rotatePlanText || !rotateBar) return;
+
     if (!numPages) { rotateBar.hidden = true; return; }
 
     let changed = 0;
     for (let i = 1; i <= numPages; i++){
-      const d = window.__PDFOPS_ROTATE_MAP__[i] || 0;
-      if (d !== 0) changed++;
+      if ((window.__PDFOPS_ROTATE_MAP__[i] || 0) !== 0) changed++;
     }
 
     rotateBar.hidden = false;
-    if (changed === 0){
-      rotatePlanText.textContent = "No pages rotated yet. Click pages to rotate them.";
-    } else {
-      rotatePlanText.textContent = `${changed} page${changed === 1 ? "" : "s"} rotated. Click again to cycle rotation.`;
-    }
+    rotatePlanText.textContent =
+      changed === 0
+        ? "No pages rotated yet. Click pages to rotate them."
+        : `${changed} page${changed === 1 ? "" : "s"} rotated. Click again to cycle rotation.`;
+  }
+
+  function showWrapIfHasThumbs(){
+    const wrap = $("pdfReorderWrap");
+    const grid = $("pdfThumbGrid");
+    if (!wrap || !grid) return;
+    if (grid.children.length > 0) wrap.hidden = false;
+  }
+
+  function cleanup(){
+    const grid = $("pdfThumbGrid");
+    const wrap = $("pdfReorderWrap");
+    const meta = $("rotatePreviewMeta");
+    const rotateBar = $("rotateBar");
+
+    if (grid) grid.innerHTML = "";
+    if (wrap) wrap.hidden = true;
+    if (meta) meta.textContent = "—";
+    if (rotateBar) rotateBar.hidden = true;
+
+    pdfDoc = null;
+    numPages = 0;
+    window.__PDFOPS_ROTATE_MAP__ = [];
+    readyToEmit = false;
+    lastSig = "";
   }
 
   function makeThumb(pageNo){
@@ -605,7 +596,9 @@
 
     const foot = document.createElement("div");
     foot.className = "thumbFoot";
-    foot.innerHTML = `<div class="thumbLabel">Page ${pageNo}</div><div class="thumbAction">Click to <strong>rotate</strong></div>`;
+    foot.innerHTML =
+      `<div class="thumbLabel">Page ${pageNo}</div>` +
+      `<div class="thumbAction">Click to <strong>rotate</strong></div>`;
 
     card.appendChild(badge);
     card.appendChild(rot);
@@ -637,32 +630,36 @@
     ctx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
     ctx.restore();
 
-    const task = page.render({ canvasContext: ctx, viewport });
-    await task.promise;
+    await page.render({ canvasContext: ctx, viewport }).promise;
   }
 
   async function setThumbRotation(card, deg){
-    const c = card.querySelector("canvas");
     const rotPill = card.querySelector(".thumbRot");
+    const canvas = card.querySelector("canvas");
     const pageNo = Number(card.dataset.page);
 
     window.__PDFOPS_ROTATE_MAP__[pageNo] = deg;
     if (rotPill) rotPill.textContent = deg ? `${deg}°` : "0°";
 
-    if (c && pdfDoc){
-      try { await renderPageToCanvas(pageNo, c, 240, deg); } catch {}
+    if (canvas && pdfDoc){
+      try { await renderPageToCanvas(pageNo, canvas, 240, deg); } catch {}
     }
 
     updatePlanText();
     emitRotateMapChange();
-    forceShowWrapIfReady();
+    showWrapIfHasThumbs();
   }
 
   async function renderThumbs(){
-    readyToEmit = false;
-    if (grid) grid.innerHTML = "";
-    window.__PDFOPS_ROTATE_MAP__ = [];
+    const grid = $("pdfThumbGrid");
+    const wrap = $("pdfReorderWrap");
+    const meta = $("rotatePreviewMeta");
+    if (!grid || !wrap) return;
 
+    readyToEmit = false;
+    grid.innerHTML = "";
+
+    window.__PDFOPS_ROTATE_MAP__ = [];
     for (let i = 1; i <= numPages; i++) window.__PDFOPS_ROTATE_MAP__[i] = 0;
 
     for (let i = 1; i <= numPages; i++){
@@ -672,21 +669,24 @@
     }
 
     if (meta) meta.textContent = `${numPages} page${numPages === 1 ? "" : "s"} • click pages to rotate`;
-    if (wrap) wrap.hidden = false;
+    wrap.hidden = false;
+
     updatePlanText();
 
     readyToEmit = true;
     emitRotateMapChange();
-    forceShowWrapIfReady();
+    showWrapIfHasThumbs();
   }
 
   async function loadFromFile(file){
-    cleanup();
     if (!file) return;
+
+    const sig = `${file.name}|${file.size}|${file.lastModified || 0}`;
+    if (sig === lastSig && pdfDoc) { showWrapIfHasThumbs(); return; }
+    lastSig = sig;
 
     await ensurePdfJs();
 
-    // ✅ Match merge-pdf approach (more reliable than objectURL)
     const bytes = await file.arrayBuffer();
     const task = window.pdfjsLib.getDocument({
       data: bytes,
@@ -699,43 +699,65 @@
     await renderThumbs();
   }
 
-  if (filesEl){
-    filesEl.addEventListener("change", async () => {
-      const f = filesEl.files && filesEl.files[0] ? filesEl.files[0] : null;
-      if (!f) { cleanup(); return; }
-      if (!/pdf$/i.test(f.type) && !/\.pdf$/i.test(f.name || "")) { cleanup(); return; }
+  async function maybeLoadSelected(){
+    const filesEl = $("files");
+    if (!filesEl || !filesEl.files || !filesEl.files[0]) return;
 
-      try { await loadFromFile(f); }
-      catch { cleanup(); }
-    });
+    const f = filesEl.files[0];
+    if (!/pdf$/i.test(f.type) && !/\.pdf$/i.test(f.name || "")) return;
+
+    try { await loadFromFile(f); } catch {}
   }
 
-  if (clearBtn){
-    clearBtn.addEventListener("click", () => cleanup());
-  }
+  // Capture change even if app.js uses delegated handlers
+  document.addEventListener("change", (e) => {
+    if (e.target && e.target.id === "files") maybeLoadSelected();
+  }, true);
 
+  // Clear
+  const clearBtn = $("clearBtn");
+  if (clearBtn) clearBtn.addEventListener("click", () => cleanup());
+
+  // Buttons
+  const rotateAll90 = $("rotateAll90");
   if (rotateAll90){
     rotateAll90.addEventListener("click", async () => {
+      const grid = $("pdfThumbGrid");
+      if (!grid) return;
       const cards = Array.from(grid.querySelectorAll(".pdfThumb"));
       for (const card of cards) await setThumbRotation(card, 90);
     });
   }
 
+  const resetRotations = $("resetRotations");
   if (resetRotations){
     resetRotations.addEventListener("click", async () => {
+      const grid = $("pdfThumbGrid");
+      if (!grid) return;
       const cards = Array.from(grid.querySelectorAll(".pdfThumb"));
       for (const card of cards) await setThumbRotation(card, 0);
     });
   }
 
-  // If app.js sets the file without firing change
-  setTimeout(() => {
-    try {
-      if (!pdfDoc && filesEl && filesEl.files && filesEl.files[0]) {
-        loadFromFile(filesEl.files[0]).catch(() => {});
-      }
-    } catch {}
-  }, 600);
+  // If app.js updates UI without input change: watch file list
+  const fileList = $("fileList");
+  if (fileList){
+    const mo = new MutationObserver(() => {
+      maybeLoadSelected();
+      showWrapIfHasThumbs();
+    });
+    mo.observe(fileList, { childList: true, subtree: true });
+  }
+
+  // Cheap fallback poll for 60s
+  const poll = setInterval(() => {
+    maybeLoadSelected();
+    showWrapIfHasThumbs();
+  }, 500);
+  setTimeout(() => { try { clearInterval(poll); } catch {} }, 60000);
+
+  // initial
+  setTimeout(() => { maybeLoadSelected(); }, 400);
 })();
 </script>
 
