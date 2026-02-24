@@ -1,5 +1,6 @@
-<!-- public/rotate-pdf.html — PDFOperations (v4 - PER-PAGE CLICK ROTATE + PDF.JS THUMBS + NO PRE-ROTATE UI)
+<!-- public/rotate-pdf.html — PDFOperations (v4.1 - PER-PAGE CLICK ROTATE + PDF.JS THUMBS + TRUE ROTATION RERENDER)
      ✅ Per-page rotation: click a page thumbnail to rotate (0/90/180/270)
+     ✅ TRUE rotation previews: re-render via PDF.js viewport rotation (no CSS rotate clipping)
      ✅ No “choose rotation before upload” — removed from UI
      ✅ REAL PDF previews via self-hosted PDF.js ESM (canvas thumbs)
      ✅ Exposes window.__PDFOPS_ROTATE_MAP__ (index = page number; value = degrees)
@@ -170,7 +171,7 @@
       height:auto;
       display:block;
       background: #fff;
-      transform-origin: center center;
+      /* NOTE: no CSS rotation; we re-render with PDF.js rotation for perfect fit */
     }
 
     .thumbBadge{
@@ -573,6 +574,7 @@
      PER-PAGE ROTATION PREVIEW (page-owned)
      - Click a thumb to rotate that page
      - Stores: window.__PDFOPS_ROTATE_MAP__ (index = pageNo; degrees = 0/90/180/270)
+     - TRUE previews: re-render using PDF.js viewport rotation (no CSS rotate clipping)
 ========================================================= -->
 <script defer>
 (() => {
@@ -637,20 +639,6 @@
     }));
   }
 
-  function setThumbRotation(card, deg){
-    const c = card.querySelector("canvas");
-    const rotPill = card.querySelector(".thumbRot");
-    const pageNo = Number(card.dataset.page);
-
-    window.__PDFOPS_ROTATE_MAP__[pageNo] = deg;
-
-    if (rotPill) rotPill.textContent = deg ? `${deg}°` : "0°";
-    if (c) c.style.transform = deg ? `rotate(${deg}deg)` : "rotate(0deg)";
-
-    updatePlanText();
-    emitRotateMapChange();
-  }
-
   function updatePlanText(){
     if (!rotatePlanText || !rotateBar) return;
     if (!numPages) { rotateBar.hidden = true; return; }
@@ -695,20 +683,23 @@
     card.appendChild(canvas);
     card.appendChild(foot);
 
-    card.addEventListener("click", () => {
+    card.addEventListener("click", async () => {
       const cur = window.__PDFOPS_ROTATE_MAP__[pageNo] || 0;
       const nxt = nextDeg(cur);
-      setThumbRotation(card, nxt);
+      await setThumbRotation(card, nxt);
     });
 
     return { card, canvas };
   }
 
-  async function renderPageToCanvas(pageNo, targetCanvas, targetWidth){
+  // ✅ TRUE rotation: PDF.js viewport rotation (updates canvas dimensions correctly)
+  async function renderPageToCanvas(pageNo, targetCanvas, targetWidth, rotation = 0){
     const page = await pdfDoc.getPage(pageNo);
-    const baseViewport = page.getViewport({ scale: 1 });
+
+    // Use rotated viewport to compute correct aspect ratio
+    const baseViewport = page.getViewport({ scale: 1, rotation });
     const scale = Math.max(0.25, (targetWidth / baseViewport.width));
-    const viewport = page.getViewport({ scale });
+    const viewport = page.getViewport({ scale, rotation });
 
     const ctx = targetCanvas.getContext("2d", { alpha: false });
     targetCanvas.width = Math.ceil(viewport.width);
@@ -723,6 +714,25 @@
     await task.promise;
   }
 
+  // ✅ async because rotation triggers a re-render
+  async function setThumbRotation(card, deg){
+    const c = card.querySelector("canvas");
+    const rotPill = card.querySelector(".thumbRot");
+    const pageNo = Number(card.dataset.page);
+
+    window.__PDFOPS_ROTATE_MAP__[pageNo] = deg;
+
+    if (rotPill) rotPill.textContent = deg ? `${deg}°` : "0°";
+
+    // Re-render thumb using PDF.js rotation (no CSS transform)
+    if (c && pdfDoc){
+      try { await renderPageToCanvas(pageNo, c, 240, deg); } catch {}
+    }
+
+    updatePlanText();
+    emitRotateMapChange();
+  }
+
   async function renderThumbs(){
     readyToEmit = false;
     grid.innerHTML = "";
@@ -735,8 +745,12 @@
     for (let i = 1; i <= numPages; i++){
       const { card, canvas } = makeThumb(i);
       grid.appendChild(card);
-      try { await renderPageToCanvas(i, canvas, 240); } catch {}
-      setThumbRotation(card, 0);
+
+      // initial render at 0°
+      try { await renderPageToCanvas(i, canvas, 240, 0); } catch {}
+      // set state + pills without an extra render
+      const rotPill = card.querySelector(".thumbRot");
+      if (rotPill) rotPill.textContent = "0°";
     }
 
     if (meta) meta.textContent = `${numPages} page${numPages === 1 ? "" : "s"} • click pages to rotate`;
@@ -781,16 +795,21 @@
   }
 
   if (rotateAll90){
-    rotateAll90.addEventListener("click", () => {
-      const cards = grid.querySelectorAll(".pdfThumb");
-      cards.forEach(card => setThumbRotation(card, 90));
+    rotateAll90.addEventListener("click", async () => {
+      const cards = Array.from(grid.querySelectorAll(".pdfThumb"));
+      // render sequentially to avoid spiking CPU on huge PDFs
+      for (const card of cards){
+        await setThumbRotation(card, 90);
+      }
     });
   }
 
   if (resetRotations){
-    resetRotations.addEventListener("click", () => {
-      const cards = grid.querySelectorAll(".pdfThumb");
-      cards.forEach(card => setThumbRotation(card, 0));
+    resetRotations.addEventListener("click", async () => {
+      const cards = Array.from(grid.querySelectorAll(".pdfThumb"));
+      for (const card of cards){
+        await setThumbRotation(card, 0);
+      }
     });
   }
 
