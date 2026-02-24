@@ -1,11 +1,10 @@
-<!-- public/index.html — PDFOperations (v59 - COMPRESSJPEG-STYLE “SIMPLE WORK PANEL” AFTER UPLOAD + CLEAN THUMB TILE)
+<!-- public/index.html — PDFOperations (v60 - CLEAN POST-SELECT PANEL + PROPER THUMB TILE + KILL “×Remove” PILL)
      ✅ Keeps ALL app.js v17.7 IDs preserved (NO hook breaks)
      ✅ style.css?v=36 + app.js?v=17.7
-     ✅ NEW: After file selected → switches to a clean “work panel” like your reference site
-     ✅ NEW: Centered top buttons (Select PDF / Clear) + single thumbnail tile + bottom action bar
-     ✅ NO duplicate upload buttons (uses existing #upload / #continue)
-     ✅ Removes “messy list” feel via CSS + tiny MutationObserver toggle (no app.js edits)
-     ✅ Removes “Checkout” wording in steps/button copy (money-mode outcome language)
+     ✅ Fix: post-select view now looks like a real product (simple panel + single clean tile)
+     ✅ Fix: removes “×Remove” pill look (turns into a proper corner X)
+     ✅ Fix: hides noisy PDF chips/extra meta in the tile
+     ✅ No app.js edits required
 -->
 <!doctype html>
 <html lang="en">
@@ -70,7 +69,11 @@
       transform:translateY(-1px);
     }
 
-    /* Steps */
+    [hidden]{ display:none !important; }
+
+    /* ======================================================
+       PRE-SELECT STEPS (only visible before file selected)
+       ====================================================== */
     .stepsLine{
       display:flex;
       flex-wrap:wrap;
@@ -91,14 +94,16 @@
       background:#fff;
     }
 
-    [hidden]{ display:none !important; }
-
     /* ======================================================
        MONEY-MODE: SIMPLE “WORK PANEL” AFTER FILE SELECT
-       (matches your reference: centered buttons + simple thumb)
+       (make it look like a deliberate tool, not a debug list)
        ====================================================== */
 
-    /* We toggle body.hasFile via MutationObserver (below) */
+    /* Toggle: body.hasFile is applied via MutationObserver below */
+    body.hasFile #dropzone{ display:none !important; }
+    body.hasFile .stepsLine{ display:none !important; }
+    body:not(.hasFile) .workPanel{ display:none !important; }
+
     .workPanel{
       margin-top:12px;
       border:1px solid rgba(15,23,42,.10);
@@ -107,6 +112,7 @@
       box-shadow:0 18px 46px rgba(2,6,23,.08);
       overflow:hidden;
     }
+
     .workTop{
       display:flex;
       align-items:center;
@@ -116,130 +122,26 @@
       border-bottom:1px solid rgba(15,23,42,.10);
       background:linear-gradient(180deg, rgba(11,18,32,.02), transparent);
     }
-
-    /* Button look (re-using your existing button classes) */
     .workTop .btnPrimary,
     .workTop .btnGhost{
-      min-width:140px;
+      min-width:150px;
       height:38px;
       border-radius:12px;
       font-weight:950;
       letter-spacing:-.01em;
     }
 
-    /* Stage area */
     .workStage{
-      padding:18px 18px 10px 18px;
+      padding:18px;
       display:flex;
       align-items:center;
       justify-content:center;
-      min-height:220px;
-    }
-
-    /* Make the app.js mini file list look like a single thumbnail tile */
-    #fileMeta{
-      margin:0 !important;
-      padding:0 !important;
-      border:0 !important;
-      background:transparent !important;
-      box-shadow:none !important;
-    }
-    #fileMeta .fileMetaTop{ display:none !important; } /* hide “Selected X files” row */
-    #fileSummary{ display:none !important; }          /* hide summary text */
-
-    #fileList{
-      list-style:none;
-      margin:0;
-      padding:0;
-      display:flex;
-      gap:14px;
-      justify-content:center;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-
-    /* Try to “catch” whatever markup app.js uses inside li */
-    #fileList > li{
-      position:relative;
-      width:140px;
-      height:180px;
-      border-radius:16px;
-      border:1px solid rgba(15,23,42,.12);
+      min-height:260px;
       background:
-        radial-gradient(120px 120px at 30% 15%, rgba(11,18,32,.06), transparent 60%),
-        linear-gradient(180deg, #ffffff 0%, #fafbfe 100%);
-      box-shadow:0 14px 34px rgba(2,6,23,.10);
-      overflow:hidden;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:12px;
+        radial-gradient(900px 420px at 50% 0%, rgba(11,18,32,.03), transparent 55%),
+        linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
     }
 
-    /* Generic “PDF” badge if app.js just outputs text */
-    #fileList > li::before{
-      content:"PDF";
-      position:absolute;
-      top:10px;
-      left:10px;
-      font-weight:950;
-      font-size:12px;
-      letter-spacing:.08em;
-      color:rgba(11,18,32,.70);
-      background:rgba(11,18,32,.06);
-      border:1px solid rgba(15,23,42,.12);
-      border-radius:10px;
-      padding:6px 10px;
-    }
-
-    /* Filename styling (works even if filename is just a text node / span / strong) */
-    #fileList > li *{
-      max-width:100%;
-    }
-    #fileList > li .name,
-    #fileList > li .fileName,
-    #fileList > li strong,
-    #fileList > li span{
-      display:block;
-      text-align:center;
-      font-size:12px;
-      font-weight:900;
-      color:rgba(11,18,32,.88);
-      line-height:1.25;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-    }
-
-    /* Remove button — app.js might render a button/link; make it a clean X in the corner */
-    #fileList > li button,
-    #fileList > li .remove,
-    #fileList > li a[aria-label*="Remove"],
-    #fileList > li a[title*="Remove"]{
-      position:absolute !important;
-      top:10px !important;
-      right:10px !important;
-      width:28px !important;
-      height:28px !important;
-      border-radius:10px !important;
-      border:1px solid rgba(15,23,42,.14) !important;
-      background:#fff !important;
-      color:rgba(11,18,32,.85) !important;
-      display:flex !important;
-      align-items:center !important;
-      justify-content:center !important;
-      padding:0 !important;
-      font-weight:950 !important;
-      box-shadow:0 10px 22px rgba(2,6,23,.10) !important;
-    }
-    #fileList > li button::before,
-    #fileList > li .remove::before{
-      content:"×";
-      font-size:18px;
-      line-height:1;
-    }
-
-    /* Bottom actions like reference: one primary row */
     .workBottom{
       padding:14px 16px 16px 16px;
       border-top:1px solid rgba(15,23,42,.10);
@@ -253,34 +155,201 @@
     }
     .workActions .btnSoft,
     .workActions .btnPrimary{
-      height:44px;
+      height:46px;
       border-radius:14px;
       font-weight:950;
       letter-spacing:-.01em;
-      min-width:220px;
+      min-width:240px;
     }
     @media(max-width: 620px){
-      .workActions{
-        flex-direction:column;
-      }
+      .workActions{ flex-direction:column; }
       .workActions .btnSoft,
-      .workActions .btnPrimary{
-        width:100%;
-        min-width:unset;
-      }
+      .workActions .btnPrimary{ width:100%; min-width:unset; }
+      .workTop{ flex-direction:column; }
+      .workTop .btnPrimary,
+      .workTop .btnGhost{ width:100%; min-width:unset; max-width:420px; }
     }
 
-    /* When file is selected: hide big dropzone + steps, show work panel */
-    body.hasFile #dropzone{ display:none !important; }
-    body.hasFile .stepsLine{ display:none !important; }
+    /* ======================================================
+       APP.JS FILE UI OVERRIDES (THIS IS THE “MAKE IT SIMPLE” PART)
+       We aggressively “normalize” whatever markup app.js spits out
+       into a clean single-card thumbnail.
+       ====================================================== */
 
-    /* When NO file selected: show dropzone, hide work panel (still in DOM for hooks) */
-    body:not(.hasFile) .workPanel{ display:none !important; }
+    /* Remove app.js header row/summary (we provide our own top buttons) */
+    #fileMeta{
+      margin:0 !important;
+      padding:0 !important;
+      border:0 !important;
+      background:transparent !important;
+      box-shadow:none !important;
+      width:100%;
+      display:flex;
+      justify-content:center;
+    }
+    #fileMeta .fileMetaTop,
+    #fileSummary,
+    #fileMetaTop,
+    .fileMetaTop{ display:none !important; }
+
+    /* Make list become a centered “stage” */
+    #fileList{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+
+    /* Thumbnail tile (bigger, calmer, no clutter) */
+    #fileList > li{
+      position:relative;
+      width:170px;
+      height:220px;
+      border-radius:18px;
+      border:1px solid rgba(15,23,42,.12);
+      background:
+        radial-gradient(140px 140px at 30% 18%, rgba(11,18,32,.06), transparent 60%),
+        linear-gradient(180deg, #ffffff 0%, #f7f9fe 100%);
+      box-shadow:0 16px 40px rgba(2,6,23,.10);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:14px;
+      gap:8px;
+    }
+
+    /* A clean “PDF” corner tag */
+    #fileList > li::before{
+      content:"PDF";
+      position:absolute;
+      top:12px;
+      left:12px;
+      font-weight:950;
+      font-size:12px;
+      letter-spacing:.08em;
+      color:rgba(11,18,32,.72);
+      background:rgba(11,18,32,.06);
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:10px;
+      padding:6px 10px;
+    }
+
+    /* Optional subtle watermark icon */
+    #fileList > li::after{
+      content:"";
+      position:absolute;
+      inset:auto auto 20px 50%;
+      width:86px;
+      height:86px;
+      transform:translateX(-50%);
+      border-radius:26px;
+      background:rgba(11,18,32,.03);
+      border:1px solid rgba(15,23,42,.08);
+      filter:blur(0);
+      pointer-events:none;
+    }
+
+    /* ---- Hide noisy inner elements (chips/icons/extra rows) ---- */
+    #fileList > li img,
+    #fileList > li svg:not([data-keep]),
+    #fileList > li .icon,
+    #fileList > li .fileIcon,
+    #fileList > li .type,
+    #fileList > li .ext,
+    #fileList > li .badge,
+    #fileList > li .pill,
+    #fileList > li .chip,
+    #fileList > li .tag,
+    #fileList > li .meta,
+    #fileList > li .sub,
+    #fileList > li small,
+    #fileList > li .size,
+    #fileList > li .row2,
+    #fileList > li .row3{
+      display:none !important;
+    }
+
+    /* Keep ONLY something that looks like a filename */
+    #fileList > li .name,
+    #fileList > li .fileName,
+    #fileList > li .filename,
+    #fileList > li strong,
+    #fileList > li span{
+      display:block;
+      max-width:100%;
+      text-align:center;
+      font-size:12px;
+      font-weight:950;
+      color:rgba(11,18,32,.88);
+      line-height:1.25;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    /* If app.js wraps name + meta in a container, keep it readable */
+    #fileList > li div,
+    #fileList > li p{
+      margin:0 !important;
+      padding:0 !important;
+      text-align:center;
+    }
+
+    /* ---- Remove button: force to be a clean corner X (no “×Remove” pill) ---- */
+    #fileList > li button,
+    #fileList > li a,
+    #fileList > li [role="button"]{
+      /* Don’t nuke ALL buttons — only the ones that look like remove */
+    }
+    #fileList > li button[aria-label*="Remove" i],
+    #fileList > li button[title*="Remove" i],
+    #fileList > li a[aria-label*="Remove" i],
+    #fileList > li a[title*="Remove" i],
+    #fileList > li .remove,
+    #fileList > li .btnRemove,
+    #fileList > li [class*="remove" i],
+    #fileList > li [id*="remove" i]{
+      position:absolute !important;
+      top:12px !important;
+      right:12px !important;
+      width:30px !important;
+      height:30px !important;
+      border-radius:11px !important;
+      border:1px solid rgba(15,23,42,.14) !important;
+      background:#fff !important;
+      box-shadow:0 10px 24px rgba(2,6,23,.10) !important;
+
+      /* Kill “Remove” text */
+      font-size:0 !important;
+      line-height:0 !important;
+      color:transparent !important;
+      padding:0 !important;
+      display:flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+    }
+    #fileList > li button[aria-label*="Remove" i]::after,
+    #fileList > li button[title*="Remove" i]::after,
+    #fileList > li a[aria-label*="Remove" i]::after,
+    #fileList > li a[title*="Remove" i]::after,
+    #fileList > li .remove::after,
+    #fileList > li .btnRemove::after,
+    #fileList > li [class*="remove" i]::after,
+    #fileList > li [id*="remove" i]::after{
+      content:"×";
+      font-size:18px;
+      line-height:1;
+      font-weight:950;
+      color:rgba(11,18,32,.85);
+    }
 
     /* ======================================================
        INFORMATION SECTION (PDF24-STYLE) — LIGHT GREY / NEUTRAL
        ====================================================== */
-
     .infoBand{
       margin-top:26px;
       padding:42px 0 34px 0;
@@ -291,13 +360,11 @@
       border-top:1px solid rgba(15,23,42,.10);
       border-bottom:1px solid rgba(15,23,42,.10);
     }
-
     .infoInner{
       max-width:1100px;
       margin:0 auto;
       padding:0 22px;
     }
-
     .infoTitle{
       text-align:center;
       margin:0;
@@ -305,7 +372,6 @@
       letter-spacing:-.02em;
       color:rgba(11,18,32,.92);
     }
-
     .infoOS{
       margin-top:14px;
       display:flex;
@@ -341,7 +407,6 @@
     @media(min-width: 900px){
       .infoGrid{ grid-template-columns: repeat(3, 1fr); }
     }
-
     .infoCard{
       border:1px solid rgba(15,23,42,.10);
       background:#ffffff;
@@ -350,7 +415,6 @@
       min-height:140px;
       box-shadow: 0 12px 30px rgba(2,6,23,.06);
     }
-
     .infoIcon{
       width:34px;height:34px;
       border-radius:14px;
@@ -362,7 +426,6 @@
       margin-bottom:12px;
     }
     .infoIcon svg{ width:18px;height:18px; fill:rgba(11,18,32,.82); }
-
     .infoH{
       margin:0;
       color:rgba(11,18,32,.92);
@@ -378,15 +441,13 @@
     }
 
     /* ======================================================
-       CLEAN PANEL ABOVE FAQ (FIXES THE MESS)
+       CLEAN PANEL ABOVE FAQ
        ====================================================== */
-
     .belowInfo{
       max-width:1100px;
       margin:18px auto 0 auto;
       padding:0 22px;
     }
-
     .belowPanel{
       background:#ffffff;
       border:1px solid rgba(15,23,42,.10);
@@ -394,7 +455,6 @@
       box-shadow:0 18px 46px rgba(2,6,23,.08);
       padding:16px;
     }
-
     .belowTop{
       display:flex;
       flex-direction:column;
@@ -408,7 +468,6 @@
         gap:18px;
       }
     }
-
     .toolNav{
       margin:0;
       padding:0;
@@ -465,7 +524,6 @@
     /* ======================================================
        FAQ — clean, enterprise
        ====================================================== */
-
     .faq{
       margin-top:14px;
       padding:16px;
@@ -487,7 +545,6 @@
       font-size:12px;
       color:rgba(11,18,32,.62);
     }
-
     details.faqItem{
       border:1px solid rgba(15,23,42,.10);
       background:#fff;
@@ -502,7 +559,6 @@
       letter-spacing:-.01em;
     }
     details.faqItem summary::-webkit-details-marker{ display:none; }
-
     .faqAnswer{
       margin-top:8px;
       color:rgba(11,18,32,.78);
@@ -691,12 +747,11 @@
         <!-- SIMPLE WORK PANEL (post-select) -->
         <div class="workPanel" aria-label="Selected file">
           <div class="workTop">
-            <!-- Re-use existing choose/clear IDs (NO duplicates) -->
-            <button class="btnPrimary" id="chooseBtnWork" type="button"
+            <button class="btnPrimary" type="button"
               onclick="document.getElementById('chooseBtn') && document.getElementById('chooseBtn').click()">
               Select PDF
             </button>
-            <button class="btnGhost" id="clearBtnWork" type="button"
+            <button class="btnGhost" type="button"
               onclick="document.getElementById('clearBtn') && document.getElementById('clearBtn').click()">
               Clear
             </button>
@@ -716,12 +771,12 @@
           <div class="workBottom">
             <div class="workActions">
               <button class="btnSoft" id="upload" disabled>Upload PDF</button>
-              <button class="btnPrimary btnStrong" id="continue" disabled>Continue → Generate download</button>
+              <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
             </div>
           </div>
         </div>
 
-        <!-- STEPS (pre-select only; hidden when hasFile) -->
+        <!-- STEPS (pre-select only) -->
         <div class="stepsLine">
           <div class="stepItem"><span class="stepNum">1</span>Select / Drop a PDF</div>
           <div class="stepItem"><span class="stepNum">2</span>Click <strong>Upload</strong></div>
@@ -820,7 +875,6 @@
         <b>No signup</b> • <b>PDF-only</b> • <b>One-time checkout</b>
       </div>
 
-      <!-- FAQ (on-page + schema) -->
       <div id="faq" class="tool faq">
         <div class="faqHead">
           <h2>FAQ</h2>
@@ -860,7 +914,6 @@
       </div>
     </div>
   </div>
-
 </main>
 
 <footer class="footer">
@@ -876,7 +929,7 @@
   </div>
 </footer>
 
-<!-- Tiny, safe toggle: when app.js shows #fileMeta (removes hidden), we switch to the simple work panel -->
+<!-- Toggle: when app.js shows #fileMeta (removes hidden), we switch to the simple work panel -->
 <script>
 (() => {
   const meta = document.getElementById("fileMeta");
@@ -889,16 +942,8 @@
 
   apply();
 
-  const obs = new MutationObserver((muts) => {
-    for (const m of muts) {
-      if (m.type === "attributes" && m.attributeName === "hidden") {
-        apply();
-        break;
-      }
-    }
-  });
-
-  obs.observe(meta, { attributes: true });
+  const obs = new MutationObserver(() => apply());
+  obs.observe(meta, { attributes: true, attributeFilter: ["hidden"] });
 })();
 </script>
 
