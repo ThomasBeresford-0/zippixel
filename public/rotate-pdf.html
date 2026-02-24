@@ -411,13 +411,20 @@
 </div>
 
 <script>
-  // Bridge: app.js may clear <input type="file"> after reading.
-  // We capture the File object immediately and store it for rotate previews.
   (function () {
+
     function setSelectedFromInput(input) {
       try {
         const files = input && input.files ? Array.from(input.files) : [];
         window.__PDFOPS_SELECTED__ = files;
+
+        // Emit event with real File objects
+        try {
+          document.dispatchEvent(new CustomEvent("pdfops:selectedfiles", {
+            detail: { files }
+          }));
+        } catch (_) {}
+
       } catch (_) {
         window.__PDFOPS_SELECTED__ = [];
       }
@@ -430,7 +437,7 @@
       // Capture phase: runs BEFORE app.js handlers
       input.addEventListener("change", () => setSelectedFromInput(input), true);
 
-      // Also set if already has a value (rare, but safe)
+      // Initial check
       setSelectedFromInput(input);
     }
 
@@ -439,6 +446,7 @@
     } else {
       attach();
     }
+
   })();
 </script>
 <!-- app.js -->
