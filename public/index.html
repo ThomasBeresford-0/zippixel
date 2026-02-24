@@ -1,10 +1,9 @@
-<!-- public/index.html — PDFOperations (v39 - CLEAN AUTHORITY TOOL-FIRST, NO BUBBLES, NO AI SLOP)
+<!-- public/index.html — PDFOperations (v41 - NO PRICE UNTIL UPLOAD/CONTINUE, AUTHORITY TOOL-FIRST)
      ✅ Homepage = Compress PDF
      ✅ Keeps ALL app.js IDs unchanged (v17.7 compatibility)
-     ✅ Removes emoji chips + bubble UI + trust bar clutter
-     ✅ Rewrites copy into human, high-intent, utility tone
-     ✅ Keeps modal checkout unchanged
-     ✅ Version sync: style.css?v=33 + app.js?v=17.7
+     ✅ NO visible pricing anywhere until checkout is armed
+     ✅ Modal price rows hidden by default (armed by app.js when ready)
+     ✅ Version sync: style.css?v=36 + app.js?v=17.7
 -->
 <!doctype html>
 <html lang="en">
@@ -13,7 +12,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Compress PDF Online | PDFOperations</title>
-  <meta name="description" content="Compress PDF files for email and upload limits. Choose a compression level and download instantly. No signup." />
+  <meta name="description" content="Compress a PDF for email and upload limits. Choose a level and download instantly. No signup." />
   <link rel="canonical" href="https://pdfoperations.com/" />
 
   <meta name="robots" content="index,follow" />
@@ -24,9 +23,8 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
 
-  <link rel="stylesheet" href="/style.css?v=35" />
+  <link rel="stylesheet" href="/style.css?v=36" />
 
-  <!-- Minimal, clean structured data -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -42,20 +40,24 @@
     "@type":"WebPage",
     "name":"Compress PDF Online",
     "url":"https://pdfoperations.com/",
-    "description":"Compress PDF files for email and upload limits. Choose a compression level and download instantly. No signup."
+    "description":"Compress a PDF for email and upload limits. Choose a level and download instantly. No signup."
   }
   </script>
 </head>
 
-<body class="pageCompressPdf">
+<body class="page pageCompressPdf">
+<div class="bg" aria-hidden="true"></div>
 
 <a href="#tool" class="srOnly">Skip to tool</a>
 
 <header class="nav">
   <div class="container navInner">
     <a class="brand" href="/" aria-label="PDFOperations home">
-      <img src="/favicon.svg" width="26" height="26" alt="">
-      <span>PDFOperations</span>
+      <span class="brandMark" aria-hidden="true"></span>
+      <span class="brandText">
+        <span class="top">PDFOperations</span>
+        <span class="sub">Compress • Merge • Split</span>
+      </span>
     </a>
 
     <nav class="navLinks" aria-label="Primary navigation">
@@ -64,225 +66,271 @@
       <a href="/split-pdf">Split</a>
       <a href="/convert">Convert</a>
       <a href="/rotate-pdf">Rotate</a>
-
       <a href="/pricing">Pricing</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
-
-      <a href="#tool" class="navCta">Start</a>
     </nav>
+
+    <div class="navCta">
+      <a class="btn btnSmall btnGhost" href="#tool">Start</a>
+    </div>
   </div>
 </header>
 
 <main>
 
-  <!-- TOOL FIRST -->
-  <section class="hero heroToolFirst">
+  <section class="hero">
     <div class="container">
+      <div class="heroGrid">
 
-      <div id="tool" class="tool toolPremium toolMega">
-
-        <!-- Headline: clean, confident, no fluff -->
-        <div class="toolHead toolHeadMinimal">
-          <h1 class="toolTitle">Compress PDF Online</h1>
-          <p class="toolSub">
-            Reduce PDF file size for email and upload limits. Choose a level and download instantly.
+        <!-- LEFT -->
+        <div class="heroLeft">
+          <div class="kicker"><span class="kickerDot" aria-hidden="true"></span> Compress PDF</div>
+          <h1 class="h1">Reduce PDF file size for strict upload limits.</h1>
+          <p class="lead">
+            Choose a compression level, upload a single PDF, and download the result.
+            Built for portals that reject large files.
           </p>
-          <p class="toolMicro">
-            Common use cases: HMRC uploads, job portals, visa submissions, document systems with strict size caps.
-          </p>
-        </div>
 
-        <!-- Status -->
-        <div class="statusWrap">
-          <div class="statusLeft">
-            <div class="status" id="status">Ready</div>
-            <div class="spinner" id="spinner"></div>
+          <div class="heroMeta" aria-label="Common use cases">
+            <div class="metaItem"><strong>Common:</strong> HMRC uploads</div>
+            <div class="metaItem"><strong>Common:</strong> job portals</div>
+            <div class="metaItem"><strong>Common:</strong> visa submissions</div>
+            <div class="metaItem"><strong>Common:</strong> document systems</div>
           </div>
-          <div class="statusHint" id="statusHint">Add one PDF to begin.</div>
-        </div>
 
-        <!-- Hidden mode controls (required for app.js compatibility) -->
-        <fieldset style="display:none;">
-          <input type="radio" name="mode" id="modeCompress">
-          <input type="radio" name="mode" id="modeCompressPdf" checked>
-          <input type="radio" name="mode" id="modeConvert">
-          <input type="radio" name="mode" id="modeMergePdf">
-          <input type="radio" name="mode" id="modeSplitPdf">
-          <input type="radio" name="mode" id="modeRotatePdf">
-        </fieldset>
-
-        <!-- Presets (NO bubble/chip styling — use existing button styles) -->
-        <div class="presetRow">
-          <div class="presetLabel">Common targets:</div>
-          <div class="presetBtns" role="group" aria-label="Common upload targets">
-            <button class="btnSoft presetBtn" id="preset2mb" type="button">Under 2MB</button>
-            <button class="btnSoft presetBtn" id="preset5mb" type="button">Under 5MB</button>
-            <button class="btnSoft presetBtn" id="preset10mb" type="button">Under 10MB</button>
-            <button class="btnSoft presetBtn" id="presetHQ" type="button">High quality</button>
-          </div>
-        </div>
-
-        <!-- Compression level -->
-        <div class="rowCard">
-          <div class="rowCardLeft">
-            <div class="rowCardTitle">Compression level</div>
-            <div class="rowCardSub">Balanced is best for most documents. Use Maximum for strict limits.</div>
-          </div>
-          <div class="rowCardRight">
-            <select id="compressLevel" aria-label="Compression level">
-              <option value="light">Light (higher quality)</option>
-              <option value="balanced" selected>Balanced (recommended)</option>
-              <option value="max">Maximum (smallest size)</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Convert format (hidden, app.js safety) -->
-        <div style="display:none;">
-          <select id="convertTo">
-            <option value="png">PNG</option>
-            <option value="jpg" selected>JPG</option>
-          </select>
-        </div>
-
-        <!-- Rotate degrees (hidden, app.js safety) -->
-        <div style="display:none;">
-          <select id="rotateDegrees">
-            <option value="90" selected>90°</option>
-            <option value="180">180°</option>
-            <option value="270">270°</option>
-          </select>
-        </div>
-
-        <!-- Dropzone -->
-        <div class="dropzone dropzoneMega" id="dropzone">
-          <div class="dzCenter">
-            <div class="dzIcon"><span class="dzArrow">↑</span></div>
-            <div class="dzTitle" id="dzTitle">Drop your PDF here</div>
-            <div class="dzSub" id="dzSub">Drag & drop, or choose a file</div>
-
-            <div class="filePick">
-              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
-              <input id="files" type="file" accept="application/pdf" />
+          <div class="section" style="padding-bottom:0;">
+            <div class="notice" style="margin-top:16px;">
+              Tip: Start with <strong>Balanced</strong>. If a portal rejects the upload, switch to <strong>Maximum</strong>.
             </div>
+          </div>
+        </div>
 
-            <div class="dzFine">No signup. Process and download.</div>
+        <!-- RIGHT: TOOL -->
+        <div class="card" id="tool">
+          <div class="cardHeader">
+            <p class="cardTitle">Compress PDF</p>
+            <p class="cardSub">Upload one PDF. Choose a level. Download instantly.</p>
           </div>
 
-          <div class="fileMeta" id="fileMeta" hidden>
-            <div class="fileMetaTop">
-              <div class="fileSummary" id="fileSummary"></div>
-              <button class="btnGhost" id="clearBtn" type="button">Clear</button>
-            </div>
-            <ol class="fileList" id="fileList"></ol>
+          <div class="cardBody">
 
-            <!-- Keep reorder container for compatibility -->
-            <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
-              <div class="pdfReorderHead">
-                <div class="pdfReorderTitle">Preview</div>
-                <div class="pdfReorderSub">Used for merge/split modes.</div>
+            <!-- Status -->
+            <div class="statusWrap">
+              <div class="statusLeft">
+                <div class="status" id="status">Ready</div>
+                <div class="spinner" id="spinner"></div>
               </div>
-              <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
+              <div class="statusHint" id="statusHint">Add one PDF to begin.</div>
+            </div>
+
+            <!-- Hidden mode controls (required for app.js compatibility) -->
+            <fieldset style="display:none;">
+              <input type="radio" name="mode" id="modeCompress">
+              <input type="radio" name="mode" id="modeCompressPdf" checked>
+              <input type="radio" name="mode" id="modeConvert">
+              <input type="radio" name="mode" id="modeMergePdf">
+              <input type="radio" name="mode" id="modeSplitPdf">
+              <input type="radio" name="mode" id="modeRotatePdf">
+            </fieldset>
+
+            <!-- Presets -->
+            <div class="controls" style="margin-top:12px;">
+              <div>
+                <span class="label">Common targets</span>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;" role="group" aria-label="Common upload targets">
+                  <button class="btn btnSmall" id="preset2mb" type="button">Under 2MB</button>
+                  <button class="btn btnSmall" id="preset5mb" type="button">Under 5MB</button>
+                  <button class="btn btnSmall" id="preset10mb" type="button">Under 10MB</button>
+                  <button class="btn btnSmall" id="presetHQ" type="button">High quality</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Compression level -->
+            <div class="controls">
+              <div class="row2">
+                <div>
+                  <span class="label">Compression level</span>
+                  <select class="select" id="compressLevel" aria-label="Compression level">
+                    <option value="light">Light (higher quality)</option>
+                    <option value="balanced" selected>Balanced (recommended)</option>
+                    <option value="max">Maximum (smallest size)</option>
+                  </select>
+                  <div class="help">Balanced is best for most documents. Use Maximum for strict portals.</div>
+                </div>
+
+                <div>
+                  <span class="label">Output</span>
+                  <div class="notice">Compressed PDF (same layout)</div>
+                  <div class="help">Text stays readable. Images may be optimised depending on level.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Convert format (hidden, app.js safety) -->
+            <div style="display:none;">
+              <select id="convertTo">
+                <option value="png">PNG</option>
+                <option value="jpg" selected>JPG</option>
+              </select>
+            </div>
+
+            <!-- Rotate degrees (hidden, app.js safety) -->
+            <div style="display:none;">
+              <select id="rotateDegrees">
+                <option value="90" selected>90°</option>
+                <option value="180">180°</option>
+                <option value="270">270°</option>
+              </select>
+            </div>
+
+            <!-- Dropzone -->
+            <div class="dropzone" id="dropzone" style="margin-top:14px;">
+              <div class="dzTop">
+                <div>
+                  <div class="dzLabel" id="dzTitle">Drop your PDF here</div>
+                  <div class="dzHint" id="dzSub">Drag & drop, or choose a file</div>
+                </div>
+                <div class="pill" aria-hidden="true">Single PDF</div>
+              </div>
+
+              <div class="dzActions">
+                <button class="btn btnPrimary btnWide" id="chooseBtn" type="button">Select PDF</button>
+                <input id="files" type="file" accept="application/pdf" />
+              </div>
+
+              <div class="help" style="margin-top:10px;">No signup. Process and download.</div>
+
+              <div class="files" id="fileMeta" hidden>
+                <div class="fileRow">
+                  <div class="fileLeft">
+                    <div class="fileIcon" aria-hidden="true"></div>
+                    <div style="min-width:0;">
+                      <div class="fileName" id="fileSummary"></div>
+                      <div class="fileMeta" id="fileMetaHint">Ready to upload.</div>
+                    </div>
+                  </div>
+                  <div class="fileRight">
+                    <button class="btn btnSmall btnGhost" id="clearBtn" type="button">Clear</button>
+                  </div>
+                </div>
+
+                <ol class="fileList" id="fileList"></ol>
+
+                <!-- Keep reorder container for compatibility -->
+                <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
+                  <div class="pdfReorderHead">
+                    <div class="pdfReorderTitle">Preview</div>
+                    <div class="pdfReorderSub">Used for merge/split modes.</div>
+                  </div>
+                  <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="progressWrap" id="progressWrap" hidden style="margin-top:14px;">
+              <div class="progressTop">
+                <div id="progressLabel">Uploading…</div>
+                <div id="progressPct">0%</div>
+              </div>
+              <div class="progressBar">
+                <div class="progressFill" id="progressFill"></div>
+              </div>
+              <div id="progressMeta"></div>
+            </div>
+
+          </div>
+
+          <div class="cardFooter">
+            <div style="display:flex; gap:12px;">
+              <button class="btn btnGhost btnWide" id="upload" disabled type="button">Upload PDF</button>
+              <button class="btn btnPrimary btnWide" id="continue" disabled type="button">Continue →</button>
+            </div>
+
+            <!-- No price mention here -->
+            <div class="help" style="margin-top:10px;">
+              After upload, continue to checkout and download.
             </div>
           </div>
-        </div>
-
-        <!-- Progress -->
-        <div class="progressWrap" id="progressWrap" hidden>
-          <div class="progressTop">
-            <div id="progressLabel">Uploading…</div>
-            <div id="progressPct">0%</div>
-          </div>
-          <div class="progressBar">
-            <div class="progressFill" id="progressFill"></div>
-          </div>
-          <div id="progressMeta"></div>
-        </div>
-
-        <!-- Actions -->
-        <div class="actionRow">
-          <button class="btnSoft" id="upload" disabled>Upload PDF</button>
-          <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
-        </div>
-
-        <div class="fineprint">
-          Tip: Start with <strong>Balanced</strong>. If a portal rejects the upload, switch to <strong>Maximum</strong>.
         </div>
 
       </div>
-
     </div>
   </section>
 
-  <!-- CLEAN SUPPORT: short, human, useful -->
-  <section class="sectionSupport">
-    <div class="supportCard">
-      <div class="supportHead">
-        <h2>Make a PDF smaller (without messing it up)</h2>
-        <p class="supportSub">Practical guidance — not waffle.</p>
-      </div>
-
-      <div class="supportTextLong">
-        <p>
-          If your PDF is too large to upload or email, compression is usually the fastest fix.
-          For most documents (forms, invoices, contracts), <strong>Balanced</strong> reduces size while keeping text sharp.
-        </p>
-        <p>
-          If you’re submitting to strict systems (2MB / 5MB / 10MB), switch to <strong>Maximum</strong> and re-check the output size.
-          For scanned/image-heavy PDFs, start with <strong>Light</strong> first to preserve detail.
-        </p>
-        <p>
-          Need other tools? Use <a href="/merge-pdf">Merge</a>, <a href="/split-pdf">Split</a>, <a href="/convert">Convert</a> or <a href="/rotate-pdf">Rotate</a>.
-        </p>
-      </div>
-
-      <div class="faqPro">
-        <details class="faqItemPro">
-          <summary>Will compression change how my PDF looks?</summary>
-          <div class="faqBodyPro">
-            Balanced keeps layout and readability for most documents. Maximum is more aggressive and may reduce image detail to hit strict size limits.
+  <!-- SUPPORT -->
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <div class="cardHeader">
+          <p class="cardTitle">Guidance</p>
+          <p class="cardSub">Practical notes — no fluff.</p>
+        </div>
+        <div class="cardBody">
+          <div class="grid3">
+            <div class="feature">
+              <h3>Choose the right level</h3>
+              <p><strong>Balanced</strong> works for most forms and documents. Use <strong>Maximum</strong> for strict portals.</p>
+            </div>
+            <div class="feature">
+              <h3>Scanned PDFs</h3>
+              <p>If your PDF is mostly images, start with <strong>Light</strong> to keep detail, then step up if needed.</p>
+            </div>
+            <div class="feature">
+              <h3>Other tools</h3>
+              <p>Need to combine pages? Use <a href="/merge-pdf"><strong>Merge</strong></a> or split files via <a href="/split-pdf"><strong>Split</strong></a>.</p>
+            </div>
           </div>
-        </details>
 
-        <details class="faqItemPro">
-          <summary>Which compression level should I choose?</summary>
-          <div class="faqBodyPro">
-            <strong>Balanced</strong> for everyday PDFs. <strong>Light</strong> if quality matters most. <strong>Maximum</strong> for strict portals and upload caps.
-          </div>
-        </details>
+          <div class="hr"></div>
 
-        <details class="faqItemPro">
-          <summary>Is it secure?</summary>
-          <div class="faqBodyPro">
-            Files are processed to generate your download. No account required.
-          </div>
-        </details>
+          <details class="faqItemPro">
+            <summary>Will compression change how my PDF looks?</summary>
+            <div class="faqBodyPro">
+              Balanced keeps layout and readability for most documents. Maximum is more aggressive and may reduce image detail to hit strict size limits.
+            </div>
+          </details>
+
+          <details class="faqItemPro">
+            <summary>Which compression level should I choose?</summary>
+            <div class="faqBodyPro">
+              <strong>Balanced</strong> for everyday PDFs. <strong>Light</strong> if quality matters most. <strong>Maximum</strong> for strict portals and upload caps.
+            </div>
+          </details>
+
+          <details class="faqItemPro">
+            <summary>Is it secure?</summary>
+            <div class="faqBodyPro">
+              Files are processed to generate your download. No account required.
+            </div>
+          </details>
+        </div>
       </div>
-
     </div>
   </section>
 
 </main>
 
-<footer class="footer footerPremium">
+<footer class="footer">
   <div class="container footerInner">
-    <div class="footerLeft">
-      <div class="footerBrand">
-        <img src="/favicon.svg" width="18" height="18" alt="">
-        <span>PDFOperations</span>
-      </div>
-      <div class="footerNote">PDF tools for email, portals and document workflows.</div>
+    <div>
+      <strong>PDFOperations</strong>
+      <div style="margin-top:4px;">PDF tools for email, portals and document workflows.</div>
     </div>
 
-    <div class="footerRight">
+    <div class="footerLinks" aria-label="Footer links">
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
     </div>
   </div>
 </footer>
 
-<!-- CHECKOUT MODAL (REQUIRED by app.js) -->
+<!-- CHECKOUT MODAL (REQUIRED by app.js)
+     IMPORTANT: price rows are hidden by default to prevent any early visibility.
+     app.js should remove [hidden] when it opens/arms checkout.
+-->
 <div class="modalOverlay" id="priceModal" aria-hidden="true">
   <div class="modalCard premiumModal">
     <div class="modalTop">
@@ -307,8 +355,8 @@
         </div>
 
         <div>
-          <div class="modalSummaryKicker">Price</div>
-          <div class="modalSummaryMain" id="priceInline">£0.00</div>
+          <div class="modalSummaryKicker">Total</div>
+          <div class="modalSummaryMain" id="priceInline">—</div>
         </div>
       </div>
 
@@ -362,7 +410,8 @@
         </label>
       </div>
 
-      <div class="priceGrid">
+      <!-- Hidden by default: prevents any price visibility until checkout is armed -->
+      <div class="priceGrid" id="priceGrid" hidden>
         <div class="priceRow" id="rowStandard">
           <div>
             <div class="priceName">Standard</div>
@@ -394,8 +443,8 @@
     </div>
 
     <div class="modalActions">
-      <button class="btnGhost" id="modalBackBtn" type="button">Back</button>
-      <button class="btnPrimary btnStrong" id="modalPayBtn" type="button">Pay</button>
+      <button class="btn btnGhost" id="modalBackBtn" type="button">Back</button>
+      <button class="btn btnPrimary" id="modalPayBtn" type="button">Pay</button>
     </div>
   </div>
 </div>
