@@ -261,7 +261,7 @@
 
         <div class="actionRow actionRowWide">
           <button class="btnSoft" id="upload" disabled>Upload PDF</button>
-          <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
+          <button class="btnPrimary btnStrong" id="continue">Continue →</button>
         </div>
 
         <div class="fineprint">No signup. Upload, preview pages, rotate, download.</div>
@@ -354,6 +354,22 @@
 ========================= -->
 <script>
 (() => {
+  // Force-enable Continue after app.js initializes
+  window.addEventListener("load", () => {
+    const btn = document.getElementById("continue");
+    if (!btn) return;
+
+    btn.disabled = false;
+    btn.removeAttribute("disabled");
+
+    // Prevent re-disable
+    new MutationObserver(() => {
+      if (btn.disabled) {
+        btn.disabled = false;
+        btn.removeAttribute("disabled");
+      }
+    }).observe(btn, { attributes: true, attributeFilter: ["disabled"] });
+  });
   const $ = (id) => document.getElementById(id);
 
   let grid, wrap, meta, rotateBar, rotatePlanText, clearBtn, rotateAll90, resetRotations;
