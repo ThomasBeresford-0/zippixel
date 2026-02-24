@@ -1,11 +1,10 @@
-<!-- public/rotate-pdf.html — PDFOperations (v5 - MATCH MERGE FLOW + PDF.JS ESM + ROBUST THUMBS + PER-PAGE CLICK ROTATE)
-     ✅ Works with app.js even if it replaces/sets files without firing input change
-     ✅ REAL PDF previews via self-hosted PDF.js ESM (canvas thumbs)
-     ✅ TRUE rotation previews: re-render via PDF.js viewport rotation (no CSS rotate clipping)
-     ✅ Per-page rotation: click a page thumbnail to rotate (0/90/180/270)
+<!-- public/rotate-pdf.html — PDFOperations (v6 - CLASSIC PDF.JS + APP.JS COMPAT + PER-PAGE CLICK ROTATE)
+     ✅ Uses classic PDF.js (pdf.min.js) to avoid ESM/MIME/module issues
+     ✅ Per-page rotation: click thumbnail 0/90/180/270
+     ✅ TRUE rotation previews: re-render with viewport rotation
+     ✅ Robust: watches fileList + polls + input change
+     ✅ Keeps ALL app.js IDs unchanged
      ✅ Exposes window.__PDFOPS_ROTATE_MAP__ (index = page number; value = degrees)
-     ✅ Keeps ALL app.js IDs unchanged (#modeRotatePdf, #dropzone, #files, #chooseBtn, #upload, #continue, modal IDs, etc.)
-     ✅ No payment mentions outside modal
      ✅ Version sync: style.css?v=36 + app.js?v=17.7
 -->
 <!doctype html>
@@ -22,242 +21,122 @@
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light" />
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="Rotate PDF Online — Turn Pages 90°, 180°, 270° | PDFOperations" />
-  <meta property="og:description" content="Upload one PDF, click pages to rotate them, then download the rotated file." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://pdfoperations.com/rotate-pdf" />
-  <meta property="og:image" content="https://pdfoperations.com/og.png" />
-  <meta property="og:image:alt" content="PDFOperations — Rotate PDF" />
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Rotate PDF Online — Turn Pages 90°, 180°, 270°" />
-  <meta name="twitter:description" content="Upload one PDF, click pages to rotate them, then download the rotated file." />
-  <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
-
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
-  <!-- Fonts (match the suite) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/style.css?v=36" />
 
-  <!-- ===========================
-       PDF.js (SELF-HOSTED ESM)
-       Exposes: window.__pdfjsReady + window.pdfjsLib
-  ============================ -->
-  <script type="module">
-    const PDFJS_SRC = "/vendor/pdfjs/pdf.min.mjs";
-    const WORKER_SRC = "/vendor/pdfjs/pdf.worker.min.mjs";
-
-    window.__pdfjsReady = (async () => {
-      const mod = await import(PDFJS_SRC);
-      const lib = mod?.default ?? mod;
-      window.pdfjsLib = lib;
-
-      try {
-        lib.GlobalWorkerOptions.workerSrc = WORKER_SRC;
-        window.__pdfjsWorkerOK = true;
-      } catch (_) {
-        window.__pdfjsWorkerOK = false;
+  <!-- ✅ Classic PDF.js (no modules) -->
+  <script src="/vendor/pdfjs/pdf.min.js"></script>
+  <script>
+    // Make this match your worker filename (you have both .js and .mjs)
+    try {
+      window.pdfjsLib = window.pdfjsLib || window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
+      if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.js";
       }
-
-      return lib;
-    })().catch(async (err) => {
-      try {
-        const mod2 = await import(PDFJS_SRC);
-        const lib2 = mod2?.default ?? mod2;
-        window.pdfjsLib = lib2;
-        window.__pdfjsWorkerOK = false;
-        return lib2;
-      } catch (_) {
-        window.__pdfjsWorkerOK = false;
-        throw err;
-      }
-    });
+      window.__pdfjsReady = Promise.resolve(window.pdfjsLib);
+    } catch (e) {
+      window.__pdfjsReady = Promise.reject(e);
+    }
   </script>
 
   <style>
-    /* Protect [hidden] */
     #pdfReorderWrap[hidden],
     #fileMeta[hidden]{ display:none !important; }
     [hidden]{ display:none !important; }
 
-    .toolChips{
-      display:flex;
-      flex-wrap:wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
+    .toolChips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
     .toolChip{
-      font-size: 12px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.72);
-      box-shadow: 0 10px 26px rgba(2,6,23,.06);
-      opacity: .92;
-      user-select:none;
+      font-size:12px; padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(15,23,42,.10);
+      background:rgba(255,255,255,.72);
+      box-shadow:0 10px 26px rgba(2,6,23,.06);
+      opacity:.92; user-select:none;
     }
 
-    /* ===== Rotate preview header ===== */
-    .rotatePreviewHead{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap: 10px;
-      margin-top: 14px;
-    }
-    .rotatePreviewTitle{
-      font-weight: 900;
-      letter-spacing: -.02em;
-      font-size: 14px;
-      opacity: .92;
-    }
-    .rotatePreviewMeta{
-      font-size: 12px;
-      opacity: .74;
-      white-space:nowrap;
-    }
-    .rotateHint{
-      margin-top: 8px;
-      font-size: 13px;
-      opacity: .82;
-      line-height: 1.35;
-    }
+    .rotateHint{ margin-top:8px; font-size:13px; opacity:.82; line-height:1.35; }
 
-    /* ===== Thumb grid ===== */
     .pdfReorderWrap{
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(15,23,42,.08);
+      margin-top:10px; padding-top:10px;
+      border-top:1px solid rgba(15,23,42,.08);
     }
+    .rotatePreviewHead{
+      display:flex; align-items:flex-end; justify-content:space-between;
+      gap:10px; margin-top:14px;
+    }
+    .rotatePreviewTitle{ font-weight:900; letter-spacing:-.02em; font-size:14px; opacity:.92; }
+    .rotatePreviewMeta{ font-size:12px; opacity:.74; white-space:nowrap; }
+
     .pdfThumbGrid{
       display:grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 10px;
+      grid-template-columns:repeat(6, minmax(0,1fr));
+      gap:10px; margin-top:10px;
     }
-    @media (max-width: 980px){ .pdfThumbGrid{ grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-    @media (max-width: 640px){ .pdfThumbGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width:980px){ .pdfThumbGrid{ grid-template-columns:repeat(4, minmax(0,1fr)); } }
+    @media (max-width:640px){ .pdfThumbGrid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
 
     .pdfThumb{
-      border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.86);
-      border-radius: 14px;
+      border:1px solid rgba(15,23,42,.10);
+      background:rgba(255,255,255,.86);
+      border-radius:14px;
       overflow:hidden;
-      box-shadow: 0 12px 30px rgba(2,6,23,.06);
+      box-shadow:0 12px 30px rgba(2,6,23,.06);
       cursor:pointer;
       position:relative;
-      transform: translateZ(0);
-      transition: transform .12s ease, box-shadow .12s ease;
+      transition:transform .12s ease, box-shadow .12s ease;
       user-select:none;
     }
     .pdfThumb:hover{
-      transform: translateY(-1px);
-      box-shadow: 0 16px 36px rgba(2,6,23,.10);
+      transform:translateY(-1px);
+      box-shadow:0 16px 36px rgba(2,6,23,.10);
     }
     .pdfThumb canvas{
-      width:100%;
-      height:auto;
-      display:block;
-      background:#fff;
-      /* no CSS rotation; we re-render with PDF.js rotation */
+      width:100%; height:auto; display:block; background:#fff;
     }
 
     .thumbBadge{
-      position:absolute;
-      top: 8px;
-      left: 8px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 900;
-      background: rgba(11,18,32,.88);
-      color: #fff;
-      letter-spacing: -.01em;
+      position:absolute; top:8px; left:8px;
+      padding:4px 8px; border-radius:999px;
+      font-size:12px; font-weight:900;
+      background:rgba(11,18,32,.88); color:#fff;
       pointer-events:none;
     }
     .thumbRot{
-      position:absolute;
-      top: 8px;
-      right: 8px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 900;
-      border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.92);
-      color: rgba(11,18,32,.92);
-      letter-spacing: -.01em;
+      position:absolute; top:8px; right:8px;
+      padding:4px 8px; border-radius:999px;
+      font-size:12px; font-weight:900;
+      border:1px solid rgba(15,23,42,.10);
+      background:rgba(255,255,255,.92); color:rgba(11,18,32,.92);
       pointer-events:none;
     }
+
     .thumbFoot{
-      padding: 8px 10px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap: 8px;
-      border-top: 1px solid rgba(15,23,42,.08);
-      background: rgba(248,250,252,.92);
+      padding:8px 10px;
+      display:flex; justify-content:space-between; align-items:center; gap:8px;
+      border-top:1px solid rgba(15,23,42,.08);
+      background:rgba(248,250,252,.92);
     }
-    .thumbFoot .thumbLabel{
-      font-size: 12px;
-      font-weight: 800;
-      opacity: .86;
-    }
-    .thumbFoot .thumbAction{
-      font-size: 12px;
-      opacity: .72;
-    }
-    .thumbFoot .thumbAction strong{
-      font-weight: 900;
-      opacity: .92;
-    }
+    .thumbFoot .thumbLabel{ font-size:12px; font-weight:800; opacity:.86; }
+    .thumbFoot .thumbAction{ font-size:12px; opacity:.72; }
+    .thumbFoot .thumbAction strong{ font-weight:900; opacity:.92; }
 
-    /* ===== Quick bar ===== */
     .rotateBar{
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 16px;
-      border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.78);
-      box-shadow: 0 12px 28px rgba(2,6,23,.06);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap: 10px;
+      margin-top:10px; padding:10px; border-radius:16px;
+      border:1px solid rgba(15,23,42,.10);
+      background:rgba(255,255,255,.78);
+      box-shadow:0 12px 28px rgba(2,6,23,.06);
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
       flex-wrap:wrap;
     }
-    .rotateBarLeft{
-      display:flex;
-      flex-direction:column;
-      gap: 2px;
-      min-width: 200px;
-    }
-    .rotateBarTitle{
-      font-weight: 900;
-      letter-spacing: -.02em;
-      font-size: 13px;
-      opacity: .92;
-    }
-    .rotateBarSub{
-      font-size: 12px;
-      opacity: .74;
-      line-height: 1.25;
-    }
-    .rotateBarRight{
-      display:flex;
-      gap: 8px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
+    .rotateBarTitle{ font-weight:900; letter-spacing:-.02em; font-size:13px; opacity:.92; }
+    .rotateBarSub{ font-size:12px; opacity:.74; line-height:1.25; }
+    .rotateBarRight{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
 
-    /* Hide legacy rotate select (kept for app.js fallback only) */
     #rotateDegrees{ display:none !important; }
   </style>
 </head>
@@ -271,7 +150,6 @@
       <img src="/favicon.svg" width="26" height="26" alt="">
       <span>PDFOperations</span>
     </a>
-
     <nav class="navLinks" aria-label="Primary navigation">
       <a href="/">Compress</a>
       <a href="/compress-pdf">Compress PDF</a>
@@ -290,14 +168,11 @@
 <main>
   <section class="hero heroPremium heroToolFirst">
     <div class="container heroWide">
-
       <div id="tool" class="tool toolPremium toolMega">
 
         <div class="toolHead toolHeadMinimal">
           <h1 class="toolTitle">Rotate PDF</h1>
-          <p class="toolSub">
-            Upload one PDF, then click pages to rotate them. Download the updated file.
-          </p>
+          <p class="toolSub">Upload one PDF, then click pages to rotate them. Download the updated file.</p>
 
           <div class="toolChips" aria-hidden="true">
             <div class="toolChip">Click pages to rotate</div>
@@ -318,8 +193,8 @@
           <div class="statusHint" id="statusHint">Add one PDF to begin.</div>
         </div>
 
-        <!-- REQUIRED MODE INPUTS (hidden but required for app.js) -->
-        <fieldset class="modeRow" style="display:none;">
+        <!-- Hidden mode controls (app.js compatibility) -->
+        <fieldset style="display:none;">
           <input type="radio" name="mode" id="modeCompress">
           <input type="radio" name="mode" id="modeCompressPdf">
           <input type="radio" name="mode" id="modeConvert">
@@ -328,7 +203,6 @@
           <input type="radio" name="mode" id="modeRotatePdf" checked>
         </fieldset>
 
-        <!-- Required rows for app.js safety -->
         <div id="pdfCompressRow" style="display:none;">
           <select id="pdfCompressLevel">
             <option value="balanced" selected>Balanced</option>
@@ -342,14 +216,12 @@
           <select id="convertTarget"><option value="jpg" selected>JPG</option></select>
         </div>
 
-        <!-- Legacy rotateDegrees kept for app.js fallback only (hidden via CSS) -->
         <select id="rotateDegrees" aria-label="Rotation degrees">
           <option value="90">90°</option>
           <option value="180">180°</option>
           <option value="270">270°</option>
         </select>
 
-        <!-- DROPZONE -->
         <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
           <div class="dzCenter">
             <div class="dzIcon"><span class="dzArrow">↑</span></div>
@@ -379,7 +251,7 @@
               </div>
 
               <div class="rotateBar" id="rotateBar" hidden>
-                <div class="rotateBarLeft">
+                <div>
                   <div class="rotateBarTitle">Rotation plan</div>
                   <div class="rotateBarSub" id="rotatePlanText">No pages rotated yet.</div>
                 </div>
@@ -394,7 +266,6 @@
           </div>
         </div>
 
-        <!-- PROGRESS -->
         <div class="progressWrap" id="progressWrap" hidden>
           <div class="progressTop">
             <div id="progressLabel">Uploading…</div>
@@ -404,7 +275,6 @@
           <div id="progressMeta"></div>
         </div>
 
-        <!-- ACTIONS -->
         <div class="actionRow actionRowWide">
           <button class="btnSoft" id="upload" disabled>Upload PDF</button>
           <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
@@ -412,7 +282,6 @@
 
         <div class="fineprint">No signup. Upload, click-rotate pages, download.</div>
       </div>
-
     </div>
   </section>
 </main>
@@ -433,19 +302,15 @@
   </div>
 </footer>
 
-<!-- =========================================================
-     CHECKOUT MODAL (REQUIRED for consistent flow)
-========================================================= -->
+<!-- Checkout modal (kept for suite consistency) -->
 <div class="modalOverlay" id="priceModal" aria-hidden="true">
   <div class="modalCard premiumModal">
     <div class="modalTop">
       <div class="modalTitle">Checkout</div>
       <button class="modalClose" id="modalCloseBtn" type="button">Close</button>
     </div>
-
     <div class="modalBody">
       <p class="modalLead" id="priceModalLead">Review your upload.</p>
-
       <div class="modalSummary">
         <div>
           <div class="modalSummaryKicker">Selected</div>
@@ -455,18 +320,15 @@
         </div>
         <div class="modalSummaryAmt" id="priceInline">£0.00</div>
       </div>
-
       <div class="priceGrid">
         <div class="priceRow isChosen" id="rowStandard">
           <div class="priceName">ZIP (up to 10 files)</div>
           <div class="priceAmt">£2.99</div>
         </div>
-
         <div class="priceRow" id="rowPro">
           <div class="priceName">Pro ZIP (up to 50 files)</div>
           <div class="priceAmt">£9.99</div>
         </div>
-
         <div class="priceRow" id="rowShare">
           <div>
             <div class="priceName">Share link</div>
@@ -476,19 +338,9 @@
             <label><input type="checkbox" id="optShareLink" /> +£2.49</label>
           </div>
         </div>
-
-        <div style="display:none">
-          <input type="checkbox" id="optPrintReady" />
-          <input type="checkbox" id="optEmailSafe" />
-          <input type="checkbox" id="optKeepNames" />
-          <input type="checkbox" id="optListingNames" />
-          <input type="checkbox" id="optDayPass" />
-        </div>
       </div>
-
       <div class="modalNote" id="priceModalNote">You’ll be redirected to secure Stripe Checkout.</div>
     </div>
-
     <div class="modalFoot">
       <button class="btnSoft" id="modalBackBtn" type="button">Back</button>
       <button class="btnPrimary btnStrong" id="modalPayBtn" type="button">Continue to checkout →</button>
@@ -498,9 +350,9 @@
 
 <script src="/app.js?v=17.7" defer></script>
 
-<!-- =========================================================
-     PER-PAGE ROTATION PREVIEW (single script, bottom only)
-========================================================= -->
+<!-- =========================
+     Per-page rotate thumbnails
+========================= -->
 <script defer>
 (() => {
   const $ = (id) => document.getElementById(id);
@@ -510,12 +362,11 @@
   let lastSig = "";
   let readyToEmit = false;
 
-  // Map index = page number; values = 0/90/180/270 (index 0 unused)
   window.__PDFOPS_ROTATE_MAP__ = [];
 
   async function ensurePdfJs(){
-    if (window.__pdfjsReady) await window.__pdfjsReady;
-    if (!window.pdfjsLib?.getDocument) throw new Error("pdfjsLib not available");
+    await (window.__pdfjsReady || Promise.resolve());
+    if (!window.pdfjsLib || !window.pdfjsLib.getDocument) throw new Error("pdfjsLib not available");
   }
 
   function nextDeg(d){
@@ -526,7 +377,7 @@
     return 0;
   }
 
-  function emitRotateMapChange(){
+  function emit(){
     if (!readyToEmit) return;
     document.dispatchEvent(new CustomEvent("pdfops:rotatemap", {
       detail: { rotateMap: window.__PDFOPS_ROTATE_MAP__.slice() }
@@ -537,7 +388,6 @@
     const rotatePlanText = $("rotatePlanText");
     const rotateBar = $("rotateBar");
     if (!rotatePlanText || !rotateBar) return;
-
     if (!numPages) { rotateBar.hidden = true; return; }
 
     let changed = 0;
@@ -596,9 +446,7 @@
 
     const foot = document.createElement("div");
     foot.className = "thumbFoot";
-    foot.innerHTML =
-      `<div class="thumbLabel">Page ${pageNo}</div>` +
-      `<div class="thumbAction">Click to <strong>rotate</strong></div>`;
+    foot.innerHTML = `<div class="thumbLabel">Page ${pageNo}</div><div class="thumbAction">Click to <strong>rotate</strong></div>`;
 
     card.appendChild(badge);
     card.appendChild(rot);
@@ -618,7 +466,7 @@
     const page = await pdfDoc.getPage(pageNo);
 
     const baseViewport = page.getViewport({ scale: 1, rotation });
-    const scale = Math.max(0.25, (targetWidth / baseViewport.width));
+    const scale = Math.max(0.25, targetWidth / baseViewport.width);
     const viewport = page.getViewport({ scale, rotation });
 
     const ctx = targetCanvas.getContext("2d", { alpha: false });
@@ -646,7 +494,7 @@
     }
 
     updatePlanText();
-    emitRotateMapChange();
+    emit();
     showWrapIfHasThumbs();
   }
 
@@ -672,9 +520,8 @@
     wrap.hidden = false;
 
     updatePlanText();
-
     readyToEmit = true;
-    emitRotateMapChange();
+    emit();
     showWrapIfHasThumbs();
   }
 
@@ -690,7 +537,7 @@
     const bytes = await file.arrayBuffer();
     const task = window.pdfjsLib.getDocument({
       data: bytes,
-      disableWorker: window.__pdfjsWorkerOK === false
+      disableWorker: false
     });
 
     pdfDoc = await task.promise;
@@ -701,18 +548,47 @@
 
   async function maybeLoadSelected(){
     const filesEl = $("files");
-    if (!filesEl || !filesEl.files || !filesEl.files[0]) return;
+    if (!filesEl) return;
 
-    const f = filesEl.files[0];
-    if (!/pdf$/i.test(f.type) && !/\.pdf$/i.test(f.name || "")) return;
+    // If app.js leaves the file in the input, great:
+    if (filesEl.files && filesEl.files[0]) {
+      const f = filesEl.files[0];
+      if (f && ((f.type === "application/pdf") || /\.pdf$/i.test(f.name || ""))) {
+        await loadFromFile(f);
+        return;
+      }
+    }
 
-    try { await loadFromFile(f); } catch {}
+    // Otherwise: nothing we can render without app.js exposing the File.
+    // But we keep trying in case app.js later syncs it.
   }
 
-  // Capture change even if app.js uses delegated handlers
+  // Change listener (if it fires)
   document.addEventListener("change", (e) => {
     if (e.target && e.target.id === "files") maybeLoadSelected();
   }, true);
+
+  // Watch file list (UI changes)
+  const fileList = $("fileList");
+  if (fileList){
+    const mo = new MutationObserver(() => {
+      maybeLoadSelected();
+      showWrapIfHasThumbs();
+    });
+    mo.observe(fileList, { childList:true, subtree:true });
+  }
+
+  // Poll for 60s after interaction
+  let poll = null;
+  function startPoll(){
+    if (poll) return;
+    poll = setInterval(() => {
+      maybeLoadSelected();
+      showWrapIfHasThumbs();
+    }, 400);
+    setTimeout(() => { try { clearInterval(poll); } catch {} poll = null; }, 60000);
+  }
+  startPoll();
 
   // Clear
   const clearBtn = $("clearBtn");
@@ -739,25 +615,7 @@
     });
   }
 
-  // If app.js updates UI without input change: watch file list
-  const fileList = $("fileList");
-  if (fileList){
-    const mo = new MutationObserver(() => {
-      maybeLoadSelected();
-      showWrapIfHasThumbs();
-    });
-    mo.observe(fileList, { childList: true, subtree: true });
-  }
-
-  // Cheap fallback poll for 60s
-  const poll = setInterval(() => {
-    maybeLoadSelected();
-    showWrapIfHasThumbs();
-  }, 500);
-  setTimeout(() => { try { clearInterval(poll); } catch {} }, 60000);
-
-  // initial
-  setTimeout(() => { maybeLoadSelected(); }, 400);
+  setTimeout(() => { maybeLoadSelected(); }, 500);
 })();
 </script>
 
