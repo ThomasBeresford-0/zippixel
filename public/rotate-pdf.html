@@ -624,6 +624,17 @@
     const input = document.getElementById("files");
     if (input) {
       input.dispatchEvent(new Event("change", { bubbles: true }));
+
+    const uploadBtn = document.getElementById("upload");
+    if (uploadBtn) {
+      uploadBtn.disabled = false;
+      uploadBtn.removeAttribute("disabled");
+    }
+    const continueBtn = document.getElementById("continue");
+    if (continueBtn) {
+      continueBtn.disabled = false;
+      continueBtn.removeAttribute("disabled");
+    }
     }
   }
 
