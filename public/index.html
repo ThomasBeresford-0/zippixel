@@ -302,20 +302,11 @@
   </script>
 
   <!-- ✅ SELF-HOST PDF.JS (reliable; avoids CDN blocking) -->
-  <script type="module">
-    // Global promise so the preview script can await PDF.js deterministically
-    window.__pdfjsReady = import("/vendor/pdfjs/pdf.min.js")
-      .then((mod) => {
-        const pdfjsLib = mod?.default || mod;
-        window.pdfjsLib = pdfjsLib;
-        try { pdfjsLib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.js"; } catch(_) {}
-        return pdfjsLib;
-      })
-      .catch((err) => {
-        console.warn("[PDFOperations] PDF.js failed to load:", err);
-        window.pdfjsLib = null;
-        return null;
-      });
+  <script src="/vendor/pdfjs/pdf.min.js"></script>
+  <script>
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.js";
+    }
   </script>
 </head>
 
@@ -551,7 +542,7 @@
     paintBlank();
 
     // Wait for PDF.js to load (or fail)
-    const lib = window.pdfjsLib || (await (window.__pdfjsReady || Promise.resolve(null)));
+    const lib = window.pdfjsLib;
     if (!lib) {
       hintEl.textContent = "Preview unavailable";
       return;
