@@ -1,8 +1,8 @@
-<!-- public/success.html — ZipPixel (v23.1 - AUTO DOWNLOAD + iOS SAFE + STYLED ACTIONS)
+<!-- public/success.html — PDFOperations (v24 - AUTO DOWNLOAD + iOS SAFE + PREMIUM STATUS + CORRECT MODE HANDLING)
      ✅ Uses /api/status/:jobId (webhook + fallback)
      ✅ Mode-aware copy + correct download label (ZIP vs PDF)
      ✅ Auto-download once paid (best effort), with iOS-safe fallback button
-     ✅ Uses style.css?v=26 (and relies on added Success CSS block)
+     ✅ Uses style.css?v=36 (matches your current platform styling)
 -->
 <!doctype html>
 <html lang="en">
@@ -10,9 +10,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Success — ZipPixel</title>
+  <title>Success — PDFOperations</title>
   <meta name="description" content="Payment confirmed. Your download will be ready shortly." />
-  <link rel="canonical" href="https://zippixel.it.com/success" />
+  <link rel="canonical" href="https://pdfoperations.com/success" />
 
   <meta name="theme-color" content="#0b1220" />
 
@@ -23,16 +23,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/style.css?v=26" />
+  <link rel="stylesheet" href="/style.css?v=36" />
 </head>
 
 <body class="premium">
 
 <header class="nav">
   <div class="container navInner">
-    <a class="brand" href="/" aria-label="ZipPixel home">
+    <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/favicon.svg" width="26" height="26" alt="">
-      <span>ZipPixel</span>
+      <span>PDFOperations</span>
     </a>
 
     <nav class="navLinks" aria-label="Site">
@@ -65,7 +65,7 @@
           <div class="successActions" id="actions" aria-live="polite"></div>
 
           <p class="fineprint" id="hint" style="margin-top:12px;">
-            Please keep this tab open. If it takes longer than ~30 seconds, use “Check again”.
+            Please keep this tab open. Large files can take a little longer — use “Check again” if needed.
           </p>
         </div>
       </div>
@@ -75,7 +75,7 @@
 
 <footer class="footer footerPremium">
   <div class="container footerInner">
-    <div>© <span id="y"></span> ZipPixel</div>
+    <div>© <span id="y"></span> PDFOperations</div>
     <div>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
@@ -97,7 +97,8 @@
 
   const setActions = (html) => { actions.innerHTML = html; };
 
-  const supportHtml = `Support: <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>`;
+  // 🔧 Update this to your real support address if different
+  const supportHtml = `Support: <a href="mailto:support@pdfoperations.com">support@pdfoperations.com</a>`;
 
   const downloadUrl = jobId ? `/api/download/${encodeURIComponent(jobId)}` : "#";
   const statusUrl = jobId ? `/api/status/${encodeURIComponent(jobId)}` : "#";
@@ -124,18 +125,31 @@
     }
   };
 
-  // ---- mode-aware helpers
+  // ---- mode-aware helpers (matches server modes)
   const normalizeMode = (m) => {
     const v = String(m || "").toLowerCase().trim();
     if (v === "merge_pdf") return "merge_pdf";
+    if (v === "split_pdf") return "split_pdf";
+    if (v === "compress_pdf") return "compress_pdf";
+    if (v === "rotate_pdf") return "rotate_pdf";
     if (v === "convert") return "convert";
     return "compress";
   };
 
-  const downloadKind = (mode) => (mode === "merge_pdf" ? "PDF" : "ZIP");
+  const downloadKind = (mode) => {
+    // PDF outputs:
+    if (mode === "merge_pdf") return "PDF";
+    if (mode === "compress_pdf") return "PDF";
+    if (mode === "rotate_pdf") return "PDF";
+    // ZIP outputs:
+    return "ZIP";
+  };
 
   const modeLabel = (mode, convertTarget) => {
     if (mode === "merge_pdf") return "Merged PDF";
+    if (mode === "split_pdf") return "Split PDF (ZIP)";
+    if (mode === "compress_pdf") return "Compressed PDF";
+    if (mode === "rotate_pdf") return "Rotated PDF";
     if (mode === "convert") {
       const t = String(convertTarget || "").toUpperCase().trim();
       return t ? `Converted files (${t})` : "Converted files";
@@ -147,19 +161,20 @@
   if (!jobId) {
     sub.textContent = "We couldn’t find your download reference.";
     titleLine.textContent = "Missing download reference";
-    desc.textContent = "Go back to ZipPixel and try again. If this keeps happening, email support.";
+    desc.textContent = "Please return to PDFOperations and try again. If this keeps happening, email support.";
     hint.innerHTML = supportHtml;
 
     setActions(`
-      <a class="btnPrimary btnBlock" href="/">Go to ZipPixel</a>
+      <a class="btnPrimary btnBlock" href="/">Go to PDFOperations</a>
       <a class="btnSoft btnBlock" href="/terms">Terms</a>
     `);
   } else {
-    const maxMs = 30000;
+    // More realistic: cold start + big PDFs
+    const maxMs = 45000;
     const start = Date.now();
     let attempt = 0;
 
-    // waiting | notPaid | ready | failed
+    // waiting | notPaid | ready | slow | failed
     let viewState = "waiting";
 
     // Mode snapshot
@@ -176,11 +191,11 @@
       sub.textContent = "Finalising your download…";
       titleLine.textContent = `Preparing your ${kind}`;
       desc.textContent = msg || "This usually takes a few seconds.";
-      hint.textContent = "Please keep this tab open. If it takes longer than ~30 seconds, use “Check again”.";
+      hint.textContent = "Please keep this tab open. Large files can take a little longer — use “Check again” if needed.";
 
       setActions(`
         <button class="btnPrimary btnBlock" id="retryBtn" type="button">Check again</button>
-        <a class="btnGhost btnBlock" href="/">Back to ZipPixel</a>
+        <a class="btnGhost btnBlock" href="/">Back to PDFOperations</a>
       `);
 
       const b = document.getElementById("retryBtn");
@@ -195,7 +210,7 @@
       hint.innerHTML = supportHtml;
 
       setActions(`
-        <a class="btnPrimary btnBlock" href="/">Back to ZipPixel</a>
+        <a class="btnPrimary btnBlock" href="/">Back to PDFOperations</a>
         <button class="btnGhost btnBlock" id="retryBtn3" type="button">Check again</button>
       `);
 
@@ -203,18 +218,37 @@
       if (b) b.onclick = () => poll(true);
     };
 
-    const renderFailed = () => {
-      viewState = "failed";
+    const renderSlow = () => {
+      viewState = "slow";
       const kind = downloadKind(currentMode);
 
+      sub.textContent = "Still working…";
+      titleLine.textContent = `Preparing your ${kind}`;
+      desc.textContent = "This can take a bit longer for larger files or during high load. You can keep this tab open and check again.";
+      hint.innerHTML = supportHtml;
+
+      setActions(`
+        <button class="btnPrimary btnBlock" id="retryBtn4" type="button">Check again</button>
+        <a class="btnSoft btnBlock" href="${downloadUrl}" target="_blank" rel="noopener">Try opening download</a>
+        <a class="btnGhost btnBlock" href="/">Back to PDFOperations</a>
+      `);
+
+      const b = document.getElementById("retryBtn4");
+      if (b) b.onclick = () => poll(true);
+    };
+
+    const renderFailed = () => {
+      viewState = "failed";
+
       sub.textContent = "Still not ready.";
-      titleLine.textContent = "Taking longer than expected";
-      desc.textContent = "Try once more. If it still doesn’t work, email support and we’ll sort it.";
+      titleLine.textContent = "We’re still preparing your download";
+      desc.textContent = "Please check again. If it still doesn’t work, email support and we’ll sort it quickly.";
       hint.innerHTML = supportHtml;
 
       setActions(`
         <a class="btnPrimary btnBlock" href="${downloadUrl}" target="_blank" rel="noopener">Try download</a>
         <button class="btnSoft btnBlock" id="retryBtn2" type="button">Check again</button>
+        <a class="btnGhost btnBlock" href="/">Back to PDFOperations</a>
       `);
 
       const b = document.getElementById("retryBtn2");
@@ -226,7 +260,6 @@
       if (autoDownloadAttempted) return;
       autoDownloadAttempted = true;
 
-      // Use a programmatic click (works in most browsers)
       const a = document.createElement("a");
       a.href = downloadUrl;
       a.rel = "noopener";
@@ -248,7 +281,8 @@
         ? `Download the ${kind}, or copy a share link to send it to someone.`
         : `Download your ${kind} below.`;
 
-      const downloadBtnLabel = currentMode === "merge_pdf" ? "Download PDF" : "Download ZIP";
+      const downloadBtnLabel =
+        kind === "PDF" ? "Download PDF" : "Download ZIP";
 
       let shareHtml = "";
       if (shareToken) {
@@ -267,15 +301,13 @@
         `;
       }
 
-      // iOS-safe: include an explicit "Open download" too
       setActions(`
         <a class="btnPrimary btnBlock" id="downloadBtn" href="${downloadUrl}">${downloadBtnLabel}</a>
         <a class="btnSoft btnBlock" href="${downloadUrl}" target="_blank" rel="noopener">Open download in new tab</a>
         ${shareHtml}
-        <a class="btnGhost btnBlock" href="/">Back to ZipPixel</a>
+        <a class="btnGhost btnBlock" href="/">Back to PDFOperations</a>
       `);
 
-      // Auto-download best effort (still leaves buttons visible)
       tryAutoDownload();
 
       if (shareToken) {
@@ -290,7 +322,7 @@
       }
 
       hint.textContent =
-        currentMode === "merge_pdf"
+        kind === "PDF"
           ? "Tip: download promptly and store the PDF somewhere safe."
           : "Tip: download promptly and store the ZIP somewhere safe.";
     };
@@ -299,19 +331,20 @@
       try {
         const r = await fetch(statusUrl, { cache: "no-store" });
 
-        // If job is missing/expired, treat as dead-end
         if (r.status === 404) return { ok: false, notFound: true };
 
-        if (!r.ok) return { ok: false, paid: false, status: "UNKNOWN", shareToken: null, mode: "compress", convertTarget: null };
+        if (!r.ok) return { ok: false, status: "UNKNOWN", shareToken: null, mode: currentMode, convertTarget: currentConvertTarget };
 
         const j = await r.json();
 
         currentMode = normalizeMode(j.mode);
         currentConvertTarget = j.convertTarget || null;
 
+        const isPaid = String(j.status || "").toUpperCase() === "PAID";
+
         return {
           ok: !!j.ok,
-          paid: !!j.paid,
+          paid: isPaid,
           status: j.status || "UNKNOWN",
           shareToken: j.shareToken || null,
           mode: currentMode,
@@ -331,7 +364,7 @@
       hint.innerHTML = supportHtml;
 
       setActions(`
-        <a class="btnPrimary btnBlock" href="/">Back to ZipPixel</a>
+        <a class="btnPrimary btnBlock" href="/">Back to PDFOperations</a>
         <a class="btnSoft btnBlock" href="/terms">Terms</a>
       `);
     };
@@ -347,15 +380,19 @@
       if (st?.notFound) return renderExpired();
       if (st.paid) return renderReady(st.shareToken);
 
-      if (waited > 6000) {
+      // After a few seconds, show "not yet confirmed"
+      if (waited > 7000) {
         if (viewState !== "notPaid") renderNotPaid();
       } else {
         if (viewState !== "waiting") renderWaiting("Checking your payment…");
       }
 
+      // Soft slow-state before "failed"
+      if (waited >= 25000 && viewState !== "slow") renderSlow();
+
       if (waited >= maxMs) return renderFailed();
 
-      const delay = Math.min(2500, 800 + attempt * 350);
+      const delay = Math.min(3000, 850 + attempt * 350);
 
       if (viewState === "waiting") {
         renderWaiting(`Not ready yet. Retrying in ${(delay/1000).toFixed(1)}s…`);

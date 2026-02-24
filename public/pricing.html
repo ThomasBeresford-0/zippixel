@@ -1,8 +1,8 @@
-<!-- public/pricing.html — ZipPixel (v22 FULL RAMBO)
-     ✅ Matches pricing logic (ZIP £2.99, Pro ZIP £9.99, optional share +£2.49)
-     ✅ Premium shell + coloured header (v22)
-     ✅ No backend changes (static page)
-     ✅ Conversion-first, not “template pricing page”
+<!-- public/pricing.html — PDFOperations (v23 FULL RAMBO)
+     ✅ Matches pricing logic: £2.99 (≤10 files) / £9.99 (11–50) + optional share link (+£2.49)
+     ✅ Premium shell (static)
+     ✅ No backend changes
+     ✅ Conversion-first, consistent with PDFOperations (ZIP + PDF outputs)
 -->
 <!doctype html>
 <html lang="en">
@@ -10,20 +10,20 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Pricing — ZipPixel</title>
-  <meta name="description" content="Pay once for a clean ZIP. ZIP £2.99 (up to 10 files). Pro ZIP £9.99 (up to 50). Optional share link +£2.49." />
-  <link rel="canonical" href="https://zippixel.it.com/pricing" />
+  <title>Pricing — PDFOperations</title>
+  <meta name="description" content="Pay once when your download is ready. £2.99 (up to 10 files) or £9.99 (up to 50). Optional share link +£2.49. No subscriptions." />
+  <link rel="canonical" href="https://pdfoperations.com/pricing" />
 
-  <meta property="og:title" content="Pricing — ZipPixel" />
-  <meta property="og:description" content="Pay once. ZIP £2.99 (up to 10 files). Pro ZIP £9.99 (up to 50). Optional share link +£2.49." />
+  <meta property="og:title" content="Pricing — PDFOperations" />
+  <meta property="og:description" content="Pay once. £2.99 (up to 10 files) or £9.99 (up to 50). Optional share link +£2.49. No subscriptions." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://zippixel.it.com/pricing" />
-  <meta property="og:image" content="https://zippixel.it.com/og.png" />
+  <meta property="og:url" content="https://pdfoperations.com/pricing" />
+  <meta property="og:image" content="https://pdfoperations.com/og.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Pricing — ZipPixel" />
-  <meta name="twitter:description" content="Pay once. ZIP £2.99 (up to 10 files). Pro ZIP £9.99 (up to 50). Optional share link +£2.49." />
-  <meta name="twitter:image" content="https://zippixel.it.com/og.png" />
+  <meta name="twitter:title" content="Pricing — PDFOperations" />
+  <meta name="twitter:description" content="Pay once. £2.99 (up to 10 files) or £9.99 (up to 50). Optional share link +£2.49. No subscriptions." />
+  <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
   <meta name="theme-color" content="#0b1220" />
 
@@ -36,16 +36,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/style.css?v=22" />
+  <link rel="stylesheet" href="/style.css?v=36" />
 </head>
 
 <body class="premium">
 
 <header class="nav">
   <div class="container navInner">
-    <a class="brand" href="/" aria-label="ZipPixel home">
+    <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/favicon.svg" width="26" height="26" alt="">
-      <span>ZipPixel</span>
+      <span>PDFOperations</span>
     </a>
 
     <nav class="navLinks" aria-label="Site">
@@ -66,7 +66,7 @@
 
         <h1 class="pageTitle">Simple pricing. No subscriptions.</h1>
         <p class="pageLead">
-          Pay once when you need a ZIP. You’ll always see the full total before Stripe Checkout.
+          Pay once when your download is ready. You’ll always see the full total before Stripe Checkout.
         </p>
 
         <!-- Limits / trust box -->
@@ -76,8 +76,9 @@
             <div style="min-width:0;">
               <div class="successTitle">Limits</div>
               <div class="successDesc">
-                Max <b>50 files</b> per job • Max <b>25MB</b> per file • Output: <b>one ZIP</b>.<br/>
-                Files are stored temporarily to build your ZIP, then deleted automatically over time.
+                Max <b>50 files</b> per job • Max <b>25MB</b> per file.<br/>
+                Output depends on the tool: <b>ZIP</b> (bundles), or a single <b>PDF</b> (merge / rotate / compress PDF).<br/>
+                Files are stored temporarily to process your request, then deleted automatically over time.
               </div>
             </div>
           </div>
@@ -85,19 +86,19 @@
           <!-- Pricing cards -->
           <div style="margin-top:14px; display:grid; gap:12px;">
 
-            <!-- ZIP 10 -->
+            <!-- Tier 10 -->
             <div class="priceRow isChosen" style="align-items:center;">
               <div>
-                <div class="priceName">ZIP (up to 10 files)</div>
+                <div class="priceName">Standard (up to 10 files)</div>
                 <div class="priceDesc">Best for small batches</div>
               </div>
               <div class="priceAmt">£2.99</div>
             </div>
 
-            <!-- ZIP 50 -->
+            <!-- Tier 50 -->
             <div class="priceRow" style="align-items:center;">
               <div>
-                <div class="priceName">Pro ZIP (up to 50 files)</div>
+                <div class="priceName">Pro (up to 50 files)</div>
                 <div class="priceDesc">For larger batches</div>
               </div>
               <div class="priceAmt">£9.99</div>
@@ -107,7 +108,7 @@
             <div class="priceRow" style="align-items:center;">
               <div>
                 <div class="priceName">Share link (optional)</div>
-                <div class="priceDesc">Send a link instead of attaching a ZIP</div>
+                <div class="priceDesc">Create a download link instead of attaching files</div>
               </div>
               <div class="priceAmt">+£2.49</div>
             </div>
@@ -126,23 +127,23 @@
 
         <!-- Why + how -->
         <div class="doc" style="margin-top:18px;">
-          <h2>Why ZipPixel</h2>
+          <h2>Why PDFOperations</h2>
           <p>
-            Built for fast, clean delivery — perfect for sending assets to clients, teammates, or vendors.
-            Upload → pay once → download one neat ZIP. No logins, no clutter.
+            Built for fast, clean delivery — ideal when you need to compress, merge, split, rotate, or bundle files for clients,
+            teammates, or suppliers. Upload → pay once → download immediately. No logins, no subscriptions, no nonsense.
           </p>
 
           <h2>How it works</h2>
           <ul>
-            <li>Add your files</li>
+            <li>Add your file(s)</li>
             <li>Upload</li>
-            <li>Pick your tier + optional share link</li>
+            <li>Choose your tool settings (and optional share link)</li>
             <li>Pay via Stripe → download instantly</li>
           </ul>
 
           <h2>Support</h2>
           <p>
-            Questions? Email <a href="mailto:support@zippixel.it.com">support@zippixel.it.com</a>.
+            Questions? Email <a href="mailto:support@pdfoperations.com">support@pdfoperations.com</a>.
           </p>
         </div>
 
@@ -153,7 +154,7 @@
 
 <footer class="footer footerPremium">
   <div class="container footerInner">
-    <div>© <span id="y"></span> ZipPixel</div>
+    <div>© <span id="y"></span> PDFOperations</div>
     <div>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>

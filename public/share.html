@@ -1,8 +1,10 @@
-<!-- public/share.html — ZipPixel (v23 - MODE-AWARE SHARE: ZIP / MERGED PDF)
+<!-- public/share.html — PDFOperations (v24 - MODE-AWARE SHARE: ZIP / PDF OUTPUTS)
      ✅ Uses /api/share/:token (paid + expiry enforced server-side)
-     ✅ Mode-aware: merge_pdf downloads a single PDF (button + copy updated)
+     ✅ Mode-aware: merge_pdf/compress_pdf/rotate_pdf download a single PDF
+     ✅ split_pdf/convert/default download a ZIP
      ✅ No route changes. No backend changes.
      ✅ noindex/nofollow preserved.
+     ✅ Uses style.css?v=36 (current platform styling)
 -->
 <!doctype html>
 <html lang="en">
@@ -10,8 +12,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Download • ZipPixel</title>
-  <meta name="description" content="Download files shared with ZipPixel." />
+  <title>Download • PDFOperations</title>
+  <meta name="description" content="Download files shared with PDFOperations." />
   <meta name="robots" content="noindex, nofollow" />
 
   <meta name="theme-color" content="#0b1220" />
@@ -25,16 +27,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/style.css?v=26" />
+  <link rel="stylesheet" href="/style.css?v=36" />
 </head>
 
 <body class="premium">
 
 <header class="nav">
   <div class="container navInner">
-    <a class="brand" href="/" aria-label="ZipPixel home">
+    <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/favicon.svg" width="26" height="26" alt="">
-      <span>ZipPixel</span>
+      <span>PDFOperations</span>
     </a>
 
     <nav class="navLinks" aria-label="Site">
@@ -61,7 +63,7 @@
             <div style="min-width:0;">
               <div class="successTitle" id="titleLine">Checking link</div>
               <div class="successDesc" id="desc">
-                This link was created with ZipPixel. If it’s still valid, you can download below.
+                This link was created with PDFOperations. If it’s still valid, you can download below.
               </div>
             </div>
           </div>
@@ -91,7 +93,7 @@
           </p>
 
           <div class="fineprint" style="margin-top: 10px; opacity:.9;">
-            Powered by ZipPixel • Secure delivery • No signup
+            Powered by PDFOperations • Secure delivery • No signup
           </div>
         </div>
 
@@ -102,7 +104,7 @@
 
 <footer class="footer footerPremium">
   <div class="container footerInner">
-    <div>© <span id="y"></span> ZipPixel</div>
+    <div>© <span id="y"></span> PDFOperations</div>
     <div>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
@@ -167,9 +169,11 @@
     }
   };
 
+  // Server modes: compress | compress_pdf | convert | merge_pdf | split_pdf | rotate_pdf
   const modeCopy = (mode, convertTarget) => {
-    const m = String(mode || "").toLowerCase();
+    const m = String(mode || "").toLowerCase().trim();
 
+    // Single-PDF outputs
     if (m === "merge_pdf") {
       return {
         badge: "Merged PDF",
@@ -181,8 +185,42 @@
       };
     }
 
+    if (m === "compress_pdf") {
+      return {
+        badge: "Compressed PDF",
+        action: "Download PDF",
+        what: "PDF",
+        descReady: "Download the compressed PDF below.",
+        descExpire: (when) => `Download the compressed PDF before it expires (${when}).`,
+        tip: "Tip: download promptly and store the PDF somewhere safe."
+      };
+    }
+
+    if (m === "rotate_pdf") {
+      return {
+        badge: "Rotated PDF",
+        action: "Download PDF",
+        what: "PDF",
+        descReady: "Download the rotated PDF below.",
+        descExpire: (when) => `Download the rotated PDF before it expires (${when}).`,
+        tip: "Tip: download promptly and store the PDF somewhere safe."
+      };
+    }
+
+    // ZIP outputs
+    if (m === "split_pdf") {
+      return {
+        badge: "Split PDF (ZIP)",
+        action: "Download ZIP",
+        what: "ZIP",
+        descReady: "Download the ZIP of split pages below.",
+        descExpire: (when) => `Download the ZIP before it expires (${when}).`,
+        tip: "Tip: download promptly and store the ZIP somewhere safe."
+      };
+    }
+
     if (m === "convert") {
-      const tgt = String(convertTarget || "").toUpperCase() || "FORMAT";
+      const tgt = String(convertTarget || "").toUpperCase().trim() || "FORMAT";
       return {
         badge: `Converted → ${tgt}`,
         action: "Download ZIP",
@@ -193,7 +231,7 @@
       };
     }
 
-    // compress (default)
+    // compress (default ZIP bundle)
     return {
       badge: "ZIP Download",
       action: "Download ZIP",
@@ -208,7 +246,6 @@
     clearError();
     setDisabled(true);
 
-    // Default button label while loading
     btn.textContent = "Download";
     btn.setAttribute("href", "#");
 
@@ -244,7 +281,7 @@
       if (expiresAt && remainingMs <= 0) {
         metaEl.textContent = "Expired.";
         titleLine.textContent = "This link has expired";
-        descEl.textContent = "Ask the sender to generate a new link in ZipPixel.";
+        descEl.textContent = "Ask the sender to generate a new link in PDFOperations.";
         hintEl.textContent = "Expired links can’t be reactivated.";
         showError("This link has expired.");
         return;
@@ -253,11 +290,10 @@
       const fileCount = Number(data.fileCount || 0);
       const downloads = Number(data.downloads || 0);
 
-      // Mode-aware “fileCount” label (still uses server’s fileCount)
       let fileLabel = `${fileCount} file${fileCount === 1 ? "" : "s"}`;
-      if (String(mode).toLowerCase() === "merge_pdf") {
-        fileLabel = `${fileCount} PDF${fileCount === 1 ? "" : "s"}`;
-      }
+      const m = String(mode || "").toLowerCase().trim();
+      if (m === "merge_pdf") fileLabel = `${fileCount} PDF${fileCount === 1 ? "" : "s"}`;
+      if (m === "split_pdf") fileLabel = `${fileCount} PDF${fileCount === 1 ? "" : "s"}`;
 
       if (expiresAt) {
         const days = Math.max(0, Math.ceil(remainingMs / (1000 * 60 * 60 * 24)));
@@ -276,7 +312,6 @@
 
       statsBox.style.display = "block";
 
-      // Paid-only download enforced server-side.
       btn.href = `/api/download/${encodeURIComponent(data.jobId)}`;
       setDisabled(false);
 

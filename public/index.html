@@ -1,9 +1,9 @@
-<!-- public/index.html — PDFOperations (v53 - MINI FILE CARD ONLY + NO PDF PREVIEW + NO "NO FILE CHOSEN")
-     ✅ Shows mini file card (name/size/remove) reliably via app.js
-     ✅ Removes PDF.js thumbnail preview entirely (no "Couldn't render preview")
-     ✅ Removes input overlay hack (no more "No file chosen" tooltip)
+<!-- public/index.html — PDFOperations (v54 - SEO UPGRADE + FAQ SCHEMA + INTERNAL LINKS + MINI FILE CARD ONLY)
      ✅ Keeps ALL app.js v17.7 IDs preserved
      ✅ style.css?v=36 + app.js?v=17.7
+     ✅ Adds OG/Twitter tags + JSON-LD (WebSite + SoftwareApplication + FAQPage)
+     ✅ Adds internal links block for tool pages (SEO + crawl)
+     ✅ Adds real FAQ section with on-page anchors (#faq) to match nav
 -->
 <!doctype html>
 <html lang="en">
@@ -11,11 +11,24 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Compress PDF Online | PDFOperations</title>
-  <meta name="description" content="Compress a PDF for strict upload limits. Upload one PDF, click Upload, then Continue." />
+  <title>Compress PDF Online — Reduce PDF File Size | PDFOperations</title>
+  <meta name="description" content="Compress PDF files online. Reduce PDF file size quickly for email and upload limits. Secure processing. No signup required." />
   <link rel="canonical" href="https://pdfoperations.com/" />
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Compress PDF Online — Reduce PDF File Size | PDFOperations" />
+  <meta property="og:description" content="Compress PDF files online. Reduce PDF file size quickly for email and upload limits. Secure processing. No signup required." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pdfoperations.com/" />
+  <meta property="og:image" content="https://pdfoperations.com/og.png" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Compress PDF Online — Reduce PDF File Size | PDFOperations" />
+  <meta name="twitter:description" content="Compress PDF files online. Reduce PDF file size quickly for email and upload limits. Secure processing. No signup required." />
+  <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -76,7 +89,163 @@
     }
 
     [hidden]{ display:none !important; }
+
+    /* SEO blocks */
+    .seoBlock{
+      margin-top:18px;
+      padding:16px;
+    }
+    .seoGrid{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+    @media(min-width: 880px){
+      .seoGrid{ grid-template-columns: 1fr 1fr; }
+    }
+    .seoCard{
+      border:1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.75);
+      border-radius: 16px;
+      padding:14px;
+    }
+    .seoCard h2{
+      font-size:14px;
+      margin:0 0 6px 0;
+      letter-spacing:-.01em;
+    }
+    .seoCard p{
+      margin:0;
+      color:rgba(11,18,32,.76);
+      font-size:13px;
+      line-height:1.45;
+    }
+    .toolLinks{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .toolLinks a{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;
+      font-weight:800;
+      font-size:13px;
+      text-decoration:none;
+      color: rgba(11,18,32,.92);
+    }
+    .toolLinks a:hover{
+      border-color: rgba(15,23,42,.20);
+      box-shadow: 0 10px 24px rgba(2,6,23,.08);
+      transform: translateY(-1px);
+    }
+
+    /* FAQ */
+    .faq{
+      margin-top:18px;
+      padding:16px;
+    }
+    .faq h2{
+      margin:0 0 10px 0;
+      font-size:16px;
+      letter-spacing:-.01em;
+    }
+    details.faqItem{
+      border:1px solid rgba(15,23,42,.10);
+      background:#fff;
+      border-radius:14px;
+      padding:12px 12px;
+      margin-top:10px;
+    }
+    details.faqItem summary{
+      cursor:pointer;
+      font-weight:900;
+      list-style:none;
+    }
+    details.faqItem summary::-webkit-details-marker{ display:none; }
+    .faqAnswer{
+      margin-top:8px;
+      color:rgba(11,18,32,.78);
+      line-height:1.55;
+      font-size:13px;
+    }
   </style>
+
+  <!-- JSON-LD: WebSite -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebSite",
+    "name":"PDFOperations",
+    "url":"https://pdfoperations.com/"
+  }
+  </script>
+
+  <!-- JSON-LD: SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"PDFOperations",
+    "applicationCategory":"BusinessApplication",
+    "operatingSystem":"Web",
+    "url":"https://pdfoperations.com/",
+    "offers":{
+      "@type":"Offer",
+      "priceCurrency":"GBP",
+      "price":"2.99",
+      "category":"one-time"
+    }
+  }
+  </script>
+
+  <!-- JSON-LD: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity":[
+      {
+        "@type":"Question",
+        "name":"How do I compress a PDF?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Select or drop a single PDF, click Upload, then Continue. After checkout, download your compressed PDF."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"Is PDFOperations secure?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Files are uploaded to temporary storage to process your request. We aim to delete uploads automatically over time."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"Do I need an account?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"No. There are no accounts or subscriptions. You pay once when your download is ready."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"What is the maximum file size and file count?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Max 50 files per job and max 25MB per file. Compress PDF uses 1 file."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 
 <body class="page pageCompressPdf">
@@ -94,7 +263,7 @@
       </span>
     </a>
 
-    <nav class="navLinks">
+    <nav class="navLinks" aria-label="Tools">
       <a href="/" aria-current="page">Compress</a>
       <a href="/merge-pdf">Merge</a>
       <a href="/split-pdf">Split</a>
@@ -214,6 +383,74 @@
         <div class="actionRow actionRowWide">
           <button class="btnSoft" id="upload" disabled>Upload PDF</button>
           <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
+        </div>
+
+        <!-- SEO / INTERNAL LINKS (below tool, still inside container rhythm) -->
+        <div class="tool seoBlock" style="margin-top:18px;">
+          <div class="successBox">
+            <div class="successIcon" aria-hidden="true">✓</div>
+            <div style="min-width:0;">
+              <div class="successTitle">Fast PDF compression for upload limits</div>
+              <div class="successDesc">
+                Reduce PDF file size for email attachments, client portals, and strict upload forms. No signup. Pay once when your download is ready.
+              </div>
+            </div>
+          </div>
+
+          <div class="seoGrid">
+            <div class="seoCard">
+              <h2>What this tool does</h2>
+              <p>Uploads one PDF, processes it, then returns a smaller PDF you can download immediately after checkout.</p>
+            </div>
+            <div class="seoCard">
+              <h2>Need a different PDF tool?</h2>
+              <p>Use dedicated tools for merging, splitting pages, rotating, or converting formats.</p>
+            </div>
+          </div>
+
+          <div class="toolLinks" aria-label="More PDF tools" style="margin-top:14px;">
+            <a href="/merge-pdf">Merge PDFs</a>
+            <a href="/split-pdf">Split PDF</a>
+            <a href="/rotate-pdf">Rotate PDF</a>
+            <a href="/convert">Convert files</a>
+            <a href="/reduce-pdf-size">Reduce PDF size</a>
+            <a href="/compress-pdf-to-5mb">Compress PDF to 5MB</a>
+          </div>
+        </div>
+
+        <!-- FAQ (on-page + schema) -->
+        <div id="faq" class="tool faq">
+          <h2>FAQ</h2>
+
+          <details class="faqItem">
+            <summary>How do I compress a PDF?</summary>
+            <div class="faqAnswer">
+              Click <strong>Select PDF</strong> (or drag &amp; drop), then click <strong>Upload</strong>, then <strong>Continue</strong>.
+              After checkout, download your compressed PDF.
+            </div>
+          </details>
+
+          <details class="faqItem">
+            <summary>Is PDFOperations secure?</summary>
+            <div class="faqAnswer">
+              Files are uploaded to temporary storage to process your request. We aim to delete uploads automatically over time.
+              Don’t upload files you don’t have the right to process.
+            </div>
+          </details>
+
+          <details class="faqItem">
+            <summary>Do I need an account?</summary>
+            <div class="faqAnswer">
+              No. There are no accounts or subscriptions. You pay once when your download is ready.
+            </div>
+          </details>
+
+          <details class="faqItem">
+            <summary>What are the limits?</summary>
+            <div class="faqAnswer">
+              Max <strong>50 files</strong> per job and max <strong>25MB</strong> per file. Compress PDF uses <strong>1 file</strong>.
+            </div>
+          </details>
         </div>
 
       </div>

@@ -1,13 +1,13 @@
-<!-- public/privacy.html — ZipPixel (v22 - PREMIUM SHELL) -->
+<!-- public/privacy.html — PDFOperations (v23 - PREMIUM SHELL) -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Privacy — ZipPixel</title>
-  <meta name="description" content="ZipPixel privacy policy. What we collect, how we use it, and how uploads are handled." />
-  <link rel="canonical" href="https://zippixel.it.com/privacy" />
+  <title>Privacy — PDFOperations</title>
+  <meta name="description" content="PDFOperations privacy policy. What we collect, how we use it, and how uploads are handled." />
+  <link rel="canonical" href="https://pdfoperations.com/privacy" />
   <meta name="theme-color" content="#0b1220" />
   <link rel="icon" href="/favicon.ico" sizes="any">
 
@@ -15,21 +15,21 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/style.css?v=22" />
+  <link rel="stylesheet" href="/style.css?v=36" />
 </head>
 
 <body class="premium">
 <header class="nav">
   <div class="container navInner">
-    <a class="brand" href="/">
+    <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/favicon.svg" width="26" height="26" alt="">
-      <span>ZipPixel</span>
+      <span>PDFOperations</span>
     </a>
 
-    <nav class="navLinks">
+    <nav class="navLinks" aria-label="Site">
       <a href="/#how">How it works</a>
       <a href="/#faq">FAQ</a>
-      <a href="/privacy">Privacy</a>
+      <a href="/privacy" aria-current="page">Privacy</a>
       <a href="/terms">Terms</a>
     </nav>
   </div>
@@ -41,8 +41,9 @@
       <div class="pageInner">
         <h1 class="pageTitle">Privacy</h1>
         <p class="pageLead">
-          This policy explains what ZipPixel collects and how uploads are handled.
+          This policy explains what PDFOperations collects and how uploads are handled.
         </p>
+
         <div class="doc">
           <div class="meta">Last updated: 19 Feb 2026</div>
 
@@ -51,26 +52,26 @@
             We collect the minimum required to operate the service:
           </p>
           <ul>
-            <li>Uploaded files and basic metadata (e.g. filename, type) to generate your ZIP.</li>
+            <li>Uploaded files and basic metadata (e.g. filename, type) to generate your download.</li>
             <li>Payment status from Stripe to allow download after payment.</li>
             <li>Basic technical logs (e.g. request timing/errors) for reliability and abuse prevention.</li>
           </ul>
 
           <h2>How uploads work</h2>
           <p>
-            Files are uploaded to temporary storage to generate your ZIP. We aim to delete files automatically over time.
+            Files are uploaded to temporary storage to process your request. We aim to delete files automatically over time.
             Deletion timing is not guaranteed (e.g. operational delays, retries, system maintenance).
           </p>
 
           <h2>Payments</h2>
           <p>
-            Payments are handled by Stripe. ZipPixel does not store your full card details. Stripe may store and process
+            Payments are handled by Stripe. PDFOperations does not store your full card details. Stripe may store and process
             payment information according to their policies.
           </p>
 
           <h2>Sharing</h2>
           <p>
-            If you purchase an optional share link, anyone with the link may be able to download the ZIP. Treat share links
+            If you purchase an optional share link, anyone with the link may be able to download the output. Treat share links
             like a password and only share them with people you trust.
           </p>
 
@@ -86,9 +87,9 @@
 
 <footer class="footer footerPremium">
   <div class="container footerInner">
-    <div>© <span id="y"></span> ZipPixel</div>
+    <div>© <span id="y"></span> PDFOperations</div>
     <div>
-      <a href="/privacy">Privacy</a>
+      <a href="/privacy" aria-current="page">Privacy</a>
       <a href="/terms">Terms</a>
     </div>
   </div>

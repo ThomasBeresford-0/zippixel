@@ -1,5 +1,5 @@
-// server.js — ZipPixel (RENDER SAFE MONEY MODE v16.6 - SPLIT PAGE REORDER + DELETE SUPPORT)
-// ✅ Pricing tiers: £2.99 (≤10) / £9.99 (11–50) + optional share link (+£2.49)
+// server.js — PDFOperations (RENDER SAFE MONEY MODE v16.6 - SPLIT PAGE REORDER + DELETE SUPPORT)
+// // ✅ Pricing tiers: £2.99 (≤10) / £9.99 (11–50) + optional share link (+£2.49)
 // ✅ Server-side enforcement: max 50 files (client enforces size; server enforces count + mode validation)
 // ✅ Routes: /api/jobs, /api/upload-url, /api/jobs/:jobId/register, /api/jobs/:jobId/mode, /api/checkout
 // ✅ Webhook + Stripe self-heal preserved
@@ -736,7 +736,7 @@ app.post("/api/checkout", async (req, res) => {
     const { total, tier } = computeTotalPence(job);
 
     const productNameBase =
-      tier.key === "zip50" ? "ZipPixel Pro (up to 50 files)" : "ZipPixel (up to 10 files)";
+      tier.key === "zip50" ? "PDFOperations Pro (up to 50 files)" : "PDFOperations (up to 10 files)";
 
     const levelLabel = (() => {
       const lvl = normalizePdfLevel(job.pdfCompressLevel);
@@ -930,7 +930,7 @@ app.get("/api/download/:jobId", async (req, res) => {
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="zippixel_merged_${job.jobId}.pdf"`
+        `attachment; filename="pdfoperations_merged_${job.jobId}.pdf"`
       );
 
       return res.send(Buffer.from(mergedBytes));
@@ -984,7 +984,7 @@ app.get("/api/download/:jobId", async (req, res) => {
       res.setHeader("Content-Type", "application/zip");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="zippixel_split_${job.jobId}.zip"`
+        `attachment; filename="pdfoperations_split_${job.jobId}.zip"`
       );
 
       const archive = archiver("zip", { zlib: { level: 9 } });
@@ -1024,7 +1024,7 @@ app.get("/api/download/:jobId", async (req, res) => {
 
     // ====== ZIP MODES ======
     res.setHeader("Content-Type", "application/zip");
-    res.setHeader("Content-Disposition", `attachment; filename="zippixel_${job.jobId}.zip"`);
+    res.setHeader("Content-Disposition", `attachment; filename="pdfoperations_${job.jobId}.zip"`);
 
     const archive = archiver("zip", { zlib: { level: 9 } });
     archive.on("error", (err) => {
@@ -1173,5 +1173,5 @@ app.get("/api/share/:token/download", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`✅ ZipPixel server running on port ${PORT}`);
+  console.log(`✅ PDFOperations server running on port ${PORT}`);
 });
