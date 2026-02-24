@@ -94,7 +94,14 @@
   const rotateSelect = document.getElementById("rotateDegrees"); // optional
 
   // PDF reorder UI (merge page)
-  let pdfPageOrder = []; // array of keys like "0:1" (fileIndex:pageNumber1based)
+  let pdfPageOrder = []; 
+  // Split page order (1-based page numbers from split-pdf.html)
+  const getSplitPageOrder = () => {
+    if (mode !== "split_pdf") return null;
+    if (!Array.isArray(window.__PDFOPS_PAGE_ORDER__)) return null;
+    if (!window.__PDFOPS_PAGE_ORDER__.length) return null;
+    return window.__PDFOPS_PAGE_ORDER__.slice(); // clone
+  };
   const pdfReorderWrap = document.getElementById("pdfReorderWrap");
   const pdfThumbGrid = document.getElementById("pdfThumbGrid");
 
@@ -1496,6 +1503,14 @@
 
       // ✅ merge: send page-level order if available
       if (mode === "merge_pdf" && Array.isArray(pdfPageOrder) && pdfPageOrder.length) payload.order = pdfPageOrder;
+
+      // ✅ SPLIT PAGE ORDER SUPPORT
+      if (mode === "split_pdf") {
+        const splitOrder = getSplitPageOrder();
+        if (Array.isArray(splitOrder) && splitOrder.length) {
+          payload.splitOrder = splitOrder; // 1-based page numbers
+        }
+      }
 
       if (mode === "compress_pdf") payload.level = pdfCompressLevelValue || "balanced";
       if (mode === "rotate_pdf") payload.degrees = rotateDegreesValue || 90;

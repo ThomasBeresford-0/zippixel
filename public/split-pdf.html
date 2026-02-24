@@ -1,9 +1,10 @@
-<!-- public/split-pdf.html — PDFOperations (v7 - TOOL FIRST / NO JUNK ABOVE FOLD)
-     ✅ Tool-first: no “Designed for real work” / “Typical uses” / cards above dropzone
+<!-- public/split-pdf.html — PDFOperations (v8 - TOOL FIRST + PAGE REORDER + DELETE)
+     ✅ Tool-first: no junk above fold
      ✅ Pretty route canonical (/split-pdf)
      ✅ Keeps ALL app.js IDs unchanged
      ✅ split_pdf preselected
-     ✅ Includes reorder containers (pdfReorderWrap/pdfThumbGrid + reset + count + note)
+     ✅ Adds thumbnail reorder + delete UX (page-owned)
+     ✅ Exposes window.__PDFOPS_PAGE_ORDER__ (1-based) for app.js to submit later
      ✅ Includes FULL checkout modal markup (required by app.js)
      ✅ Includes pdf.js worker config
      ✅ Protects [hidden] so modals/sections never appear on load
@@ -15,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Split PDF Online — PDFOperations</title>
-  <meta name="description" content="Split a PDF into separate pages. Upload one PDF, reorder pages if needed, then download a ZIP of split pages. No signup." />
+  <meta name="description" content="Split a PDF into separate pages. Upload one PDF, reorder or remove pages, then download a ZIP of split pages. No signup." />
   <link rel="canonical" href="https://pdfoperations.com/split-pdf" />
 
   <meta name="robots" content="index,follow" />
@@ -23,7 +24,7 @@
   <meta name="color-scheme" content="light" />
 
   <meta property="og:title" content="Split PDF Online — PDFOperations" />
-  <meta property="og:description" content="Upload one PDF, reorder pages if needed, then download a ZIP of split pages." />
+  <meta property="og:description" content="Upload one PDF, reorder or remove pages, then download a ZIP of split pages." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/split-pdf" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
@@ -31,7 +32,7 @@
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Split PDF Online — PDFOperations" />
-  <meta name="twitter:description" content="Upload one PDF, reorder pages if needed, then download a ZIP of split pages." />
+  <meta name="twitter:description" content="Upload one PDF, reorder or remove pages, then download a ZIP of split pages." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -45,13 +46,114 @@
   <link rel="stylesheet" href="/style.css?v=33" />
 
   <style>
-    /* Keep the page clean + protect hidden states */
+    /* ===== Protect hidden states (prevents modal/sections flashing) ===== */
     #pdfPreviewModal[hidden],
     #pdfReorderWrap[hidden],
     #fileMeta[hidden]{
       display:none !important;
     }
     [hidden]{ display:none !important; }
+
+    /* ===== Page-owned styling for thumbs (does not fight global CSS) ===== */
+    .pdfReorderWrap{
+      margin-top: 14px;
+      border-top: 1px solid rgba(15,23,42,.08);
+      padding-top: 14px;
+    }
+    .pdfReorderHead{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+    .pdfReorderTitle{
+      font-weight: 800;
+      letter-spacing: -.01em;
+    }
+    .pdfReorderSub{
+      opacity: .82;
+      font-size: 13px;
+      margin-top: 2px;
+      line-height: 1.35;
+    }
+    .pdfTinyNote{
+      margin-top: 10px;
+      font-size: 13px;
+      opacity: .84;
+    }
+
+    .pdfThumbGrid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .pdfThumb{
+      background: rgba(255,255,255,.82);
+      border: 1px solid rgba(15,23,42,.10);
+      border-radius: 18px;
+      padding: 10px;
+      box-shadow: 0 10px 30px rgba(2,6,23,.06);
+      cursor: grab;
+      user-select:none;
+      -webkit-user-select:none;
+      transition: transform .08s ease, box-shadow .12s ease, border-color .12s ease, opacity .12s ease;
+      will-change: transform;
+    }
+    .pdfThumb:active{ cursor: grabbing; transform: scale(.995); }
+
+    .pdfThumb.isDragging{
+      opacity:.55;
+    }
+    .pdfThumb.isOver{
+      border-color: rgba(37,99,235,.28);
+      box-shadow: 0 14px 40px rgba(2,6,23,.10);
+    }
+
+    .pdfThumbTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .pdfThumbBadge{
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: -.01em;
+      opacity:.88;
+      white-space: nowrap;
+    }
+    .pdfThumbActions{
+      display:flex;
+      gap: 8px;
+      align-items:center;
+    }
+
+    /* small action button that matches your button system without needing new globals */
+    .btnTiny{
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .pdfThumbCanvas{
+      width: 100%;
+      height: auto;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid rgba(15,23,42,.06);
+      display:block;
+    }
+
+    /* Mobile: thumbs a bit larger and more tappable */
+    @media (max-width: 520px){
+      .pdfThumbGrid{ grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+      .btnTiny{ padding: 7px 12px; }
+    }
   </style>
 </head>
 
@@ -91,7 +193,7 @@
         <!-- Minimal header (no fluff) -->
         <div class="toolHead toolHeadMinimal">
           <h1 class="toolTitle">Split PDF</h1>
-          <p class="toolSub">Upload a PDF. Reorder pages if you want. Download as a ZIP.</p>
+          <p class="toolSub">Upload a PDF. Reorder or remove pages. Download as a ZIP.</p>
         </div>
 
         <!-- STATUS -->
@@ -136,13 +238,13 @@
 
             <ol class="fileList" id="fileList"></ol>
 
-            <!-- PAGE REORDER (app.js uses this UI when available) -->
+            <!-- PAGE REORDER (page-owned UX; app.js will read window.__PDFOPS_PAGE_ORDER__) -->
             <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
               <div class="pdfReorderHead">
                 <div>
                   <div class="pdfReorderTitle">Reorder pages</div>
                   <div class="pdfReorderSub">
-                    Drag pages to set output order.
+                    Drag to set output order. Delete removes from output only.
                     <span id="pdfReorderCount"></span>
                   </div>
                 </div>
@@ -286,6 +388,240 @@
 <script>
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+</script>
+
+<!-- ===== Page-owned reorder + delete logic (works alongside app.js) ===== -->
+<script>
+(() => {
+  const wrap = document.getElementById("pdfReorderWrap");
+  const grid = document.getElementById("pdfThumbGrid");
+  const resetBtn = document.getElementById("pdfReorderReset");
+  const countEl = document.getElementById("pdfReorderCount");
+  const noteEl = document.getElementById("pdfThumbNote");
+  const fileInput = document.getElementById("files");
+
+  if (!wrap || !grid || !resetBtn || !countEl || !fileInput) return;
+  if (!window.pdfjsLib) return;
+
+  let pdfDoc = null;
+  let objectUrl = null;
+  let originalOrder = [];
+  let order = [];
+
+  // Expose for app.js (we’ll wire submission in app.js next)
+  window.__PDFOPS_PAGE_ORDER__ = null;
+
+  function setNote(text) {
+    if (!noteEl) return;
+    if (!text) { noteEl.hidden = true; noteEl.textContent = ""; return; }
+    noteEl.textContent = text;
+    noteEl.hidden = false;
+  }
+
+  function updateCount() {
+    const n = order.length;
+    countEl.textContent = n ? `(${n} page${n === 1 ? "" : "s"})` : "";
+  }
+
+  function showWrap() {
+    wrap.hidden = !(order && order.length);
+  }
+
+  function revokeUrl() {
+    if (objectUrl) {
+      try { URL.revokeObjectURL(objectUrl); } catch(e) {}
+      objectUrl = null;
+    }
+  }
+
+  async function renderThumb(pageNumber, canvas) {
+    const page = await pdfDoc.getPage(pageNumber);
+    const viewport = page.getViewport({ scale: 1 });
+
+    // target width ~ 150px
+    const targetW = 150;
+    const scale = Math.max(0.22, targetW / viewport.width);
+    const vp = page.getViewport({ scale });
+
+    canvas.width = Math.floor(vp.width);
+    canvas.height = Math.floor(vp.height);
+
+    const ctx = canvas.getContext("2d", { alpha: false });
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+  }
+
+  function syncOrderFromDOM() {
+    order = Array.from(grid.querySelectorAll(".pdfThumb"))
+      .map(el => Number(el.dataset.page))
+      .filter(n => Number.isFinite(n) && n > 0);
+
+    updateCount();
+    showWrap();
+    window.__PDFOPS_PAGE_ORDER__ = order.slice(); // 1-based
+  }
+
+  function makeThumbCard(pageNumber) {
+    const card = document.createElement("div");
+    card.className = "pdfThumb";
+    card.draggable = true;
+    card.dataset.page = String(pageNumber);
+
+    const top = document.createElement("div");
+    top.className = "pdfThumbTop";
+
+    const badge = document.createElement("div");
+    badge.className = "pdfThumbBadge";
+    badge.textContent = `Page ${pageNumber}`;
+
+    const actions = document.createElement("div");
+    actions.className = "pdfThumbActions";
+
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "btnGhost btnTiny";
+    del.textContent = "Delete";
+    del.addEventListener("click", () => {
+      const idx = order.indexOf(pageNumber);
+      if (idx !== -1) order.splice(idx, 1);
+      card.remove();
+      syncOrderFromDOM();
+
+      if (order.length === 0) {
+        setNote("All pages removed. Use Reset to restore pages.");
+      } else {
+        setNote("Page removed from output. Use Reset to restore all pages.");
+      }
+    });
+
+    actions.appendChild(del);
+    top.appendChild(badge);
+    top.appendChild(actions);
+
+    const canvas = document.createElement("canvas");
+    canvas.className = "pdfThumbCanvas";
+
+    card.appendChild(top);
+    card.appendChild(canvas);
+
+    // Drag events
+    card.addEventListener("dragstart", (e) => {
+      card.classList.add("isDragging");
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", String(pageNumber));
+    });
+
+    card.addEventListener("dragend", () => {
+      card.classList.remove("isDragging");
+      Array.from(grid.querySelectorAll(".pdfThumb.isOver")).forEach(el => el.classList.remove("isOver"));
+    });
+
+    card.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      card.classList.add("isOver");
+    });
+
+    card.addEventListener("dragleave", () => {
+      card.classList.remove("isOver");
+    });
+
+    card.addEventListener("drop", (e) => {
+      e.preventDefault();
+      card.classList.remove("isOver");
+
+      const draggedPage = Number(e.dataTransfer.getData("text/plain"));
+      const targetPage = Number(card.dataset.page);
+      if (!draggedPage || !targetPage || draggedPage === targetPage) return;
+
+      const draggedEl = grid.querySelector(`.pdfThumb[data-page="${draggedPage}"]`);
+      if (!draggedEl) return;
+
+      const rect = card.getBoundingClientRect();
+      const before = (e.clientX - rect.left) < rect.width / 2;
+      grid.insertBefore(draggedEl, before ? card : card.nextSibling);
+
+      syncOrderFromDOM();
+      setNote(""); // clear note once they’re actively working
+    });
+
+    // Render thumbnail (async)
+    renderThumb(pageNumber, canvas).catch(() => {
+      // Non-fatal — user can still proceed without thumbnails if one render fails
+    });
+
+    return card;
+  }
+
+  async function loadPdf(file) {
+    setNote("");
+    revokeUrl();
+    objectUrl = URL.createObjectURL(file);
+
+    const task = pdfjsLib.getDocument(objectUrl);
+    pdfDoc = await task.promise;
+
+    const total = pdfDoc.numPages;
+    originalOrder = Array.from({ length: total }, (_, i) => i + 1);
+    order = originalOrder.slice();
+
+    grid.innerHTML = "";
+    for (const pageNo of order) {
+      grid.appendChild(makeThumbCard(pageNo));
+    }
+
+    syncOrderFromDOM();
+    wrap.hidden = false;
+  }
+
+  function resetAll() {
+    if (!pdfDoc || !originalOrder.length) return;
+    setNote("");
+    grid.innerHTML = "";
+    order = originalOrder.slice();
+    for (const pageNo of order) grid.appendChild(makeThumbCard(pageNo));
+    syncOrderFromDOM();
+  }
+
+  resetBtn.addEventListener("click", resetAll);
+
+  // When a PDF is selected, build thumbs
+  fileInput.addEventListener("change", async () => {
+    const f = fileInput.files && fileInput.files[0];
+    if (!f) return;
+
+    const looksPdf = /pdf/i.test(f.type) || /\.pdf$/i.test(f.name);
+    if (!looksPdf) return;
+
+    try {
+      await loadPdf(f);
+    } catch (e) {
+      // Fail gracefully: hide reorder UI but don’t block tool
+      pdfDoc = null;
+      originalOrder = [];
+      order = [];
+      grid.innerHTML = "";
+      wrap.hidden = true;
+      window.__PDFOPS_PAGE_ORDER__ = null;
+      setNote("Couldn’t generate thumbnails for this PDF. You can still upload and split normally.");
+      revokeUrl();
+    }
+  });
+
+  // If user clears via existing Clear button, wipe reorder state
+  const clearBtn = document.getElementById("clearBtn");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+      pdfDoc = null;
+      originalOrder = [];
+      order = [];
+      grid.innerHTML = "";
+      wrap.hidden = true;
+      window.__PDFOPS_PAGE_ORDER__ = null;
+      setNote("");
+      revokeUrl();
+    });
+  }
+})();
 </script>
 
 <!-- Your main logic -->
