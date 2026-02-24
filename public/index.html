@@ -1,12 +1,10 @@
-<!-- public/index.html — PDFOperations (v42 - CENTERED TOOL-FIRST, NO SPLIT HERO)
-     ✅ Fully centered layout (matches merge page structure)
+<!-- public/index.html — PDFOperations (v43 - VISIBLE SELECTED FILE + OBVIOUS “CLICK UPLOAD” NUDGE)
      ✅ ALL app.js v17.7 IDs preserved
-     ✅ pdfCompressLevel / pdfCompressRow correct
-     ✅ convertRow/convertFrom/convertTarget correct (hidden)
-     ✅ NO price visible before checkout
+     ✅ Makes selected file clearly visible (dedicated card)
+     ✅ Adds “Next step: click Upload” guidance (CSS-only, no JS changes)
+     ✅ No pricing visible before checkout
      ✅ style.css?v=36 + app.js?v=17.7
 -->
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -24,6 +22,110 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
   <link rel="stylesheet" href="/style.css?v=36" />
+
+  <!-- Page-only UX boosts (no JS changes) -->
+  <style>
+    /* Make "selected file" impossible to miss */
+    .fileCard{
+      margin-top: 14px;
+      border: 1px solid rgba(15,23,42,.12);
+      background: rgba(255,255,255,.92);
+      border-radius: 16px;
+      padding: 12px 12px;
+      box-shadow: 0 10px 24px rgba(15,23,42,.06);
+    }
+    .fileCardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom: 8px;
+    }
+    .fileCardTitle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight: 700;
+      color: rgba(11,18,32,.92);
+      letter-spacing: -0.01em;
+    }
+    .pdfBadge{
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border: 1px solid rgba(15,23,42,.12);
+      background: rgba(245,247,251,.9);
+      font-weight: 800;
+      font-size: 11px;
+      color: rgba(11,18,32,.78);
+    }
+    .fileSummary{
+      font-size: 14px;
+      color: rgba(11,18,32,.78);
+      line-height: 1.35;
+      word-break: break-word;
+    }
+    .fileSummary strong{ color: rgba(11,18,32,.92); }
+
+    /* Action row: stronger “Step 1 / Step 2” vibes without breaking IDs */
+    .actionRowWide{
+      align-items: stretch;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .actionRowWide > button{
+      min-height: 44px;
+    }
+
+    /* Nudge: appears automatically when Upload becomes enabled */
+    .actionHint{
+      width: 100%;
+      display: none;
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(15,23,42,.12);
+      background: rgba(11,18,32,.04);
+      color: rgba(11,18,32,.82);
+      font-size: 14px;
+      line-height: 1.35;
+    }
+    .actionHint strong{ color: rgba(11,18,32,.92); }
+    .actionHint .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(15,23,42,.12);
+      background: rgba(255,255,255,.9);
+    }
+
+    /* When upload button becomes enabled, show the hint */
+    .actionRowWide #upload:not(:disabled) ~ .actionHint{
+      display: block;
+    }
+
+    /* Also visually “arm” the Upload button when enabled */
+    .actionRowWide #upload:not(:disabled){
+      box-shadow: 0 10px 24px rgba(15,23,42,.10);
+      transform: translateY(-0.5px);
+    }
+
+    /* Make dropzone center text less dominant once a file is selected (when fileMeta is visible) */
+    #fileMeta:not([hidden]) ~ .dzCenter{
+      opacity: .55;
+    }
+
+    /* Mobile: keep it clean */
+    @media (max-width: 640px){
+      .fileCard{ border-radius: 14px; }
+      .fileCardTitle{ font-size: 14px; }
+      .fileSummary{ font-size: 13px; }
+    }
+  </style>
 </head>
 
 <body class="page pageCompressPdf">
@@ -145,6 +247,21 @@
         <!-- DROPZONE -->
         <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
 
+          <!-- Selected file card (app.js toggles hidden + fills #fileSummary) -->
+          <div class="fileCard" id="fileMeta" hidden>
+            <div class="fileCardHead">
+              <div class="fileCardTitle">
+                <span class="pdfBadge">PDF</span>
+                <span>Selected file</span>
+              </div>
+              <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+            </div>
+
+            <div class="fileSummary" id="fileSummary">
+              <!-- app.js will populate this -->
+            </div>
+          </div>
+
           <div class="dzCenter">
             <div class="dzTitle" id="dzTitle">Drop your PDF here</div>
             <div class="dzSub" id="dzSub">PDF only • Single file</div>
@@ -157,14 +274,7 @@
             </div>
 
             <div class="dzFine">
-              No signup. Process and download.
-            </div>
-          </div>
-
-          <div class="fileMeta" id="fileMeta" hidden>
-            <div class="fileMetaTop">
-              <div class="fileSummary" id="fileSummary"></div>
-              <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+              After selecting a file, click <strong>Upload</strong>.
             </div>
           </div>
 
@@ -183,8 +293,14 @@
 
         <!-- ACTIONS -->
         <div class="actionRow actionRowWide">
-          <button class="btnSoft" id="upload" disabled>Upload PDF</button>
-          <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
+          <button class="btnSoft" id="upload" disabled>1) Upload PDF</button>
+          <button class="btnPrimary btnStrong" id="continue" disabled>2) Continue →</button>
+
+          <!-- CSS-only nudge: appears when Upload becomes enabled -->
+          <div class="actionHint">
+            <strong>Next step:</strong> click <strong>Upload PDF</strong> to send your file.
+            Then press <strong>Continue</strong> when it’s ready.
+          </div>
         </div>
 
       </div>
