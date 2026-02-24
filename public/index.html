@@ -1,8 +1,8 @@
-<!-- public/index.html — PDFOperations (v69 - FIX PDFJS IMPORT.META ERROR (USE .MJS MODULE) + STABLE PREVIEW)
+<!-- public/index.html — PDFOperations (v70 - CLEAN LANDING UX + SEO BLOCKS; NO FUNCTION CHANGES)
      ✅ Keeps ALL app.js v17.7 IDs preserved (NO hook breaks)
-     ✅ style.css?v=36 + app.js?v=17.7
-     ✅ Uses the REAL module build: /vendor/pdfjs/pdf.min.mjs + /vendor/pdfjs/pdf.worker.min.mjs
-     ✅ Fixes: "Cannot use import.meta outside a module"
+     ✅ Keeps preview + PDF.js .mjs loader untouched
+     ✅ Adds clean “WeCompress-ish” support layout below tool (no bubbles)
+     ✅ Adds WebPage + Breadcrumb + FAQ schema (existing WebSite + SoftwareApplication kept)
 -->
 <!doctype html>
 <html lang="en">
@@ -51,7 +51,7 @@
     /* Hide native file input */
     #files{ display:none !important; }
 
-    .brandLogo{ height:34px; width:auto; display:block; }
+    .brandLogo{ height:34px; width:auto; display:block; flex:0 0 auto; }
 
     #dropzone.isDragOver{
       outline:3px solid rgba(11,18,32,.08);
@@ -270,6 +270,93 @@
       left:-9999px !important;
       top:auto !important;
     }
+
+    /* =========================
+       CLEAN LANDING SUPPORT (same vibe as merge update)
+    ========================== */
+    .plainSection{ padding:56px 0 38px; }
+    .plainKicker{
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+      opacity:.70;
+    }
+    .plainH2{
+      margin:12px 0 8px;
+      font-size:44px;
+      line-height:1.05;
+      letter-spacing:-.03em;
+      font-weight:950;
+      color:rgba(11,18,32,.96);
+    }
+    @media (max-width: 720px){ .plainH2{ font-size:34px; } }
+    .plainLead{
+      margin:0;
+      font-size:16px;
+      line-height:1.65;
+      max-width: 78ch;
+      opacity:.78;
+    }
+
+    .featureGrid{
+      margin-top:34px;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:42px 44px;
+    }
+    @media (max-width: 980px){
+      .featureGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap:32px 28px; }
+    }
+    @media (max-width: 640px){
+      .featureGrid{ grid-template-columns: 1fr; gap:26px; }
+    }
+
+    .featIcon{ width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center; margin-bottom:12px; }
+    .featTitle{ margin:0 0 10px; font-size:18px; letter-spacing:-.01em; font-weight:950; }
+    .featText{ margin:0; font-size:15px; line-height:1.65; opacity:.78; }
+
+    .plainDivider{ margin:52px 0 0; border-top:1px solid rgba(15,23,42,.10); }
+
+    .plainBottomGrid{
+      margin-top:34px;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:44px;
+      align-items:start;
+    }
+    @media (max-width: 980px){ .plainBottomGrid{ grid-template-columns: 1fr; gap:32px; } }
+
+    .faqListPlain{ margin-top:10px; display:grid; gap:18px; }
+    .faqItemPlain{ padding-top:16px; border-top:1px solid rgba(15,23,42,.10); }
+    .faqItemPlain:first-child{ border-top:0; padding-top:0; }
+    .faqQ{ margin:0 0 8px; font-weight:950; letter-spacing:-.01em; font-size:16px; }
+    .faqA{ margin:0; opacity:.78; line-height:1.65; font-size:15px; max-width: 68ch; }
+
+    .relatedLinks{
+      margin-top:12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px 18px;
+      font-size:15px;
+    }
+    .relatedLinks a{
+      text-decoration:none;
+      font-weight:900;
+      color:rgba(11,18,32,.92);
+      border-bottom:1px solid rgba(11,18,32,.20);
+    }
+    .relatedLinks a:hover{ border-bottom-color: rgba(11,18,32,.55); }
+
+    .plainNote{
+      margin-top:14px;
+      font-size:13px;
+      opacity:.70;
+      line-height:1.55;
+      max-width: 80ch;
+    }
+
+    .icoStroke{ stroke: rgba(11,18,32,.92); }
   </style>
 
   <!-- JSON-LD: WebSite -->
@@ -279,6 +366,74 @@
     "@type":"WebSite",
     "name":"PDFOperations",
     "url":"https://pdfoperations.com/"
+  }
+  </script>
+
+  <!-- JSON-LD: WebPage + Breadcrumb + FAQ (SEO boost, matches visible text below) -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebPage",
+    "name":"Compress PDF Online — PDFOperations",
+    "url":"https://pdfoperations.com/",
+    "description":"Compress PDF files online. Reduce PDF file size quickly for email and upload limits. Secure processing. No signup required.",
+    "isPartOf":{
+      "@type":"WebSite",
+      "name":"PDFOperations",
+      "url":"https://pdfoperations.com/"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"BreadcrumbList",
+    "itemListElement":[
+      {"@type":"ListItem","position":1,"name":"PDFOperations","item":"https://pdfoperations.com/"},
+      {"@type":"ListItem","position":2,"name":"Compress PDF","item":"https://pdfoperations.com/"}
+    ]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity":[
+      {
+        "@type":"Question",
+        "name":"How do I compress a PDF?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Select or drop a PDF, upload it, then continue to download the compressed file."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"Will compression reduce quality?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Compression reduces file size by optimizing content. The result depends on the original PDF. Try it and review the output before sharing."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"Is my PDF secure?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Files are processed to generate your compressed output. See the Privacy page for retention and deletion details."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"Do I need an account?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"No signup required. Upload, continue, then download."
+        }
+      }
+    ]
   }
   </script>
 
@@ -468,6 +623,144 @@
 
     </div>
   </section>
+
+  <!-- CLEAN LANDING SUPPORT SECTION (SEO-friendly, visible text) -->
+  <section class="plainSection" id="about">
+    <div class="container heroWide">
+
+      <div class="plainKicker">About</div>
+      <h2 class="plainH2">Compress PDF files online</h2>
+      <p class="plainLead">
+        Reduce PDF file size for email attachments, web uploads, and client portals.
+        Upload a PDF, compress it, then download the smaller file.
+      </p>
+
+      <div class="featureGrid" aria-label="What you can do">
+        <div>
+          <div class="featIcon" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path class="icoStroke" d="M7 3h7l3 3v15a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path class="icoStroke" d="M14 3v4a2 2 0 0 0 2 2h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="featTitle">Reduce file size</h3>
+          <p class="featText">Compress PDFs to fit upload limits and send smaller attachments without changing your workflow.</p>
+        </div>
+
+        <div>
+          <div class="featIcon" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path class="icoStroke" d="M12 2v20" stroke-width="2" stroke-linecap="round"/>
+              <path class="icoStroke" d="M7 7h10" stroke-width="2" stroke-linecap="round"/>
+              <path class="icoStroke" d="M7 17h10" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="featTitle">Quick, simple steps</h3>
+          <p class="featText">Select a PDF, upload it, then continue to download the compressed file.</p>
+        </div>
+
+        <div>
+          <div class="featIcon" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path class="icoStroke" d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path class="icoStroke" d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="featTitle">Preview before upload</h3>
+          <p class="featText">See a page preview so you know you selected the right PDF before continuing.</p>
+        </div>
+
+        <div>
+          <div class="featIcon" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path class="icoStroke" d="M12 2a7 7 0 0 0-7 7v4a7 7 0 1 0 14 0V9a7 7 0 0 0-7-7Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path class="icoStroke" d="M9 10h6" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="featTitle">No signup</h3>
+          <p class="featText">No account needed. Upload, compress, and download when ready.</p>
+        </div>
+
+        <div>
+          <div class="featIcon" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path class="icoStroke" d="M7 11V8a5 5 0 0 1 10 0v3" stroke-width="2" stroke-linecap="round"/>
+              <path class="icoStroke" d="M6 11h12v10H6V11Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="featTitle">Secure processing</h3>
+          <p class="featText">Files are processed to generate your output. See Privacy for retention and deletion details.</p>
+        </div>
+
+        <div>
+          <div class="featIcon" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path class="icoStroke" d="M8 7h12M8 12h12M8 17h12" stroke-width="2" stroke-linecap="round"/>
+              <path class="icoStroke" d="M4 6v2M4 11v2M4 16v2" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="featTitle">More tools available</h3>
+          <p class="featText">Merge, split, convert, and rotate PDFs using the same clean upload → download flow.</p>
+        </div>
+      </div>
+
+      <div class="plainDivider"></div>
+
+      <div class="plainBottomGrid" id="faq">
+        <div>
+          <div class="plainKicker">FAQ</div>
+          <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.02em; font-weight:950;">Common questions</h3>
+
+          <div class="faqListPlain">
+            <div class="faqItemPlain">
+              <div class="faqQ">How do I compress a PDF?</div>
+              <p class="faqA">Select or drop a PDF, upload it, then continue to download the compressed file.</p>
+            </div>
+
+            <div class="faqItemPlain">
+              <div class="faqQ">Will compression reduce quality?</div>
+              <p class="faqA">Compression reduces file size by optimizing content. Results depend on the original PDF — review the output before sharing.</p>
+            </div>
+
+            <div class="faqItemPlain">
+              <div class="faqQ">Is my PDF secure?</div>
+              <p class="faqA">Files are processed to generate your compressed output. See the Privacy page for retention and deletion details.</p>
+            </div>
+
+            <div class="faqItemPlain">
+              <div class="faqQ">Do I need an account?</div>
+              <p class="faqA">No signup required. Upload, continue, then download.</p>
+            </div>
+          </div>
+
+          <div class="plainNote">
+            Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
+          </div>
+        </div>
+
+        <div>
+          <div class="plainKicker">Tools</div>
+          <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.02em; font-weight:950;">Try other PDF tools</h3>
+          <p class="plainLead" style="font-size:15px; margin-top:0; max-width:56ch;">
+            Need to merge, split, convert, or rotate? Jump straight into another tool.
+          </p>
+
+          <div class="relatedLinks" aria-label="PDF tools">
+            <a href="/merge-pdf">Merge PDF</a>
+            <a href="/split-pdf">Split PDF</a>
+            <a href="/convert">Convert</a>
+            <a href="/rotate-pdf">Rotate PDF</a>
+          </div>
+
+          <div class="plainNote">
+            Tip: If you’re compressing for email, aim for the smallest file size that still looks clean when printed.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
 </main>
 
 <footer class="footer">
@@ -574,7 +867,6 @@
     setRendered(false);
     paintBlank();
 
-    // wait for module load
     const lib = window.pdfjsLib || (await (window.__pdfjsReady || Promise.resolve(null)));
     if (!lib) {
       hintEl.textContent = "Preview unavailable";
@@ -586,7 +878,6 @@
     hintEl.textContent = "Rendering preview…";
     const buf = await file.arrayBuffer();
 
-    // Try with worker first, then fallback to disableWorker
     try{
       sizeCanvasToCard();
       await renderAttempt(lib, buf, { data: buf });
