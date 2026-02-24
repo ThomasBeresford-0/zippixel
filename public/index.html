@@ -125,8 +125,8 @@
     /* ✅ Card preview like your reference */
     .thumbCard{
       position:relative;
-      width:260px;
-      height:260px;
+      width:240px;
+      height:320px;
       border-radius:18px;
       overflow:hidden;
       background:
@@ -560,7 +560,13 @@
     const page = await withTimeout(pdf.getPage(1), 8000, "page-timeout");
 
     const viewport0 = page.getViewport({ scale: 1 });
-    const scale = Math.max(canvas.width / viewport0.width, canvas.height / viewport0.height);
+
+    // Fit INSIDE card, preserve ratio
+    const scale = Math.min(
+      canvas.width / viewport0.width,
+      canvas.height / viewport0.height
+    );
+
     const viewport = page.getViewport({ scale });
 
     const renderCanvas = document.createElement("canvas");
@@ -568,14 +574,20 @@
     renderCanvas.height = Math.floor(viewport.height);
     const rctx = renderCanvas.getContext("2d");
 
-    await withTimeout(page.render({ canvasContext: rctx, viewport }).promise, 8000, "render-timeout");
+    await withTimeout(
+      page.render({ canvasContext: rctx, viewport }).promise,
+      8000,
+      "render-timeout"
+    );
 
-    const size = Math.min(renderCanvas.width, renderCanvas.height);
-    const sx = Math.floor((renderCanvas.width - size) / 2);
-    const sy = Math.floor((renderCanvas.height - size) / 2);
-
+    // Center inside card
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const dx = (canvas.width - renderCanvas.width) / 2;
+    const dy = (canvas.height - renderCanvas.height) / 2;
+
+    ctx.drawImage(renderCanvas, dx, dy);
     ctx.drawImage(renderCanvas, sx, sy, size, size, 0, 0, canvas.width, canvas.height);
 
     setRendered(true);
