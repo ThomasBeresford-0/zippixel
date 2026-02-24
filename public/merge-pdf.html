@@ -1,7 +1,8 @@
-<!-- public/merge-pdf.html — PDFOperations (v11 - PRO UI + SEO + PAGE REORDER SAFE + PDF.JS ESM + DRAG FIXED + ORDER NUMBERS)
-     ✅ Adds visible order numbers on each page thumbnail (1..N) so users don’t get lost
-     ✅ Numbers auto-update after drag reorder + reset
-     ✅ Everything else preserved (IDs/hooks/order dispatch/clip-safe)
+<!-- public/merge-pdf.html — PDFOperations (v12 - UX CLEANUP + PREMIUM SUPPORT SECTIONS)
+     ✅ Preserves ALL app.js v17.7 IDs/hooks + merge reorder JS + modal
+     ✅ Keeps order badges + drag reorder safe
+     ✅ Replaces ugly SEO slab with premium "How it works" + FAQ + related tools
+     ✅ Standardizes header brand logo sizing via class="brandLogo"
 -->
 <!doctype html>
 <html lang="en">
@@ -161,6 +162,9 @@
     #fileMeta[hidden]{ display:none !important; }
     [hidden]{ display:none !important; }
 
+    /* Brand logo safety (in case style.css misses it) */
+    .brandLogo{ height:34px; width:auto; display:block; flex:0 0 auto; }
+
     .proKicker{
       font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       font-size:12px; letter-spacing:.02em; opacity:.78; text-transform:uppercase;
@@ -285,7 +289,7 @@
       border-radius:12px; border:1px solid rgba(15,23,42,.10);
     }
 
-    /* ===== ORDER NUMBER BADGE (NEW) ===== */
+    /* ===== ORDER NUMBER BADGE ===== */
     .pdfOrderBadge{
       position:absolute;
       top:10px; left:10px;
@@ -299,7 +303,7 @@
       letter-spacing:-.01em;
       box-shadow:0 10px 24px rgba(2,6,23,.22);
       border:1px solid rgba(255,255,255,.18);
-      pointer-events:none; /* don’t break drag */
+      pointer-events:none;
     }
     .pdfThumb.isDragging .pdfOrderBadge{ opacity:.9; }
     .pdfThumb.isOver .pdfOrderBadge{
@@ -307,57 +311,139 @@
       transform:translateY(-.5px);
     }
 
-    .seoWrap{ padding:18px 0 40px; }
-    .seoCard{
+    /* =========================
+       PREMIUM SUPPORT SECTIONS (replaces ugly SEO slab)
+    ========================== */
+    .supportWrap{
+      padding:26px 0 44px;
+    }
+    .supportGridOuter{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:18px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .supportGridOuter{ grid-template-columns: 1fr; }
+    }
+
+    .supportCard{
       background:rgba(255,255,255,.92);
       border:1px solid rgba(15,23,42,.10);
-      border-radius:20px;
-      box-shadow:0 18px 50px rgba(2,6,23,.06);
+      border-radius:22px;
+      box-shadow:0 18px 52px rgba(2,6,23,.06);
       padding:18px;
+      overflow:hidden;
     }
-    .seoGrid{
-      display:grid; grid-template-columns:1.2fr .8fr;
-      gap:16px; margin-top:14px;
+    .supportHead{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding-bottom:12px;
+      border-bottom:1px solid rgba(15,23,42,.08);
+      margin-bottom:12px;
     }
-    @media (max-width:920px){ .seoGrid{ grid-template-columns:1fr; } }
-    .relTools{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
-    .relTools a{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:10px 12px;
+    .supportTitle{
+      margin:0;
+      font-size:18px;
+      font-weight:950;
+      letter-spacing:-.02em;
+    }
+    .supportSub{
+      margin:6px 0 0;
+      font-size:13px;
+      line-height:1.45;
+      opacity:.78;
+      max-width: 64ch;
+    }
+
+    .howGrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    .howStep{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(15,23,42,.08);
+      background:rgba(248,250,252,.75);
+    }
+    .howNum{
+      width:30px;height:30px;
       border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      font-weight:950;
+      background:rgba(11,18,32,.92);
+      color:#fff;
+      flex:0 0 auto;
+    }
+    .howStepTitle{ font-weight:900; letter-spacing:-.01em; }
+    .howStepText{ margin-top:4px; font-size:13px; opacity:.8; line-height:1.4; }
+
+    .chips{
+      display:flex; flex-wrap:wrap; gap:10px;
+      margin-top:12px;
+    }
+    .chipLink{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:14px;
       border:1px solid rgba(15,23,42,.12);
       background:rgba(255,255,255,.96);
       text-decoration:none;
-      font-weight:850; font-size:13px;
+      font-weight:900;
+      font-size:13px;
       color:rgba(11,18,32,.92);
+      transition:transform .10s ease, box-shadow .10s ease, border-color .10s ease;
     }
-    .relTools a:hover{
+    .chipLink:hover{
       border-color:rgba(15,23,42,.18);
-      box-shadow:0 10px 24px rgba(2,6,23,.08);
+      box-shadow:0 12px 26px rgba(2,6,23,.08);
       transform:translateY(-1px);
     }
-    .faqList{ display:grid; gap:10px; margin-top:10px; }
+    .chipHint{
+      margin-top:10px;
+      font-size:12px;
+      opacity:.72;
+    }
+
+    .faqStack{ display:grid; gap:10px; margin-top:10px; }
     details.faq{
       border:1px solid rgba(15,23,42,.10);
       background:rgba(255,255,255,.92);
-      border-radius:14px;
-      padding:10px 12px;
+      border-radius:16px;
+      padding:12px 12px;
     }
     details.faq summary{
-      cursor:pointer; font-weight:900; letter-spacing:-.01em; list-style:none;
+      cursor:pointer;
+      font-weight:950;
+      letter-spacing:-.01em;
+      list-style:none;
     }
     details.faq summary::-webkit-details-marker{ display:none; }
+    .faqBody{
+      margin-top:8px;
+      opacity:.84;
+      font-size:13px;
+      line-height:1.45;
+    }
   </style>
 </head>
 
 <body class="page" data-tool="merge_pdf">
-
 <a href="#tool" class="srOnly">Skip to the tool</a>
 
 <header class="nav">
   <div class="container navInner">
     <a class="brand" href="/" aria-label="PDFOperations home">
-      <img src="/favicon.svg" width="26" height="26" alt="">
+      <img src="/favicon.svg" alt="PDFOperations" class="brandLogo" />
       <span class="brandText">
         <span class="top">PDFOperations</span>
         <span class="sub">Compress • Merge • Split</span>
@@ -523,72 +609,105 @@
     </div>
   </section>
 
-  <!-- SEO SUPPORT -->
-  <section class="seoWrap" id="about">
+  <!-- PREMIUM SUPPORT (replaces the ugly block) -->
+  <section class="supportWrap" id="about">
     <div class="container heroWide">
-      <div class="seoCard">
+      <div class="supportGridOuter">
 
-        <div class="proKicker">About</div>
-        <h2>Merge PDF files online</h2>
-        <p>
-          Combine multiple PDF documents into a single file for client handover, portals, or clean email attachments.
-          Upload your PDFs, reorder pages, then download one merged PDF.
-        </p>
-
-        <div class="seoGrid">
-          <div>
-            <h3 style="margin:10px 0 6px;">What you can do</h3>
-            <ul>
-              <li><strong>Combine PDFs</strong> into one file</li>
-              <li><strong>Reorder pages</strong> before merging</li>
-              <li><strong>Preview pages</strong> to confirm the order</li>
-              <li><strong>Download one merged PDF</strong> when ready</li>
-            </ul>
-
-            <h3 style="margin:10px 0 6px;">Related tools</h3>
-            <div class="relTools" aria-label="Related PDF tools">
-              <a href="/">Compress PDF</a>
-              <a href="/split-pdf">Split PDF</a>
-              <a href="/rotate-pdf">Rotate PDF</a>
-              <a href="/convert">Convert</a>
+        <div class="supportCard">
+          <div class="supportHead">
+            <div>
+              <div class="proKicker">About</div>
+              <h2 class="supportTitle">Merge PDF files online</h2>
+              <p class="supportSub">
+                Combine multiple PDF documents into a single file for client handover, portals, or clean email attachments.
+                Upload your PDFs, reorder pages, then download one merged PDF.
+              </p>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:10px;">
+              <a class="btn btnSmall btnGhost" href="#tool">Start merging</a>
             </div>
           </div>
 
-          <div>
-            <h3 style="margin:10px 0 6px;">FAQ</h3>
-            <div class="faqList" id="faq">
-              <details class="faq">
-                <summary>Can I reorder pages before merging?</summary>
-                <div style="margin-top:8px; opacity:.85;">
-                  Yes — drag pages in the grid to the exact order you want. The merged PDF follows that order.
-                </div>
-              </details>
-
-              <details class="faq">
-                <summary>Will any pages be dropped?</summary>
-                <div style="margin-top:8px; opacity:.85;">
-                  No. If previews are limited for speed, all remaining pages are still included in the merge.
-                </div>
-              </details>
-
-              <details class="faq">
-                <summary>Do I need an account?</summary>
-                <div style="margin-top:8px; opacity:.85;">
-                  No signup required. Upload, continue, then download.
-                </div>
-              </details>
-
-              <details class="faq">
-                <summary>Is there a file limit?</summary>
-                <div style="margin-top:8px; opacity:.85;">
-                  Limits are enforced in the app. If you hit a limit, split the job into smaller batches.
-                </div>
-              </details>
+          <div class="howGrid" aria-label="How it works">
+            <div class="howStep">
+              <div class="howNum">1</div>
+              <div>
+                <div class="howStepTitle">Add PDFs</div>
+                <div class="howStepText">Select 2+ PDFs or drag them onto the drop area.</div>
+              </div>
             </div>
 
-            <div style="margin-top:12px; font-size:12px; opacity:.75;">
-              Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
+            <div class="howStep">
+              <div class="howNum">2</div>
+              <div>
+                <div class="howStepTitle">Reorder pages</div>
+                <div class="howStepText">Drag thumbnails to set the final order. The number badge shows position.</div>
+              </div>
             </div>
+
+            <div class="howStep">
+              <div class="howNum">3</div>
+              <div>
+                <div class="howStepTitle">Upload → Continue</div>
+                <div class="howStepText">Upload PDFs, then continue to download your merged file.</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;">
+            <div class="proKicker">Related tools</div>
+            <div class="chips" aria-label="Related PDF tools">
+              <a class="chipLink" href="/">Compress PDF</a>
+              <a class="chipLink" href="/split-pdf">Split PDF</a>
+              <a class="chipLink" href="/rotate-pdf">Rotate PDF</a>
+              <a class="chipLink" href="/convert">Convert</a>
+            </div>
+            <div class="chipHint">Doing a big job? Merge in batches for faster previews.</div>
+          </div>
+        </div>
+
+        <div class="supportCard" id="faq">
+          <div class="supportHead">
+            <div>
+              <div class="proKicker">FAQ</div>
+              <h2 class="supportTitle">Common questions</h2>
+              <p class="supportSub">Quick answers to the stuff people ask right before they hit Upload.</p>
+            </div>
+          </div>
+
+          <div class="faqStack">
+            <details class="faq">
+              <summary>Can I reorder pages before merging?</summary>
+              <div class="faqBody">
+                Yes — drag pages in the grid to the exact order you want. The merged PDF follows that order.
+              </div>
+            </details>
+
+            <details class="faq">
+              <summary>Will any pages be dropped?</summary>
+              <div class="faqBody">
+                No. If previews are limited for speed, all remaining pages are still included in the merge.
+              </div>
+            </details>
+
+            <details class="faq">
+              <summary>Do I need an account?</summary>
+              <div class="faqBody">
+                No signup required. Upload, continue, then download.
+              </div>
+            </details>
+
+            <details class="faq">
+              <summary>Is there a file limit?</summary>
+              <div class="faqBody">
+                Limits are enforced in the app. If you hit a limit, split the job into smaller batches.
+              </div>
+            </details>
+          </div>
+
+          <div style="margin-top:12px; font-size:12px; opacity:.75;">
+            Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
           </div>
         </div>
 
@@ -680,7 +799,6 @@
   // NEW: update visible 1..N numbers on the currently rendered thumbs
   function updateOrderBadges() {
     const nodes = [...grid.querySelectorAll(".pdfThumb")];
-    // After reorder, DOM order equals intended order (we rebuild grid), so just number DOM order.
     nodes.forEach((node, idx) => {
       let badge = node.querySelector(".pdfOrderBadge");
       if (!badge) {
@@ -859,7 +977,6 @@
     const meta = pageMap.get(key);
     if (!meta) return;
 
-    // NEW: show both final position + source page
     const position = [...grid.querySelectorAll(".pdfThumb")].indexOf(thumb) + 1;
     showModal(`#${position} • ${meta.name} • page ${meta.pageNumber}`);
     await renderPreviewPage(meta.fileIndex, meta.pageNumber);
@@ -911,10 +1028,9 @@
         node.setAttribute("data-page-key", pageKey);
         node.draggable = true;
 
-        // NEW badge injected immediately (text updated later)
         const badge = document.createElement("div");
         badge.className = "pdfOrderBadge";
-        badge.textContent = String(thumbsRendered); // initial (will be normalized after build)
+        badge.textContent = String(thumbsRendered);
         node.appendChild(badge);
 
         const imgEl = document.createElement("img");
@@ -956,7 +1072,7 @@
     setOrder(originalOrder);
     if (wrap) wrap.hidden = false;
     updateCount();
-    updateOrderBadges(); // NEW
+    updateOrderBadges();
 
     if (clipped && noteEl) {
       noteEl.hidden = false;
