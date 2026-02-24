@@ -41,8 +41,7 @@
       }
 
       return lib;
-    })().catch(async (err) => {
-      // Fallback attempt (rare)
+    })().catch(async () => {
       const mod2 = await import(PDFJS_SRC);
       const lib2 = mod2?.default ?? mod2;
       window.pdfjsLib = lib2;
@@ -52,7 +51,6 @@
   </script>
 
   <style>
-    /* (kept your existing styles — truncated slightly here for clarity) */
     #pdfReorderWrap[hidden],
     #fileMeta[hidden]{ display:none !important; }
     [hidden]{ display:none !important; }
@@ -88,7 +86,6 @@
 
     #rotateDegrees{ display:none !important; }
 
-    /* Preview modal */
     .pdfPreviewModal{ position:fixed; inset:0; z-index:1000; background:rgba(2,6,23,.62); display:flex; align-items:center; justify-content:center; padding:18px; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
     .pdfPreviewCard{ width:min(980px,96vw); max-height:90vh; background:rgba(255,255,255,.96); border:1px solid rgba(15,23,42,.10); border-radius:16px; overflow:hidden; box-shadow:0 30px 90px rgba(0,0,0,.35); display:flex; flex-direction:column; }
     .pdfPreviewTop{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; border-bottom:1px solid rgba(15,23,42,.10); }
@@ -138,7 +135,8 @@
           </div>
 
           <div class="rotateHint">
-            Click a page thumbnail to preview it. In preview, tap <strong>Rotate 90°</strong> to cycle: <strong>0° → 90° → 180° → 270°</strong>.
+            Click a page thumbnail to preview it. In preview, tap <strong>Rotate 90°</strong> to cycle:
+            <strong>0° → 90° → 180° → 270°</strong>.
           </div>
         </div>
 
@@ -150,7 +148,6 @@
           <div class="statusHint" id="statusHint">Add one PDF to begin.</div>
         </div>
 
-        <!-- Hidden mode controls (app.js compatibility) -->
         <fieldset style="display:none;">
           <input type="radio" name="mode" id="modeCompress">
           <input type="radio" name="mode" id="modeCompressPdf">
@@ -173,7 +170,6 @@
           <select id="convertTarget"><option value="jpg" selected>JPG</option></select>
         </div>
 
-        <!-- app.js uses this, keep it (hidden) -->
         <select id="rotateDegrees" aria-label="Rotation degrees">
           <option value="90">90°</option>
           <option value="180">180°</option>
@@ -260,7 +256,6 @@
   </div>
 </footer>
 
-<!-- Checkout modal (unchanged) -->
 <div class="modalOverlay" id="priceModal" aria-hidden="true">
   <div class="modalCard premiumModal">
     <div class="modalTop">
@@ -306,7 +301,6 @@
   </div>
 </div>
 
-<!-- Preview modal (Rotate) -->
 <div id="pdfPreviewModal" class="pdfPreviewModal" hidden aria-hidden="true">
   <div class="pdfPreviewCard" role="dialog" aria-modal="true" aria-labelledby="pdfPreviewTitle">
     <div class="pdfPreviewTop">
@@ -323,8 +317,10 @@
 </div>
 
 <!-- =========================
-     ROTATE THUMBS + MODAL (moved ABOVE app.js)
-     - no defer, binds to input in capture phase before app.js
+     ROTATE THUMBS + MODAL (BEFORE app.js)
+     IMPORTANT CHANGE:
+       - NO polling
+       - MutationObserver re-renders AFTER app.js rebuilds fileMeta/wrap/grid
 ========================= -->
 <script>
 (() => {
@@ -349,32 +345,24 @@
     modalRotate = $("pdfPreviewRotate");
     modalCanvas = $("pdfPreviewCanvas");
   }
-  refreshRefs();
 
   let pdfDoc = null;
   let numPages = 0;
   let lastSig = "";
   let readyToEmit = false;
-
-  // Modal state
   let previewPageNo = 0;
 
   window.__PDFOPS_ROTATE_MAP__ = window.__PDFOPS_ROTATE_MAP__ || [];
 
-  // robust wait for the loader to set __pdfjsReady and for the library to be usable
   async function ensurePdfJs(){
     let spins = 0;
-    while (!window.__pdfjsReady && spins < 200) { // ~4s
+    while (!window.__pdfjsReady && spins < 400) { // up to ~8s
       await new Promise(r => setTimeout(r, 20));
       spins++;
     }
     if (!window.__pdfjsReady) throw new Error("__pdfjsReady not set (PDF.js loader didn't run)");
-
     await window.__pdfjsReady;
-
-    if (!window.pdfjsLib || !window.pdfjsLib.getDocument) {
-      throw new Error("pdfjsLib not available after __pdfjsReady");
-    }
+    if (!window.pdfjsLib || !window.pdfjsLib.getDocument) throw new Error("pdfjsLib not available");
   }
 
   function nextDeg(d){
@@ -393,6 +381,7 @@
   }
 
   function updatePlan(){
+    refreshRefs();
     if (!rotatePlanText || !rotateBar) return;
     if (!numPages) { rotateBar.hidden = true; return; }
     let changed = 0;
@@ -403,22 +392,8 @@
       : `${changed} page${changed === 1 ? "" : "s"} rotated. Preview pages to adjust.`;
   }
 
-  function cleanup(){
-    if (grid) grid.innerHTML = "";
-    if (wrap) wrap.hidden = true;
-    if (meta) meta.textContent = "—";
-    if (rotateBar) rotateBar.hidden = true;
-    pdfDoc = null;
-    numPages = 0;
-    readyToEmit = false;
-    lastSig = "";
-    previewPageNo = 0;
-    window.__PDFOPS_ROTATE_MAP__ = [];
-    hideModal();
-    emit();
-  }
-
   function showModal(title){
+    refreshRefs();
     if (!modal) return;
     modal.hidden = false;
     modal.setAttribute("aria-hidden", "false");
@@ -427,10 +402,28 @@
   }
 
   function hideModal(){
+    refreshRefs();
     if (!modal) return;
     modal.hidden = true;
     modal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
+  }
+
+  function cleanup(){
+    refreshRefs();
+    if (grid) grid.innerHTML = "";
+    if (wrap) wrap.hidden = true;
+    if (meta) meta.textContent = "—";
+    if (rotateBar) rotateBar.hidden = true;
+
+    pdfDoc = null;
+    numPages = 0;
+    readyToEmit = false;
+    lastSig = "";
+    previewPageNo = 0;
+    window.__PDFOPS_ROTATE_MAP__ = [];
+    hideModal();
+    emit();
   }
 
   function getCard(pageNo){
@@ -460,13 +453,15 @@
   }
 
   async function renderModalPage(pageNo){
+    refreshRefs();
     if (!modalCanvas) return;
     const deg = window.__PDFOPS_ROTATE_MAP__[pageNo] || 0;
     const maxW = Math.min(920, window.innerWidth * 0.92);
-    try { await renderPageToCanvas(pageNo, modalCanvas, maxW, deg); } catch (err) { console.error(err); }
+    await renderPageToCanvas(pageNo, modalCanvas, maxW, deg);
   }
 
   async function setThumbRotation(card, deg){
+    refreshRefs();
     const pageNo = Number(card?.dataset?.page);
     if (!pageNo) return;
 
@@ -477,7 +472,7 @@
     if (rotPill) rotPill.textContent = deg ? `${deg}°` : "0°";
 
     if (canvas && pdfDoc){
-      try { await renderPageToCanvas(pageNo, canvas, 240, deg); } catch (err) { console.error(err); }
+      await renderPageToCanvas(pageNo, canvas, 240, deg);
     }
 
     updatePlan();
@@ -511,12 +506,11 @@
     card.appendChild(canvas);
     card.appendChild(foot);
 
-    // CLICK = PREVIEW (rotation happens inside modal)
     card.addEventListener("click", async () => {
       previewPageNo = pageNo;
       const deg = window.__PDFOPS_ROTATE_MAP__[pageNo] || 0;
       showModal(`Page ${pageNo} • ${deg ? deg + "°" : "0°"}`);
-      await renderModalPage(pageNo);
+      try { await renderModalPage(pageNo); } catch (e) { console.error(e); }
     });
 
     return { card, canvas };
@@ -525,6 +519,11 @@
   async function renderThumbs(){
     refreshRefs();
     if (!grid || !wrap) return;
+
+    // IMPORTANT: app.js often keeps these hidden
+    const fm = $("fileMeta");
+    if (fm) fm.hidden = false;
+    wrap.hidden = false;
 
     readyToEmit = false;
     grid.innerHTML = "";
@@ -535,136 +534,157 @@
     for (let i = 1; i <= numPages; i++){
       const { card, canvas } = makeThumb(i);
       grid.appendChild(card);
-      try { await renderPageToCanvas(i, canvas, 240, 0); } catch (err) { console.error(err); }
+      try { await renderPageToCanvas(i, canvas, 240, 0); } catch (e) { console.error(e); }
     }
 
     if (meta) meta.textContent = `${numPages} page${numPages === 1 ? "" : "s"} • click pages to preview`;
-    wrap.hidden = false;
-
     updatePlan();
+
     readyToEmit = true;
     emit();
   }
 
-  // Load from the File object directly (used by input change listener)
   async function loadFromFile(f){
+    refreshRefs();
     if (!f) return false;
     if (!(f.type === "application/pdf" || /\.pdf$/i.test(f.name || ""))) return false;
 
     const sig = `${f.name}|${f.size}|${f.lastModified || 0}`;
 
-    // ALWAYS allow reload if grid is empty
-    if (sig === lastSig && pdfDoc && grid && grid.children.length > 0) {
-      return true;
-    }
-
+    // Only skip if we already rendered something visible
+    if (sig === lastSig && pdfDoc && grid && grid.children && grid.children.length > 0) return true;
     lastSig = sig;
 
     await ensurePdfJs();
 
-    try {
-      const bytes = await f.arrayBuffer();
-      const task = window.pdfjsLib.getDocument({
-        data: bytes,
-        disableWorker: window.__pdfjsWorkerOK === false
-      });
-      pdfDoc = await task.promise;
-      numPages = pdfDoc.numPages || 1;
-      await renderThumbs();
-      return true;
-    } catch (err) {
-      console.error("Failed to load PDF:", err);
-      return false;
-    }
+    const bytes = await f.arrayBuffer();
+    const task = window.pdfjsLib.getDocument({
+      data: bytes,
+      disableWorker: window.__pdfjsWorkerOK === false
+    });
+    pdfDoc = await task.promise;
+    numPages = pdfDoc.numPages || 1;
+
+    await renderThumbs();
+    return true;
   }
 
+  // expose for debugging
   window.__pdfopsLoadFromFile = loadFromFile;
 
-  // Optional fallback (if some code writes into __PDFOPS_SELECTED__)
-  async function loadFromSelectedFile(){
-    const arr = window.__PDFOPS_SELECTED__;
-    const f = (Array.isArray(arr) && arr[0]) ? arr[0] : null;
-    return loadFromFile(f);
-  }
-
-  // ----------------------------------------
-  // WATCH app.js selection (this is where the File actually is)
-  // window.__PDFOPS_SELECTED__ = [File]
-  // ----------------------------------------
-  (function watchAppSelected(){
-    let lastSig = "";
-
-    async function tick(){
-      const arr = window.__PDFOPS_SELECTED__;
-      const f = (Array.isArray(arr) && arr[0]) ? arr[0] : null;
-      if (!f || !window.__pdfopsLoadFromFile) return;
-
-      const sig = `${f.name}|${f.size}|${f.lastModified || 0}`;
-      if (sig === lastSig) return;
-      lastSig = sig;
-
-      try {
-        await window.__pdfopsLoadFromFile(f);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    setInterval(tick, 300);
-  })();
-
-  // Modal controls
-  modalClose?.addEventListener("click", hideModal);
-  modal?.addEventListener("click", (e) => { if (e.target === modal) hideModal(); });
+  // Modal controls (delegated-safe via refreshRefs)
+  document.addEventListener("click", (e) => {
+    refreshRefs();
+    if (!modal) return;
+    if (e.target === modal) hideModal();
+  });
   window.addEventListener("keydown", (e) => {
+    refreshRefs();
     if (e.key === "Escape" && modal && !modal.hidden) hideModal();
   });
 
-  // Rotate inside modal (customer sees rotation live)
-  modalRotate?.addEventListener("click", async () => {
-    if (!previewPageNo) return;
-    const card = getCard(previewPageNo);
-    if (!card) return;
+  // Bind buttons after app.js may recreate them (use document-level handler)
+  document.addEventListener("click", async (e) => {
+    refreshRefs();
 
-    const cur = window.__PDFOPS_ROTATE_MAP__[previewPageNo] || 0;
-    const nxt = nextDeg(cur);
+    if (e.target && e.target.id === "pdfPreviewClose") {
+      hideModal();
+      return;
+    }
 
-    await setThumbRotation(card, nxt);
+    if (e.target && e.target.id === "pdfPreviewRotate") {
+      if (!previewPageNo) return;
+      const card = getCard(previewPageNo);
+      if (!card) return;
+      const cur = window.__PDFOPS_ROTATE_MAP__[previewPageNo] || 0;
+      const nxt = nextDeg(cur);
+      try {
+        await setThumbRotation(card, nxt);
+        refreshRefs();
+        if (modalTitle) modalTitle.textContent = `Page ${previewPageNo} • ${nxt ? nxt + "°" : "0°"}`;
+        await renderModalPage(previewPageNo);
+      } catch (err) { console.error(err); }
+      return;
+    }
 
-    // Update modal title + rerender modal
-    if (modalTitle) modalTitle.textContent = `Page ${previewPageNo} • ${nxt ? nxt + "°" : "0°"}`;
-    await renderModalPage(previewPageNo);
-  });
+    if (e.target && e.target.id === "clearBtn") {
+      cleanup();
+      return;
+    }
 
-  clearBtn?.addEventListener("click", () => cleanup());
+    if (e.target && e.target.id === "rotateAll90") {
+      refreshRefs();
+      if (!grid) return;
+      const cards = Array.from(grid.querySelectorAll(".pdfThumb"));
+      for (const card of cards) await setThumbRotation(card, 90);
+      if (previewPageNo && modal && !modal.hidden) {
+        refreshRefs();
+        if (modalTitle) modalTitle.textContent = `Page ${previewPageNo} • 90°`;
+        await renderModalPage(previewPageNo);
+      }
+      return;
+    }
 
-  rotateAll90?.addEventListener("click", async () => {
-    if (!grid) return;
-    const cards = Array.from(grid.querySelectorAll(".pdfThumb"));
-    for (const card of cards) await setThumbRotation(card, 90);
-
-    // If modal open, rerender current page so user sees it update too
-    if (previewPageNo && modal && !modal.hidden) {
-      if (modalTitle) modalTitle.textContent = `Page ${previewPageNo} • 90°`;
-      await renderModalPage(previewPageNo);
+    if (e.target && e.target.id === "resetRotations") {
+      refreshRefs();
+      if (!grid) return;
+      const cards = Array.from(grid.querySelectorAll(".pdfThumb"));
+      for (const card of cards) await setThumbRotation(card, 0);
+      if (previewPageNo && modal && !modal.hidden) {
+        refreshRefs();
+        if (modalTitle) modalTitle.textContent = `Page ${previewPageNo} • 0°`;
+        await renderModalPage(previewPageNo);
+      }
+      return;
     }
   });
 
-  resetRotations?.addEventListener("click", async () => {
-    if (!grid) return;
-    const cards = Array.from(grid.querySelectorAll(".pdfThumb"));
-    for (const card of cards) await setThumbRotation(card, 0);
+  // ✅ THE KEY FIX: app.js rebuilds the UI after file select.
+  // We observe mutations and re-render AFTER app.js finishes its DOM work.
+  (function attachReRenderObserver(){
+    let timer = null;
+    let lastObservedSig = "";
 
-    if (previewPageNo && modal && !modal.hidden) {
-      if (modalTitle) modalTitle.textContent = `Page ${previewPageNo} • 0°`;
-      await renderModalPage(previewPageNo);
+    async function rerenderSoon(){
+      clearTimeout(timer);
+      timer = setTimeout(async () => {
+        try {
+          const f = window.__PDFOPS_SELECTED__?.[0];
+          if (!f) return;
+
+          const sig = `${f.name}|${f.size}|${f.lastModified || 0}`;
+          // Don’t spam renders; render if grid empty OR file changed.
+          refreshRefs();
+          const empty = !grid || !grid.children || grid.children.length === 0;
+
+          if (!empty && sig === lastObservedSig) return;
+          lastObservedSig = sig;
+
+          // Force containers visible (app.js toggles these)
+          const fm = $("fileMeta");
+          const w = $("pdfReorderWrap");
+          if (fm) fm.hidden = false;
+          if (w) w.hidden = false;
+
+          await loadFromFile(f);
+        } catch (e) {
+          console.error("rerender failed", e);
+        }
+      }, 120);
     }
-  });
+
+    const tool = $("tool") || document.body;
+    const obs = new MutationObserver(rerenderSoon);
+    obs.observe(tool, { childList:true, subtree:true, attributes:true });
+
+    // Also kick once shortly after load
+    setTimeout(rerenderSoon, 300);
+  })();
 
 })();
 </script>
 
-<!-- app.js (load AFTER rotate script so our listener runs first) -->
+<!-- app.js (load AFTER rotate script) -->
 <script src="/app.js?v=17.7" defer></script>
 
 </body>
