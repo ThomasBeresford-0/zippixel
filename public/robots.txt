@@ -8,4 +8,8 @@ Disallow: /share
 Disallow: /s/
 Disallow: /api/
 
+# Optional: block common junk params if ever added
+Disallow: /*?session_id=
+Disallow: /*?payment_intent=
+
 Sitemap: https://pdfoperations.com/sitemap.xml
