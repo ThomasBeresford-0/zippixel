@@ -1,7 +1,7 @@
-<!-- public/index.html — PDFOperations (v57 - INFO BAND NEUTRAL (NOT BLUE) + CLEAN PANEL ABOVE FAQ)
+<!-- public/index.html — PDFOperations (v58 - INFORMATION SECTION LIGHT GREY + CLEAN PANEL ABOVE FAQ)
      ✅ Keeps ALL app.js v17.7 IDs preserved
      ✅ style.css?v=36 + app.js?v=17.7
-     ✅ “Information” section now neutral charcoal (not random navy)
+     ✅ Information section now light grey / neutral (no dark/blue)
      ✅ Fixes messy block above FAQ: wraps internal links + trust into a clean panel
      ✅ Keeps FAQ + JSON-LD schema (WebSite + SoftwareApplication + FAQPage)
      ✅ No new global CSS dependencies (page-owned styles only)
@@ -93,26 +93,18 @@
     [hidden]{ display:none !important; }
 
     /* ======================================================
-       INFORMATION SECTION (PDF24-STYLE) — NEUTRAL (NOT BLUE)
+       INFORMATION SECTION (PDF24-STYLE) — LIGHT GREY / NEUTRAL
        ====================================================== */
 
     .infoBand{
       margin-top:26px;
-      padding:44px 0 40px 0;
+      padding:42px 0 34px 0;
       background:
-        radial-gradient(900px 440px at 18% -10%, rgba(255,255,255,.07), transparent 55%),
-        radial-gradient(900px 460px at 82% 10%, rgba(255,255,255,.05), transparent 60%),
-        linear-gradient(180deg, #0b1220 0%, #070b12 42%, #0a0f1a 100%);
+        radial-gradient(900px 440px at 18% -10%, rgba(11,18,32,.04), transparent 55%),
+        radial-gradient(900px 460px at 82% 10%, rgba(11,18,32,.03), transparent 60%),
+        linear-gradient(180deg, #f2f5fb 0%, #eef2f8 100%);
       border-top:1px solid rgba(15,23,42,.10);
-    }
-
-    /* soft fade into page background so it doesn’t “hard cut” */
-    .infoBand::after{
-      content:"";
-      display:block;
-      height:26px;
-      margin-top:34px;
-      background: linear-gradient(180deg, rgba(10,15,26,1) 0%, rgba(245,247,251,1) 100%);
+      border-bottom:1px solid rgba(15,23,42,.10);
     }
 
     .infoInner{
@@ -126,7 +118,7 @@
       margin:0;
       font-size:34px;
       letter-spacing:-.02em;
-      color:rgba(255,255,255,.92);
+      color:rgba(11,18,32,.92);
     }
 
     .infoOS{
@@ -135,7 +127,7 @@
       flex-wrap:wrap;
       justify-content:center;
       gap:10px 18px;
-      color:rgba(255,255,255,.72);
+      color:rgba(11,18,32,.70);
       font-size:14px;
     }
     .osItem{
@@ -147,8 +139,8 @@
     .tick{
       width:16px;height:16px;
       border-radius:6px;
-      background:rgba(34,197,94,.16);
-      border:1px solid rgba(34,197,94,.30);
+      background:rgba(34,197,94,.12);
+      border:1px solid rgba(34,197,94,.22);
       display:inline-flex;
       align-items:center;
       justify-content:center;
@@ -156,7 +148,7 @@
     .tick svg{ width:12px;height:12px; fill:#22c55e; }
 
     .infoGrid{
-      margin-top:28px;
+      margin-top:26px;
       display:grid;
       gap:18px;
       grid-template-columns:1fr;
@@ -166,12 +158,12 @@
     }
 
     .infoCard{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.04);
+      border:1px solid rgba(15,23,42,.10);
+      background:#ffffff;
       border-radius:18px;
       padding:18px 18px 16px 18px;
       min-height:140px;
-      box-shadow: 0 18px 46px rgba(0,0,0,.22);
+      box-shadow: 0 12px 30px rgba(2,6,23,.06);
     }
 
     .infoIcon{
@@ -180,22 +172,22 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.12);
+      background:rgba(11,18,32,.04);
+      border:1px solid rgba(15,23,42,.10);
       margin-bottom:12px;
     }
-    .infoIcon svg{ width:18px;height:18px; fill:rgba(255,255,255,.85); }
+    .infoIcon svg{ width:18px;height:18px; fill:rgba(11,18,32,.82); }
 
     .infoH{
       margin:0;
-      color:rgba(255,255,255,.92);
+      color:rgba(11,18,32,.92);
       font-weight:950;
       letter-spacing:-.01em;
       font-size:15px;
     }
     .infoP{
       margin:8px 0 0 0;
-      color:rgba(255,255,255,.72);
+      color:rgba(11,18,32,.72);
       line-height:1.55;
       font-size:13px;
     }
@@ -206,7 +198,7 @@
 
     .belowInfo{
       max-width:1100px;
-      margin:-18px auto 0 auto; /* pulls up into the fade so it feels intentional */
+      margin:18px auto 0 auto;
       padding:0 22px;
     }
 
@@ -549,7 +541,7 @@
     </div>
   </section>
 
-  <!-- INFORMATION (PDF24-STYLE) -->
+  <!-- INFORMATION (PDF24-STYLE) — LIGHT -->
   <section class="infoBand" aria-label="Information">
     <div class="infoInner">
       <h2 class="infoTitle">Information</h2>
