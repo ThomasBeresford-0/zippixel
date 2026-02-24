@@ -1,8 +1,7 @@
-<!-- public/merge-pdf.html — PDFOperations (v12 - UX CLEANUP + PREMIUM SUPPORT SECTIONS)
-     ✅ Preserves ALL app.js v17.7 IDs/hooks + merge reorder JS + modal
-     ✅ Keeps order badges + drag reorder safe
-     ✅ Replaces ugly SEO slab with premium "How it works" + FAQ + related tools
-     ✅ Standardizes header brand logo sizing via class="brandLogo"
+<!-- public/merge-pdf.html — PDFOperations (v13 - CLEAN GRID SUPPORT LAYOUT / WeCompress-ish)
+     ✅ Keeps ALL app.js v17.7 IDs/hooks + merge reorder JS + modal
+     ✅ Removes “bubble cards” / rounded support slabs
+     ✅ Adds clean 3-col feature grid + simple FAQ + related links (minimal, spacious)
 -->
 <!doctype html>
 <html lang="en">
@@ -162,7 +161,7 @@
     #fileMeta[hidden]{ display:none !important; }
     [hidden]{ display:none !important; }
 
-    /* Brand logo safety (in case style.css misses it) */
+    /* Header logo safety (consistent across pages) */
     .brandLogo{ height:34px; width:auto; display:block; flex:0 0 auto; }
 
     .proKicker{
@@ -222,7 +221,7 @@
     .pdfThumb.isDragging{ opacity:.55; transform:scale(.99); }
     .pdfThumb.isOver{ outline:2px solid rgba(11,18,32,.18); outline-offset:2px; }
 
-    /* CRITICAL: prevent inner nodes stealing drag */
+    /* prevent inner nodes stealing drag */
     .pdfThumbImg,
     .pdfThumbMeta,
     .pdfThumbImg *{ pointer-events:none; }
@@ -289,7 +288,7 @@
       border-radius:12px; border:1px solid rgba(15,23,42,.10);
     }
 
-    /* ===== ORDER NUMBER BADGE ===== */
+    /* Order number badge */
     .pdfOrderBadge{
       position:absolute;
       top:10px; left:10px;
@@ -305,135 +304,142 @@
       border:1px solid rgba(255,255,255,.18);
       pointer-events:none;
     }
-    .pdfThumb.isDragging .pdfOrderBadge{ opacity:.9; }
-    .pdfThumb.isOver .pdfOrderBadge{
-      background:rgba(11,18,32,.98);
-      transform:translateY(-.5px);
-    }
 
     /* =========================
-       PREMIUM SUPPORT SECTIONS (replaces ugly SEO slab)
+       CLEAN SUPPORT SECTION (no cards, no bubbles)
+       Inspired by WeCompress layout
     ========================== */
-    .supportWrap{
-      padding:26px 0 44px;
+    .plainSection{
+      padding:56px 0 38px;
     }
-    .supportGridOuter{
+    .plainKicker{
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+      opacity:.70;
+    }
+    .plainH2{
+      margin:12px 0 8px;
+      font-size:44px;
+      line-height:1.05;
+      letter-spacing:-.03em;
+      font-weight:950;
+      color:rgba(11,18,32,.96);
+    }
+    @media (max-width: 720px){
+      .plainH2{ font-size:34px; }
+    }
+    .plainLead{
+      margin:0;
+      font-size:16px;
+      line-height:1.65;
+      max-width: 78ch;
+      opacity:.78;
+    }
+
+    .featureGrid{
+      margin-top:34px;
       display:grid;
-      grid-template-columns: 1.05fr .95fr;
-      gap:18px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:42px 44px;
+    }
+    @media (max-width: 980px){
+      .featureGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap:32px 28px; }
+    }
+    @media (max-width: 640px){
+      .featureGrid{ grid-template-columns: 1fr; gap:26px; }
+    }
+
+    .featIcon{
+      width:40px;
+      height:40px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:12px;
+    }
+    .featTitle{
+      margin:0 0 10px;
+      font-size:18px;
+      letter-spacing:-.01em;
+      font-weight:950;
+    }
+    .featText{
+      margin:0;
+      font-size:15px;
+      line-height:1.65;
+      opacity:.78;
+    }
+
+    .plainDivider{
+      margin:52px 0 0;
+      border-top:1px solid rgba(15,23,42,.10);
+    }
+
+    .plainBottomGrid{
+      margin-top:34px;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:44px;
       align-items:start;
     }
     @media (max-width: 980px){
-      .supportGridOuter{ grid-template-columns: 1fr; }
+      .plainBottomGrid{ grid-template-columns: 1fr; gap:32px; }
     }
 
-    .supportCard{
-      background:rgba(255,255,255,.92);
-      border:1px solid rgba(15,23,42,.10);
-      border-radius:22px;
-      box-shadow:0 18px 52px rgba(2,6,23,.06);
-      padding:18px;
-      overflow:hidden;
-    }
-    .supportHead{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      padding-bottom:12px;
-      border-bottom:1px solid rgba(15,23,42,.08);
-      margin-bottom:12px;
-    }
-    .supportTitle{
-      margin:0;
-      font-size:18px;
-      font-weight:950;
-      letter-spacing:-.02em;
-    }
-    .supportSub{
-      margin:6px 0 0;
-      font-size:13px;
-      line-height:1.45;
-      opacity:.78;
-      max-width: 64ch;
-    }
-
-    .howGrid{
+    .faqListPlain{
+      margin-top:10px;
       display:grid;
-      grid-template-columns: 1fr;
-      gap:10px;
-      margin-top:10px;
+      gap:18px;
     }
-    .howStep{
-      display:flex;
-      gap:12px;
-      align-items:flex-start;
-      padding:12px;
-      border-radius:16px;
-      border:1px solid rgba(15,23,42,.08);
-      background:rgba(248,250,252,.75);
+    .faqItemPlain{
+      padding-top:16px;
+      border-top:1px solid rgba(15,23,42,.10);
     }
-    .howNum{
-      width:30px;height:30px;
-      border-radius:12px;
-      display:flex;align-items:center;justify-content:center;
-      font-weight:950;
-      background:rgba(11,18,32,.92);
-      color:#fff;
-      flex:0 0 auto;
-    }
-    .howStepTitle{ font-weight:900; letter-spacing:-.01em; }
-    .howStepText{ margin-top:4px; font-size:13px; opacity:.8; line-height:1.4; }
-
-    .chips{
-      display:flex; flex-wrap:wrap; gap:10px;
-      margin-top:12px;
-    }
-    .chipLink{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid rgba(15,23,42,.12);
-      background:rgba(255,255,255,.96);
-      text-decoration:none;
-      font-weight:900;
-      font-size:13px;
-      color:rgba(11,18,32,.92);
-      transition:transform .10s ease, box-shadow .10s ease, border-color .10s ease;
-    }
-    .chipLink:hover{
-      border-color:rgba(15,23,42,.18);
-      box-shadow:0 12px 26px rgba(2,6,23,.08);
-      transform:translateY(-1px);
-    }
-    .chipHint{
-      margin-top:10px;
-      font-size:12px;
-      opacity:.72;
-    }
-
-    .faqStack{ display:grid; gap:10px; margin-top:10px; }
-    details.faq{
-      border:1px solid rgba(15,23,42,.10);
-      background:rgba(255,255,255,.92);
-      border-radius:16px;
-      padding:12px 12px;
-    }
-    details.faq summary{
-      cursor:pointer;
+    .faqItemPlain:first-child{ border-top:0; padding-top:0; }
+    .faqQ{
+      margin:0 0 8px;
       font-weight:950;
       letter-spacing:-.01em;
-      list-style:none;
+      font-size:16px;
     }
-    details.faq summary::-webkit-details-marker{ display:none; }
-    .faqBody{
-      margin-top:8px;
-      opacity:.84;
+    .faqA{
+      margin:0;
+      opacity:.78;
+      line-height:1.65;
+      font-size:15px;
+      max-width: 68ch;
+    }
+
+    .relatedLinks{
+      margin-top:12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px 18px;
+      font-size:15px;
+    }
+    .relatedLinks a{
+      text-decoration:none;
+      font-weight:900;
+      color:rgba(11,18,32,.92);
+      border-bottom:1px solid rgba(11,18,32,.20);
+    }
+    .relatedLinks a:hover{
+      border-bottom-color: rgba(11,18,32,.55);
+    }
+
+    .plainNote{
+      margin-top:14px;
       font-size:13px;
-      line-height:1.45;
+      opacity:.70;
+      line-height:1.55;
+      max-width: 80ch;
     }
+
+    /* Minimal inline SVG styling */
+    .icoStroke{ stroke: rgba(11,18,32,.92); }
+    .icoFill{ fill: rgba(11,18,32,.92); }
   </style>
 </head>
 
@@ -609,109 +615,145 @@
     </div>
   </section>
 
-  <!-- PREMIUM SUPPORT (replaces the ugly block) -->
-  <section class="supportWrap" id="about">
+  <!-- CLEAN SUPPORT SECTION -->
+  <section class="plainSection" id="about">
     <div class="container heroWide">
-      <div class="supportGridOuter">
 
-        <div class="supportCard">
-          <div class="supportHead">
-            <div>
-              <div class="proKicker">About</div>
-              <h2 class="supportTitle">Merge PDF files online</h2>
-              <p class="supportSub">
-                Combine multiple PDF documents into a single file for client handover, portals, or clean email attachments.
-                Upload your PDFs, reorder pages, then download one merged PDF.
-              </p>
-            </div>
-            <div style="display:flex; align-items:flex-start; gap:10px;">
-              <a class="btn btnSmall btnGhost" href="#tool">Start merging</a>
-            </div>
+      <div class="plainKicker">About</div>
+      <h2 class="plainH2">Merge PDF files online</h2>
+      <p class="plainLead">
+        Combine multiple PDF documents into a single file for client handover, portals, or clean email attachments.
+        Upload your PDFs, reorder pages, then download one merged PDF.
+      </p>
+
+      <div class="featureGrid" aria-label="What you can do">
+        <div>
+          <div class="featIcon" aria-hidden="true">
+            <!-- PDF icon -->
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path class="icoStroke" d="M7 3h7l3 3v15a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path class="icoStroke" d="M14 3v4a2 2 0 0 0 2 2h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </div>
-
-          <div class="howGrid" aria-label="How it works">
-            <div class="howStep">
-              <div class="howNum">1</div>
-              <div>
-                <div class="howStepTitle">Add PDFs</div>
-                <div class="howStepText">Select 2+ PDFs or drag them onto the drop area.</div>
-              </div>
-            </div>
-
-            <div class="howStep">
-              <div class="howNum">2</div>
-              <div>
-                <div class="howStepTitle">Reorder pages</div>
-                <div class="howStepText">Drag thumbnails to set the final order. The number badge shows position.</div>
-              </div>
-            </div>
-
-            <div class="howStep">
-              <div class="howNum">3</div>
-              <div>
-                <div class="howStepTitle">Upload → Continue</div>
-                <div class="howStepText">Upload PDFs, then continue to download your merged file.</div>
-              </div>
-            </div>
-          </div>
-
-          <div style="margin-top:14px;">
-            <div class="proKicker">Related tools</div>
-            <div class="chips" aria-label="Related PDF tools">
-              <a class="chipLink" href="/">Compress PDF</a>
-              <a class="chipLink" href="/split-pdf">Split PDF</a>
-              <a class="chipLink" href="/rotate-pdf">Rotate PDF</a>
-              <a class="chipLink" href="/convert">Convert</a>
-            </div>
-            <div class="chipHint">Doing a big job? Merge in batches for faster previews.</div>
-          </div>
+          <h3 class="featTitle">Combine PDFs</h3>
+          <p class="featText">Add multiple PDFs and merge them into a single file for sharing or upload portals.</p>
         </div>
 
-        <div class="supportCard" id="faq">
-          <div class="supportHead">
-            <div>
-              <div class="proKicker">FAQ</div>
-              <h2 class="supportTitle">Common questions</h2>
-              <p class="supportSub">Quick answers to the stuff people ask right before they hit Upload.</p>
+        <div>
+          <div class="featIcon" aria-hidden="true">
+            <!-- Reorder icon -->
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path class="icoStroke" d="M8 7h12M8 12h12M8 17h12" stroke-width="2" stroke-linecap="round"/>
+              <path class="icoStroke" d="M4 6v2M4 11v2M4 16v2" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="featTitle">Reorder pages</h3>
+          <p class="featText">Drag page thumbnails to control the final order. The number badge shows final position.</p>
+        </div>
+
+        <div>
+          <div class="featIcon" aria-hidden="true">
+            <!-- Preview icon -->
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path class="icoStroke" d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path class="icoStroke" d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="featTitle">Preview pages</h3>
+          <p class="featText">Click any thumbnail to preview before you upload and continue.</p>
+        </div>
+
+        <div>
+          <div class="featIcon" aria-hidden="true">
+            <!-- No signup icon -->
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path class="icoStroke" d="M12 2a7 7 0 0 0-7 7v4a7 7 0 1 0 14 0V9a7 7 0 0 0-7-7Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path class="icoStroke" d="M9 10h6" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="featTitle">No account</h3>
+          <p class="featText">No signup. Just upload PDFs and get the output when it’s ready.</p>
+        </div>
+
+        <div>
+          <div class="featIcon" aria-hidden="true">
+            <!-- Speed icon -->
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path class="icoStroke" d="M12 22a10 10 0 1 0-10-10" stroke-width="2" stroke-linecap="round"/>
+              <path class="icoStroke" d="M12 12l4-2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="featTitle">Fast workflow</h3>
+          <p class="featText">Upload in rough order first — then fine-tune with reorder for a clean final PDF.</p>
+        </div>
+
+        <div>
+          <div class="featIcon" aria-hidden="true">
+            <!-- Lock icon -->
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path class="icoStroke" d="M7 11V8a5 5 0 0 1 10 0v3" stroke-width="2" stroke-linecap="round"/>
+              <path class="icoStroke" d="M6 11h12v10H6V11Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="featTitle">Secure processing</h3>
+          <p class="featText">Files are processed to generate your merged output. See Privacy for retention details.</p>
+        </div>
+      </div>
+
+      <div class="plainDivider"></div>
+
+      <div class="plainBottomGrid" id="faq">
+        <div>
+          <div class="plainKicker">FAQ</div>
+          <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.02em; font-weight:950;">Common questions</h3>
+
+          <div class="faqListPlain">
+            <div class="faqItemPlain">
+              <div class="faqQ">Can I reorder pages before merging?</div>
+              <p class="faqA">Yes — drag pages in the grid to the exact order you want. The merged PDF follows that order.</p>
+            </div>
+
+            <div class="faqItemPlain">
+              <div class="faqQ">Will any pages be dropped?</div>
+              <p class="faqA">No. If previews are limited for speed, all remaining pages are still included in the merge.</p>
+            </div>
+
+            <div class="faqItemPlain">
+              <div class="faqQ">Do I need an account?</div>
+              <p class="faqA">No signup required. Upload, continue, then download.</p>
+            </div>
+
+            <div class="faqItemPlain">
+              <div class="faqQ">Is there a file limit?</div>
+              <p class="faqA">Limits are enforced in the app. If you hit a limit, split the job into smaller batches.</p>
             </div>
           </div>
 
-          <div class="faqStack">
-            <details class="faq">
-              <summary>Can I reorder pages before merging?</summary>
-              <div class="faqBody">
-                Yes — drag pages in the grid to the exact order you want. The merged PDF follows that order.
-              </div>
-            </details>
-
-            <details class="faq">
-              <summary>Will any pages be dropped?</summary>
-              <div class="faqBody">
-                No. If previews are limited for speed, all remaining pages are still included in the merge.
-              </div>
-            </details>
-
-            <details class="faq">
-              <summary>Do I need an account?</summary>
-              <div class="faqBody">
-                No signup required. Upload, continue, then download.
-              </div>
-            </details>
-
-            <details class="faq">
-              <summary>Is there a file limit?</summary>
-              <div class="faqBody">
-                Limits are enforced in the app. If you hit a limit, split the job into smaller batches.
-              </div>
-            </details>
-          </div>
-
-          <div style="margin-top:12px; font-size:12px; opacity:.75;">
+          <div class="plainNote">
             Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
           </div>
         </div>
 
+        <div>
+          <div class="plainKicker">Related tools</div>
+          <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.02em; font-weight:950;">More PDF tools</h3>
+          <p class="plainLead" style="font-size:15px; margin-top:0; max-width:56ch;">
+            Need something else? Use the same workflow across tools — upload, process, download.
+          </p>
+
+          <div class="relatedLinks" aria-label="Related PDF tools">
+            <a href="/">Compress PDF</a>
+            <a href="/split-pdf">Split PDF</a>
+            <a href="/rotate-pdf">Rotate PDF</a>
+            <a href="/convert">Convert</a>
+          </div>
+
+          <div class="plainNote">
+            Tip: For huge documents, merge in batches so previews stay snappy.
+          </div>
+        </div>
       </div>
+
     </div>
   </section>
 
@@ -786,7 +828,7 @@
     document.dispatchEvent(new CustomEvent("pdfops:pageorder", {
       detail: { order: window.__pdfopsPageOrder.slice() }
     }));
-    updateOrderBadges(); // NEW
+    updateOrderBadges();
   }
 
   function updateCount() {
@@ -796,7 +838,6 @@
       : "";
   }
 
-  // NEW: update visible 1..N numbers on the currently rendered thumbs
   function updateOrderBadges() {
     const nodes = [...grid.querySelectorAll(".pdfThumb")];
     nodes.forEach((node, idx) => {
@@ -906,14 +947,13 @@
     });
     grid.innerHTML = "";
     grid.appendChild(frag);
-    updateOrderBadges(); // NEW
+    updateOrderBadges();
   }
 
   function clearOverStates() {
     grid.querySelectorAll(".pdfThumb").forEach(n => n.classList.remove("isOver", "isDragging"));
   }
 
-  // ========== Robust drag via event delegation ==========
   grid.addEventListener("dragstart", (e) => {
     const thumb = e.target.closest(".pdfThumb");
     if (!thumb) return;
