@@ -1,7 +1,7 @@
-<!-- public/merge-pdf.html — PDFOperations (v9 - PRO UI + SEO UPGRADE + PAGE REORDER SAFE + PDF.JS ESM MODULE LOADER)
+<!-- public/merge-pdf.html — PDFOperations (v10 - PRO UI + SEO UPGRADE + PAGE REORDER SAFE + PDF.JS ESM + DRAG FIXED)
      ✅ style.css?v=36 + app.js?v=17.7
-     ✅ Replaces CDN pdf.js with self-hosted ESM module loader (no import.meta errors)
-     ✅ Waits for window.__pdfjsReady before using pdfjsLib (previews reliable)
+     ✅ Uses self-hosted PDF.js ESM loader (no CDN, no import.meta issues)
+     ✅ Drag reorder FIXED (img drag disabled + grid event delegation + pointer-events hardened)
      ✅ Keeps ALL existing app.js IDs unchanged
      ✅ Keeps window.__pdfopsPageOrder + pdfops:pageorder dispatch
      ✅ Keeps preview + drag reorder (clip-safe: never drops pages)
@@ -124,14 +124,14 @@
   </script>
 
   <!-- =========================================================
-       PDF.js (self-hosted ESM) — module-loading pattern (v17.7+)
-       Files expected:
+       PDF.js (self-hosted ESM) — module loader
+       expects:
          /public/vendor/pdfjs/pdf.min.mjs
          /public/vendor/pdfjs/pdf.worker.min.mjs
-       Exposes:
+       exposes:
          window.__pdfjsReady (Promise)
          window.pdfjsLib
-         window.__pdfjsWorkerOK (boolean)
+         window.__pdfjsWorkerOK
   ========================================================== -->
   <script type="module">
     const PDFJS_SRC = "/vendor/pdfjs/pdf.min.mjs";
@@ -140,10 +140,8 @@
     window.__pdfjsReady = (async () => {
       const mod = await import(PDFJS_SRC);
       const lib = mod?.default ?? mod;
-
       window.pdfjsLib = lib;
 
-      // Prefer worker; fallback is handled in catch path or via disableWorker flags.
       try {
         lib.GlobalWorkerOptions.workerSrc = WORKER_SRC;
         window.__pdfjsWorkerOK = true;
@@ -153,7 +151,6 @@
 
       return lib;
     })().catch(async (err) => {
-      // Hard fallback: still expose pdfjsLib if possible, with worker disabled semantics
       try {
         const mod2 = await import(PDFJS_SRC);
         const lib2 = mod2?.default ?? mod2;
@@ -168,284 +165,174 @@
   </script>
 
   <style>
-    /* ===========================================
-       PRO UI LAYER (NO BUBBLES / NO PILLS)
-       Page-owned, does not fight style.css
-    =========================================== */
-
     /* Protect [hidden] */
     #pdfPreviewModal[hidden],
     #pdfReorderWrap[hidden],
-    #fileMeta[hidden]{
-      display:none !important;
-    }
+    #fileMeta[hidden]{ display:none !important; }
     [hidden]{ display:none !important; }
 
-    /* Neutral “tool UI” helpers */
     .proKicker{
-      font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 12px;
-      letter-spacing: .02em;
-      opacity: .78;
-      text-transform: uppercase;
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px; letter-spacing:.02em; opacity:.78; text-transform:uppercase;
     }
 
-    /* Replace trust pills with a professional inline list */
     .trustBar{
-      display:flex;
-      flex-wrap:wrap;
-      gap: 10px 16px;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid rgba(15,23,42,.10);
-      color: rgba(11,18,32,.72);
-      font-size: 13px;
+      display:flex; flex-wrap:wrap; gap:10px 16px;
+      margin-top:12px; padding-top:12px;
+      border-top:1px solid rgba(15,23,42,.10);
+      color:rgba(11,18,32,.72); font-size:13px;
     }
     .trustPill{
-      /* keep class for compatibility, but make it NOT a pill */
-      padding: 0 !important;
-      border: 0 !important;
-      background: transparent !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-      font-weight: 700;
-      display:flex;
-      align-items:center;
-      gap: 8px;
+      padding:0 !important; border:0 !important; background:transparent !important;
+      border-radius:0 !important; box-shadow:none !important;
+      font-weight:700; display:flex; align-items:center; gap:8px;
     }
-    .trustPill::before{
-      content:"•";
-      opacity:.55;
-    }
+    .trustPill::before{ content:"•"; opacity:.55; }
     .trustBar .trustPill:first-child::before{ content:""; }
 
-    /* ===========================================
-       Reorder UI (no pill meta)
-    =========================================== */
-
     .pdfReorderWrap{
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(15,23,42,.10);
+      margin-top:14px; padding-top:14px;
+      border-top:1px solid rgba(15,23,42,.10);
     }
     .pdfReorderHead{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 14px;
-      margin: 2px 0 12px;
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:14px; margin:2px 0 12px;
     }
-    .pdfReorderTitle{
-      font-weight: 900;
-      letter-spacing: -.02em;
-    }
-    .pdfReorderSub{
-      opacity:.78;
-      font-size: 13px;
-      line-height: 1.35;
-      margin-top: 4px;
-    }
+    .pdfReorderTitle{ font-weight:900; letter-spacing:-.02em; }
+    .pdfReorderSub{ opacity:.78; font-size:13px; line-height:1.35; margin-top:4px; }
 
     .pdfThumbGrid{
-      display:grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 10px;
+      display:grid; grid-template-columns:repeat(6, minmax(0,1fr));
+      gap:10px; margin-top:10px;
     }
-    @media (max-width: 1100px){
-      .pdfThumbGrid{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    }
-    @media (max-width: 720px){
-      .pdfThumbGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
+    @media (max-width:1100px){ .pdfThumbGrid{ grid-template-columns:repeat(4, minmax(0,1fr)); } }
+    @media (max-width:720px){ .pdfThumbGrid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
 
     .pdfThumb{
       position:relative;
-      border: 1px solid rgba(15,23,42,.12);
-      background: rgba(255,255,255,.88);
-      border-radius: 14px;
+      border:1px solid rgba(15,23,42,.12);
+      background:rgba(255,255,255,.88);
+      border-radius:14px;
       overflow:hidden;
-      box-shadow: 0 10px 28px rgba(2,6,23,.06);
-      cursor: grab;
-      user-select:none;
-      -webkit-user-select:none;
-      transition: transform .10s ease, box-shadow .10s ease, border-color .10s ease;
+      box-shadow:0 10px 28px rgba(2,6,23,.06);
+      cursor:grab;
+      user-select:none; -webkit-user-select:none;
+      transition:transform .10s ease, box-shadow .10s ease, border-color .10s ease;
     }
     .pdfThumb:hover{
-      transform: translateY(-1px);
-      border-color: rgba(15,23,42,.18);
-      box-shadow: 0 14px 36px rgba(2,6,23,.10);
+      transform:translateY(-1px);
+      border-color:rgba(15,23,42,.18);
+      box-shadow:0 14px 36px rgba(2,6,23,.10);
     }
-    .pdfThumb:active{ cursor: grabbing; transform: translateY(0); }
+    .pdfThumb:active{ cursor:grabbing; transform:translateY(0); }
+    .pdfThumb.isDragging{ opacity:.55; transform:scale(.99); }
+    .pdfThumb.isOver{ outline:2px solid rgba(11,18,32,.18); outline-offset:2px; }
 
-    .pdfThumb.isDragging{ opacity: .55; transform: scale(.99); }
-    .pdfThumb.isOver{
-      outline: 2px solid rgba(11,18,32,.18);
-      outline-offset: 2px;
-    }
+    /* CRITICAL: prevent the inner image/labels from stealing drag */
+    .pdfThumbImg,
+    .pdfThumbMeta,
+    .pdfThumbImg *{ pointer-events:none; }
 
     .pdfThumbImg{
       width:100%;
-      aspect-ratio: 3 / 4;
-      background: linear-gradient(180deg, rgba(15,23,42,.04), rgba(15,23,42,.02));
+      aspect-ratio:3/4;
+      background:linear-gradient(180deg, rgba(15,23,42,.04), rgba(15,23,42,.02));
       display:flex; align-items:center; justify-content:center;
     }
     .pdfThumbImg img{
-      width:100%;
-      height:100%;
-      object-fit: cover;
-      display:block;
+      width:100%; height:100%; object-fit:cover; display:block;
+      -webkit-user-drag:none; user-select:none;
     }
 
-    /* Replace pill chips with a professional footer strip */
     .pdfThumbMeta{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap: 10px;
-      padding: 9px 10px;
-      font-size: 12px;
-      border-top: 1px solid rgba(15,23,42,.08);
-      background: rgba(255,255,255,.92);
-      color: rgba(11,18,32,.82);
+      display:flex; justify-content:space-between; align-items:center;
+      gap:10px; padding:9px 10px; font-size:12px;
+      border-top:1px solid rgba(15,23,42,.08);
+      background:rgba(255,255,255,.92);
+      color:rgba(11,18,32,.82);
     }
     .pdfThumbPill{
-      /* keep class but make it NOT a pill */
-      font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 11px;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      border-radius: 0;
-      white-space: nowrap;
-      max-width: 100%;
-      overflow:hidden;
-      text-overflow: ellipsis;
-      opacity: .85;
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:11px;
+      padding:0; border:0; background:transparent; border-radius:0;
+      white-space:nowrap; max-width:100%;
+      overflow:hidden; text-overflow:ellipsis; opacity:.85;
     }
 
-    .pdfTinyNote{
-      margin-top: 10px;
-      font-size: 12px;
-      opacity: .75;
-    }
+    .pdfTinyNote{ margin-top:10px; font-size:12px; opacity:.75; }
 
-    /* ===========================================
-       Modal (kept, but clean)
-    =========================================== */
     .pdfPreviewModal{
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      background: rgba(2,6,23,.62);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: 18px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      position:fixed; inset:0; z-index:1000;
+      background:rgba(2,6,23,.62);
+      display:flex; align-items:center; justify-content:center;
+      padding:18px;
+      backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
     }
     .pdfPreviewCard{
-      width: min(980px, 96vw);
-      max-height: 90vh;
-      background: rgba(255,255,255,.96);
-      border: 1px solid rgba(15,23,42,.10);
-      border-radius: 16px;
+      width:min(980px,96vw); max-height:90vh;
+      background:rgba(255,255,255,.96);
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:16px;
       overflow:hidden;
-      box-shadow: 0 30px 90px rgba(0,0,0,.35);
-      display:flex;
-      flex-direction: column;
+      box-shadow:0 30px 90px rgba(0,0,0,.35);
+      display:flex; flex-direction:column;
     }
     .pdfPreviewTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 12px;
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(15,23,42,.10);
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; padding:12px 14px;
+      border-bottom:1px solid rgba(15,23,42,.10);
     }
     .pdfPreviewTitle{
-      font-weight: 900;
-      letter-spacing: -.02em;
-      overflow:hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      max-width: 75%;
+      font-weight:900; letter-spacing:-.02em;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:75%;
     }
     .pdfPreviewBody{
-      padding: 12px;
-      overflow:auto;
-      background: linear-gradient(180deg, rgba(15,23,42,.02), rgba(15,23,42,.01));
+      padding:12px; overflow:auto;
+      background:linear-gradient(180deg, rgba(15,23,42,.02), rgba(15,23,42,.01));
     }
     .pdfPreviewCanvas{
-      width: 100%;
-      display:block;
-      background: white;
-      border-radius: 12px;
-      border: 1px solid rgba(15,23,42,.10);
+      width:100%; display:block; background:#fff;
+      border-radius:12px; border:1px solid rgba(15,23,42,.10);
     }
 
-    /* ===========================================
-       SEO SUPPORT (no pill links)
-    =========================================== */
-    .seoWrap{ padding: 18px 0 40px; }
+    .seoWrap{ padding:18px 0 40px; }
     .seoCard{
-      background: rgba(255,255,255,.92);
-      border: 1px solid rgba(15,23,42,.10);
-      border-radius: 20px;
-      box-shadow: 0 18px 50px rgba(2,6,23,.06);
-      padding: 18px;
+      background:rgba(255,255,255,.92);
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:20px;
+      box-shadow:0 18px 50px rgba(2,6,23,.06);
+      padding:18px;
     }
     .seoGrid{
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap: 16px;
-      margin-top: 14px;
+      display:grid; grid-template-columns:1.2fr .8fr;
+      gap:16px; margin-top:14px;
     }
-    @media (max-width: 920px){
-      .seoGrid{ grid-template-columns: 1fr; }
-    }
-    .seoCard h2{ margin: 0 0 8px; }
-    .seoCard p{ margin: 0 0 10px; }
-    .seoCard ul{ margin: 0 0 10px; padding-left: 18px; }
-
-    .relTools{
-      display:flex;
-      flex-wrap:wrap;
-      gap: 10px;
-      margin-top: 12px;
-    }
+    @media (max-width:920px){ .seoGrid{ grid-template-columns:1fr; } }
+    .relTools{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
     .relTools a{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      padding: 10px 12px;
-      border-radius: 12px; /* not a pill */
-      border: 1px solid rgba(15,23,42,.12);
-      background: rgba(255,255,255,.96);
-      text-decoration: none;
-      font-weight: 850;
-      font-size: 13px;
-      color: rgba(11,18,32,.92);
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(15,23,42,.12);
+      background:rgba(255,255,255,.96);
+      text-decoration:none;
+      font-weight:850; font-size:13px;
+      color:rgba(11,18,32,.92);
     }
     .relTools a:hover{
-      border-color: rgba(15,23,42,.18);
-      box-shadow: 0 10px 24px rgba(2,6,23,.08);
-      transform: translateY(-1px);
+      border-color:rgba(15,23,42,.18);
+      box-shadow:0 10px 24px rgba(2,6,23,.08);
+      transform:translateY(-1px);
     }
-
-    .faqList{ display:grid; gap: 10px; margin-top: 10px; }
+    .faqList{ display:grid; gap:10px; margin-top:10px; }
     details.faq{
-      border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.92);
-      border-radius: 14px;
-      padding: 10px 12px;
+      border:1px solid rgba(15,23,42,.10);
+      background:rgba(255,255,255,.92);
+      border-radius:14px;
+      padding:10px 12px;
     }
     details.faq summary{
-      cursor: pointer;
-      font-weight: 900;
-      letter-spacing: -.01em;
-      list-style: none;
+      cursor:pointer; font-weight:900; letter-spacing:-.01em; list-style:none;
     }
     details.faq summary::-webkit-details-marker{ display:none; }
   </style>
@@ -730,7 +617,7 @@
 <script>
 /* =========================================================
    Merge — PDF page thumbnails + drag reorder + preview
-   - Coexists with /app.js (does not change existing IDs)
+   - Robust drag: event delegation + prevents inner elements stealing drag
    - Sets window.__pdfopsPageOrder (array of "fileIndex:pageNumber")
    - Dispatches "pdfops:pageorder" event after any reorder
    - CLIP SAFE: if thumbnails are clipped for performance, we STILL
@@ -752,6 +639,7 @@
   const modalCanvas = document.getElementById("pdfPreviewCanvas");
 
   if (!document.body || document.body.dataset.tool !== "merge_pdf") return;
+  if (!grid) return;
 
   if (modal) {
     modal.hidden = true;
@@ -784,6 +672,7 @@
   }
 
   function showModal(title) {
+    if (!modal) return;
     modal.hidden = false;
     modal.setAttribute("aria-hidden", "false");
     modalTitle.textContent = title || "Preview";
@@ -791,6 +680,7 @@
   }
 
   function hideModal() {
+    if (!modal) return;
     modal.hidden = true;
     modal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
@@ -805,8 +695,8 @@
 
   function clearThumbs() {
     grid.innerHTML = "";
-    wrap.hidden = true;
-    noteEl.hidden = true;
+    if (wrap) wrap.hidden = true;
+    if (noteEl) noteEl.hidden = true;
 
     originalOrder = [];
     currentOrder = [];
@@ -840,7 +730,6 @@
     const bytes = pdfBytesByFile[fileIndex];
     if (!bytes) return;
 
-    // IMPORTANT: wait for ESM loader
     await window.__pdfjsReady;
     const pdfjsLib = window.pdfjsLib;
 
@@ -867,9 +756,6 @@
   function rebuildGridFromOrder() {
     const frag = document.createDocumentFragment();
     currentOrder.forEach((key) => {
-      const meta = pageMap.get(key);
-      if (!meta) return;
-
       let node = null;
       try {
         node = grid.querySelector(`[data-page-key="${CSS.escape(key)}"]`);
@@ -878,68 +764,81 @@
       }
       if (node) frag.appendChild(node);
     });
-
     grid.innerHTML = "";
     grid.appendChild(frag);
   }
 
-  function wireDragAndClick() {
-    const items = [...grid.querySelectorAll(".pdfThumb")];
-
-    items.forEach(node => {
-      const key = node.getAttribute("data-page-key");
-
-      node.addEventListener("dragstart", (e) => {
-        dragKey = key;
-        node.classList.add("isDragging");
-        e.dataTransfer.effectAllowed = "move";
-        try { e.dataTransfer.setData("text/plain", key); } catch(_) {}
-      });
-
-      node.addEventListener("dragend", () => {
-        dragKey = null;
-        node.classList.remove("isDragging");
-        items.forEach(n => n.classList.remove("isOver"));
-      });
-
-      node.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        node.classList.add("isOver");
-        e.dataTransfer.dropEffect = "move";
-      });
-
-      node.addEventListener("dragleave", () => node.classList.remove("isOver"));
-
-      node.addEventListener("drop", (e) => {
-        e.preventDefault();
-        node.classList.remove("isOver");
-
-        const fromKey = dragKey || (()=>{
-          try { return e.dataTransfer.getData("text/plain"); } catch(_) { return null; }
-        })();
-
-        const toKey = key;
-        if (!fromKey || !toKey || fromKey === toKey) return;
-
-        const fromIdx = currentOrder.indexOf(fromKey);
-        const toIdx = currentOrder.indexOf(toKey);
-        if (fromIdx === -1 || toIdx === -1) return;
-
-        const next = moveKey(currentOrder, fromIdx, toIdx);
-        setOrder(next);
-        rebuildGridFromOrder();
-        wireDragAndClick();
-        updateCount();
-      });
-
-      node.addEventListener("click", async () => {
-        const meta = pageMap.get(key);
-        if (!meta) return;
-        showModal(`${meta.name} • page ${meta.pageNumber}`);
-        await renderPreviewPage(meta.fileIndex, meta.pageNumber);
-      });
-    });
+  function clearOverStates() {
+    grid.querySelectorAll(".pdfThumb").forEach(n => n.classList.remove("isOver", "isDragging"));
   }
+
+  // ========== Robust drag via event delegation ==========
+  grid.addEventListener("dragstart", (e) => {
+    const thumb = e.target.closest(".pdfThumb");
+    if (!thumb) return;
+    const key = thumb.getAttribute("data-page-key");
+    if (!key) return;
+
+    dragKey = key;
+    thumb.classList.add("isDragging");
+
+    try {
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", key);
+      e.dataTransfer.setDragImage(thumb, 24, 24);
+    } catch (_) {}
+  });
+
+  grid.addEventListener("dragover", (e) => {
+    const over = e.target.closest(".pdfThumb");
+    if (!over) return;
+    e.preventDefault(); // REQUIRED to allow drop
+    clearOverStates();
+    over.classList.add("isOver");
+    try { e.dataTransfer.dropEffect = "move"; } catch (_) {}
+  });
+
+  grid.addEventListener("drop", (e) => {
+    const over = e.target.closest(".pdfThumb");
+    if (!over) return;
+    e.preventDefault();
+
+    const toKey = over.getAttribute("data-page-key");
+    const fromKey = dragKey || (() => {
+      try { return e.dataTransfer.getData("text/plain"); } catch (_) { return null; }
+    })();
+
+    clearOverStates();
+    dragKey = null;
+
+    if (!fromKey || !toKey || fromKey === toKey) return;
+    const fromIdx = currentOrder.indexOf(fromKey);
+    const toIdx = currentOrder.indexOf(toKey);
+    if (fromIdx === -1 || toIdx === -1) return;
+
+    const next = moveKey(currentOrder, fromIdx, toIdx);
+    setOrder(next);
+    rebuildGridFromOrder();
+    updateCount();
+  });
+
+  grid.addEventListener("dragend", () => {
+    dragKey = null;
+    clearOverStates();
+  });
+
+  grid.addEventListener("click", async (e) => {
+    const thumb = e.target.closest(".pdfThumb");
+    if (!thumb) return;
+    const key = thumb.getAttribute("data-page-key");
+    if (!key) return;
+
+    const meta = pageMap.get(key);
+    if (!meta) return;
+
+    showModal(`${meta.name} • page ${meta.pageNumber}`);
+    await renderPreviewPage(meta.fileIndex, meta.pageNumber);
+  });
 
   async function buildThumbsForFiles(files) {
     clearThumbs();
@@ -948,7 +847,6 @@
     const pdfs = [...files].filter(f => (f.type === "application/pdf") || /\.pdf$/i.test(f.name));
     if (pdfs.length < 1) return;
 
-    // IMPORTANT: wait for ESM loader before calling pdfjsLib anywhere
     await window.__pdfjsReady;
     const pdfjsLib = window.pdfjsLib;
 
@@ -985,11 +883,15 @@
 
         const node = document.createElement("div");
         node.className = "pdfThumb";
-        node.draggable = true;
         node.setAttribute("data-page-key", pageKey);
+        node.draggable = true;
 
         const imgEl = document.createElement("img");
         imgEl.alt = `${name} page ${p}`;
+        imgEl.draggable = false;
+        imgEl.setAttribute("draggable", "false");
+        imgEl.style.webkitUserDrag = "none";
+        imgEl.style.userSelect = "none";
 
         const imgWrap = document.createElement("div");
         imgWrap.className = "pdfThumbImg";
@@ -1021,11 +923,10 @@
     }
 
     setOrder(originalOrder);
-    wrap.hidden = false;
+    if (wrap) wrap.hidden = false;
     updateCount();
-    wireDragAndClick();
 
-    if (clipped) {
+    if (clipped && noteEl) {
       noteEl.hidden = false;
       const hiddenCount = Math.max(0, clippedTotalPages - thumbsRendered);
       noteEl.textContent =
@@ -1035,13 +936,12 @@
 
   modalClose?.addEventListener("click", hideModal);
   modal?.addEventListener("click", (e) => { if (e.target === modal) hideModal(); });
-  window.addEventListener("keydown", (e) => { if (e.key === "Escape" && !modal.hidden) hideModal(); });
+  window.addEventListener("keydown", (e) => { if (e.key === "Escape" && modal && !modal.hidden) hideModal(); });
 
   resetBtn?.addEventListener("click", () => {
     if (!originalOrder.length) return;
     setOrder(originalOrder);
     rebuildGridFromOrder();
-    wireDragAndClick();
     updateCount();
   });
 
