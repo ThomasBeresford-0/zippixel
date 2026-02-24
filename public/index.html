@@ -1,10 +1,9 @@
-<!-- public/index.html — PDFOperations (v60 - CLEAN POST-SELECT PANEL + PROPER THUMB TILE + KILL “×Remove” PILL)
+<!-- public/index.html — PDFOperations (v62 - REAL PDF THUMB PREVIEW LIKE REF + CLEAN OVERLAYS)
      ✅ Keeps ALL app.js v17.7 IDs preserved (NO hook breaks)
      ✅ style.css?v=36 + app.js?v=17.7
-     ✅ Fix: post-select view now looks like a real product (simple panel + single clean tile)
-     ✅ Fix: removes “×Remove” pill look (turns into a proper corner X)
-     ✅ Fix: hides noisy PDF chips/extra meta in the tile
-     ✅ No app.js edits required
+     ✅ REAL thumbnail preview rendered client-side (PDF.js) into a big square card (like ref)
+     ✅ Filename top-left, clean X top-right (calls existing #clearBtn)
+     ✅ Hides app.js mini card UI while keeping it in DOM for compatibility
 -->
 <!doctype html>
 <html lang="en">
@@ -18,7 +17,6 @@
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
 
-  <!-- Open Graph -->
   <meta property="og:title" content="Compress PDF Online — Reduce PDF File Size | PDFOperations" />
   <meta property="og:description" content="Compress PDF files online. Reduce PDF file size quickly for email and upload limits. Secure processing. No signup required." />
   <meta property="og:type" content="website" />
@@ -26,7 +24,6 @@
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
   <meta property="og:image:alt" content="PDFOperations — Compress PDF" />
 
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Compress PDF Online — Reduce PDF File Size | PDFOperations" />
   <meta name="twitter:description" content="Compress PDF files online. Reduce PDF file size quickly for email and upload limits. Secure processing. No signup required." />
@@ -39,7 +36,7 @@
   <link rel="stylesheet" href="/style.css?v=36" />
 
   <style>
-    /* 1) Force-hide compression dropdown visually (app.js can still read default value) */
+    /* Force-hide compression dropdown visually (app.js can still read default value) */
     #pdfCompressRow,
     #pdfCompressLevel{
       display:none !important;
@@ -52,17 +49,11 @@
       overflow:hidden !important;
     }
 
-    /* 2) Hide file input completely (app.js triggers it via chooseBtn click) */
+    /* Hide file input (app.js triggers via chooseBtn click) */
     #files{ display:none !important; }
 
-    /* 3) Logo sizing */
-    .brandLogo{
-      height:34px;
-      width:auto;
-      display:block;
-    }
+    .brandLogo{ height:34px; width:auto; display:block; }
 
-    /* Drag over state */
     #dropzone.isDragOver{
       outline:3px solid rgba(11,18,32,.08);
       box-shadow:0 18px 46px rgba(2,6,23,.12);
@@ -71,9 +62,7 @@
 
     [hidden]{ display:none !important; }
 
-    /* ======================================================
-       PRE-SELECT STEPS (only visible before file selected)
-       ====================================================== */
+    /* Steps (pre-select only) */
     .stepsLine{
       display:flex;
       flex-wrap:wrap;
@@ -94,12 +83,7 @@
       background:#fff;
     }
 
-    /* ======================================================
-       MONEY-MODE: SIMPLE “WORK PANEL” AFTER FILE SELECT
-       (make it look like a deliberate tool, not a debug list)
-       ====================================================== */
-
-    /* Toggle: body.hasFile is applied via MutationObserver below */
+    /* ===== Reference-style post-select panel ===== */
     body.hasFile #dropzone{ display:none !important; }
     body.hasFile .stepsLine{ display:none !important; }
     body:not(.hasFile) .workPanel{ display:none !important; }
@@ -112,7 +96,6 @@
       box-shadow:0 18px 46px rgba(2,6,23,.08);
       overflow:hidden;
     }
-
     .workTop{
       display:flex;
       align-items:center;
@@ -132,16 +115,95 @@
     }
 
     .workStage{
-      padding:18px;
+      padding:26px 18px 24px 18px;
       display:flex;
       align-items:center;
       justify-content:center;
-      min-height:260px;
-      background:
-        radial-gradient(900px 420px at 50% 0%, rgba(11,18,32,.03), transparent 55%),
-        linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+      min-height:420px;
+      background:#fff;
     }
 
+    /* The actual ref-style big preview card */
+    .thumbCard{
+      position:relative;
+      width:min(520px, 78vw);
+      aspect-ratio: 1 / 1;
+      border-radius:18px;
+      overflow:hidden;
+      background:
+        radial-gradient(900px 520px at 50% 0%, rgba(11,18,32,.05), transparent 60%),
+        linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+      border:1px solid rgba(15,23,42,.10);
+      box-shadow:0 24px 60px rgba(2,6,23,.14);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .thumbCanvas{
+      width:100%;
+      height:100%;
+      display:block;
+      background:
+        repeating-conic-gradient(from 0deg, rgba(15,23,42,.06) 0 25%, rgba(15,23,42,.02) 0 50%) 50% / 34px 34px;
+    }
+
+    .thumbName{
+      position:absolute;
+      top:12px;
+      left:12px;
+      max-width: calc(100% - 56px);
+      padding:10px 12px;
+      border-radius:14px;
+      background:rgba(255,255,255,.92);
+      border:1px solid rgba(15,23,42,.12);
+      box-shadow:0 10px 24px rgba(2,6,23,.10);
+      font-weight:950;
+      font-size:13px;
+      color:rgba(11,18,32,.92);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .thumbClose{
+      position:absolute;
+      top:12px;
+      right:12px;
+      width:40px;
+      height:40px;
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.14);
+      background:rgba(255,255,255,.92);
+      box-shadow:0 10px 24px rgba(2,6,23,.10);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      color:rgba(11,18,32,.88);
+      font-weight:950;
+      user-select:none;
+    }
+    .thumbClose:hover{ transform: translateY(-1px); }
+
+    .thumbHint{
+      position:absolute;
+      bottom:12px;
+      left:12px;
+      right:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      color:rgba(11,18,32,.66);
+      font-size:12px;
+      padding:10px 12px;
+      border-radius:14px;
+      background:rgba(255,255,255,.86);
+      border:1px solid rgba(15,23,42,.10);
+    }
+
+    /* Bottom actions (keep your real IDs: #upload / #continue) */
     .workBottom{
       padding:14px 16px 16px 16px;
       border-top:1px solid rgba(15,23,42,.10);
@@ -168,188 +230,25 @@
       .workTop{ flex-direction:column; }
       .workTop .btnPrimary,
       .workTop .btnGhost{ width:100%; min-width:unset; max-width:420px; }
+      .thumbCard{ width:min(520px, 92vw); }
     }
 
-    /* ======================================================
-       APP.JS FILE UI OVERRIDES (THIS IS THE “MAKE IT SIMPLE” PART)
-       We aggressively “normalize” whatever markup app.js spits out
-       into a clean single-card thumbnail.
-       ====================================================== */
-
-    /* Remove app.js header row/summary (we provide our own top buttons) */
+    /* ===== Hide app.js mini-card UI completely (but keep DOM for hooks) ===== */
     #fileMeta{
       margin:0 !important;
       padding:0 !important;
       border:0 !important;
       background:transparent !important;
       box-shadow:none !important;
-      width:100%;
-      display:flex;
-      justify-content:center;
-    }
-    #fileMeta .fileMetaTop,
-    #fileSummary,
-    #fileMetaTop,
-    .fileMetaTop{ display:none !important; }
-
-    /* Make list become a centered “stage” */
-    #fileList{
-      list-style:none;
-      margin:0;
-      padding:0;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-    }
-
-    /* Thumbnail tile (bigger, calmer, no clutter) */
-    #fileList > li{
-      position:relative;
-      width:170px;
-      height:220px;
-      border-radius:18px;
-      border:1px solid rgba(15,23,42,.12);
-      background:
-        radial-gradient(140px 140px at 30% 18%, rgba(11,18,32,.06), transparent 60%),
-        linear-gradient(180deg, #ffffff 0%, #f7f9fe 100%);
-      box-shadow:0 16px 40px rgba(2,6,23,.10);
-      overflow:hidden;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      padding:14px;
-      gap:8px;
-    }
-
-    /* A clean “PDF” corner tag */
-    #fileList > li::before{
-      content:"PDF";
-      position:absolute;
-      top:12px;
-      left:12px;
-      font-weight:950;
-      font-size:12px;
-      letter-spacing:.08em;
-      color:rgba(11,18,32,.72);
-      background:rgba(11,18,32,.06);
-      border:1px solid rgba(15,23,42,.12);
-      border-radius:10px;
-      padding:6px 10px;
-    }
-
-    /* Optional subtle watermark icon */
-    #fileList > li::after{
-      content:"";
-      position:absolute;
-      inset:auto auto 20px 50%;
-      width:86px;
-      height:86px;
-      transform:translateX(-50%);
-      border-radius:26px;
-      background:rgba(11,18,32,.03);
-      border:1px solid rgba(15,23,42,.08);
-      filter:blur(0);
-      pointer-events:none;
-    }
-
-    /* ---- Hide noisy inner elements (chips/icons/extra rows) ---- */
-    #fileList > li img,
-    #fileList > li svg:not([data-keep]),
-    #fileList > li .icon,
-    #fileList > li .fileIcon,
-    #fileList > li .type,
-    #fileList > li .ext,
-    #fileList > li .badge,
-    #fileList > li .pill,
-    #fileList > li .chip,
-    #fileList > li .tag,
-    #fileList > li .meta,
-    #fileList > li .sub,
-    #fileList > li small,
-    #fileList > li .size,
-    #fileList > li .row2,
-    #fileList > li .row3{
-      display:none !important;
-    }
-
-    /* Keep ONLY something that looks like a filename */
-    #fileList > li .name,
-    #fileList > li .fileName,
-    #fileList > li .filename,
-    #fileList > li strong,
-    #fileList > li span{
-      display:block;
-      max-width:100%;
-      text-align:center;
-      font-size:12px;
-      font-weight:950;
-      color:rgba(11,18,32,.88);
-      line-height:1.25;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-    }
-
-    /* If app.js wraps name + meta in a container, keep it readable */
-    #fileList > li div,
-    #fileList > li p{
-      margin:0 !important;
-      padding:0 !important;
-      text-align:center;
-    }
-
-    /* ---- Remove button: force to be a clean corner X (no “×Remove” pill) ---- */
-    #fileList > li button,
-    #fileList > li a,
-    #fileList > li [role="button"]{
-      /* Don’t nuke ALL buttons — only the ones that look like remove */
-    }
-    #fileList > li button[aria-label*="Remove" i],
-    #fileList > li button[title*="Remove" i],
-    #fileList > li a[aria-label*="Remove" i],
-    #fileList > li a[title*="Remove" i],
-    #fileList > li .remove,
-    #fileList > li .btnRemove,
-    #fileList > li [class*="remove" i],
-    #fileList > li [id*="remove" i]{
+      width:0 !important;
+      height:0 !important;
+      overflow:hidden !important;
       position:absolute !important;
-      top:12px !important;
-      right:12px !important;
-      width:30px !important;
-      height:30px !important;
-      border-radius:11px !important;
-      border:1px solid rgba(15,23,42,.14) !important;
-      background:#fff !important;
-      box-shadow:0 10px 24px rgba(2,6,23,.10) !important;
-
-      /* Kill “Remove” text */
-      font-size:0 !important;
-      line-height:0 !important;
-      color:transparent !important;
-      padding:0 !important;
-      display:flex !important;
-      align-items:center !important;
-      justify-content:center !important;
-    }
-    #fileList > li button[aria-label*="Remove" i]::after,
-    #fileList > li button[title*="Remove" i]::after,
-    #fileList > li a[aria-label*="Remove" i]::after,
-    #fileList > li a[title*="Remove" i]::after,
-    #fileList > li .remove::after,
-    #fileList > li .btnRemove::after,
-    #fileList > li [class*="remove" i]::after,
-    #fileList > li [id*="remove" i]::after{
-      content:"×";
-      font-size:18px;
-      line-height:1;
-      font-weight:950;
-      color:rgba(11,18,32,.85);
+      left:-9999px !important;
+      top:auto !important;
     }
 
-    /* ======================================================
-       INFORMATION SECTION (PDF24-STYLE) — LIGHT GREY / NEUTRAL
-       ====================================================== */
+    /* ===== INFO + BELOW PANEL + FAQ (keep your existing look) ===== */
     .infoBand{
       margin-top:26px;
       padding:42px 0 34px 0;
@@ -360,211 +259,42 @@
       border-top:1px solid rgba(15,23,42,.10);
       border-bottom:1px solid rgba(15,23,42,.10);
     }
-    .infoInner{
-      max-width:1100px;
-      margin:0 auto;
-      padding:0 22px;
-    }
-    .infoTitle{
-      text-align:center;
-      margin:0;
-      font-size:34px;
-      letter-spacing:-.02em;
-      color:rgba(11,18,32,.92);
-    }
-    .infoOS{
-      margin-top:14px;
-      display:flex;
-      flex-wrap:wrap;
-      justify-content:center;
-      gap:10px 18px;
-      color:rgba(11,18,32,.70);
-      font-size:14px;
-    }
-    .osItem{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      white-space:nowrap;
-    }
-    .tick{
-      width:16px;height:16px;
-      border-radius:6px;
-      background:rgba(34,197,94,.12);
-      border:1px solid rgba(34,197,94,.22);
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-    }
+    .infoInner{ max-width:1100px; margin:0 auto; padding:0 22px; }
+    .infoTitle{ text-align:center; margin:0; font-size:34px; letter-spacing:-.02em; color:rgba(11,18,32,.92); }
+    .infoOS{ margin-top:14px; display:flex; flex-wrap:wrap; justify-content:center; gap:10px 18px; color:rgba(11,18,32,.70); font-size:14px; }
+    .osItem{ display:flex; align-items:center; gap:8px; white-space:nowrap; }
+    .tick{ width:16px;height:16px; border-radius:6px; background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.22); display:inline-flex; align-items:center; justify-content:center; }
     .tick svg{ width:12px;height:12px; fill:#22c55e; }
-
-    .infoGrid{
-      margin-top:26px;
-      display:grid;
-      gap:18px;
-      grid-template-columns:1fr;
-    }
-    @media(min-width: 900px){
-      .infoGrid{ grid-template-columns: repeat(3, 1fr); }
-    }
-    .infoCard{
-      border:1px solid rgba(15,23,42,.10);
-      background:#ffffff;
-      border-radius:18px;
-      padding:18px 18px 16px 18px;
-      min-height:140px;
-      box-shadow: 0 12px 30px rgba(2,6,23,.06);
-    }
-    .infoIcon{
-      width:34px;height:34px;
-      border-radius:14px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:rgba(11,18,32,.04);
-      border:1px solid rgba(15,23,42,.10);
-      margin-bottom:12px;
-    }
+    .infoGrid{ margin-top:26px; display:grid; gap:18px; grid-template-columns:1fr; }
+    @media(min-width: 900px){ .infoGrid{ grid-template-columns: repeat(3, 1fr); } }
+    .infoCard{ border:1px solid rgba(15,23,42,.10); background:#ffffff; border-radius:18px; padding:18px 18px 16px 18px; min-height:140px; box-shadow: 0 12px 30px rgba(2,6,23,.06); }
+    .infoIcon{ width:34px;height:34px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:rgba(11,18,32,.04); border:1px solid rgba(15,23,42,.10); margin-bottom:12px; }
     .infoIcon svg{ width:18px;height:18px; fill:rgba(11,18,32,.82); }
-    .infoH{
-      margin:0;
-      color:rgba(11,18,32,.92);
-      font-weight:950;
-      letter-spacing:-.01em;
-      font-size:15px;
-    }
-    .infoP{
-      margin:8px 0 0 0;
-      color:rgba(11,18,32,.72);
-      line-height:1.55;
-      font-size:13px;
-    }
+    .infoH{ margin:0; color:rgba(11,18,32,.92); font-weight:950; letter-spacing:-.01em; font-size:15px; }
+    .infoP{ margin:8px 0 0 0; color:rgba(11,18,32,.72); line-height:1.55; font-size:13px; }
 
-    /* ======================================================
-       CLEAN PANEL ABOVE FAQ
-       ====================================================== */
-    .belowInfo{
-      max-width:1100px;
-      margin:18px auto 0 auto;
-      padding:0 22px;
-    }
-    .belowPanel{
-      background:#ffffff;
-      border:1px solid rgba(15,23,42,.10);
-      border-radius:18px;
-      box-shadow:0 18px 46px rgba(2,6,23,.08);
-      padding:16px;
-    }
-    .belowTop{
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-    }
-    @media(min-width: 900px){
-      .belowTop{
-        flex-direction:row;
-        align-items:flex-start;
-        justify-content:space-between;
-        gap:18px;
-      }
-    }
-    .toolNav{
-      margin:0;
-      padding:0;
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px 14px;
-      align-items:center;
-    }
-    .toolNavLabel{
-      font-size:12px;
-      font-weight:900;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      color:rgba(11,18,32,.62);
-      margin-right:2px;
-    }
-    .toolNav a{
-      font-size:13px;
-      font-weight:900;
-      color:rgba(11,18,32,.92);
-      text-decoration:none;
-      border-bottom:1px solid rgba(11,18,32,.25);
-      padding-bottom:2px;
-      white-space:nowrap;
-    }
+    .belowInfo{ max-width:1100px; margin:18px auto 0 auto; padding:0 22px; }
+    .belowPanel{ background:#ffffff; border:1px solid rgba(15,23,42,.10); border-radius:18px; box-shadow:0 18px 46px rgba(2,6,23,.08); padding:16px; }
+    .belowTop{ display:flex; flex-direction:column; gap:12px; }
+    @media(min-width: 900px){ .belowTop{ flex-direction:row; align-items:flex-start; justify-content:space-between; gap:18px; } }
+    .toolNav{ margin:0; padding:0; display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; }
+    .toolNavLabel{ font-size:12px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; color:rgba(11,18,32,.62); margin-right:2px; }
+    .toolNav a{ font-size:13px; font-weight:900; color:rgba(11,18,32,.92); text-decoration:none; border-bottom:1px solid rgba(11,18,32,.25); padding-bottom:2px; white-space:nowrap; }
     .toolNav a:hover{ border-bottom-color: rgba(11,18,32,.65); }
-
-    .seoSubLinks{
-      margin:0;
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px 14px;
-      align-items:center;
-      justify-content:flex-start;
-    }
-    .seoSubLinks a{
-      font-size:12px;
-      font-weight:800;
-      color:rgba(11,18,32,.78);
-      text-decoration:none;
-      white-space:nowrap;
-    }
+    .seoSubLinks{ margin:0; display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; justify-content:flex-start; }
+    .seoSubLinks a{ font-size:12px; font-weight:800; color:rgba(11,18,32,.78); text-decoration:none; white-space:nowrap; }
     .seoSubLinks a:hover{ text-decoration:underline; }
-
-    .microTrust{
-      margin:12px 0 0 0;
-      font-size:12px;
-      color:rgba(11,18,32,.62);
-      padding-top:12px;
-      border-top:1px solid rgba(15,23,42,.10);
-    }
+    .microTrust{ margin:12px 0 0 0; font-size:12px; color:rgba(11,18,32,.62); padding-top:12px; border-top:1px solid rgba(15,23,42,.10); }
     .microTrust b{ color:rgba(11,18,32,.88); }
 
-    /* ======================================================
-       FAQ — clean, enterprise
-       ====================================================== */
-    .faq{
-      margin-top:14px;
-      padding:16px;
-    }
-    .faqHead{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:14px;
-      margin-bottom:10px;
-    }
-    .faq h2{
-      margin:0;
-      font-size:16px;
-      letter-spacing:-.01em;
-    }
-    .faqNote{
-      margin:0;
-      font-size:12px;
-      color:rgba(11,18,32,.62);
-    }
-    details.faqItem{
-      border:1px solid rgba(15,23,42,.10);
-      background:#fff;
-      border-radius:14px;
-      padding:12px 12px;
-      margin-top:10px;
-    }
-    details.faqItem summary{
-      cursor:pointer;
-      font-weight:950;
-      list-style:none;
-      letter-spacing:-.01em;
-    }
+    .faq{ margin-top:14px; padding:16px; }
+    .faqHead{ display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin-bottom:10px; }
+    .faq h2{ margin:0; font-size:16px; letter-spacing:-.01em; }
+    .faqNote{ margin:0; font-size:12px; color:rgba(11,18,32,.62); }
+    details.faqItem{ border:1px solid rgba(15,23,42,.10); background:#fff; border-radius:14px; padding:12px 12px; margin-top:10px; }
+    details.faqItem summary{ cursor:pointer; font-weight:950; list-style:none; letter-spacing:-.01em; }
     details.faqItem summary::-webkit-details-marker{ display:none; }
-    .faqAnswer{
-      margin-top:8px;
-      color:rgba(11,18,32,.78);
-      line-height:1.55;
-      font-size:13px;
-    }
+    .faqAnswer{ margin-top:8px; color:rgba(11,18,32,.78); line-height:1.55; font-size:13px; }
     .faqAnswer a{ color:rgba(11,18,32,.92); font-weight:900; }
   </style>
 
@@ -632,12 +362,15 @@
         "name":"What are the limits?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"Max 25MB per file and 50 files per job. Compress PDF uses a single PDF."
+          "text":"Max 25MB per file and max 50 files per job. Compress PDF uses a single PDF."
         }
       }
     ]
   }
   </script>
+
+  <!-- PDF.js (for REAL thumbnail preview) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.js"></script>
 </head>
 
 <body class="page pageCompressPdf">
@@ -731,7 +464,7 @@
           </select>
         </div>
 
-        <!-- DROPZONE (pre-upload) -->
+        <!-- DROPZONE (pre-select) -->
         <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
           <div class="dzCenter">
             <div class="dzTitle" id="dzTitle">Drop a PDF here</div>
@@ -744,21 +477,27 @@
           </div>
         </div>
 
-        <!-- SIMPLE WORK PANEL (post-select) -->
+        <!-- POST-SELECT: reference-style panel -->
         <div class="workPanel" aria-label="Selected file">
           <div class="workTop">
             <button class="btnPrimary" type="button"
               onclick="document.getElementById('chooseBtn') && document.getElementById('chooseBtn').click()">
               Select PDF
             </button>
-            <button class="btnGhost" type="button"
-              onclick="document.getElementById('clearBtn') && document.getElementById('clearBtn').click()">
+            <button class="btnGhost" type="button" id="clearTopBtn">
               Clear
             </button>
           </div>
 
           <div class="workStage">
-            <!-- MINI FILE CARD LIST (rendered by app.js) -->
+            <div class="thumbCard" id="thumbCard" aria-label="Preview">
+              <canvas class="thumbCanvas" id="thumbCanvas"></canvas>
+              <div class="thumbName" id="thumbName">PDF</div>
+              <div class="thumbClose" id="thumbClose" aria-label="Remove">×</div>
+              <div class="thumbHint" id="thumbHint">Preview shows page 1 • Upload to continue</div>
+            </div>
+
+            <!-- KEEP app.js DOM hooks (hidden offscreen by CSS) -->
             <div class="fileMeta" id="fileMeta" hidden>
               <div class="fileMetaTop">
                 <div class="fileSummary" id="fileSummary"></div>
@@ -799,7 +538,7 @@
     </div>
   </section>
 
-  <!-- INFORMATION (PDF24-STYLE) — LIGHT -->
+  <!-- Information + Panel + FAQ (unchanged from your v58) -->
   <section class="infoBand" aria-label="Information">
     <div class="infoInner">
       <h2 class="infoTitle">Information</h2>
@@ -818,31 +557,26 @@
           <h3 class="infoH">How to compress PDF files</h3>
           <p class="infoP">Select or drop a PDF and click <b>Upload</b>. When processing is complete, continue and download your compressed PDF.</p>
         </article>
-
         <article class="infoCard">
           <div class="infoIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h6v2H4zm0-6h10v2H4zm0 12h10v2H4zm12-8h4v10h-4z"/></svg></div>
           <h3 class="infoH">Optimised quality</h3>
           <p class="infoP">Compression is tuned for real-world upload limits. We default to a balanced setting designed to reduce size while keeping text readable.</p>
         </article>
-
         <article class="infoCard">
           <div class="infoIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 7h10v2H7zm0 4h10v2H7zm0 4h7v2H7z"/></svg></div>
           <h3 class="infoH">Easy to use</h3>
           <p class="infoP">No clutter. Drop a PDF, upload, then continue. The tool is designed for speed — especially when you just need the file smaller.</p>
         </article>
-
         <article class="infoCard">
           <div class="infoIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 5v5h4v2h-6V7z"/></svg></div>
           <h3 class="infoH">Runs in your browser</h3>
           <p class="infoP">Use PDFOperations from any modern browser. Works across platforms with no special setup required.</p>
         </article>
-
         <article class="infoCard">
           <div class="infoIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4h10v2H7zm-2 4h14v12H5z"/></svg></div>
           <h3 class="infoH">No installation required</h3>
           <p class="infoP">There’s nothing to download. Upload your PDF, get a smaller file back, and continue with your workflow.</p>
         </article>
-
         <article class="infoCard">
           <div class="infoIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 1 3 5v6c0 5 3.8 9.4 9 11 5.2-1.6 9-6 9-11V5zm0 4.2 6 2.7V11c0 3.7-2.6 7-6 8.5C8.6 18 6 14.7 6 11V7.9z"/></svg></div>
           <h3 class="infoH">Secure processing</h3>
@@ -852,7 +586,6 @@
     </div>
   </section>
 
-  <!-- CLEAN PANEL + FAQ -->
   <div class="belowInfo">
     <div class="belowPanel">
       <div class="belowTop">
@@ -914,6 +647,7 @@
       </div>
     </div>
   </div>
+
 </main>
 
 <footer class="footer">
@@ -929,21 +663,135 @@
   </div>
 </footer>
 
-<!-- Toggle: when app.js shows #fileMeta (removes hidden), we switch to the simple work panel -->
 <script>
 (() => {
-  const meta = document.getElementById("fileMeta");
-  if (!meta) return;
+  const filesInput = document.getElementById("files");
+  const dropzone = document.getElementById("dropzone");
+  const meta = document.getElementById("fileMeta"); // app.js toggles this hidden attr
+  const canvas = document.getElementById("thumbCanvas");
+  const nameEl = document.getElementById("thumbName");
+  const closeEl = document.getElementById("thumbClose");
+  const clearTopBtn = document.getElementById("clearTopBtn");
+  const hintEl = document.getElementById("thumbHint");
 
-  const apply = () => {
-    const hasFile = !meta.hasAttribute("hidden");
-    document.body.classList.toggle("hasFile", hasFile);
+  if (!filesInput || !canvas || !nameEl || !closeEl) return;
+
+  const ctx = canvas.getContext("2d", { alpha: false });
+
+  const setHasFile = (v) => document.body.classList.toggle("hasFile", !!v);
+
+  // When app.js shows fileMeta, we consider “selected”
+  if (meta) {
+    const apply = () => setHasFile(!meta.hasAttribute("hidden"));
+    apply();
+    new MutationObserver(apply).observe(meta, { attributes: true, attributeFilter: ["hidden"] });
+  }
+
+  // Clear buttons trigger the real #clearBtn if it exists (app.js)
+  const doClear = () => {
+    const real = document.getElementById("clearBtn");
+    if (real) real.click();
+    // wipe preview
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    nameEl.textContent = "PDF";
+    hintEl.textContent = "Preview shows page 1 • Upload to continue";
+    setHasFile(false);
   };
 
-  apply();
+  closeEl.addEventListener("click", doClear);
+  if (clearTopBtn) clearTopBtn.addEventListener("click", doClear);
 
-  const obs = new MutationObserver(() => apply());
-  obs.observe(meta, { attributes: true, attributeFilter: ["hidden"] });
+  function fitCanvasToCard() {
+    // Render at decent resolution based on card size for crispness
+    const card = canvas.parentElement;
+    const rect = card.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(600, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(600, Math.floor(rect.height * dpr));
+  }
+
+  async function renderPdfThumb(file) {
+    if (!window.pdfjsLib) return;
+
+    // worker config (CDN)
+    try {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.js";
+    } catch {}
+
+    fitCanvasToCard();
+
+    const buf = await file.arrayBuffer();
+    const loadingTask = window.pdfjsLib.getDocument({ data: buf });
+    const pdf = await loadingTask.promise;
+    const page = await pdf.getPage(1);
+
+    // Viewport scaling to fill the square canvas nicely
+    const viewport0 = page.getViewport({ scale: 1 });
+    const scale = Math.max(canvas.width / viewport0.width, canvas.height / viewport0.height);
+    const viewport = page.getViewport({ scale });
+
+    // Center crop to square
+    const renderCanvas = document.createElement("canvas");
+    renderCanvas.width = Math.floor(viewport.width);
+    renderCanvas.height = Math.floor(viewport.height);
+    const rctx = renderCanvas.getContext("2d", { alpha: false });
+
+    await page.render({ canvasContext: rctx, viewport }).promise;
+
+    // Crop to square area from center
+    const size = Math.min(renderCanvas.width, renderCanvas.height);
+    const sx = Math.floor((renderCanvas.width - size) / 2);
+    const sy = Math.floor((renderCanvas.height - size) / 2);
+
+    // Draw onto final canvas
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(renderCanvas, sx, sy, size, size, 0, 0, canvas.width, canvas.height);
+
+    hintEl.textContent = "Preview shows page 1 • Upload to continue";
+  }
+
+  async function handleFile(file) {
+    if (!file) return;
+    nameEl.textContent = file.name || "PDF";
+    setHasFile(true);
+
+    // Only PDFs for compress page
+    const isPdf = (file.type === "application/pdf") || /\.pdf$/i.test(file.name || "");
+    if (!isPdf) {
+      hintEl.textContent = "PDF only on this page.";
+      return;
+    }
+
+    try {
+      await renderPdfThumb(file);
+    } catch (e) {
+      // Fallback: clear canvas + show a basic “PDF”
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      hintEl.textContent = "Preview unavailable • Upload to continue";
+    }
+  }
+
+  // Select PDF
+  filesInput.addEventListener("change", () => {
+    const file = filesInput.files && filesInput.files[0];
+    handleFile(file);
+  });
+
+  // Drag & drop preview (doesn’t interfere with app.js; just paints the thumb)
+  dropzone?.addEventListener("drop", (ev) => {
+    const dt = ev.dataTransfer;
+    const file = dt && dt.files && dt.files[0];
+    if (file) handleFile(file);
+  }, { capture: true });
+
+  // Resize: keep thumb crisp
+  window.addEventListener("resize", () => {
+    // re-render if we can
+    const file = filesInput.files && filesInput.files[0];
+    if (file) handleFile(file);
+  });
 })();
 </script>
 
