@@ -605,7 +605,10 @@
 
     readyToEmit = true;
     emit();
-    forceEnableContinue();
+    const input = document.getElementById("files");
+    if (input) {
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }
   }
 
 async function loadFromFile(f){
