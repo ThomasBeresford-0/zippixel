@@ -34,7 +34,7 @@
   // If your server actually has pdf.min.js (but it's ESM), you can set PDFJS_SRC to "/vendor/pdfjs/pdf.min.js"
   // The recommended filenames are .mjs for ESM builds:
   const PDFJS_SRC = "/vendor/pdfjs/pdf.min.js";
-  const WORKER_SRC = "/vendor/pdfjs/pdf.worker.min.mjs";
+  const WORKER_SRC = "/vendor/pdfjs/pdf.worker.min.js";
 
   window.__pdfjsReady = (async () => {
     const mod = await import(PDFJS_SRC);
@@ -410,6 +410,37 @@
   </div>
 </div>
 
+<script>
+  // Bridge: app.js may clear <input type="file"> after reading.
+  // We capture the File object immediately and store it for rotate previews.
+  (function () {
+    function setSelectedFromInput(input) {
+      try {
+        const files = input && input.files ? Array.from(input.files) : [];
+        window.__PDFOPS_SELECTED__ = files;
+      } catch (_) {
+        window.__PDFOPS_SELECTED__ = [];
+      }
+    }
+
+    function attach() {
+      const input = document.getElementById("files");
+      if (!input) return;
+
+      // Capture phase: runs BEFORE app.js handlers
+      input.addEventListener("change", () => setSelectedFromInput(input), true);
+
+      // Also set if already has a value (rare, but safe)
+      setSelectedFromInput(input);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", attach, { once: true });
+    } else {
+      attach();
+    }
+  })();
+</script>
 <!-- app.js -->
 <script src="/app.js?v=17.7" defer></script>
 
@@ -445,8 +476,19 @@
   window.__PDFOPS_ROTATE_MAP__ = window.__PDFOPS_ROTATE_MAP__ || [];
 
   async function ensurePdfJs(){
-    await (window.__pdfjsReady || Promise.resolve());
-    if (!window.pdfjsLib || !window.pdfjsLib.getDocument) throw new Error("pdfjsLib not available");
+    // Wait until the module loader sets __pdfjsReady
+    let spins = 0;
+    while (!window.__pdfjsReady && spins < 200) { // ~4s max
+      await new Promise(r => setTimeout(r, 20));
+      spins++;
+    }
+    if (!window.__pdfjsReady) throw new Error("__pdfjsReady not set (PDF.js loader didn't run)");
+
+    await window.__pdfjsReady;
+
+    if (!window.pdfjsLib || !window.pdfjsLib.getDocument) {
+      throw new Error("pdfjsLib not available after __pdfjsReady");
+    }
   }
 
   function nextDeg(d){
