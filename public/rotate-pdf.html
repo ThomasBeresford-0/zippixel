@@ -545,7 +545,12 @@
     if (!(f.type === "application/pdf" || /\.pdf$/i.test(f.name || ""))) return false;
 
     const sig = `${f.name}|${f.size}|${f.lastModified || 0}`;
-    if (sig === lastSig && pdfDoc) return true;
+
+    // ALWAYS allow reload if grid is empty
+    if (sig === lastSig && pdfDoc && grid && grid.children.length > 0) {
+      return true;
+    }
+
     lastSig = sig;
 
     await ensurePdfJs();
