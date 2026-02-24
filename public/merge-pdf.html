@@ -1,8 +1,7 @@
-<!-- public/merge-pdf.html — PDFOperations (v8 - PRO UI + SEO UPGRADE + PAGE REORDER SAFE)
+<!-- public/merge-pdf.html — PDFOperations (v9 - PRO UI + SEO UPGRADE + PAGE REORDER SAFE + PDF.JS ESM MODULE LOADER)
      ✅ style.css?v=36 + app.js?v=17.7
-     ✅ No “bubble/soapy” UI: no pills, no rounded chips, no slop
-     ✅ Strong SEO: WebPage + BreadcrumbList + FAQPage schema
-     ✅ On-page supporting content + internal links (crawl + topical authority)
+     ✅ Replaces CDN pdf.js with self-hosted ESM module loader (no import.meta errors)
+     ✅ Waits for window.__pdfjsReady before using pdfjsLib (previews reliable)
      ✅ Keeps ALL existing app.js IDs unchanged
      ✅ Keeps window.__pdfopsPageOrder + pdfops:pageorder dispatch
      ✅ Keeps preview + drag reorder (clip-safe: never drops pages)
@@ -122,6 +121,50 @@
       }
     ]
   }
+  </script>
+
+  <!-- =========================================================
+       PDF.js (self-hosted ESM) — module-loading pattern (v17.7+)
+       Files expected:
+         /public/vendor/pdfjs/pdf.min.mjs
+         /public/vendor/pdfjs/pdf.worker.min.mjs
+       Exposes:
+         window.__pdfjsReady (Promise)
+         window.pdfjsLib
+         window.__pdfjsWorkerOK (boolean)
+  ========================================================== -->
+  <script type="module">
+    const PDFJS_SRC = "/vendor/pdfjs/pdf.min.mjs";
+    const WORKER_SRC = "/vendor/pdfjs/pdf.worker.min.mjs";
+
+    window.__pdfjsReady = (async () => {
+      const mod = await import(PDFJS_SRC);
+      const lib = mod?.default ?? mod;
+
+      window.pdfjsLib = lib;
+
+      // Prefer worker; fallback is handled in catch path or via disableWorker flags.
+      try {
+        lib.GlobalWorkerOptions.workerSrc = WORKER_SRC;
+        window.__pdfjsWorkerOK = true;
+      } catch (_) {
+        window.__pdfjsWorkerOK = false;
+      }
+
+      return lib;
+    })().catch(async (err) => {
+      // Hard fallback: still expose pdfjsLib if possible, with worker disabled semantics
+      try {
+        const mod2 = await import(PDFJS_SRC);
+        const lib2 = mod2?.default ?? mod2;
+        window.pdfjsLib = lib2;
+        window.__pdfjsWorkerOK = false;
+        return lib2;
+      } catch (_) {
+        window.__pdfjsWorkerOK = false;
+        throw err;
+      }
+    });
   </script>
 
   <style>
@@ -684,13 +727,6 @@
   </div>
 </div>
 
-<!-- pdf.js (CDN) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script>
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-</script>
-
 <script>
 /* =========================================================
    Merge — PDF page thumbnails + drag reorder + preview
@@ -804,7 +840,14 @@
     const bytes = pdfBytesByFile[fileIndex];
     if (!bytes) return;
 
-    const loadingTask = pdfjsLib.getDocument({ data: bytes });
+    // IMPORTANT: wait for ESM loader
+    await window.__pdfjsReady;
+    const pdfjsLib = window.pdfjsLib;
+
+    const loadingTask = pdfjsLib.getDocument({
+      data: bytes,
+      disableWorker: window.__pdfjsWorkerOK === false
+    });
     const pdfDoc = await loadingTask.promise;
 
     const page = await pdfDoc.getPage(pageNumber);
@@ -905,6 +948,10 @@
     const pdfs = [...files].filter(f => (f.type === "application/pdf") || /\.pdf$/i.test(f.name));
     if (pdfs.length < 1) return;
 
+    // IMPORTANT: wait for ESM loader before calling pdfjsLib anywhere
+    await window.__pdfjsReady;
+    const pdfjsLib = window.pdfjsLib;
+
     pdfBytesByFile = await Promise.all(pdfs.map(f => f.arrayBuffer()));
 
     let thumbsRendered = 0;
@@ -915,7 +962,10 @@
       const name = pdfs[fileIndex].name || `PDF ${fileIndex + 1}`;
       const bytes = pdfBytesByFile[fileIndex];
 
-      const loadingTask = pdfjsLib.getDocument({ data: bytes });
+      const loadingTask = pdfjsLib.getDocument({
+        data: bytes,
+        disableWorker: window.__pdfjsWorkerOK === false
+      });
       const pdfDoc = await loadingTask.promise;
 
       const numPages = pdfDoc.numPages;
