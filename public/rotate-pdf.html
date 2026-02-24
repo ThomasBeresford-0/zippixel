@@ -226,7 +226,30 @@
           </div>
         </div>
 
-        <div class="progressWrap" id="progressWrap" hidden>
+      <!-- =========================
+          STABLE ROTATE PREVIEW MOUNT (NOT TOUCHED BY app.js)
+      ========================= -->
+      <section id="pdfopsRotateMount" class="pdfReorderWrap" hidden>
+        <div class="rotatePreviewHead">
+          <div class="rotatePreviewTitle">Pages</div>
+          <div class="rotatePreviewMeta" id="pdfopsRotateMeta">—</div>
+        </div>
+
+        <div class="rotateBar" id="pdfopsRotateBar" hidden>
+          <div>
+            <div class="rotateBarTitle">Rotation plan</div>
+            <div class="rotateBarSub" id="pdfopsRotatePlan">No pages rotated yet.</div>
+          </div>
+          <div class="rotateBarRight">
+            <button class="btnSoft" id="pdfopsRotateAll90" type="button">Rotate all 90°</button>
+            <button class="btnSoft" id="pdfopsResetRotations" type="button">Reset rotations</button>
+          </div>
+        </div>
+
+        <div id="pdfopsThumbGrid" class="pdfThumbGrid"></div>
+      </section>
+
+      <div class="progressWrap" id="progressWrap" hidden>
           <div class="progressTop">
             <div id="progressLabel">Uploading…</div>
             <div id="progressPct">0%</div>
@@ -336,20 +359,24 @@
   let modal, modalTitle, modalClose, modalRotate, modalCanvas;
 
   function refreshRefs(){
-    grid = $("pdfThumbGrid");
-    wrap = $("pdfReorderWrap");
-    meta = $("rotatePreviewMeta");
-    rotateBar = $("rotateBar");
-    rotatePlanText = $("rotatePlanText");
-    clearBtn = $("clearBtn");
-    rotateAll90 = $("rotateAll90");
-    resetRotations = $("resetRotations");
+    // ✅ stable mount (NOT touched by app.js)
+    grid = $("pdfopsThumbGrid");
+    wrap = $("pdfopsRotateMount");
+    meta = $("pdfopsRotateMeta");
+    rotateBar = $("pdfopsRotateBar");
+    rotatePlanText = $("pdfopsRotatePlan");
+    rotateAll90 = $("pdfopsRotateAll90");
+    resetRotations = $("pdfopsResetRotations");
 
+    // modal stays the same
     modal = $("pdfPreviewModal");
     modalTitle = $("pdfPreviewTitle");
     modalClose = $("pdfPreviewClose");
     modalRotate = $("pdfPreviewRotate");
     modalCanvas = $("pdfPreviewCanvas");
+
+    // keep clear button the same (app.js)
+    clearBtn = $("clearBtn");
   }
 
   let pdfDoc = null;
@@ -655,29 +682,37 @@ async function loadFromFile(f){
       return;
     }
 
-    if (e.target && e.target.id === "rotateAll90") {
+    if (e.target && e.target.id === "pdfopsRotateAll90") {
       refreshRefs();
       if (!grid) return;
+
       const cards = Array.from(grid.querySelectorAll(".pdfThumb"));
-      for (const card of cards) await setThumbRotation(card, 90);
+      for (const card of cards) {
+        await setThumbRotation(card, 90);
+      }
+
       if (previewPageNo && modal && !modal.hidden) {
-        refreshRefs();
         if (modalTitle) modalTitle.textContent = `Page ${previewPageNo} • 90°`;
         await renderModalPage(previewPageNo);
       }
+
       return;
     }
 
-    if (e.target && e.target.id === "resetRotations") {
+    if (e.target && e.target.id === "pdfopsResetRotations") {
       refreshRefs();
       if (!grid) return;
+
       const cards = Array.from(grid.querySelectorAll(".pdfThumb"));
-      for (const card of cards) await setThumbRotation(card, 0);
+      for (const card of cards) {
+        await setThumbRotation(card, 0);
+      }
+
       if (previewPageNo && modal && !modal.hidden) {
-        refreshRefs();
         if (modalTitle) modalTitle.textContent = `Page ${previewPageNo} • 0°`;
         await renderModalPage(previewPageNo);
       }
+
       return;
     }
   });
