@@ -1,8 +1,7 @@
-<!-- public/index.html — PDFOperations (v52 - THUMB PREVIEW + FILE CARD BELOW DROPZONE + REAL LOGO PATH)
-     ✅ Keeps thumbnail preview (page 1) — NOT Chrome viewer
-     ✅ Keeps HARD overrides (hide dropdown, hide native file input UI)
-     ✅ FIXES: app.js mini file cards (has #fileList + positioned BELOW dropzone)
-     ✅ FIXES: logo uses existing /favicon.svg (no guessing)
+<!-- public/index.html — PDFOperations (v53 - MINI FILE CARD ONLY + NO PDF PREVIEW + NO "NO FILE CHOSEN")
+     ✅ Shows mini file card (name/size/remove) reliably via app.js
+     ✅ Removes PDF.js thumbnail preview entirely (no "Couldn't render preview")
+     ✅ Removes input overlay hack (no more "No file chosen" tooltip)
      ✅ Keeps ALL app.js v17.7 IDs preserved
      ✅ style.css?v=36 + app.js?v=17.7
 -->
@@ -24,9 +23,8 @@
 
   <link rel="stylesheet" href="/style.css?v=36" />
 
-  <!-- HARD OVERRIDES (no matter what app.js/style.css does) -->
   <style>
-    /* 1) Nuke the compression dropdown visually */
+    /* 1) Force-hide compression dropdown visually (app.js can still read default value) */
     #pdfCompressRow,
     #pdfCompressLevel{
       display:none !important;
@@ -39,33 +37,24 @@
       overflow:hidden !important;
     }
 
-    /* 2) Stop the native file input UI from ever showing */
-    .filePick{ position:relative; display:inline-flex; align-items:center; justify-content:center; }
-    #files{
-      position:absolute !important;
-      inset:0 !important;
-      opacity:0 !important;
-      cursor:pointer !important;
-      width:100% !important;
-      height:100% !important;
-      z-index:5 !important;
-    }
+    /* 2) Hide file input completely (app.js triggers it via chooseBtn click) */
+    #files{ display:none !important; }
 
-    /* 3) Logo sizing (safe override if you don't add it to style.css yet) */
+    /* 3) Logo sizing */
     .brandLogo{
       height:34px;
       width:auto;
       display:block;
     }
 
-    /* drag over state */
+    /* Drag over state */
     #dropzone.isDragOver{
       outline:3px solid rgba(11,18,32,.08);
       box-shadow:0 18px 46px rgba(2,6,23,.12);
       transform:translateY(-1px);
     }
 
-    /* steps: sits under preview cleanly */
+    /* Steps */
     .stepsLine{
       display:flex;
       flex-wrap:wrap;
@@ -86,72 +75,6 @@
       background:#fff;
     }
 
-    /* preview block (thumbnail, not viewer) */
-    .previewWrap{
-      margin-top:14px;
-      border:1px solid rgba(15,23,42,.10);
-      border-radius:18px;
-      overflow:hidden;
-      background:#fff;
-      box-shadow:0 12px 34px rgba(2,6,23,.08);
-    }
-    .previewHead{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      padding:12px 12px;
-      border-bottom:1px solid rgba(15,23,42,.10);
-      background:#f7f8fb;
-    }
-    .previewMeta{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-      min-width:0;
-    }
-    .previewName{
-      font-size:14px;
-      font-weight:700;
-      color:#0b1220;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width: 58ch;
-    }
-    .previewSub{
-      font-size:12px;
-      color:rgba(11,18,32,.65);
-    }
-    .previewBody{
-      padding:14px;
-    }
-    .thumbShell{
-      border:1px solid rgba(15,23,42,.12);
-      border-radius:14px;
-      background:#fff;
-      overflow:hidden;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      min-height:220px;
-    }
-    canvas#pdfThumb{
-      display:block;
-      width:100%;
-      height:auto;
-      max-height:260px; /* stops it becoming a “whole viewer” */
-    }
-    .thumbLoading{
-      font-size:13px;
-      color:rgba(11,18,32,.68);
-      padding:18px;
-    }
-    .thumbError{
-      font-size:13px;
-      color:rgba(11,18,32,.78);
-      padding:18px;
-    }
     [hidden]{ display:none !important; }
   </style>
 </head>
@@ -218,7 +141,7 @@
           <input type="radio" name="mode" id="modeRotatePdf">
         </fieldset>
 
-        <!-- HARD DEFAULT compression level (hidden, app.js reads it) -->
+        <!-- Default compression level (hidden) -->
         <div class="controls" id="pdfCompressRow">
           <select class="select" id="pdfCompressLevel">
             <option value="light">Light</option>
@@ -253,40 +176,20 @@
             <div class="dzTitle" id="dzTitle">Drop a PDF here</div>
             <div class="dzSub" id="dzSub">PDF only • 1 file</div>
 
-            <div class="filePick">
-              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
-              <input id="files" type="file" accept="application/pdf" />
-            </div>
+            <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
+            <input id="files" type="file" accept="application/pdf" />
 
             <div class="dzFine">Tip: drag a PDF onto this area.</div>
           </div>
         </div>
 
-        <!-- ✅ FILE META / MINI CARD LIST (BELOW DROPZONE) -->
+        <!-- MINI FILE CARD LIST (rendered by app.js) -->
         <div class="fileMeta" id="fileMeta" hidden>
           <div class="fileMetaTop">
             <div class="fileSummary" id="fileSummary"></div>
             <button class="btnGhost" id="clearBtn" type="button">Clear</button>
           </div>
           <ul class="fileList" id="fileList"></ul>
-        </div>
-
-        <!-- THUMB PREVIEW -->
-        <div class="previewWrap" id="pdfPreviewWrap" hidden>
-          <div class="previewHead">
-            <div class="previewMeta">
-              <div class="previewName" id="pdfPreviewName">Selected file</div>
-              <div class="previewSub" id="pdfPreviewSub">Preview (page 1)</div>
-            </div>
-            <button class="btnGhost" id="previewClearBtn" type="button">Clear</button>
-          </div>
-          <div class="previewBody">
-            <div class="thumbShell">
-              <div class="thumbLoading" id="thumbLoading">Rendering preview…</div>
-              <canvas id="pdfThumb" hidden></canvas>
-              <div class="thumbError" id="thumbError" hidden>Couldn’t render preview.</div>
-            </div>
-          </div>
         </div>
 
         <!-- STEPS -->
@@ -331,116 +234,6 @@
     </div>
   </div>
 </footer>
-
-<!-- PDF.js (thumbnail rendering) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.js"></script>
-
-<script>
-(() => {
-  const dropzone = document.getElementById("dropzone");
-  const input = document.getElementById("files");
-
-  const wrap = document.getElementById("pdfPreviewWrap");
-  const nameEl = document.getElementById("pdfPreviewName");
-  const subEl = document.getElementById("pdfPreviewSub");
-
-  const loadingEl = document.getElementById("thumbLoading");
-  const errEl = document.getElementById("thumbError");
-  const canvas = document.getElementById("pdfThumb");
-  const ctx = canvas.getContext("2d", { alpha: false });
-
-  const previewClear = document.getElementById("previewClearBtn");
-  const appClear = document.getElementById("clearBtn");
-
-  function fmtMB(bytes){
-    return (bytes/1024/1024).toFixed(bytes > 1024*1024 ? 2 : 2) + " MB";
-  }
-
-  async function renderThumb(file){
-    if(!file) return;
-
-    wrap.hidden = false;
-    canvas.hidden = true;
-    errEl.hidden = true;
-    loadingEl.hidden = false;
-
-    nameEl.textContent = `${file.name} • ${fmtMB(file.size)}`;
-    subEl.textContent = "Preview (page 1)";
-
-    try{
-      if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.js";
-      }
-
-      const buf = await file.arrayBuffer();
-      const doc = await pdfjsLib.getDocument({ data: buf }).promise;
-      const page = await doc.getPage(1);
-
-      const targetMaxH = 240;
-      const baseViewport = page.getViewport({ scale: 1 });
-      const scale = Math.min(2, targetMaxH / baseViewport.height);
-      const viewport = page.getViewport({ scale });
-
-      canvas.width = Math.floor(viewport.width);
-      canvas.height = Math.floor(viewport.height);
-
-      ctx.save();
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.restore();
-
-      await page.render({ canvasContext: ctx, viewport }).promise;
-
-      loadingEl.hidden = true;
-      errEl.hidden = true;
-      canvas.hidden = false;
-    }catch(e){
-      loadingEl.hidden = true;
-      canvas.hidden = true;
-      errEl.hidden = false;
-    }
-  }
-
-  function clearAll(){
-    if(appClear) appClear.click();
-    wrap.hidden = true;
-    loadingEl.hidden = false;
-    errEl.hidden = true;
-    canvas.hidden = true;
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    input.value = "";
-  }
-
-  input.addEventListener("change", () => {
-    const file = input.files && input.files[0];
-    if(file) renderThumb(file);
-  });
-
-  dropzone.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    dropzone.classList.add("isDragOver");
-  });
-  dropzone.addEventListener("dragleave", () => {
-    dropzone.classList.remove("isDragOver");
-  });
-  dropzone.addEventListener("drop", (e) => {
-    e.preventDefault();
-    dropzone.classList.remove("isDragOver");
-
-    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-    if(!file) return;
-
-    const dt = new DataTransfer();
-    dt.items.add(file);
-    input.files = dt.files;
-
-    input.dispatchEvent(new Event("change", { bubbles:true }));
-  });
-
-  previewClear.addEventListener("click", clearAll);
-})();
-</script>
 
 <script src="/app.js?v=17.7" defer></script>
 </body>
