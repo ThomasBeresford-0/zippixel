@@ -555,6 +555,25 @@
     return { card, canvas };
   }
 
+  function forceEnableContinue() {
+  const btn = document.getElementById("continue");
+  if (!btn) return;
+
+  btn.disabled = false;
+  btn.removeAttribute("disabled");
+  btn.classList.remove("isDisabled");
+
+  // Prevent app.js from re-disabling it
+  const observer = new MutationObserver(() => {
+    if (btn.disabled) {
+      btn.disabled = false;
+      btn.removeAttribute("disabled");
+    }
+  });
+
+  observer.observe(btn, { attributes: true, attributeFilter: ["disabled"] });
+}
+
   async function renderThumbs(){
     refreshRefs();
     if (!grid || !wrap) return;
@@ -586,14 +605,8 @@
 
     readyToEmit = true;
     emit();
+    forceEnableContinue();
   }
-
-  // Force enable Continue button
-const continueBtn = document.getElementById("continue");
-if (continueBtn) {
-  continueBtn.disabled = false;
-  continueBtn.classList.remove("isDisabled");
-}
 
 async function loadFromFile(f){
   refreshRefs();
