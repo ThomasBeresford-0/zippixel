@@ -154,6 +154,13 @@ body.premium > main{ flex: 1; }
   box-shadow: 0 8px 18px rgba(15,23,42,.08);
 }
 
+.brandLogo{
+  height:34px;
+  width:auto;
+  display:block;
+  flex:0 0 auto;
+}
+
 .brandText{
   display:flex;
   flex-direction: column;
