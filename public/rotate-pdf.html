@@ -574,20 +574,28 @@
   }
 
   // ----------------------------------------
-  // BIND to the file input in CAPTURE phase so we run before app.js clears it
+  // WATCH app.js selection (this is where the File actually is)
+  // window.__PDFOPS_SELECTED__ = [File]
   // ----------------------------------------
-  (function bindInputListener(){
-    const input = document.getElementById("files");
-    if (!input) return;
+  (function watchAppSelected(){
+    let lastSelectedSig = "";
 
-    input.addEventListener("change", async (e) => {
-      const f = e?.target?.files?.[0] || null;
+    async function tick(){
+      const arr = window.__PDFOPS_SELECTED__;
+      const f = (Array.isArray(arr) && arr[0]) ? arr[0] : null;
       if (!f) return;
-      try { await loadFromFile(f); } catch (err) { console.error(err); }
-    }, true);
 
-    // Also try once in case input already has files (rare)
-    setTimeout(() => { if (input.files && input.files[0]) loadFromFile(input.files[0]).catch(console.error); }, 20);
+      const sig = `${f.name}|${f.size}|${f.lastModified || 0}`;
+      if (sig === lastSelectedSig) return;
+      lastSelectedSig = sig;
+
+      try { await loadFromFile(f); } catch (err) { console.error(err); }
+    }
+
+    // poll quickly; cheap and reliable
+    setInterval(tick, 250);
+    // run immediately too
+    setTimeout(tick, 0);
   })();
 
   // Modal controls
