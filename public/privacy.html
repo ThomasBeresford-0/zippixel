@@ -1,7 +1,7 @@
-<!-- public/privacy.html — PDFOperations (v24 - CLEAN TRUST-FIRST + SEO + BETTER READABILITY)
+<!-- public/privacy.html — PDFOperations (v25 - FULL RAMBO TRUST DOCS; SEO + SCANNABILITY; NO BACKEND CHANGES)
      ✅ No backend changes
-     ✅ Cleaner layout (no bubbles), stronger trust + scannability
-     ✅ Adds SEO: JSON-LD WebPage + FAQPage, better headings, internal links
+     ✅ Hard editorial layout (no chips, no bubbles, reduced rounding)
+     ✅ Keeps SEO JSON-LD: WebPage + FAQPage
 -->
 <!doctype html>
 <html lang="en">
@@ -31,10 +31,6 @@
 
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/style.css?v=36" />
 
@@ -97,32 +93,70 @@
   </script>
 
   <style>
-    /* Page-local: clean, flat premium docs */
+    /* =========================
+       FULL RAMBO TRUST DOCS (NO CHIPS / NO BUBBLES)
+    ========================== */
+
+    .docWrap{ padding: 22px 0 52px; }
+
     .kicker{
-      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       font-size:12px;
-      letter-spacing:.02em;
-      opacity:.75;
+      letter-spacing:.10em;
+      opacity:.72;
       text-transform:uppercase;
     }
 
-    .docWrap{ padding: 22px 0 44px; }
-    .docGrid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-      margin-top: 14px;
+    /* Header alignment with v71 vibe */
+    .nav{
+      border-bottom: 1px solid rgba(15,23,42,.10);
+      background: rgba(245,247,251,.86);
+      backdrop-filter: blur(10px);
+    }
+    .navLinks a{
+      font-weight: 900;
+      letter-spacing:-.01em;
+      opacity:.86;
+    }
+    .navLinks a[aria-current="page"]{
+      opacity:1;
+      border-bottom:1px solid rgba(11,18,32,.35);
     }
 
-    .panel{
-      background: rgba(255,255,255,.92);
-      border: 1px solid rgba(15,23,42,.10);
-      border-radius: 18px;
-      box-shadow: 0 18px 50px rgba(2,6,23,.06);
+    /* Document frame (hard) */
+    .frame{
+      background: rgba(255,255,255,.97);
+      border: 1px solid rgba(15,23,42,.14);
+      border-radius: 14px;
+      box-shadow: 0 26px 80px rgba(2,6,23,.08);
       overflow:hidden;
     }
-    .panelPad{ padding: 16px; }
 
+    .frameHead{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid rgba(15,23,42,.10);
+      background: linear-gradient(180deg, rgba(11,18,32,.03), transparent);
+    }
+    .frameTitle{
+      margin:0;
+      letter-spacing:-.03em;
+      font-weight: 1000;
+      font-size: 16px;
+    }
+    .frameMeta{
+      font-size:12px;
+      opacity:.72;
+      white-space:nowrap;
+      font-weight: 850;
+    }
+
+    .frameBody{ padding: 16px; }
+
+    /* Policy metadata line */
     .metaLine{
       display:flex;
       flex-wrap:wrap;
@@ -131,88 +165,116 @@
       padding-top: 12px;
       border-top: 1px solid rgba(15,23,42,.10);
       font-size: 13px;
-      color: rgba(11,18,32,.78);
+      color: rgba(11,18,32,.80);
     }
-    .metaItem{ font-weight: 800; white-space: nowrap; }
+    .metaItem{ font-weight: 900; white-space: nowrap; }
     .metaDot{ opacity:.55; }
 
+    /* TOC: hard rows (not chips) */
     .toc{
-      display:flex;
-      flex-wrap:wrap;
-      gap: 10px;
-      margin-top: 12px;
+      margin-top: 10px;
+      border: 1px solid rgba(15,23,42,.12);
+      border-radius: 12px;
+      overflow:hidden;
+      background:#fff;
     }
     .toc a{
-      display:inline-flex;
+      display:flex;
       align-items:center;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(15,23,42,.12);
-      background: rgba(255,255,255,.96);
+      justify-content:space-between;
+      gap: 12px;
+      padding: 11px 12px;
+      border-top: 1px solid rgba(15,23,42,.10);
       text-decoration:none;
-      font-weight: 900;
-      font-size: 13px;
-      color: rgba(11,18,32,.92);
+      font-weight: 1000;
+      font-size: 14px;
+      color: rgba(11,18,32,.94);
     }
-    .toc a:hover{
-      border-color: rgba(15,23,42,.18);
-      box-shadow: 0 10px 24px rgba(2,6,23,.08);
-      transform: translateY(-1px);
-    }
+    .toc a:first-child{ border-top:0; }
+    .toc a:hover{ background: rgba(11,18,32,.02); }
+    .toc .arrow{ opacity:.55; font-weight:1100; }
 
-    .callouts{
+    /* Key points (hard blocks) */
+    .keyPoints{
+      margin-top: 12px;
+      border-top: 1px solid rgba(15,23,42,.10);
+      padding-top: 12px;
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      margin-top: 12px;
     }
-    @media (max-width: 920px){
-      .callouts{ grid-template-columns: 1fr; }
-    }
-    .callout{
-      border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.96);
-      border-radius: 14px;
+    @media (max-width: 920px){ .keyPoints{ grid-template-columns: 1fr; } }
+
+    .kp{
+      border: 1px solid rgba(15,23,42,.12);
+      background:#fff;
+      border-radius: 12px;
       padding: 12px;
     }
-    .calloutTitle{
-      font-weight: 950;
-      letter-spacing: -.01em;
+    .kpTitle{
+      font-weight: 1000;
+      letter-spacing: -.02em;
     }
-    .calloutBody{
+    .kpBody{
       margin-top: 6px;
-      opacity: .84;
-      line-height: 1.55;
+      opacity: .86;
+      line-height: 1.6;
       font-size: 14px;
     }
 
-    .doc h2{ margin-top: 18px; letter-spacing:-.01em; }
-    .doc p, .doc li{ line-height: 1.7; }
+    /* Doc typography */
+    .doc h2{
+      margin-top: 18px;
+      letter-spacing:-.02em;
+      font-weight: 1000;
+      padding-top: 16px;
+      border-top: 1px solid rgba(15,23,42,.10);
+    }
+    .doc h2:first-child{
+      border-top:0;
+      padding-top:0;
+      margin-top:0;
+    }
+    .doc p, .doc li{ line-height: 1.72; }
     .doc ul{ padding-left: 18px; }
+
     .doc code{
-      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       font-size: 12px;
     }
 
+    /* FAQ details: hard rows */
+    .faqWrap{
+      margin-top: 10px;
+      border: 1px solid rgba(15,23,42,.12);
+      border-radius: 12px;
+      overflow:hidden;
+      background:#fff;
+    }
     details.faq{
-      border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.96);
-      border-radius: 14px;
+      border-top: 1px solid rgba(15,23,42,.10);
       padding: 10px 12px;
     }
+    details.faq:first-child{ border-top:0; }
     details.faq summary{
       cursor:pointer;
-      font-weight: 900;
-      letter-spacing: -.01em;
+      font-weight: 1000;
+      letter-spacing: -.02em;
       list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
     }
     details.faq summary::-webkit-details-marker{ display:none; }
+    .chev{ opacity:.55; font-weight:1100; }
+    details[open] .chev{ transform: rotate(90deg); }
 
     .fine{
       margin-top: 10px;
       font-size: 12px;
-      opacity: .75;
-      line-height: 1.45;
+      opacity: .76;
+      line-height: 1.5;
     }
   </style>
 </head>
@@ -224,7 +286,7 @@
 <header class="nav">
   <div class="container navInner">
     <a class="brand" href="/" aria-label="PDFOperations home">
-      <img src="/favicon.svg" width="26" height="26" alt="">
+      <img src="/favicon.svg" width="26" height="26" alt="PDFOperations">
       <span class="brandText">
         <span class="top">PDFOperations</span>
         <span class="sub">Compress • Merge • Split</span>
@@ -249,8 +311,8 @@
     <div class="container heroWide">
 
       <div class="kicker">Privacy</div>
-      <h1 style="margin:6px 0 8px; letter-spacing:-.02em;">Privacy Policy</h1>
-      <p style="max-width:70ch; margin:0; opacity:.82; line-height:1.55;">
+      <h1 style="margin:6px 0 8px; letter-spacing:-.03em; font-weight:1000;">Privacy Policy</h1>
+      <p style="max-width:74ch; margin:0; opacity:.84; line-height:1.6;">
         This policy explains what PDFOperations collects, how uploads are handled, and what happens after payment.
       </p>
 
@@ -260,46 +322,53 @@
         <div class="metaItem"><span class="metaDot">•</span> Payments: <strong>Stripe</strong></div>
       </div>
 
-      <div class="panel" style="margin-top:14px;">
-        <div class="panelPad">
-          <div style="font-weight:950; letter-spacing:-.01em;">Quick navigation</div>
+      <!-- Navigation + key points -->
+      <div class="frame" style="margin-top:14px;">
+        <div class="frameHead">
+          <h2 class="frameTitle">Quick navigation</h2>
+          <div class="frameMeta">Policy sections</div>
+        </div>
+        <div class="frameBody">
           <div class="toc" aria-label="On-page navigation">
-            <a href="#what-we-collect">What we collect</a>
-            <a href="#uploads">Uploads & processing</a>
-            <a href="#retention">Retention</a>
-            <a href="#payments">Payments</a>
-            <a href="#share-links">Share links</a>
-            <a href="#contact">Contact</a>
+            <a href="#what-we-collect"><span>What we collect</span><span class="arrow">→</span></a>
+            <a href="#uploads"><span>Uploads & processing</span><span class="arrow">→</span></a>
+            <a href="#retention"><span>Retention</span><span class="arrow">→</span></a>
+            <a href="#payments"><span>Payments</span><span class="arrow">→</span></a>
+            <a href="#share-links"><span>Share links</span><span class="arrow">→</span></a>
+            <a href="#contact"><span>Contact</span><span class="arrow">→</span></a>
           </div>
 
-          <div class="callouts" aria-label="Key points">
-            <div class="callout">
-              <div class="calloutTitle">We collect the minimum needed</div>
-              <div class="calloutBody">
+          <div class="keyPoints" aria-label="Key points">
+            <div class="kp">
+              <div class="kpTitle">We collect the minimum needed</div>
+              <div class="kpBody">
                 Files + basic metadata to generate your output, payment status to unlock downloads, and basic logs for reliability.
               </div>
             </div>
-            <div class="callout">
-              <div class="calloutTitle">Temporary storage</div>
-              <div class="calloutBody">
+            <div class="kp">
+              <div class="kpTitle">Temporary storage</div>
+              <div class="kpBody">
                 Files are stored temporarily to process your request and deliver the download. We aim to delete automatically over time.
               </div>
             </div>
           </div>
 
           <div class="fine">
-            Tip: If you’re looking for pricing details, see <a href="/pricing">Pricing</a>. For legal terms, see <a href="/terms">Terms</a>.
+            Looking for pricing? See <a href="/pricing">Pricing</a>. For legal terms, see <a href="/terms">Terms</a>.
           </div>
         </div>
       </div>
 
-      <div class="panel" style="margin-top:14px;">
-        <div class="panelPad doc">
+      <!-- Main document -->
+      <div class="frame" style="margin-top:14px;">
+        <div class="frameHead">
+          <h2 class="frameTitle">Policy details</h2>
+          <div class="frameMeta">Readable + precise</div>
+        </div>
 
+        <div class="frameBody doc">
           <h2 id="what-we-collect">What we collect</h2>
-          <p>
-            We collect the minimum required to operate PDFOperations:
-          </p>
+          <p>We collect the minimum required to operate PDFOperations:</p>
           <ul>
             <li><strong>Uploaded files</strong> and basic metadata (e.g. filename, file type) to generate your output.</li>
             <li><strong>Payment status</strong> from Stripe to allow download after payment.</li>
@@ -342,28 +411,38 @@
           </p>
 
           <h2 id="faq">FAQs</h2>
-          <details class="faq" open>
-            <summary>Do you store my files?</summary>
-            <div style="margin-top:8px; opacity:.85; line-height:1.6;">
-              Files are uploaded to temporary storage to process your request and deliver your output.
-              We aim to delete automatically over time, but exact timing is not guaranteed.
-            </div>
-          </details>
+          <div class="faqWrap">
+            <details class="faq" open>
+              <summary>Do you store my files? <span class="chev">›</span></summary>
+              <div style="margin-top:8px; opacity:.86; line-height:1.6;">
+                Files are uploaded to temporary storage to process your request and deliver your output.
+                We aim to delete automatically over time, but exact timing is not guaranteed.
+              </div>
+            </details>
 
-          <details class="faq">
-            <summary>Do you store payment card details?</summary>
-            <div style="margin-top:8px; opacity:.85; line-height:1.6;">
-              No. Payments are handled by Stripe and PDFOperations does not store full card details.
-            </div>
-          </details>
+            <details class="faq">
+              <summary>Do you store payment card details? <span class="chev">›</span></summary>
+              <div style="margin-top:8px; opacity:.86; line-height:1.6;">
+                No. Payments are handled by Stripe and PDFOperations does not store full card details.
+              </div>
+            </details>
 
-          <details class="faq">
-            <summary>What is a share link?</summary>
-            <div style="margin-top:8px; opacity:.85; line-height:1.6;">
-              It’s an optional paid add-on that creates a download link. Anyone with the link may be able to download the output.
-            </div>
-          </details>
+            <details class="faq">
+              <summary>What data do you collect? <span class="chev">›</span></summary>
+              <div style="margin-top:8px; opacity:.86; line-height:1.6;">
+                We collect uploaded files and basic metadata needed to process them, payment status from Stripe to enable downloads,
+                and basic technical logs for reliability and abuse prevention.
+              </div>
+            </details>
 
+            <details class="faq">
+              <summary>What is a share link? <span class="chev">›</span></summary>
+              <div style="margin-top:8px; opacity:.86; line-height:1.6;">
+                If you purchase an optional share link, anyone with the link may be able to download the output.
+                Treat it like a password.
+              </div>
+            </details>
+          </div>
         </div>
       </div>
 

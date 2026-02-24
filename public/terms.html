@@ -1,7 +1,7 @@
-<!-- public/terms.html — PDFOperations (v24 - CLEAN TRUST LAYOUT + SEO SUPPORT)
+<!-- public/terms.html — PDFOperations (v25 - FULL RAMBO TRUST DOCS; SEO + SCANNABILITY; STATIC PAGE ONLY)
      ✅ No functional changes (static page)
-     ✅ Better hierarchy + scannable sections + “Key points” box
-     ✅ Adds JSON-LD (WebPage + BreadcrumbList) + optional FAQPage
+     ✅ Hard editorial layout (no chips, no pill badges, reduced rounding)
+     ✅ Keeps JSON-LD: WebPage + BreadcrumbList + FAQPage
      ✅ Consistent premium shell + internal links
 -->
 <!doctype html>
@@ -18,7 +18,6 @@
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light" />
 
-  <!-- Open Graph -->
   <meta property="og:title" content="Terms of Service — PDFOperations" />
   <meta property="og:description" content="Rules for use, uploads, payments, refunds, availability, and liability." />
   <meta property="og:type" content="website" />
@@ -26,7 +25,6 @@
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
   <meta property="og:image:alt" content="PDFOperations — Terms" />
 
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Terms of Service — PDFOperations" />
   <meta name="twitter:description" content="Rules for use, uploads, payments, refunds, availability, and liability." />
@@ -35,10 +33,6 @@
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/style.css?v=36" />
 
@@ -70,7 +64,7 @@
   }
   </script>
 
-  <!-- JSON-LD: FAQPage (optional but helpful for snippets) -->
+  <!-- JSON-LD: FAQPage -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -105,11 +99,39 @@
   </script>
 
   <style>
-    /* Page-only polish (keeps your global style.css in charge) */
+    /* =========================
+       FULL RAMBO TRUST DOCS (NO CHIPS / NO PILLS)
+    ========================== */
+
+    /* Header alignment with v71 vibe */
+    .nav{
+      border-bottom: 1px solid rgba(15,23,42,.10);
+      background: rgba(245,247,251,.86);
+      backdrop-filter: blur(10px);
+    }
+    .navLinks a{
+      font-weight: 900;
+      letter-spacing:-.01em;
+      opacity:.86;
+    }
+    .navLinks a[aria-current="page"]{
+      opacity:1;
+      border-bottom:1px solid rgba(11,18,32,.35);
+    }
+
+    .kicker{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      letter-spacing:.10em;
+      opacity:.72;
+      text-transform:uppercase;
+      margin-bottom:8px;
+    }
+
     .legalTop{
       margin-top:14px;
       display:grid;
-      grid-template-columns: 1.2fr .8fr;
+      grid-template-columns: 1.12fr .88fr;
       gap:14px;
       align-items:start;
     }
@@ -117,48 +139,57 @@
       .legalTop{ grid-template-columns: 1fr; }
     }
 
-    .legalCard{
-      border:1px solid rgba(15,23,42,.10);
-      background:rgba(255,255,255,.92);
-      border-radius:18px;
-      box-shadow:0 18px 50px rgba(2,6,23,.06);
-      padding:16px;
+    /* Document frames */
+    .frame{
+      background: rgba(255,255,255,.97);
+      border: 1px solid rgba(15,23,42,.14);
+      border-radius: 14px;
+      box-shadow: 0 26px 80px rgba(2,6,23,.08);
+      overflow:hidden;
     }
-
-    .kicker{
-      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    .frameHead{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid rgba(15,23,42,.10);
+      background: linear-gradient(180deg, rgba(11,18,32,.03), transparent);
+    }
+    .frameTitle{
+      margin:0;
+      letter-spacing:-.03em;
+      font-weight: 1000;
+      font-size: 16px;
+    }
+    .frameMeta{
       font-size:12px;
-      letter-spacing:.02em;
-      opacity:.76;
-      text-transform:uppercase;
-      margin-bottom:8px;
+      opacity:.72;
+      white-space:nowrap;
+      font-weight: 850;
     }
+    .frameBody{ padding: 16px; }
 
-    .legalMeta{
+    /* Hard metadata line (replaces pills) */
+    .metaLine{
       display:flex;
       flex-wrap:wrap;
-      gap:10px 14px;
-      align-items:center;
-      font-size:13px;
-      opacity:.78;
-      margin-top:10px;
+      gap: 10px 14px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(15,23,42,.10);
+      font-size: 13px;
+      color: rgba(11,18,32,.80);
     }
-    .metaPill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(15,23,42,.10);
-      background:rgba(255,255,255,.88);
-      box-shadow:0 10px 26px rgba(2,6,23,.06);
-      font-weight:750;
-    }
+    .metaItem{ font-weight: 900; white-space: nowrap; }
+    .metaDot{ opacity:.55; }
 
+    /* TOC rows (not chip buttons) */
     .toc{
-      display:grid;
-      gap:8px;
-      margin-top:8px;
+      border: 1px solid rgba(15,23,42,.12);
+      border-radius: 12px;
+      overflow:hidden;
+      background:#fff;
     }
     .toc a{
       text-decoration:none;
@@ -166,47 +197,76 @@
       justify-content:space-between;
       align-items:center;
       gap:10px;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid rgba(15,23,42,.10);
-      background:rgba(255,255,255,.92);
-      font-weight:850;
-      color:rgba(11,18,32,.92);
+      padding: 11px 12px;
+      border-top: 1px solid rgba(15,23,42,.10);
+      font-weight: 1000;
+      color: rgba(11,18,32,.94);
     }
-    .toc a:hover{
-      border-color:rgba(15,23,42,.18);
-      box-shadow:0 10px 24px rgba(2,6,23,.08);
-      transform:translateY(-1px);
-    }
-    .toc span{
-      opacity:.65;
-      font-weight:900;
-    }
+    .toc a:first-child{ border-top:0; }
+    .toc a:hover{ background: rgba(11,18,32,.02); }
+    .toc .arrow{ opacity:.55; font-weight:1100; }
 
+    /* Key points blocks */
+    .keyList{
+      margin:0;
+      padding-left:18px;
+    }
+    .keyList li{ margin: 8px 0; }
+
+    /* Document typography */
     .doc .meta{
       margin:0 0 12px 0;
       font-size:12px;
       opacity:.72;
     }
-
-    /* Light FAQ accordions */
-    .faqList{ display:grid; gap:10px; margin-top:12px; }
-    details.faq{
-      border:1px solid rgba(15,23,42,.10);
-      background:rgba(255,255,255,.92);
-      border-radius:14px;
-      padding:10px 12px;
+    .doc h2{
+      margin-top: 18px;
+      letter-spacing:-.02em;
+      font-weight: 1000;
+      padding-top: 16px;
+      border-top: 1px solid rgba(15,23,42,.10);
+      scroll-margin-top: 90px;
     }
+    .doc h2:first-child{
+      border-top:0;
+      padding-top:0;
+      margin-top:0;
+    }
+    .doc p, .doc li{ line-height: 1.72; }
+
+    /* FAQ: hard rows */
+    .faqWrap{
+      margin-top: 10px;
+      border: 1px solid rgba(15,23,42,.12);
+      border-radius: 12px;
+      overflow:hidden;
+      background:#fff;
+    }
+    details.faq{
+      border-top: 1px solid rgba(15,23,42,.10);
+      padding: 10px 12px;
+    }
+    details.faq:first-child{ border-top:0; }
     details.faq summary{
       cursor:pointer;
-      font-weight:900;
-      letter-spacing:-.01em;
+      font-weight: 1000;
+      letter-spacing: -.02em;
       list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
     }
     details.faq summary::-webkit-details-marker{ display:none; }
+    .chev{ opacity:.55; font-weight:1100; }
+    details[open] .chev{ transform: rotate(90deg); }
 
-    /* Jump-link offset for sticky nav */
-    .anchor{ scroll-margin-top: 90px; }
+    .fine{
+      margin-top: 12px;
+      font-size: 12px;
+      opacity: .76;
+      line-height: 1.5;
+    }
   </style>
 </head>
 
@@ -216,17 +276,23 @@
 <header class="nav">
   <div class="container navInner">
     <a class="brand" href="/" aria-label="PDFOperations home">
-      <img src="/favicon.svg" width="26" height="26" alt="">
-      <span>PDFOperations</span>
+      <img src="/favicon.svg" width="26" height="26" alt="PDFOperations">
+      <span class="brandText">
+        <span class="top">PDFOperations</span>
+        <span class="sub">Compress • Merge • Split</span>
+      </span>
     </a>
 
     <nav class="navLinks" aria-label="Site">
-      <a href="/#how">How it works</a>
-      <a href="/#faq">FAQ</a>
+      <a href="/">Tools</a>
       <a href="/pricing">Pricing</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms" aria-current="page">Terms</a>
     </nav>
+
+    <div class="navCta">
+      <a class="btn btnSmall btnGhost" href="/">Open tool</a>
+    </div>
   </div>
 </header>
 
@@ -236,122 +302,139 @@
       <div class="pageInner">
 
         <div class="kicker">Legal</div>
-        <h1 class="pageTitle">Terms of Service</h1>
-        <p class="pageLead">
+        <h1 class="pageTitle" style="letter-spacing:-.03em; font-weight:1000;">Terms of Service</h1>
+        <p class="pageLead" style="max-width:74ch;">
           By using PDFOperations you agree to these terms. If you don’t agree, don’t use the service.
         </p>
 
-        <div class="legalMeta" aria-label="Key details">
-          <div class="metaPill">Last updated: <strong>19 Feb 2026</strong></div>
-          <div class="metaPill">Payments via <strong>Stripe</strong></div>
-          <div class="metaPill">Uploads stored <strong>temporarily</strong></div>
+        <div class="metaLine" aria-label="Key details">
+          <div class="metaItem"><span class="metaDot">•</span> Last updated: <strong>19 Feb 2026</strong></div>
+          <div class="metaItem"><span class="metaDot">•</span> Payments via <strong>Stripe</strong></div>
+          <div class="metaItem"><span class="metaDot">•</span> Uploads stored <strong>temporarily</strong></div>
         </div>
 
         <div class="legalTop">
           <!-- Key points -->
-          <div class="legalCard" aria-label="Key points summary">
-            <div class="kicker">Key points</div>
-            <ul style="margin:0; padding-left:18px;">
-              <li><strong>You must have rights</strong> to upload and process your files.</li>
-              <li><strong>We process uploads</strong> to generate a result (ZIP/PDF); availability may change.</li>
-              <li><strong>Files are temporary</strong> and deletion timing is not guaranteed.</li>
-              <li><strong>Digital delivery</strong> happens after successful payment.</li>
-              <li><strong>Support</strong> is via the email on your Stripe receipt.</li>
-            </ul>
+          <div class="frame" aria-label="Key points summary">
+            <div class="frameHead">
+              <h2 class="frameTitle">Key points</h2>
+              <div class="frameMeta">Quick read</div>
+            </div>
+            <div class="frameBody">
+              <ul class="keyList">
+                <li><strong>You must have rights</strong> to upload and process your files.</li>
+                <li><strong>We process uploads</strong> to generate a result (ZIP/PDF); availability may change.</li>
+                <li><strong>Files are temporary</strong> and deletion timing is not guaranteed.</li>
+                <li><strong>Digital delivery</strong> happens after successful payment.</li>
+                <li><strong>Support</strong> is via the email on your Stripe receipt.</li>
+              </ul>
 
-            <div style="margin-top:12px; font-size:12px; opacity:.75;">
-              Related: <a href="/privacy">Privacy</a> • <a href="/pricing">Pricing</a>
+              <div class="fine">
+                Related: <a href="/privacy">Privacy</a> • <a href="/pricing">Pricing</a>
+              </div>
             </div>
           </div>
 
           <!-- Table of contents -->
-          <div class="legalCard" aria-label="On this page">
-            <div class="kicker">On this page</div>
-            <div class="toc">
-              <a href="#service"><div>Service</div><span>→</span></a>
-              <a href="#uploads"><div>Uploads</div><span>→</span></a>
-              <a href="#storage"><div>Temporary storage</div><span>→</span></a>
-              <a href="#payments"><div>Payments</div><span>→</span></a>
-              <a href="#refunds"><div>Refunds</div><span>→</span></a>
-              <a href="#liability"><div>Liability</div><span>→</span></a>
-              <a href="#contact"><div>Contact</div><span>→</span></a>
+          <div class="frame" aria-label="On this page">
+            <div class="frameHead">
+              <h2 class="frameTitle">On this page</h2>
+              <div class="frameMeta">Sections</div>
+            </div>
+            <div class="frameBody">
+              <div class="toc">
+                <a href="#service"><span>Service</span><span class="arrow">→</span></a>
+                <a href="#uploads"><span>Uploads</span><span class="arrow">→</span></a>
+                <a href="#storage"><span>Temporary storage</span><span class="arrow">→</span></a>
+                <a href="#payments"><span>Payments</span><span class="arrow">→</span></a>
+                <a href="#refunds"><span>Refunds</span><span class="arrow">→</span></a>
+                <a href="#liability"><span>Liability</span><span class="arrow">→</span></a>
+                <a href="#contact"><span>Contact</span><span class="arrow">→</span></a>
+                <a href="#faq"><span>FAQs</span><span class="arrow">→</span></a>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="doc" style="margin-top:14px;">
-          <div class="meta">Last updated: 19 Feb 2026</div>
-
-          <h2 id="service" class="anchor">Service</h2>
-          <p>
-            PDFOperations processes your uploads to generate a downloadable result (such as a ZIP or PDF). Availability may
-            change and the service may be paused for maintenance or updates.
-          </p>
-
-          <h2 id="uploads" class="anchor">Uploads</h2>
-          <p>
-            You must have the right to upload and process the files you submit. Do not upload illegal content or content
-            that violates third-party rights.
-          </p>
-
-          <h2 id="storage" class="anchor">Temporary storage</h2>
-          <p>
-            Files are stored temporarily to process your request and to support download/sharing if purchased. We aim to delete
-            files automatically over time, but deletion timing is not guaranteed.
-          </p>
-
-          <h2 id="payments" class="anchor">Payments</h2>
-          <p>
-            Payments are processed by Stripe. Digital delivery occurs after successful payment. Prices and tiers may change
-            at any time for new purchases.
-          </p>
-
-          <h2 id="refunds" class="anchor">Refunds</h2>
-          <p>
-            If something breaks and you cannot access what you paid for, contact support via the email shown on your Stripe
-            receipt and we’ll make it right (including refund where appropriate).
-          </p>
-
-          <h2 id="liability" class="anchor">Liability</h2>
-          <p>
-            PDFOperations is provided “as is” without warranties. We are not liable for indirect or consequential loss. Nothing
-            in these terms limits liability where unlawful.
-          </p>
-
-          <h2 id="contact" class="anchor">Contact</h2>
-          <p>
-            For support or legal questions, contact us via the email shown on the Stripe receipt for your purchase.
-          </p>
-
-          <!-- Optional: Human-friendly FAQ (pairs with FAQPage JSON-LD) -->
-          <h2 class="anchor" id="faq">FAQs</h2>
-          <div class="faqList">
-            <details class="faq">
-              <summary>Do I need permission to upload files?</summary>
-              <div style="margin-top:8px; opacity:.85;">
-                Yes. You must have the right to upload and process the files you submit and must not upload illegal content
-                or content that violates third-party rights.
-              </div>
-            </details>
-
-            <details class="faq">
-              <summary>How long are uploads stored?</summary>
-              <div style="margin-top:8px; opacity:.85;">
-                Files are stored temporarily to process your request and to support download/sharing if purchased.
-                We aim to delete files automatically over time, but deletion timing is not guaranteed.
-              </div>
-            </details>
-
-            <details class="faq">
-              <summary>What if I pay but can’t download?</summary>
-              <div style="margin-top:8px; opacity:.85;">
-                Contact support via the email shown on your Stripe receipt and we’ll make it right (including a refund where appropriate).
-              </div>
-            </details>
+        <div class="frame" style="margin-top:14px;">
+          <div class="frameHead">
+            <h2 class="frameTitle">Terms</h2>
+            <div class="frameMeta">Readable + precise</div>
           </div>
 
-          <div style="margin-top:14px; font-size:12px; opacity:.75;">
-            Also see: <a href="/privacy">Privacy</a> • <a href="/pricing">Pricing</a>
+          <div class="frameBody doc">
+            <div class="meta">Last updated: 19 Feb 2026</div>
+
+            <h2 id="service">Service</h2>
+            <p>
+              PDFOperations processes your uploads to generate a downloadable result (such as a ZIP or PDF). Availability may
+              change and the service may be paused for maintenance or updates.
+            </p>
+
+            <h2 id="uploads">Uploads</h2>
+            <p>
+              You must have the right to upload and process the files you submit. Do not upload illegal content or content
+              that violates third-party rights.
+            </p>
+
+            <h2 id="storage">Temporary storage</h2>
+            <p>
+              Files are stored temporarily to process your request and to support download/sharing if purchased. We aim to delete
+              files automatically over time, but deletion timing is not guaranteed.
+            </p>
+
+            <h2 id="payments">Payments</h2>
+            <p>
+              Payments are processed by Stripe. Digital delivery occurs after successful payment. Prices and tiers may change
+              at any time for new purchases.
+            </p>
+
+            <h2 id="refunds">Refunds</h2>
+            <p>
+              If something breaks and you cannot access what you paid for, contact support via the email shown on your Stripe
+              receipt and we’ll make it right (including refund where appropriate).
+            </p>
+
+            <h2 id="liability">Liability</h2>
+            <p>
+              PDFOperations is provided “as is” without warranties. We are not liable for indirect or consequential loss. Nothing
+              in these terms limits liability where unlawful.
+            </p>
+
+            <h2 id="contact">Contact</h2>
+            <p>
+              For support or legal questions, contact us via the email shown on the Stripe receipt for your purchase.
+            </p>
+
+            <h2 id="faq">FAQs</h2>
+            <div class="faqWrap">
+              <details class="faq">
+                <summary>Do I need permission to upload files? <span class="chev">›</span></summary>
+                <div style="margin-top:8px; opacity:.86; line-height:1.6;">
+                  Yes. You must have the right to upload and process the files you submit and must not upload illegal content
+                  or content that violates third-party rights.
+                </div>
+              </details>
+
+              <details class="faq">
+                <summary>How long are uploads stored? <span class="chev">›</span></summary>
+                <div style="margin-top:8px; opacity:.86; line-height:1.6;">
+                  Files are stored temporarily to process your request and to support download/sharing if purchased.
+                  We aim to delete files automatically over time, but deletion timing is not guaranteed.
+                </div>
+              </details>
+
+              <details class="faq">
+                <summary>What if I pay but can’t download? <span class="chev">›</span></summary>
+                <div style="margin-top:8px; opacity:.86; line-height:1.6;">
+                  Contact support via the email shown on your Stripe receipt and we’ll make it right (including a refund where appropriate).
+                </div>
+              </details>
+            </div>
+
+            <div class="fine">
+              Also see: <a href="/privacy">Privacy</a> • <a href="/pricing">Pricing</a>
+            </div>
           </div>
         </div>
 

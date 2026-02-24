@@ -1,8 +1,8 @@
-<!-- public/pricing.html — PDFOperations (v24 - CLEAN PREMIUM PRICING + SEO + CONVERSION)
+<!-- public/pricing.html — PDFOperations (v25 - FULL RAMBO AUTHORITY PRICING; SEO + CONVERSION; NO APP/BE CHANGES)
      ✅ Same pricing logic: £2.99 (≤10 files) / £9.99 (11–50) + optional share link (+£2.49)
      ✅ No backend/app.js changes
-     ✅ Cleaner premium layout (no bubble boxes)
-     ✅ Stronger SEO: headings, FAQ schema, clearer copy, internal links
+     ✅ Hard “instrument panel” aesthetic (no bubbles, less rounding, crisper dividers)
+     ✅ Keeps SEO JSON-LD: WebPage + FAQ
 -->
 <!doctype html>
 <html lang="en">
@@ -35,11 +35,6 @@
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/style.css?v=36" />
 
@@ -102,36 +97,65 @@
   </script>
 
   <style>
-    /* Page-local: clean, flat premium layout (no bubbles) */
-    .pricingHero{ padding: 26px 0 10px; }
+    /* =========================
+       FULL RAMBO AUTHORITY PRICING (NO BUBBLES)
+    ========================== */
+
+    .pricingHero{ padding: 24px 0 18px; }
+
+    .kicker{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      opacity: .72;
+    }
+
     .pricingGrid{
       display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap: 18px;
+      grid-template-columns: 1.12fr .88fr;
+      gap: 16px;
       align-items:start;
-      margin-top: 16px;
+      margin-top: 14px;
     }
     @media (max-width: 920px){
       .pricingGrid{ grid-template-columns: 1fr; }
     }
 
-    .kicker{
-      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size:12px;
-      letter-spacing:.02em;
-      opacity:.75;
-      text-transform:uppercase;
-    }
-
+    /* Hard panel: less rounded, crisper border, tighter shadow */
     .panel{
-      background: rgba(255,255,255,.92);
-      border: 1px solid rgba(15,23,42,.10);
-      border-radius: 18px;
-      box-shadow: 0 18px 50px rgba(2,6,23,.06);
+      background: rgba(255,255,255,.96);
+      border: 1px solid rgba(15,23,42,.14);
+      border-radius: 14px;
+      box-shadow: 0 26px 80px rgba(2,6,23,.08);
       overflow:hidden;
     }
     .panelPad{ padding: 16px; }
 
+    /* Utility divider header area */
+    .panelHead{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 14px;
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid rgba(15,23,42,.10);
+      background: linear-gradient(180deg, rgba(11,18,32,.03), transparent);
+    }
+    .panelTitle{
+      margin:0;
+      letter-spacing:-.03em;
+      font-weight: 1000;
+      font-size: 18px;
+    }
+    .panelMeta{
+      font-size: 12px;
+      opacity: .72;
+      white-space: nowrap;
+      font-weight: 850;
+    }
+
+    /* Trust row: inline, hard */
     .trustRow{
       display:flex;
       flex-wrap:wrap;
@@ -140,36 +164,43 @@
       padding-top: 12px;
       border-top: 1px solid rgba(15,23,42,.10);
       font-size: 13px;
-      color: rgba(11,18,32,.78);
+      color: rgba(11,18,32,.80);
     }
     .trustItem{
       display:flex;
       align-items:center;
       gap: 8px;
-      font-weight: 800;
+      font-weight: 900;
       white-space: nowrap;
     }
     .trustDot{ opacity:.55; }
 
-    .priceTable{ display:grid; gap: 10px; margin-top: 12px; }
+    /* Price “invoice table” */
+    .priceTable{
+      margin-top: 12px;
+      border: 1px solid rgba(15,23,42,.12);
+      border-radius: 12px;
+      overflow:hidden;
+      background: rgba(255,255,255,1);
+    }
     .priceLine{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
       gap: 14px;
       padding: 12px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.98);
+      border-top: 1px solid rgba(15,23,42,.10);
     }
+    .priceLine:first-child{ border-top: 0; }
+
     .priceLine.isPrimary{
-      border-color: rgba(11,18,32,.18);
-      box-shadow: 0 12px 30px rgba(2,6,23,.06);
+      background: linear-gradient(180deg, rgba(11,18,32,.02), rgba(255,255,255,1));
     }
-    .priceName{ font-weight: 950; letter-spacing: -.01em; }
-    .priceDesc{ margin-top: 2px; font-size: 13px; opacity: .78; line-height: 1.35; }
+
+    .priceName{ font-weight: 1000; letter-spacing: -.02em; }
+    .priceDesc{ margin-top: 2px; font-size: 13px; opacity: .80; line-height: 1.35; }
     .priceAmt{
-      font-weight: 1000;
+      font-weight: 1100;
       letter-spacing: -.02em;
       font-size: 18px;
       white-space: nowrap;
@@ -182,50 +213,71 @@
       margin-top: 10px;
       font-size: 12px;
       opacity: .75;
-      line-height: 1.35;
+      line-height: 1.45;
     }
 
     .miniList{ margin: 10px 0 0; padding-left: 18px; }
     .miniList li{ margin: 6px 0; }
 
+    /* FAQ: hard details blocks (no bubbly rounding) */
     .faqList{ display:grid; gap: 10px; margin-top: 12px; }
     details.faq{
-      border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.96);
-      border-radius: 14px;
+      border: 1px solid rgba(15,23,42,.12);
+      background: rgba(255,255,255,.98);
+      border-radius: 12px;
       padding: 10px 12px;
     }
     details.faq summary{
       cursor:pointer;
-      font-weight: 900;
-      letter-spacing: -.01em;
+      font-weight: 1000;
+      letter-spacing: -.02em;
       list-style:none;
     }
     details.faq summary::-webkit-details-marker{ display:none; }
 
+    /* Tool links: make them look like nav rows, not chips */
     .toolLinks{
-      display:flex;
-      flex-wrap:wrap;
-      gap: 10px;
       margin-top: 12px;
+      border: 1px solid rgba(15,23,42,.12);
+      border-radius: 12px;
+      overflow:hidden;
+      background: rgba(255,255,255,1);
     }
     .toolLinks a{
-      display:inline-flex;
+      display:flex;
       align-items:center;
-      gap: 8px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(15,23,42,.12);
-      background: rgba(255,255,255,.96);
+      justify-content:space-between;
+      gap: 12px;
+      padding: 11px 12px;
+      border-top: 1px solid rgba(15,23,42,.10);
       text-decoration:none;
-      font-weight: 900;
-      font-size: 13px;
-      color: rgba(11,18,32,.92);
+      font-weight: 1000;
+      font-size: 14px;
+      color: rgba(11,18,32,.94);
     }
+    .toolLinks a:first-child{ border-top:0; }
     .toolLinks a:hover{
-      border-color: rgba(15,23,42,.18);
-      box-shadow: 0 10px 24px rgba(2,6,23,.08);
-      transform: translateY(-1px);
+      background: rgba(11,18,32,.02);
+    }
+    .toolLinks .arrow{
+      font-weight: 1100;
+      opacity: .55;
+    }
+
+    /* Header alignment with v71 vibe */
+    .nav{
+      border-bottom: 1px solid rgba(15,23,42,.10);
+      background: rgba(245,247,251,.86);
+      backdrop-filter: blur(10px);
+    }
+    .navLinks a{
+      font-weight: 900;
+      letter-spacing:-.01em;
+      opacity:.86;
+    }
+    .navLinks a[aria-current="page"]{
+      opacity:1;
+      border-bottom:1px solid rgba(11,18,32,.35);
     }
   </style>
 </head>
@@ -237,7 +289,7 @@
 <header class="nav">
   <div class="container navInner">
     <a class="brand" href="/" aria-label="PDFOperations home">
-      <img src="/favicon.svg" width="26" height="26" alt="">
+      <img src="/favicon.svg" width="26" height="26" alt="PDFOperations">
       <span class="brandText">
         <span class="top">PDFOperations</span>
         <span class="sub">Compress • Merge • Split</span>
@@ -261,8 +313,8 @@
   <section class="pricingHero">
     <div class="container heroWide">
       <div class="kicker">Pricing</div>
-      <h1 style="margin:6px 0 8px; letter-spacing:-.02em;">Pay once. Download instantly.</h1>
-      <p style="max-width: 62ch; opacity:.82; line-height:1.5; margin:0;">
+      <h1 style="margin:6px 0 8px; letter-spacing:-.03em; font-weight:1000;">Pay once. Download instantly.</h1>
+      <p style="max-width: 66ch; opacity:.82; line-height:1.55; margin:0;">
         You only pay when your output is ready to download. No accounts, no subscriptions.
         Stripe Checkout shows the full total before you confirm payment.
       </p>
@@ -270,8 +322,12 @@
       <div class="pricingGrid">
         <!-- LEFT: pricing -->
         <div class="panel">
+          <div class="panelHead">
+            <h2 class="panelTitle">One-time pricing</h2>
+            <div class="panelMeta">GBP • Secure checkout</div>
+          </div>
+
           <div class="panelPad">
-            <h2 style="margin:0; letter-spacing:-.02em;">One-time pricing</h2>
             <div class="trustRow" aria-label="Trust indicators">
               <div class="trustItem"><span class="trustDot">•</span>No subscriptions</div>
               <div class="trustItem"><span class="trustDot">•</span>No signup</div>
@@ -319,29 +375,35 @@
 
         <!-- RIGHT: explanation + internal links -->
         <div class="panel">
+          <div class="panelHead">
+            <h2 class="panelTitle">What you get</h2>
+            <div class="panelMeta">Output depends on tool</div>
+          </div>
+
           <div class="panelPad">
-            <h2 style="margin:0; letter-spacing:-.02em;">What you get</h2>
-            <p style="margin:10px 0 0; opacity:.84; line-height:1.55;">
+            <p style="margin:0; opacity:.84; line-height:1.6;">
               PDFOperations is built for fast delivery: upload, process, then download immediately.
-              The exact output depends on the tool:
+              The output depends on the tool:
             </p>
+
             <ul class="miniList">
               <li><strong>Compress / Merge / Rotate</strong>: one updated PDF</li>
               <li><strong>Split</strong>: ZIP containing separate per-page PDFs</li>
               <li><strong>Convert</strong>: one file per input (bundled to ZIP if multiple)</li>
             </ul>
 
-            <h3 style="margin:14px 0 6px; letter-spacing:-.01em;">Jump to a tool</h3>
+            <h3 style="margin:14px 0 6px; letter-spacing:-.02em; font-weight:1000;">Jump to a tool</h3>
+
             <div class="toolLinks" aria-label="Tool links">
-              <a href="/">Compress PDF</a>
-              <a href="/merge-pdf">Merge PDF</a>
-              <a href="/split-pdf">Split PDF</a>
-              <a href="/rotate-pdf">Rotate PDF</a>
-              <a href="/convert">Convert</a>
+              <a href="/"><span>Compress PDF</span><span class="arrow">→</span></a>
+              <a href="/merge-pdf"><span>Merge PDF</span><span class="arrow">→</span></a>
+              <a href="/split-pdf"><span>Split PDF</span><span class="arrow">→</span></a>
+              <a href="/rotate-pdf"><span>Rotate PDF</span><span class="arrow">→</span></a>
+              <a href="/convert"><span>Convert</span><span class="arrow">→</span></a>
             </div>
 
-            <h3 style="margin:14px 0 6px; letter-spacing:-.01em;">Support</h3>
-            <p style="margin:0; opacity:.84; line-height:1.55;">
+            <h3 style="margin:14px 0 6px; letter-spacing:-.02em; font-weight:1000;">Support</h3>
+            <p style="margin:0; opacity:.84; line-height:1.6;">
               Questions or issues? Email
               <a href="mailto:support@pdfoperations.com">support@pdfoperations.com</a>.
             </p>
@@ -354,22 +416,25 @@
       </div>
 
       <!-- FAQ (SEO + conversion objections) -->
-      <section style="margin-top:18px;">
+      <section style="margin-top:16px;">
         <div class="panel">
-          <div class="panelPad">
-            <h2 style="margin:0; letter-spacing:-.02em;">Pricing FAQs</h2>
+          <div class="panelHead">
+            <h2 class="panelTitle">Pricing FAQs</h2>
+            <div class="panelMeta">Clear answers</div>
+          </div>
 
+          <div class="panelPad">
             <div class="faqList" id="faq">
               <details class="faq" open>
                 <summary>Do you charge a subscription?</summary>
-                <div style="margin-top:8px; opacity:.85; line-height:1.55;">
+                <div style="margin-top:8px; opacity:.86; line-height:1.6;">
                   No. You pay once per job, only when your download is ready.
                 </div>
               </details>
 
               <details class="faq">
                 <summary>How do tiers work?</summary>
-                <div style="margin-top:8px; opacity:.85; line-height:1.55;">
+                <div style="margin-top:8px; opacity:.86; line-height:1.6;">
                   Standard is <strong>£2.99</strong> for up to <strong>10 files</strong>.
                   Pro is <strong>£9.99</strong> for up to <strong>50 files</strong>.
                   Your tool shows the tier before Stripe Checkout.
@@ -378,14 +443,14 @@
 
               <details class="faq">
                 <summary>What is the Share link add-on?</summary>
-                <div style="margin-top:8px; opacity:.85; line-height:1.55;">
+                <div style="margin-top:8px; opacity:.86; line-height:1.6;">
                   It adds <strong>+£2.49</strong> and creates a download link instead of sending attachments.
                 </div>
               </details>
 
               <details class="faq">
                 <summary>What do I download?</summary>
-                <div style="margin-top:8px; opacity:.85; line-height:1.55;">
+                <div style="margin-top:8px; opacity:.86; line-height:1.6;">
                   It depends on the tool. Some outputs are a single PDF (merge/rotate/compress),
                   and others may bundle into a ZIP (split and multi-file conversions).
                 </div>
@@ -393,7 +458,7 @@
 
               <details class="faq">
                 <summary>Do you store my files?</summary>
-                <div style="margin-top:8px; opacity:.85; line-height:1.55;">
+                <div style="margin-top:8px; opacity:.86; line-height:1.6;">
                   Files are stored temporarily to process your request and deliver the download.
                   See the Privacy page for retention details.
                 </div>
