@@ -135,6 +135,16 @@
   const thumbUrls = new Map(); // keyOf(file) -> objectURL (images only)
   let uploadedMeta = []; // [{ key, originalname, mimetype }]
 
+  // ====== EXPOSE SELECTION TO TOOL PAGES (rotate preview etc.) ======
+  const publishSelected = () => {
+    try {
+      window.__PDFOPS_SELECTED__ = selected.slice();
+      document.dispatchEvent(new CustomEvent("pdfops:selected", {
+        detail: { files: window.__PDFOPS_SELECTED__.slice() }
+      }));
+    } catch {}
+  };
+
   // ====== MODE STATE ======
   // compress | compress_pdf | convert | merge_pdf | split_pdf | rotate_pdf
   let mode = "compress";
@@ -717,7 +727,7 @@
     setPrimaryStates();
     renderSelected();
   });
-  
+
   const mergeShowNote = (msg) => {
     if (!pdfThumbNoteEl) return;
     if (!msg) {
@@ -1127,6 +1137,9 @@
     setDropzoneCopy();
     setFileInputAccept();
     setPrimaryStates();
+
+    // 🔥 broadcast selection for rotate/split/etc preview scripts
+    publishSelected();
 
     // Build page-level merge grid whenever selection changes on merge page
     mergeBuildPageGrid().catch(() => {});

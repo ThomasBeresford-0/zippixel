@@ -357,16 +357,33 @@
 (() => {
   const $ = (id) => document.getElementById(id);
 
+  const wrap = $("pdfReorderWrap");
+  const grid = $("pdfThumbGrid");
+  const meta = $("rotatePreviewMeta");
+  const rotateBar = $("rotateBar");
+  const rotatePlanText = $("rotatePlanText");
+  const rotateAll90Btn = $("rotateAll90");
+  const resetRotationsBtn = $("resetRotations");
+  const clearBtn = $("clearBtn");
+
   let pdfDoc = null;
   let numPages = 0;
   let lastSig = "";
-  let readyToEmit = false;
 
+  // index = page number (1-based); value = 0/90/180/270
   window.__PDFOPS_ROTATE_MAP__ = [];
 
   async function ensurePdfJs(){
     await (window.__pdfjsReady || Promise.resolve());
-    if (!window.pdfjsLib || !window.pdfjsLib.getDocument) throw new Error("pdfjsLib not available");
+    if (!window.pdfjsLib || typeof window.pdfjsLib.getDocument !== "function") {
+      throw new Error("pdfjsLib not available");
+    }
+  }
+
+  function isPdfFile(f){
+    const t = String(f?.type || "").toLowerCase();
+    if (t === "application/pdf") return true;
+    return /\.pdf$/i.test(String(f?.name || ""));
   }
 
   function nextDeg(d){
@@ -378,15 +395,14 @@
   }
 
   function emit(){
-    if (!readyToEmit) return;
-    document.dispatchEvent(new CustomEvent("pdfops:rotatemap", {
-      detail: { rotateMap: window.__PDFOPS_ROTATE_MAP__.slice() }
-    }));
+    try {
+      document.dispatchEvent(new CustomEvent("pdfops:rotatemap", {
+        detail: { rotateMap: window.__PDFOPS_ROTATE_MAP__.slice() }
+      }));
+    } catch {}
   }
 
-  function updatePlanText(){
-    const rotatePlanText = $("rotatePlanText");
-    const rotateBar = $("rotateBar");
+  function updatePlan(){
     if (!rotatePlanText || !rotateBar) return;
     if (!numPages) { rotateBar.hidden = true; return; }
 
@@ -402,19 +418,7 @@
         : `${changed} page${changed === 1 ? "" : "s"} rotated. Click again to cycle rotation.`;
   }
 
-  function showWrapIfHasThumbs(){
-    const wrap = $("pdfReorderWrap");
-    const grid = $("pdfThumbGrid");
-    if (!wrap || !grid) return;
-    if (grid.children.length > 0) wrap.hidden = false;
-  }
-
   function cleanup(){
-    const grid = $("pdfThumbGrid");
-    const wrap = $("pdfReorderWrap");
-    const meta = $("rotatePreviewMeta");
-    const rotateBar = $("rotateBar");
-
     if (grid) grid.innerHTML = "";
     if (wrap) wrap.hidden = true;
     if (meta) meta.textContent = "—";
@@ -422,9 +426,14 @@
 
     pdfDoc = null;
     numPages = 0;
-    window.__PDFOPS_ROTATE_MAP__ = [];
-    readyToEmit = false;
     lastSig = "";
+    window.__PDFOPS_ROTATE_MAP__ = [];
+    emit();
+  }
+
+  function forceShowWrap(){
+    if (!wrap || !grid) return;
+    if (grid.children.length > 0) wrap.hidden = false;
   }
 
   function makeThumb(pageNo){
@@ -446,7 +455,9 @@
 
     const foot = document.createElement("div");
     foot.className = "thumbFoot";
-    foot.innerHTML = `<div class="thumbLabel">Page ${pageNo}</div><div class="thumbAction">Click to <strong>rotate</strong></div>`;
+    foot.innerHTML =
+      `<div class="thumbLabel">Page ${pageNo}</div>` +
+      `<div class="thumbAction">Click to <strong>rotate</strong></div>`;
 
     card.appendChild(badge);
     card.appendChild(rot);
@@ -465,48 +476,44 @@
   async function renderPageToCanvas(pageNo, targetCanvas, targetWidth, rotation = 0){
     const page = await pdfDoc.getPage(pageNo);
 
-    const baseViewport = page.getViewport({ scale: 1, rotation });
-    const scale = Math.max(0.25, targetWidth / baseViewport.width);
-    const viewport = page.getViewport({ scale, rotation });
+    // rotation via viewport => no CSS rotate clipping
+    const base = page.getViewport({ scale: 1, rotation });
+    const scale = Math.max(0.25, targetWidth / base.width);
+    const vp = page.getViewport({ scale, rotation });
 
     const ctx = targetCanvas.getContext("2d", { alpha: false });
-    targetCanvas.width = Math.ceil(viewport.width);
-    targetCanvas.height = Math.ceil(viewport.height);
+    targetCanvas.width = Math.ceil(vp.width);
+    targetCanvas.height = Math.ceil(vp.height);
 
     ctx.save();
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
     ctx.restore();
 
-    await page.render({ canvasContext: ctx, viewport }).promise;
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
   }
 
   async function setThumbRotation(card, deg){
+    const pageNo = Number(card.dataset.page);
     const rotPill = card.querySelector(".thumbRot");
     const canvas = card.querySelector("canvas");
-    const pageNo = Number(card.dataset.page);
 
     window.__PDFOPS_ROTATE_MAP__[pageNo] = deg;
     if (rotPill) rotPill.textContent = deg ? `${deg}°` : "0°";
 
-    if (canvas && pdfDoc){
-      try { await renderPageToCanvas(pageNo, canvas, 240, deg); } catch {}
-    }
+    try {
+      if (canvas && pdfDoc) await renderPageToCanvas(pageNo, canvas, 240, deg);
+    } catch {}
 
-    updatePlanText();
+    updatePlan();
     emit();
-    showWrapIfHasThumbs();
+    forceShowWrap();
   }
 
   async function renderThumbs(){
-    const grid = $("pdfThumbGrid");
-    const wrap = $("pdfReorderWrap");
-    const meta = $("rotatePreviewMeta");
     if (!grid || !wrap) return;
 
-    readyToEmit = false;
     grid.innerHTML = "";
-
     window.__PDFOPS_ROTATE_MAP__ = [];
     for (let i = 1; i <= numPages; i++) window.__PDFOPS_ROTATE_MAP__[i] = 0;
 
@@ -519,103 +526,72 @@
     if (meta) meta.textContent = `${numPages} page${numPages === 1 ? "" : "s"} • click pages to rotate`;
     wrap.hidden = false;
 
-    updatePlanText();
-    readyToEmit = true;
+    updatePlan();
     emit();
-    showWrapIfHasThumbs();
+    forceShowWrap();
   }
 
   async function loadFromFile(file){
-    if (!file) return;
+    if (!file || !isPdfFile(file)) return;
 
     const sig = `${file.name}|${file.size}|${file.lastModified || 0}`;
-    if (sig === lastSig && pdfDoc) { showWrapIfHasThumbs(); return; }
+    if (sig === lastSig && pdfDoc) { forceShowWrap(); return; }
     lastSig = sig;
 
     await ensurePdfJs();
 
     const bytes = await file.arrayBuffer();
-    const task = window.pdfjsLib.getDocument({
-      data: bytes,
-      disableWorker: false
-    });
-
+    const task = window.pdfjsLib.getDocument({ data: bytes });
     pdfDoc = await task.promise;
     numPages = pdfDoc.numPages || 1;
 
     await renderThumbs();
   }
 
-  async function maybeLoadSelected(){
-    const filesEl = $("files");
-    if (!filesEl) return;
+  // ✅ NEW: get the selected PDF from app.js memory (NOT from input)
+  function getSelectedPdfFromApp(){
+    const arr = window.__PDFOPS_SELECTED__;
+    if (!Array.isArray(arr) || !arr.length) return null;
+    return arr.find(isPdfFile) || null;
+  }
 
-    // If app.js leaves the file in the input, great:
-    if (filesEl.files && filesEl.files[0]) {
-      const f = filesEl.files[0];
-      if (f && ((f.type === "application/pdf") || /\.pdf$/i.test(f.name || ""))) {
-        await loadFromFile(f);
-        return;
-      }
+  async function tryLoad(){
+    const f = getSelectedPdfFromApp();
+    if (!f) return;
+    try { await loadFromFile(f); } catch {}
+  }
+
+  // ✅ Listen for app.js “selection changed”
+  document.addEventListener("pdfops:selected", () => { tryLoad(); });
+
+  // ✅ First load (covers refresh / already selected)
+  setTimeout(() => { tryLoad(); }, 300);
+
+  // Optional quick poll fallback (covers edge cases)
+  const poll = setInterval(() => { tryLoad(); }, 400);
+  setTimeout(() => { try { clearInterval(poll); } catch {} }, 15000);
+
+  clearBtn?.addEventListener("click", () => cleanup());
+
+  rotateAll90Btn?.addEventListener("click", async () => {
+    if (!grid) return;
+    for (const card of Array.from(grid.querySelectorAll(".pdfThumb"))) {
+      await setThumbRotation(card, 90);
     }
+  });
 
-    // Otherwise: nothing we can render without app.js exposing the File.
-    // But we keep trying in case app.js later syncs it.
+  resetRotationsBtn?.addEventListener("click", async () => {
+    if (!grid) return;
+    for (const card of Array.from(grid.querySelectorAll(".pdfThumb"))) {
+      await setThumbRotation(card, 0);
+    }
+  });
+
+  // If app.js ever re-hides the wrap after thumbs exist
+  if (wrap) {
+    const mo = new MutationObserver(() => forceShowWrap());
+    mo.observe(wrap, { attributes: true, attributeFilter: ["hidden"] });
   }
-
-  // Change listener (if it fires)
-  document.addEventListener("change", (e) => {
-    if (e.target && e.target.id === "files") maybeLoadSelected();
-  }, true);
-
-  // Watch file list (UI changes)
-  const fileList = $("fileList");
-  if (fileList){
-    const mo = new MutationObserver(() => {
-      maybeLoadSelected();
-      showWrapIfHasThumbs();
-    });
-    mo.observe(fileList, { childList:true, subtree:true });
-  }
-
-  // Poll for 60s after interaction
-  let poll = null;
-  function startPoll(){
-    if (poll) return;
-    poll = setInterval(() => {
-      maybeLoadSelected();
-      showWrapIfHasThumbs();
-    }, 400);
-    setTimeout(() => { try { clearInterval(poll); } catch {} poll = null; }, 60000);
-  }
-  startPoll();
-
-  // Clear
-  const clearBtn = $("clearBtn");
-  if (clearBtn) clearBtn.addEventListener("click", () => cleanup());
-
-  // Buttons
-  const rotateAll90 = $("rotateAll90");
-  if (rotateAll90){
-    rotateAll90.addEventListener("click", async () => {
-      const grid = $("pdfThumbGrid");
-      if (!grid) return;
-      const cards = Array.from(grid.querySelectorAll(".pdfThumb"));
-      for (const card of cards) await setThumbRotation(card, 90);
-    });
-  }
-
-  const resetRotations = $("resetRotations");
-  if (resetRotations){
-    resetRotations.addEventListener("click", async () => {
-      const grid = $("pdfThumbGrid");
-      if (!grid) return;
-      const cards = Array.from(grid.querySelectorAll(".pdfThumb"));
-      for (const card of cards) await setThumbRotation(card, 0);
-    });
-  }
-
-  setTimeout(() => { maybeLoadSelected(); }, 500);
 })();
 </script>
 
