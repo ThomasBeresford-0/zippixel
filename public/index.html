@@ -1,9 +1,10 @@
-<!-- public/index.html — PDFOperations (v63 - FIX BLACK PREVIEW BOX + GUARANTEED PDF.JS LOAD ORDER)
+<!-- public/index.html — PDFOperations (v64 - WORKING PDF THUMB (NO WORKER HANG) + SMALLER REF-STYLE CARD)
      ✅ Keeps ALL app.js v17.7 IDs preserved (NO hook breaks)
      ✅ style.css?v=36 + app.js?v=17.7
-     ✅ FIX: PDF.js loads BEFORE preview script (no more blank/black canvas)
-     ✅ FIX: Canvas always has light background + placeholder (never black)
-     ✅ REAL PDF thumb (page 1) renders into ref-style square card
+     ✅ FIX: PDF.js loads BEFORE preview script
+     ✅ FIX: disableWorker + hard timeout (prevents “Loading…” forever)
+     ✅ FIX: smaller preview card + smaller stage (matches your ref)
+     ✅ REAL PDF thumb (page 1) rendered into square card
 -->
 <!doctype html>
 <html lang="en">
@@ -115,23 +116,23 @@
     }
 
     .workStage{
-      padding:26px 18px 24px 18px;
+      padding:22px 18px 20px 18px;
       display:flex;
       align-items:center;
       justify-content:center;
-      min-height:420px;
+      min-height:360px; /* smaller */
       background:#fff;
     }
 
-    /* Preview card */
+    /* Preview card (smaller like your reference) */
     .thumbCard{
       position:relative;
-      width:min(520px, 78vw);
+      width:min(360px, 72vw); /* smaller */
       aspect-ratio: 1 / 1;
       border-radius:18px;
       overflow:hidden;
       background:
-        radial-gradient(900px 520px at 50% 0%, rgba(11,18,32,.05), transparent 60%),
+        radial-gradient(700px 440px at 50% 0%, rgba(11,18,32,.05), transparent 60%),
         linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
       border:1px solid rgba(15,23,42,.10);
       box-shadow:0 24px 60px rgba(2,6,23,.14);
@@ -140,7 +141,7 @@
       justify-content:center;
     }
 
-    /* IMPORTANT: never black. Always light checkerboard. */
+    /* Always light checkerboard (never black) */
     .thumbCanvas{
       width:100%;
       height:100%;
@@ -237,7 +238,7 @@
       .workTop{ flex-direction:column; }
       .workTop .btnPrimary,
       .workTop .btnGhost{ width:100%; min-width:unset; max-width:420px; }
-      .thumbCard{ width:min(520px, 92vw); }
+      .thumbCard{ width:min(360px, 88vw); }
     }
 
     /* Hide app.js mini list UI completely (keep DOM hooks) */
@@ -254,55 +255,6 @@
       left:-9999px !important;
       top:auto !important;
     }
-
-    /* ===== keep your existing info/faq look (unchanged) ===== */
-    .infoBand{
-      margin-top:26px;
-      padding:42px 0 34px 0;
-      background:
-        radial-gradient(900px 440px at 18% -10%, rgba(11,18,32,.04), transparent 55%),
-        radial-gradient(900px 460px at 82% 10%, rgba(11,18,32,.03), transparent 60%),
-        linear-gradient(180deg, #f2f5fb 0%, #eef2f8 100%);
-      border-top:1px solid rgba(15,23,42,.10);
-      border-bottom:1px solid rgba(15,23,42,.10);
-    }
-    .infoInner{ max-width:1100px; margin:0 auto; padding:0 22px; }
-    .infoTitle{ text-align:center; margin:0; font-size:34px; letter-spacing:-.02em; color:rgba(11,18,32,.92); }
-    .infoOS{ margin-top:14px; display:flex; flex-wrap:wrap; justify-content:center; gap:10px 18px; color:rgba(11,18,32,.70); font-size:14px; }
-    .osItem{ display:flex; align-items:center; gap:8px; white-space:nowrap; }
-    .tick{ width:16px;height:16px; border-radius:6px; background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.22); display:inline-flex; align-items:center; justify-content:center; }
-    .tick svg{ width:12px;height:12px; fill:#22c55e; }
-    .infoGrid{ margin-top:26px; display:grid; gap:18px; grid-template-columns:1fr; }
-    @media(min-width: 900px){ .infoGrid{ grid-template-columns: repeat(3, 1fr); } }
-    .infoCard{ border:1px solid rgba(15,23,42,.10); background:#ffffff; border-radius:18px; padding:18px 18px 16px 18px; min-height:140px; box-shadow: 0 12px 30px rgba(2,6,23,.06); }
-    .infoIcon{ width:34px;height:34px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:rgba(11,18,32,.04); border:1px solid rgba(15,23,42,.10); margin-bottom:12px; }
-    .infoIcon svg{ width:18px;height:18px; fill:rgba(11,18,32,.82); }
-    .infoH{ margin:0; color:rgba(11,18,32,.92); font-weight:950; letter-spacing:-.01em; font-size:15px; }
-    .infoP{ margin:8px 0 0 0; color:rgba(11,18,32,.72); line-height:1.55; font-size:13px; }
-
-    .belowInfo{ max-width:1100px; margin:18px auto 0 auto; padding:0 22px; }
-    .belowPanel{ background:#ffffff; border:1px solid rgba(15,23,42,.10); border-radius:18px; box-shadow:0 18px 46px rgba(2,6,23,.08); padding:16px; }
-    .belowTop{ display:flex; flex-direction:column; gap:12px; }
-    @media(min-width: 900px){ .belowTop{ flex-direction:row; align-items:flex-start; justify-content:space-between; gap:18px; } }
-    .toolNav{ margin:0; padding:0; display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; }
-    .toolNavLabel{ font-size:12px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; color:rgba(11,18,32,.62); margin-right:2px; }
-    .toolNav a{ font-size:13px; font-weight:900; color:rgba(11,18,32,.92); text-decoration:none; border-bottom:1px solid rgba(11,18,32,.25); padding-bottom:2px; white-space:nowrap; }
-    .toolNav a:hover{ border-bottom-color: rgba(11,18,32,.65); }
-    .seoSubLinks{ margin:0; display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; justify-content:flex-start; }
-    .seoSubLinks a{ font-size:12px; font-weight:800; color:rgba(11,18,32,.78); text-decoration:none; white-space:nowrap; }
-    .seoSubLinks a:hover{ text-decoration:underline; }
-    .microTrust{ margin:12px 0 0 0; font-size:12px; color:rgba(11,18,32,.62); padding-top:12px; border-top:1px solid rgba(15,23,42,.10); }
-    .microTrust b{ color:rgba(11,18,32,.88); }
-
-    .faq{ margin-top:14px; padding:16px; }
-    .faqHead{ display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin-bottom:10px; }
-    .faq h2{ margin:0; font-size:16px; letter-spacing:-.01em; }
-    .faqNote{ margin:0; font-size:12px; color:rgba(11,18,32,.62); }
-    details.faqItem{ border:1px solid rgba(15,23,42,.10); background:#fff; border-radius:14px; padding:12px 12px; margin-top:10px; }
-    details.faqItem summary{ cursor:pointer; font-weight:950; list-style:none; letter-spacing:-.01em; }
-    details.faqItem summary::-webkit-details-marker{ display:none; }
-    .faqAnswer{ margin-top:8px; color:rgba(11,18,32,.78); line-height:1.55; font-size:13px; }
-    .faqAnswer a{ color:rgba(11,18,32,.92); font-weight:900; }
   </style>
 
   <!-- JSON-LD: WebSite -->
@@ -334,7 +286,7 @@
   }
   </script>
 
-  <!-- PDF.js MUST load before our preview script -->
+  <!-- PDF.js loads before preview script -->
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.js"></script>
 </head>
 
@@ -487,9 +439,6 @@
 
     </div>
   </section>
-
-  <!-- keep your existing info/faq content as-is below (omitted for brevity in this comment block) -->
-  <!-- IMPORTANT: do NOT remove your infoBand/belowPanel/footer if you already have them -->
 </main>
 
 <footer class="footer">
@@ -518,14 +467,11 @@
 
   if (!filesInput || !canvas || !nameEl || !hintEl || !closeEl) return;
 
-  // IMPORTANT: worker source
-  if (window.pdfjsLib?.GlobalWorkerOptions) {
-    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-      "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.js";
-  }
+  // NOTE: we deliberately DO NOT set workerSrc here.
+  // Production/CSP/adblock often blocks the worker and causes “Loading…” forever.
+  // We instead render with disableWorker:true below.
 
-  const ctx = canvas.getContext("2d"); // default alpha true (safer)
-
+  const ctx = canvas.getContext("2d");
   const setHasFile = (v) => document.body.classList.toggle("hasFile", !!v);
 
   // app.js toggles hidden on #fileMeta
@@ -539,14 +485,13 @@
     const card = canvas.parentElement;
     const rect = card.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.max(600, Math.floor(rect.width * dpr));
-    canvas.height = Math.max(600, Math.floor(rect.height * dpr));
 
-    // white base so it's never black
+    canvas.width = Math.max(520, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(520, Math.floor(rect.height * dpr));
+
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // subtle placeholder label
     ctx.fillStyle = "rgba(11,18,32,.55)";
     ctx.font = `${Math.floor(14 * dpr)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto`;
     ctx.textAlign = "center";
@@ -557,6 +502,7 @@
   const doClear = () => {
     const real = document.getElementById("clearBtn");
     if (real) real.click();
+    try{ filesInput.value = ""; }catch(_){}
     nameEl.textContent = "PDF";
     hintEl.textContent = "Choose a PDF to preview page 1";
     paintPlaceholder("Preview");
@@ -566,25 +512,38 @@
   closeEl.addEventListener("click", doClear);
   clearTopBtn?.addEventListener("click", doClear);
 
+  function withTimeout(promise, ms, label){
+    return Promise.race([
+      promise,
+      new Promise((_, rej) => setTimeout(() => rej(new Error(label || "timeout")), ms))
+    ]);
+  }
+
   async function renderPdfThumb(file){
     if (!window.pdfjsLib) {
-      hintEl.textContent = "Loading preview…";
-      paintPlaceholder("Loading…");
+      hintEl.textContent = "Preview unavailable • Upload to continue";
+      paintPlaceholder("Preview unavailable");
       return;
     }
 
-    hintEl.textContent = "Rendering preview…";
-    paintPlaceholder("Rendering…");
+    hintEl.textContent = "Loading preview…";
+    paintPlaceholder("Loading…");
 
     const card = canvas.parentElement;
     const rect = card.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.max(600, Math.floor(rect.width * dpr));
-    canvas.height = Math.max(600, Math.floor(rect.height * dpr));
+    canvas.width = Math.max(520, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(520, Math.floor(rect.height * dpr));
 
     const buf = await file.arrayBuffer();
-    const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
-    const page = await pdf.getPage(1);
+
+    // ✅ Key fix: disable worker so it cannot hang forever
+    const task = window.pdfjsLib.getDocument({ data: buf, disableWorker: true });
+
+    const pdf = await withTimeout(task.promise, 5000, "load-timeout");
+    const page = await withTimeout(pdf.getPage(1), 5000, "page-timeout");
+
+    hintEl.textContent = "Rendering preview…";
 
     const viewport0 = page.getViewport({ scale: 1 });
     const scale = Math.max(canvas.width / viewport0.width, canvas.height / viewport0.height);
@@ -595,14 +554,13 @@
     renderCanvas.height = Math.floor(viewport.height);
     const rctx = renderCanvas.getContext("2d");
 
-    await page.render({ canvasContext: rctx, viewport }).promise;
+    await withTimeout(page.render({ canvasContext: rctx, viewport }).promise, 5000, "render-timeout");
 
-    // crop to square from center
+    // center crop to square
     const size = Math.min(renderCanvas.width, renderCanvas.height);
     const sx = Math.floor((renderCanvas.width - size) / 2);
     const sy = Math.floor((renderCanvas.height - size) / 2);
 
-    // draw to final
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(renderCanvas, sx, sy, size, size, 0, 0, canvas.width, canvas.height);
@@ -630,7 +588,7 @@
     }
   }
 
-  // initial placeholder so it's never black
+  // initial placeholder
   paintPlaceholder("Preview");
 
   filesInput.addEventListener("change", () => {
