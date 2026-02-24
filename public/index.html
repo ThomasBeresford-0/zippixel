@@ -1,8 +1,8 @@
-<!-- public/index.html — PDFOperations (v50 - THUMBNAIL PREVIEW (NO PDF VIEWER) + FORCE HIDE DROPDOWN)
-     ✅ Shows a clean PDF thumbnail preview (page 1) — NOT Chrome viewer
-     ✅ KILLS compression dropdown visually (even if app.js/CSS tries to show it)
-     ✅ KILLS native file input UI ("Choose File / no file chosen")
-     ✅ Drag & drop supported
+<!-- public/index.html — PDFOperations (v52 - THUMB PREVIEW + FILE CARD BELOW DROPZONE + REAL LOGO PATH)
+     ✅ Keeps thumbnail preview (page 1) — NOT Chrome viewer
+     ✅ Keeps HARD overrides (hide dropdown, hide native file input UI)
+     ✅ FIXES: app.js mini file cards (has #fileList + positioned BELOW dropzone)
+     ✅ FIXES: logo uses existing /favicon.svg (no guessing)
      ✅ Keeps ALL app.js v17.7 IDs preserved
      ✅ style.css?v=36 + app.js?v=17.7
 -->
@@ -49,6 +49,13 @@
       width:100% !important;
       height:100% !important;
       z-index:5 !important;
+    }
+
+    /* 3) Logo sizing (safe override if you don't add it to style.css yet) */
+    .brandLogo{
+      height:34px;
+      width:auto;
+      display:block;
     }
 
     /* drag over state */
@@ -157,7 +164,7 @@
 <header class="nav">
   <div class="container navInner">
     <a class="brand" href="/" aria-label="PDFOperations home">
-      <span class="brandMark"></span>
+      <img src="/favicon.svg" alt="PDFOperations" class="brandLogo" />
       <span class="brandText">
         <span class="top">PDFOperations</span>
         <span class="sub">Compress • Merge • Split</span>
@@ -242,7 +249,6 @@
 
         <!-- DROPZONE -->
         <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
-
           <div class="dzCenter">
             <div class="dzTitle" id="dzTitle">Drop a PDF here</div>
             <div class="dzSub" id="dzSub">PDF only • 1 file</div>
@@ -254,15 +260,15 @@
 
             <div class="dzFine">Tip: drag a PDF onto this area.</div>
           </div>
+        </div>
 
-          <!-- app.js hooks -->
-          <div class="fileMeta" id="fileMeta" hidden>
-            <div class="fileMetaTop">
-              <div class="fileSummary" id="fileSummary"></div>
-              <button class="btnGhost" id="clearBtn" type="button">Clear</button>
-            </div>
+        <!-- ✅ FILE META / MINI CARD LIST (BELOW DROPZONE) -->
+        <div class="fileMeta" id="fileMeta" hidden>
+          <div class="fileMetaTop">
+            <div class="fileSummary" id="fileSummary"></div>
+            <button class="btnGhost" id="clearBtn" type="button">Clear</button>
           </div>
-
+          <ul class="fileList" id="fileList"></ul>
         </div>
 
         <!-- THUMB PREVIEW -->
@@ -362,7 +368,6 @@
     subEl.textContent = "Preview (page 1)";
 
     try{
-      // pdf.js worker
       if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
         window.pdfjsLib.GlobalWorkerOptions.workerSrc =
           "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.js";
@@ -372,16 +377,14 @@
       const doc = await pdfjsLib.getDocument({ data: buf }).promise;
       const page = await doc.getPage(1);
 
-      // Fit to a compact thumbnail height
-      const targetMaxH = 240; // keeps it a preview, not a viewer
+      const targetMaxH = 240;
       const baseViewport = page.getViewport({ scale: 1 });
-      const scale = Math.min(2, targetMaxH / baseViewport.height); // cap scale to avoid huge work
+      const scale = Math.min(2, targetMaxH / baseViewport.height);
       const viewport = page.getViewport({ scale });
 
       canvas.width = Math.floor(viewport.width);
       canvas.height = Math.floor(viewport.height);
 
-      // white background
       ctx.save();
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -400,7 +403,7 @@
   }
 
   function clearAll(){
-    if(appClear) appClear.click(); // keeps app.js state correct
+    if(appClear) appClear.click();
     wrap.hidden = true;
     loadingEl.hidden = false;
     errEl.hidden = true;
