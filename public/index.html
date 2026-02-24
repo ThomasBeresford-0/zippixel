@@ -303,11 +303,197 @@
 
   <!-- ✅ SELF-HOST PDF.JS (reliable; avoids CDN blocking) -->
   <script src="/vendor/pdfjs/pdf.min.js"></script>
-  <script>
-    if (window.pdfjsLib) {
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.js";
+<script>
+(() => {
+  const filesInput = document.getElementById("files");
+  const dropzone = document.getElementById("dropzone");
+  const meta = document.getElementById("fileMeta");
+
+  const card = document.getElementById("thumbCard");
+  const canvas = document.getElementById("thumbCanvas");
+  const nameEl = document.getElementById("thumbName");
+  const hintEl = document.getElementById("thumbHint");
+  const closeEl = document.getElementById("thumbClose");
+  const clearTopBtn = document.getElementById("clearTopBtn");
+
+  if (!filesInput || !canvas || !nameEl || !hintEl || !closeEl || !card) return;
+
+  // Ensure worker path is set (even though we may disable it on retry)
+  if (window.pdfjsLib) {
+    try { window.pdfjsLib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.js"; } catch(_) {}
+  }
+
+  const ctx = canvas.getContext("2d");
+  const setHasFile = (v) => document.body.classList.toggle("hasFile", !!v);
+
+  if (meta) {
+    const apply = () => setHasFile(!meta.hasAttribute("hidden"));
+    apply();
+    new MutationObserver(apply).observe(meta, { attributes: true, attributeFilter: ["hidden"] });
+  }
+
+  function setRendered(v){
+    card.classList.toggle("isRendered", !!v);
+  }
+
+  function sizeCanvasToCard(){
+    // match the visible card size (no weird huge buffers)
+    const rect = card.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(2, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(2, Math.floor(rect.height * dpr));
+  }
+
+  function paintBlank(label){
+    sizeCanvasToCard();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (label) {
+      ctx.fillStyle = "rgba(11,18,32,.42)";
+      ctx.font = `${Math.floor(14 * Math.min(window.devicePixelRatio || 1, 2))}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(label, canvas.width/2, canvas.height/2);
     }
-  </script>
+  }
+
+  const doClear = () => {
+    const real = document.getElementById("clearBtn");
+    if (real) real.click();
+    try{ filesInput.value = ""; }catch(_){}
+    nameEl.textContent = "PDF";
+    hintEl.textContent = "Upload to continue";
+    setRendered(false);
+    paintBlank("PDF");
+    setHasFile(false);
+  };
+
+  closeEl.addEventListener("click", doClear);
+  clearTopBtn?.addEventListener("click", doClear);
+
+  function withTimeout(promise, ms, label){
+    return Promise.race([
+      promise,
+      new Promise((_, rej) => setTimeout(() => rej(new Error(label || "timeout")), ms))
+    ]);
+  }
+
+  async function renderAttempt(lib, buf, opts){
+    const task = lib.getDocument(opts);
+    const pdf = await withTimeout(task.promise, 15000, "load-timeout");
+    const page = await withTimeout(pdf.getPage(1), 15000, "page-timeout");
+
+    // Fit INSIDE card, preserve ratio (no smush)
+    const viewport0 = page.getViewport({ scale: 1 });
+    const scale = Math.min(canvas.width / viewport0.width, canvas.height / viewport0.height);
+    const viewport = page.getViewport({ scale });
+
+    const renderCanvas = document.createElement("canvas");
+    renderCanvas.width = Math.max(2, Math.floor(viewport.width));
+    renderCanvas.height = Math.max(2, Math.floor(viewport.height));
+    const rctx = renderCanvas.getContext("2d");
+
+    await withTimeout(
+      page.render({ canvasContext: rctx, viewport }).promise,
+      15000,
+      "render-timeout"
+    );
+
+    // Center on the card canvas
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const dx = Math.floor((canvas.width - renderCanvas.width) / 2);
+    const dy = Math.floor((canvas.height - renderCanvas.height) / 2);
+    ctx.drawImage(renderCanvas, dx, dy);
+
+    // Cleanup (helps on some PDFs)
+    try { pdf.destroy(); } catch(_) {}
+  }
+
+  async function renderPdfThumb(file){
+    setRendered(false);
+    paintBlank("Loading…");
+
+    const lib = window.pdfjsLib;
+    if (!lib) {
+      hintEl.textContent = "Preview unavailable";
+      paintBlank("PDF");
+      return;
+    }
+
+    hintEl.textContent = "Rendering preview…";
+
+    const buf = await file.arrayBuffer();
+
+    // Pass 1: normal (uses worker if allowed)
+    try{
+      sizeCanvasToCard();
+      await renderAttempt(lib, buf, { data: buf });
+      setRendered(true);
+      hintEl.textContent = "Preview (page 1)";
+      return;
+    }catch(e1){
+      console.warn("[PDFOperations] Preview attempt 1 failed (retrying w/ disableWorker):", e1);
+    }
+
+    // Pass 2: disableWorker (most reliable / avoids worker/CSP weirdness)
+    try{
+      sizeCanvasToCard();
+      await renderAttempt(lib, buf, { data: buf, disableWorker: true });
+      setRendered(true);
+      hintEl.textContent = "Preview (page 1)";
+      return;
+    }catch(e2){
+      console.error("[PDFOperations] Preview failed:", e2);
+      setRendered(false);
+      hintEl.textContent = "Preview unavailable";
+      paintBlank("PDF");
+    }
+  }
+
+  async function handleFile(file){
+    if (!file) return;
+
+    nameEl.textContent = file.name || "PDF";
+    hintEl.textContent = "Upload to continue";
+    setHasFile(true);
+
+    const isPdf = (file.type === "application/pdf") || /\.pdf$/i.test(file.name || "");
+    if (!isPdf){
+      hintEl.textContent = "PDF only on this page";
+      setRendered(false);
+      paintBlank("PDF");
+      return;
+    }
+
+    await renderPdfThumb(file);
+  }
+
+  // initial state
+  paintBlank("PDF");
+  setRendered(false);
+  hintEl.textContent = "Upload to continue";
+
+  filesInput.addEventListener("change", () => {
+    const file = filesInput.files && filesInput.files[0];
+    if (file) handleFile(file);
+  });
+
+  // drag/drop: show preview (doesn't break app.js)
+  dropzone?.addEventListener("drop", (ev) => {
+    const file = ev.dataTransfer?.files?.[0];
+    if (file) handleFile(file);
+  }, { capture:true });
+
+  window.addEventListener("resize", () => {
+    // keep whatever is currently displayed (don’t re-render on resize)
+    sizeCanvasToCard();
+  });
+})();
+</script>
 </head>
 
 <body class="page pageCompressPdf">
