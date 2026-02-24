@@ -1,13 +1,13 @@
-<!-- public/split-pdf.html — PDFOperations (v9 - SEO + v36 ALIGN + TOOL FIRST + PAGE REORDER + DELETE)
-     ✅ style.css?v=36 + app.js?v=17.7 (matches current site)
-     ✅ Strong SEO: WebPage + BreadcrumbList + FAQPage schema
-     ✅ On-page SEO content + FAQs + internal links (money-mode)
+<!-- public/split-pdf.html — PDFOperations (v10 - PDF.JS ESM LOADER + DRAG FIXED + ORDER NUMBERS + DELETE + SAFE HOOKS)
+     ✅ style.css?v=36 + app.js?v=17.7
+     ✅ Replaces CDN pdf.js with self-hosted ESM module loader (same pattern as merge)
+     ✅ Fixes drag reorder reliably (event delegation + prevents inner elements stealing drag)
+     ✅ Adds clear, always-visible order numbers (1..N) on each thumb so users don’t get lost
+     ✅ Delete + Reset preserved
+     ✅ Exposes window.__PDFOPS_PAGE_ORDER__ (1-based) and keeps it updated after reorder/delete/reset
      ✅ Keeps ALL app.js IDs unchanged
      ✅ split_pdf preselected
-     ✅ Thumbnail reorder + delete UX (page-owned)
-     ✅ Exposes window.__PDFOPS_PAGE_ORDER__ (1-based) for app.js to submit later
      ✅ Includes FULL checkout modal markup (required by app.js)
-     ✅ Includes pdf.js worker config
      ✅ Protects [hidden] so modals/sections never flash
 -->
 <!doctype html>
@@ -128,6 +128,47 @@
   }
   </script>
 
+  <!-- =========================================================
+       PDF.js (self-hosted ESM) — module loader
+       expects:
+         /public/vendor/pdfjs/pdf.min.mjs
+         /public/vendor/pdfjs/pdf.worker.min.mjs
+       exposes:
+         window.__pdfjsReady (Promise)
+         window.pdfjsLib
+         window.__pdfjsWorkerOK
+  ========================================================== -->
+  <script type="module">
+    const PDFJS_SRC = "/vendor/pdfjs/pdf.min.mjs";
+    const WORKER_SRC = "/vendor/pdfjs/pdf.worker.min.mjs";
+
+    window.__pdfjsReady = (async () => {
+      const mod = await import(PDFJS_SRC);
+      const lib = mod?.default ?? mod;
+      window.pdfjsLib = lib;
+
+      try {
+        lib.GlobalWorkerOptions.workerSrc = WORKER_SRC;
+        window.__pdfjsWorkerOK = true;
+      } catch (_) {
+        window.__pdfjsWorkerOK = false;
+      }
+
+      return lib;
+    })().catch(async (err) => {
+      try {
+        const mod2 = await import(PDFJS_SRC);
+        const lib2 = mod2?.default ?? mod2;
+        window.pdfjsLib = lib2;
+        window.__pdfjsWorkerOK = false;
+        return lib2;
+      } catch (_) {
+        window.__pdfjsWorkerOK = false;
+        throw err;
+      }
+    });
+  </script>
+
   <style>
     /* ===== Protect hidden states (prevents modal/sections flashing) ===== */
     #pdfPreviewModal[hidden],
@@ -175,6 +216,7 @@
     }
 
     .pdfThumb{
+      position: relative;
       background: rgba(255,255,255,.82);
       border: 1px solid rgba(15,23,42,.10);
       border-radius: 18px;
@@ -185,14 +227,21 @@
       -webkit-user-select:none;
       transition: transform .08s ease, box-shadow .12s ease, border-color .12s ease, opacity .12s ease;
       will-change: transform;
+      overflow: hidden;
     }
     .pdfThumb:active{ cursor: grabbing; transform: scale(.995); }
 
     .pdfThumb.isDragging{ opacity:.55; }
     .pdfThumb.isOver{
-      border-color: rgba(37,99,235,.28);
+      border-color: rgba(11,18,32,.22);
       box-shadow: 0 14px 40px rgba(2,6,23,.10);
+      outline: 2px solid rgba(11,18,32,.14);
+      outline-offset: 2px;
     }
+
+    /* IMPORTANT: stop inner nodes from stealing drag */
+    .pdfThumbTop,
+    .pdfThumbCanvas{ pointer-events:none; }
 
     .pdfThumbTop{
       display:flex;
@@ -212,6 +261,7 @@
       display:flex;
       gap: 8px;
       align-items:center;
+      pointer-events: auto; /* allow delete button */
     }
 
     .btnTiny{
@@ -228,6 +278,24 @@
       background: #fff;
       border: 1px solid rgba(15,23,42,.06);
       display:block;
+    }
+
+    /* ===== ORDER NUMBER BADGE (NEW) ===== */
+    .pdfOrderBadge{
+      position:absolute;
+      top:10px; left:10px;
+      width:28px; height:28px;
+      display:flex; align-items:center; justify-content:center;
+      border-radius:999px;
+      background:rgba(11,18,32,.92);
+      color:#fff;
+      font-weight:900;
+      font-size:12px;
+      letter-spacing:-.01em;
+      box-shadow:0 10px 24px rgba(2,6,23,.22);
+      border:1px solid rgba(255,255,255,.18);
+      pointer-events:none;
+      z-index: 2;
     }
 
     /* SEO section */
@@ -407,7 +475,7 @@
 
             <ol class="fileList" id="fileList"></ol>
 
-            <!-- PAGE REORDER (page-owned UX; app.js will read window.__PDFOPS_PAGE_ORDER__) -->
+            <!-- PAGE REORDER -->
             <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
               <div class="pdfReorderHead">
                 <div>
@@ -625,13 +693,6 @@
   </div>
 </div>
 
-<!-- pdf.js (needed for thumbnails) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script>
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-</script>
-
 <!-- ===== Page-owned reorder + delete logic (works alongside app.js) ===== -->
 <script>
 (() => {
@@ -641,14 +702,15 @@
   const countEl = document.getElementById("pdfReorderCount");
   const noteEl = document.getElementById("pdfThumbNote");
   const fileInput = document.getElementById("files");
+  const clearBtn = document.getElementById("clearBtn");
 
   if (!wrap || !grid || !resetBtn || !countEl || !fileInput) return;
-  if (!window.pdfjsLib) return;
 
   let pdfDoc = null;
   let objectUrl = null;
-  let originalOrder = [];
-  let order = [];
+
+  let originalOrder = []; // [1..n]
+  let order = [];         // current [pageNo,...] (1-based)
 
   // Expose for app.js
   window.__PDFOPS_PAGE_ORDER__ = null;
@@ -676,12 +738,27 @@
     }
   }
 
+  // NEW: renumber visible order badges (1..N) after any change
+  function renumberBadges() {
+    const cards = [...grid.querySelectorAll(".pdfThumb")];
+    cards.forEach((card, idx) => {
+      let badge = card.querySelector(".pdfOrderBadge");
+      if (!badge) {
+        badge = document.createElement("div");
+        badge.className = "pdfOrderBadge";
+        card.appendChild(badge);
+      }
+      badge.textContent = String(idx + 1);
+      card.setAttribute("aria-label", `Output position ${idx + 1}`);
+    });
+  }
+
   async function renderThumb(pageNumber, canvas) {
     const page = await pdfDoc.getPage(pageNumber);
-    const viewport = page.getViewport({ scale: 1 });
+    const vp0 = page.getViewport({ scale: 1 });
 
     const targetW = 150;
-    const scale = Math.max(0.22, targetW / viewport.width);
+    const scale = Math.max(0.22, targetW / vp0.width);
     const vp = page.getViewport({ scale });
 
     canvas.width = Math.floor(vp.width);
@@ -696,9 +773,10 @@
       .map(el => Number(el.dataset.page))
       .filter(n => Number.isFinite(n) && n > 0);
 
+    window.__PDFOPS_PAGE_ORDER__ = order.slice(); // 1-based
     updateCount();
     showWrap();
-    window.__PDFOPS_PAGE_ORDER__ = order.slice(); // 1-based
+    renumberBadges();
   }
 
   function makeThumbCard(pageNumber) {
@@ -706,6 +784,12 @@
     card.className = "pdfThumb";
     card.draggable = true;
     card.dataset.page = String(pageNumber);
+
+    // order badge (position, not page number)
+    const orderBadge = document.createElement("div");
+    orderBadge.className = "pdfOrderBadge";
+    orderBadge.textContent = "•";
+    card.appendChild(orderBadge);
 
     const top = document.createElement("div");
     top.className = "pdfThumbTop";
@@ -721,7 +805,11 @@
     del.type = "button";
     del.className = "btnGhost btnTiny";
     del.textContent = "Delete";
-    del.addEventListener("click", () => {
+    del.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // remove from order + DOM
       const idx = order.indexOf(pageNumber);
       if (idx !== -1) order.splice(idx, 1);
       card.remove();
@@ -744,59 +832,31 @@
     card.appendChild(top);
     card.appendChild(canvas);
 
-    // Drag events
-    card.addEventListener("dragstart", (e) => {
-      card.classList.add("isDragging");
-      e.dataTransfer.effectAllowed = "move";
-      try { e.dataTransfer.setData("text/plain", String(pageNumber)); } catch(_) {}
-    });
-
-    card.addEventListener("dragend", () => {
-      card.classList.remove("isDragging");
-      Array.from(grid.querySelectorAll(".pdfThumb.isOver")).forEach(el => el.classList.remove("isOver"));
-    });
-
-    card.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = "move";
-      card.classList.add("isOver");
-    });
-
-    card.addEventListener("dragleave", () => {
-      card.classList.remove("isOver");
-    });
-
-    card.addEventListener("drop", (e) => {
-      e.preventDefault();
-      card.classList.remove("isOver");
-
-      let draggedPage = null;
-      try { draggedPage = Number(e.dataTransfer.getData("text/plain")); } catch(_) {}
-      const targetPage = Number(card.dataset.page);
-      if (!draggedPage || !targetPage || draggedPage === targetPage) return;
-
-      const draggedEl = grid.querySelector(`.pdfThumb[data-page="${draggedPage}"]`);
-      if (!draggedEl) return;
-
-      const rect = card.getBoundingClientRect();
-      const before = (e.clientX - rect.left) < rect.width / 2;
-      grid.insertBefore(draggedEl, before ? card : card.nextSibling);
-
-      syncOrderFromDOM();
-      setNote("");
-    });
+    // IMPORTANT: stop the browser from trying to drag the canvas bitmap itself
+    canvas.setAttribute("draggable", "false");
 
     renderThumb(pageNumber, canvas).catch(() => {});
 
     return card;
   }
 
+  function clearOverStates() {
+    grid.querySelectorAll(".pdfThumb").forEach(el => el.classList.remove("isOver", "isDragging"));
+  }
+
   async function loadPdf(file) {
     setNote("");
     revokeUrl();
+
+    await window.__pdfjsReady;
+    const pdfjsLib = window.pdfjsLib;
+
     objectUrl = URL.createObjectURL(file);
 
-    const task = pdfjsLib.getDocument(objectUrl);
+    const task = pdfjsLib.getDocument({
+      url: objectUrl,
+      disableWorker: window.__pdfjsWorkerOK === false
+    });
     pdfDoc = await task.promise;
 
     const total = pdfDoc.numPages;
@@ -821,6 +881,66 @@
     syncOrderFromDOM();
   }
 
+  // ========= Drag reorder (robust, delegated) =========
+  let dragPage = null;
+
+  grid.addEventListener("dragstart", (e) => {
+    const card = e.target.closest(".pdfThumb");
+    if (!card) return;
+
+    dragPage = Number(card.dataset.page);
+    if (!dragPage) return;
+
+    card.classList.add("isDragging");
+    try {
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", String(dragPage));
+      e.dataTransfer.setDragImage(card, 24, 24);
+    } catch(_) {}
+  });
+
+  grid.addEventListener("dragover", (e) => {
+    const over = e.target.closest(".pdfThumb");
+    if (!over) return;
+    e.preventDefault();
+    clearOverStates();
+    over.classList.add("isOver");
+    try { e.dataTransfer.dropEffect = "move"; } catch(_) {}
+  });
+
+  grid.addEventListener("drop", (e) => {
+    const over = e.target.closest(".pdfThumb");
+    if (!over) return;
+    e.preventDefault();
+
+    const toPage = Number(over.dataset.page);
+    const fromPage = dragPage || (() => {
+      try { return Number(e.dataTransfer.getData("text/plain")); } catch(_) { return null; }
+    })();
+
+    clearOverStates();
+    dragPage = null;
+
+    if (!fromPage || !toPage || fromPage === toPage) return;
+
+    const draggedEl = grid.querySelector(`.pdfThumb[data-page="${fromPage}"]`);
+    if (!draggedEl) return;
+
+    // insert before/after depending on pointer position
+    const rect = over.getBoundingClientRect();
+    const before = (e.clientX - rect.left) < rect.width / 2;
+    grid.insertBefore(draggedEl, before ? over : over.nextSibling);
+
+    syncOrderFromDOM();
+    setNote("");
+  });
+
+  grid.addEventListener("dragend", () => {
+    dragPage = null;
+    clearOverStates();
+  });
+
+  // ========= Inputs =========
   resetBtn.addEventListener("click", resetAll);
 
   fileInput.addEventListener("change", async () => {
@@ -844,7 +964,6 @@
     }
   });
 
-  const clearBtn = document.getElementById("clearBtn");
   if (clearBtn) {
     clearBtn.addEventListener("click", () => {
       pdfDoc = null;
