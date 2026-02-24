@@ -588,6 +588,13 @@
     emit();
   }
 
+  // Force enable Continue button
+const continueBtn = document.getElementById("continue");
+if (continueBtn) {
+  continueBtn.disabled = false;
+  continueBtn.classList.remove("isDisabled");
+}
+
 async function loadFromFile(f){
   refreshRefs();
   if (!f) return false;
