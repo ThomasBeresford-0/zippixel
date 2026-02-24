@@ -1,9 +1,9 @@
-<!-- public/index.html — PDFOperations (Platform Tool-First v37 - PREMIUM HOME + SUPPORT SECTIONS)
+<!-- public/index.html — PDFOperations (Platform Tool-First v38 - MONEY MODE SEO + TRUST LAYER)
      ✅ Homepage = Compress PDF
      ✅ Pretty routes in nav (aligns with tool suite)
      ✅ Version sync: style.css?v=33 + app.js?v=17.7
      ✅ Keeps ALL app.js IDs unchanged
-     ✅ Adds trust bar + how-it-works + FAQ using existing supportCard system
+     ✅ Adds: stronger hero copy + trust bar + SEO support section + upgraded FAQ + JSON-LD (WebSite + WebPage + FAQPage)
      ✅ No payment mentions outside modal
 -->
 <!doctype html>
@@ -12,24 +12,24 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Compress PDF Online — PDFOperations</title>
-  <meta name="description" content="Compress a PDF online in seconds. Choose compression level, reduce file size, and download. Secure. No signup required." />
+  <title>Compress PDF Online — Fast, Secure, No Signup | PDFOperations</title>
+  <meta name="description" content="Compress a PDF online in seconds. Reduce file size for email and upload limits with Balanced, Light or Maximum. Secure. No signup." />
   <link rel="canonical" href="https://pdfoperations.com/" />
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light" />
 
-  <meta property="og:title" content="Compress PDF Online — PDFOperations" />
-  <meta property="og:description" content="Reduce PDF file size instantly. Secure processing and fast download." />
+  <meta property="og:title" content="Compress PDF Online — Fast, Secure, No Signup | PDFOperations" />
+  <meta property="og:description" content="Reduce PDF file size instantly for email and upload limits. Secure processing and fast download." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
   <meta property="og:image:alt" content="PDFOperations — Compress PDF" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Compress PDF Online — PDFOperations" />
-  <meta name="twitter:description" content="Reduce PDF file size instantly. Secure processing and fast download." />
+  <meta name="twitter:title" content="Compress PDF Online — Fast, Secure, No Signup | PDFOperations" />
+  <meta name="twitter:description" content="Reduce PDF file size instantly for email and upload limits. Secure processing and fast download." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -51,6 +51,7 @@
       flex-wrap:wrap;
       gap: 8px;
       margin-top: 10px;
+      justify-content:center;
     }
     .toolChip{
       font-size: 12px;
@@ -65,7 +66,97 @@
 
     /* Slightly tighten the preset row rhythm */
     .presetRow{ margin-top: 12px; }
+
+    /* Trust bar under the tool */
+    .trustBar{
+      margin-top: 14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+      justify-content:center;
+    }
+    .trustBarItem{
+      font-size: 12px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.70);
+      box-shadow: 0 10px 26px rgba(2,6,23,.06);
+      opacity: .92;
+      user-select:none;
+      white-space:nowrap;
+    }
+
+    /* Long-form support text */
+    .supportTextLong{
+      margin-top: 10px;
+      color: rgba(15,23,42,.86);
+      line-height: 1.65;
+      font-size: 15px;
+    }
+    .supportTextLong p{ margin: 0 0 12px; }
+    .supportTextLong a{ color: inherit; text-decoration: underline; text-underline-offset: 2px; }
   </style>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://pdfoperations.com/#website",
+        "url": "https://pdfoperations.com/",
+        "name": "PDFOperations",
+        "description": "Fast PDF tools for email, portals and document workflows."
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://pdfoperations.com/#webpage",
+        "url": "https://pdfoperations.com/",
+        "name": "Compress PDF Online — Fast, Secure, No Signup",
+        "isPartOf": { "@id": "https://pdfoperations.com/#website" }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://pdfoperations.com/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Will compression change how my PDF looks?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Balanced keeps layout and readability for most documents. Maximum is more aggressive and may reduce image detail to hit strict file-size limits."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which compression level should I choose?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Use Balanced for everyday PDFs. Choose Light when quality matters more than size. Pick Maximum for portals that reject large uploads."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is it secure?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes — we process your file to generate the output, then remove it after processing. No account required."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I merge or split PDFs too?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. PDFOperations includes Merge PDF and Split PDF tools for combining files or extracting pages."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 
 <body class="premium" data-tool="compress_pdf">
@@ -103,10 +194,17 @@
     <div id="tool" class="tool toolPremium toolMega">
 
       <div class="toolHead toolHeadMinimal">
-        <h1 class="toolTitle">Compress PDF</h1>
+        <h1 class="toolTitle">Compress PDF Online — Fast, Secure, No Signup</h1>
         <p class="toolSub">
-          Reduce file size while maintaining layout and clarity.
+          Reduce PDF file size instantly for email, portals and upload limits. No watermarks. No account required.
         </p>
+
+        <div class="toolChips" aria-label="Key benefits">
+          <div class="toolChip">⚡ Instant processing</div>
+          <div class="toolChip">🔒 Private by default</div>
+          <div class="toolChip">🚫 No watermarks</div>
+          <div class="toolChip">📩 Built for email limits</div>
+        </div>
       </div>
 
       <div class="statusWrap">
@@ -131,33 +229,35 @@
       <!-- Presets -->
       <div class="presetRow">
         <div class="presetLabel">Common limits:</div>
-        <div class="presetButtons">
-          <button type="button" class="presetBtn" data-preset-level="max">Under 2MB</button>
-          <button type="button" class="presetBtn" data-preset-level="max">Under 5MB</button>
-          <button type="button" class="presetBtn" data-preset-level="balanced">Under 10MB</button>
-          <button type="button" class="presetBtn" data-preset-level="light">High quality</button>
+        <div class="presetBtns" role="group" aria-label="Common upload limits">
+          <button class="chipBtn" id="preset2mb" type="button">Under 2MB</button>
+          <button class="chipBtn" id="preset5mb" type="button">Under 5MB</button>
+          <button class="chipBtn" id="preset10mb" type="button">Under 10MB</button>
+          <button class="chipBtn" id="presetHQ" type="button">High quality</button>
         </div>
       </div>
 
-      <!-- Compression Level -->
-      <div class="convertRow convertRowFull" id="pdfCompressRow">
-        <div class="convertGroup convertGroupWide">
-          <div class="convertLabel">Compression level</div>
-          <select id="pdfCompressLevel">
-            <option value="balanced" selected>Balanced (recommended)</option>
+      <!-- Compression level -->
+      <div class="rowCard">
+        <div class="rowCardLeft">
+          <div class="rowCardTitle">Compression level</div>
+          <div class="rowCardSub">Choose how aggressively to reduce file size.</div>
+        </div>
+        <div class="rowCardRight">
+          <select id="compressLevel" aria-label="Compression level">
             <option value="light">Light (higher quality)</option>
+            <option value="balanced" selected>Balanced (recommended)</option>
             <option value="max">Maximum (smallest size)</option>
           </select>
         </div>
-        <div class="convertHint">
-          Use <b>Maximum</b> for strict upload limits.
-        </div>
       </div>
 
-      <!-- Keep convert row hidden for app.js safety -->
-      <div class="convertRow" id="convertRow" style="display:none;">
-        <select id="convertFrom"><option value="auto" selected>Auto detect</option></select>
-        <select id="convertTarget"><option value="jpg" selected>JPG</option></select>
+      <!-- Convert format (hidden, app.js safety) -->
+      <div style="display:none;">
+        <select id="convertTo">
+          <option value="png">PNG</option>
+          <option value="jpg" selected>JPG</option>
+        </select>
       </div>
 
       <!-- Rotate degrees (hidden, app.js safety) -->
@@ -222,6 +322,13 @@
 
       <div class="fineprint">No signup. Upload, compress, download.</div>
 
+      <div class="trustBar" aria-label="Trust and safety">
+        <div class="trustBarItem">🔐 Files removed after processing</div>
+        <div class="trustBarItem">⚡ Fast download</div>
+        <div class="trustBarItem">✅ Works in browser</div>
+        <div class="trustBarItem">🇬🇧 Built for UK upload limits</div>
+      </div>
+
     </div>
 
   </div>
@@ -275,23 +382,59 @@
       <details class="faqItemPro">
         <summary>Will compression change how my PDF looks?</summary>
         <div class="faqBodyPro">
-          Balanced aims to keep layout and clarity. Maximum may reduce image detail more aggressively to shrink size.
+          Balanced keeps layout and readability for most documents. Maximum is more aggressive and may reduce image detail to hit strict file-size limits.
         </div>
       </details>
 
       <details class="faqItemPro">
-        <summary>Which level should I use?</summary>
+        <summary>Which compression level should I choose?</summary>
         <div class="faqBodyPro">
-          Use Balanced for general use, Light for higher quality, and Maximum when you need to meet strict upload limits.
+          Use <strong>Balanced</strong> for everyday PDFs. Choose <strong>Light</strong> when quality matters more than size. Pick <strong>Maximum</strong> for portals that reject large uploads.
         </div>
       </details>
 
       <details class="faqItemPro">
-        <summary>Do you support multiple PDFs here?</summary>
+        <summary>Is it secure?</summary>
         <div class="faqBodyPro">
-          Compress PDF is designed for a single file. Use the ZIP tool if you want to bundle many files for download.
+          Yes — we process your file to generate the output, then remove it after processing. No account required.
         </div>
       </details>
+
+      <details class="faqItemPro">
+        <summary>Can I merge or split PDFs too?</summary>
+        <div class="faqBodyPro">
+          Yep. Use <a href="/merge-pdf">Merge PDF</a> to combine files, or <a href="/split-pdf">Split PDF</a> to extract pages.
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- SEO SUPPORT -->
+<section class="sectionSupport">
+  <div class="supportCard">
+    <div class="supportHead">
+      <h2>Compress PDFs for email, portals and upload limits</h2>
+      <p class="supportSub">A practical guide to reducing PDF size without wrecking quality.</p>
+    </div>
+
+    <div class="supportTextLong">
+      <p>
+        PDF compression reduces file size by optimising images, embedded fonts and document structure. If you’ve ever hit a
+        “file too large” error when emailing a document or uploading to a portal, compression is the fastest fix.
+      </p>
+      <p>
+        For most documents (invoices, forms, contracts), <strong>Balanced</strong> is the best starting point: it aims to keep text crisp
+        while shrinking the file significantly. If your PDF is image-heavy (scans, brochures), try <strong>Light</strong> first to keep detail,
+        then step up to <strong>Maximum</strong> only when you must meet strict limits.
+      </p>
+      <p>
+        Need more than compression? PDFOperations includes <a href="/merge-pdf">Merge PDF</a>, <a href="/split-pdf">Split PDF</a>,
+        <a href="/convert">Convert</a> and <a href="/rotate-pdf">Rotate</a> — built for quick document workflows.
+      </p>
+      <p>
+        Tip: If a portal asks for “under 2MB” or “under 10MB”, use the Common limits presets above. They’re designed for real-world submission rules.
+      </p>
     </div>
   </div>
 </section>
