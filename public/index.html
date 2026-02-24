@@ -1,8 +1,8 @@
-<!-- public/index.html — PDFOperations (v66 - REAL CARD PREVIEW (LIKE REF) + PDF THUMB WHEN AVAILABLE)
+<!-- public/index.html — PDFOperations (v67 - SELF-HOST PDFJS (RELIABLE) + REF CARD PREVIEW)
      ✅ Keeps ALL app.js v17.7 IDs preserved (NO hook breaks)
      ✅ style.css?v=36 + app.js?v=17.7
      ✅ Preview is ALWAYS a small “file card” (like your reference)
-     ✅ If PDF.js renders, card shows page 1. If not, shows clean PDF card fallback (no empty massive stage)
+     ✅ Self-hosts pdf.min.js + pdf.worker.min.js so it actually loads in production
 -->
 <!doctype html>
 <html lang="en">
@@ -114,17 +114,15 @@
       letter-spacing:-.01em;
     }
 
-    /* ✅ Key: stage is NOT massive anymore */
     .workStage{
       padding:18px 16px;
       display:flex;
       align-items:center;
       justify-content:center;
-      min-height:unset;
       background:#fff;
     }
 
-    /* ✅ File-card preview like your reference */
+    /* ✅ Card preview like your reference */
     .thumbCard{
       position:relative;
       width:260px;
@@ -142,7 +140,6 @@
       user-select:none;
     }
 
-    /* Canvas fills card when PDF renders */
     .thumbCanvas{
       width:100%;
       height:100%;
@@ -157,7 +154,6 @@
       background-position:0 0, 0 15px, 15px -15px, -15px 0px;
     }
 
-    /* ✅ Fallback “PDF” big label (shown when preview fails / before render) */
     .thumbType{
       position:absolute;
       inset:0;
@@ -229,7 +225,6 @@
       border:1px solid rgba(15,23,42,.10);
     }
 
-    /* Bottom actions */
     .workBottom{
       padding:14px 16px 16px 16px;
       border-top:1px solid rgba(15,23,42,.10);
@@ -306,8 +301,8 @@
   }
   </script>
 
-  <!-- PDF.js (loads before preview script) -->
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.js"></script>
+  <!-- ✅ SELF-HOST PDF.JS (reliable; avoids CDN blocking) -->
+  <script src="/vendor/pdfjs/pdf.min.js"></script>
 </head>
 
 <body class="page pageCompressPdf">
@@ -490,10 +485,19 @@
 
   if (!filesInput || !canvas || !nameEl || !hintEl || !closeEl || !card) return;
 
+  // ✅ If pdfjs didn't load, you'll see it instantly in console
+  if (!window.pdfjsLib) {
+    console.warn("[PDFOperations] pdfjsLib missing. Ensure /vendor/pdfjs/pdf.min.js is present and served.");
+  } else {
+    // ✅ Set worker path to same-origin file (reliable)
+    try {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.js";
+    } catch(_) {}
+  }
+
   const ctx = canvas.getContext("2d");
   const setHasFile = (v) => document.body.classList.toggle("hasFile", !!v);
 
-  // app.js toggles hidden on #fileMeta
   if (meta) {
     const apply = () => setHasFile(!meta.hasAttribute("hidden"));
     apply();
@@ -539,7 +543,6 @@
   }
 
   async function renderPdfThumb(file){
-    // Always keep the nice card (fallback is the PDF label)
     setRendered(false);
     paintBlank();
 
@@ -552,11 +555,12 @@
 
     const buf = await file.arrayBuffer();
 
-    // Disable worker (prevents hanging forever in real-world environments)
-    const task = window.pdfjsLib.getDocument({ data: buf, disableWorker: true });
+    // Worker is now same-origin, so we can use normal mode (faster + more reliable now).
+    // Still keep timeouts so it never hangs forever.
+    const task = window.pdfjsLib.getDocument({ data: buf });
 
-    const pdf = await withTimeout(task.promise, 5000, "load-timeout");
-    const page = await withTimeout(pdf.getPage(1), 5000, "page-timeout");
+    const pdf = await withTimeout(task.promise, 8000, "load-timeout");
+    const page = await withTimeout(pdf.getPage(1), 8000, "page-timeout");
 
     const viewport0 = page.getViewport({ scale: 1 });
     const scale = Math.max(canvas.width / viewport0.width, canvas.height / viewport0.height);
@@ -567,9 +571,8 @@
     renderCanvas.height = Math.floor(viewport.height);
     const rctx = renderCanvas.getContext("2d");
 
-    await withTimeout(page.render({ canvasContext: rctx, viewport }).promise, 5000, "render-timeout");
+    await withTimeout(page.render({ canvasContext: rctx, viewport }).promise, 8000, "render-timeout");
 
-    // center crop to square
     const size = Math.min(renderCanvas.width, renderCanvas.height);
     const sx = Math.floor((renderCanvas.width - size) / 2);
     const sy = Math.floor((renderCanvas.height - size) / 2);
@@ -600,14 +603,12 @@
     try{
       await renderPdfThumb(file);
     }catch(_){
-      // Clean fallback: still looks like your ref (PDF card), no “massive empty thing”
       setRendered(false);
       hintEl.textContent = "Upload to continue";
       paintBlank();
     }
   }
 
-  // initial
   paintBlank();
   setRendered(false);
   hintEl.textContent = "Upload to continue";
@@ -617,7 +618,6 @@
     handleFile(file);
   });
 
-  // drag/drop: show preview (doesn't break app.js)
   dropzone?.addEventListener("drop", (ev) => {
     const file = ev.dataTransfer?.files?.[0];
     if (file) handleFile(file);
