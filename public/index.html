@@ -1,9 +1,8 @@
-<!-- public/index.html — PDFOperations (v68 - PDFJS STABLE (NO MODULE IMPORT) + CLEAN CARD PREVIEW (NO SMUSH) )
+<!-- public/index.html — PDFOperations (v69 - FIX PDFJS IMPORT.META ERROR (USE .MJS MODULE) + STABLE PREVIEW)
      ✅ Keeps ALL app.js v17.7 IDs preserved (NO hook breaks)
      ✅ style.css?v=36 + app.js?v=17.7
-     ✅ Self-hosts /vendor/pdfjs/pdf.min.js + pdf.worker.min.js (served from your public/)
-     ✅ Preview renders page 1 into a tall card (no crop-smush, no random “preview unavailable”)
-     ✅ NO duplicate preview scripts / NO module import
+     ✅ Uses the REAL module build: /vendor/pdfjs/pdf.min.mjs + /vendor/pdfjs/pdf.worker.min.mjs
+     ✅ Fixes: "Cannot use import.meta outside a module"
 -->
 <!doctype html>
 <html lang="en">
@@ -123,7 +122,7 @@
       background:#fff;
     }
 
-    /* ✅ Card preview (portrait like your reference) */
+    /* ✅ Card preview (portrait) */
     .thumbCard{
       position:relative;
       width:240px;
@@ -302,13 +301,20 @@
   }
   </script>
 
-  <!-- ✅ SELF-HOST PDF.JS (classic include - stable) -->
-  <script src="/vendor/pdfjs/pdf.min.js"></script>
-  <script>
-    // Set worker URL (even though we still fall back to disableWorker for max reliability)
-    if (window.pdfjsLib) {
-      try { window.pdfjsLib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.js"; } catch(e) {}
-    }
+  <!-- ✅ PDF.js module load (THIS fixes import.meta error) -->
+  <script type="module">
+    window.__pdfjsReady = import("/vendor/pdfjs/pdf.min.mjs")
+      .then((mod) => {
+        const lib = mod?.default || mod;
+        window.pdfjsLib = lib;
+        try { lib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.mjs"; } catch(_) {}
+        return lib;
+      })
+      .catch((err) => {
+        console.warn("[PDFOperations] PDF.js failed to load:", err);
+        window.pdfjsLib = null;
+        return null;
+      });
   </script>
 </head>
 
@@ -477,7 +483,6 @@
   </div>
 </footer>
 
-<!-- ✅ Preview script (single, stable). Runs before app.js but does NOT break app.js hooks. -->
 <script>
 (() => {
   const filesInput = document.getElementById("files");
@@ -502,9 +507,7 @@
     new MutationObserver(apply).observe(meta, { attributes: true, attributeFilter: ["hidden"] });
   }
 
-  function setRendered(v){
-    card.classList.toggle("isRendered", !!v);
-  }
+  function setRendered(v){ card.classList.toggle("isRendered", !!v); }
 
   function sizeCanvasToCard(){
     const rect = card.getBoundingClientRect();
@@ -532,7 +535,7 @@
   };
 
   closeEl.addEventListener("click", doClear);
-  if (clearTopBtn) clearTopBtn.addEventListener("click", doClear);
+  clearTopBtn?.addEventListener("click", doClear);
 
   function withTimeout(promise, ms, label){
     return Promise.race([
@@ -546,7 +549,6 @@
     const pdf = await withTimeout(task.promise, 15000, "load-timeout");
     const page = await withTimeout(pdf.getPage(1), 15000, "page-timeout");
 
-    // Fit INSIDE the card (no crop/smush)
     const viewport0 = page.getViewport({ scale: 1 });
     const scale = Math.min(canvas.width / viewport0.width, canvas.height / viewport0.height);
     const viewport = page.getViewport({ scale });
@@ -558,7 +560,6 @@
 
     await withTimeout(page.render({ canvasContext: rctx, viewport }).promise, 15000, "render-timeout");
 
-    // Center on the card
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -573,21 +574,19 @@
     setRendered(false);
     paintBlank();
 
-    const lib = window.pdfjsLib;
+    // wait for module load
+    const lib = window.pdfjsLib || (await (window.__pdfjsReady || Promise.resolve(null)));
     if (!lib) {
-      console.warn("[PDFOperations] pdfjsLib missing. Check /vendor/pdfjs/pdf.min.js loads.");
       hintEl.textContent = "Preview unavailable";
       return;
     }
 
-    // Always ensure workerSrc set (won’t hurt even if we disableWorker)
-    try { lib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.js"; } catch(_) {}
+    try { lib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.mjs"; } catch(_) {}
 
     hintEl.textContent = "Rendering preview…";
-
     const buf = await file.arrayBuffer();
 
-    // Pass 1: normal (if worker is ok)
+    // Try with worker first, then fallback to disableWorker
     try{
       sizeCanvasToCard();
       await renderAttempt(lib, buf, { data: buf });
@@ -595,10 +594,9 @@
       hintEl.textContent = "Preview (page 1)";
       return;
     } catch (e1) {
-      console.warn("[PDFOperations] Preview attempt 1 failed, retrying disableWorker:", e1);
+      console.warn("[PDFOperations] Preview attempt 1 failed, retry disableWorker:", e1);
     }
 
-    // Pass 2: disableWorker (most reliable, avoids worker/CSP/COEP weirdness)
     try{
       sizeCanvasToCard();
       await renderAttempt(lib, buf, { data: buf, disableWorker: true });
@@ -631,7 +629,6 @@
     await renderPdfThumb(file);
   }
 
-  // initial state
   paintBlank();
   setRendered(false);
   hintEl.textContent = "Upload to continue";
@@ -641,13 +638,11 @@
     if (file) handleFile(file);
   });
 
-  // drag/drop preview (doesn't break app.js)
   dropzone?.addEventListener("drop", (ev) => {
     const file = ev.dataTransfer?.files?.[0];
     if (file) handleFile(file);
   }, { capture:true });
 
-  // Don’t re-render on resize (keeps it stable). Just rescale blank if nothing selected.
   window.addEventListener("resize", () => {
     const file = filesInput.files && filesInput.files[0];
     if (!file) paintBlank();
