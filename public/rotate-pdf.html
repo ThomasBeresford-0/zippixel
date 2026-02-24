@@ -29,27 +29,35 @@
   <link rel="stylesheet" href="/style.css?v=36" />
 
   <!-- ✅ MUST be a real external script on the live page -->
-  <script src="/vendor/pdfjs/pdf.min.js"></script>
-  <script>
-    // Classic pdf.js exposes window.pdfjsLib
-    (function () {
-      try {
-        if (!window.pdfjsLib) {
-          window.pdfjsLib = window['pdfjsLib'] || window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
-        }
-        if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
-          window.pdfjsLib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.js";
-          window.__pdfjsWorkerOK = true;
-        } else {
-          window.__pdfjsWorkerOK = false;
-        }
-        window.__pdfjsReady = Promise.resolve(window.pdfjsLib);
-      } catch (e) {
-        window.__pdfjsWorkerOK = false;
-        window.__pdfjsReady = Promise.reject(e);
-      }
-    })();
-  </script>
+<script type="module">
+  // IMPORTANT:
+  // If your server actually has pdf.min.js (but it's ESM), you can set PDFJS_SRC to "/vendor/pdfjs/pdf.min.js"
+  // The recommended filenames are .mjs for ESM builds:
+  const PDFJS_SRC = "/vendor/pdfjs/pdf.min.js";
+  const WORKER_SRC = "/vendor/pdfjs/pdf.worker.min.mjs";
+
+  window.__pdfjsReady = (async () => {
+    const mod = await import(PDFJS_SRC);
+    const lib = mod?.default ?? mod;
+    window.pdfjsLib = lib;
+
+    try {
+      lib.GlobalWorkerOptions.workerSrc = WORKER_SRC;
+      window.__pdfjsWorkerOK = true;
+    } catch (_) {
+      window.__pdfjsWorkerOK = false;
+    }
+
+    return lib;
+  })().catch(async (err) => {
+    // Fallback: try loading even if worker config fails
+    const mod2 = await import(PDFJS_SRC);
+    const lib2 = mod2?.default ?? mod2;
+    window.pdfjsLib = lib2;
+    window.__pdfjsWorkerOK = false;
+    return lib2;
+  });
+</script>
 
   <style>
     #pdfReorderWrap[hidden],
