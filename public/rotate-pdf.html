@@ -1,10 +1,3 @@
-<!-- public/rotate-pdf.html — PDFOperations (v8 - MODAL PREVIEW + ROTATE IN MODAL + PER-PAGE ROTATE MAP)
-     ✅ Click thumbnail = opens preview modal
-     ✅ Rotate happens inside modal (Rotate 90° button) so customer SEE it rotate live
-     ✅ Thumbnail rerenders to match rotation
-     ✅ Emits window.__PDFOPS_ROTATE_MAP__ + pdfops:rotatemap event (unchanged)
-     ✅ Keeps ALL app.js IDs unchanged
--->
 <!doctype html>
 <html lang="en">
 <head>
@@ -28,161 +21,80 @@
 
   <link rel="stylesheet" href="/style.css?v=36" />
 
-  <!-- ✅ MUST be a real external script on the live page -->
-<script type="module">
-  // IMPORTANT:
-  // If your server actually has pdf.min.js (but it's ESM), you can set PDFJS_SRC to "/vendor/pdfjs/pdf.min.js"
-  // The recommended filenames are .mjs for ESM builds:
-  const PDFJS_SRC = "/vendor/pdfjs/pdf.min.js";
-  const WORKER_SRC = "/vendor/pdfjs/pdf.worker.min.js";
+  <!-- PDF.js — ESM loader (same pattern as merge page) -->
+  <script type="module">
+    // IMPORTANT: set these to the actual files you have on disk.
+    // If your vendor files are .mjs, change accordingly.
+    const PDFJS_SRC = "/vendor/pdfjs/pdf.min.js";
+    const WORKER_SRC = "/vendor/pdfjs/pdf.worker.min.js";
 
-  window.__pdfjsReady = (async () => {
-    const mod = await import(PDFJS_SRC);
-    const lib = mod?.default ?? mod;
-    window.pdfjsLib = lib;
+    window.__pdfjsReady = (async () => {
+      const mod = await import(PDFJS_SRC);
+      const lib = mod?.default ?? mod;
+      window.pdfjsLib = lib;
 
-    try {
-      lib.GlobalWorkerOptions.workerSrc = WORKER_SRC;
-      window.__pdfjsWorkerOK = true;
-    } catch (_) {
+      try {
+        lib.GlobalWorkerOptions.workerSrc = WORKER_SRC;
+        window.__pdfjsWorkerOK = true;
+      } catch (_) {
+        window.__pdfjsWorkerOK = false;
+      }
+
+      return lib;
+    })().catch(async (err) => {
+      // Fallback attempt (rare)
+      const mod2 = await import(PDFJS_SRC);
+      const lib2 = mod2?.default ?? mod2;
+      window.pdfjsLib = lib2;
       window.__pdfjsWorkerOK = false;
-    }
-
-    return lib;
-  })().catch(async (err) => {
-    // Fallback: try loading even if worker config fails
-    const mod2 = await import(PDFJS_SRC);
-    const lib2 = mod2?.default ?? mod2;
-    window.pdfjsLib = lib2;
-    window.__pdfjsWorkerOK = false;
-    return lib2;
-  });
-</script>
+      return lib2;
+    });
+  </script>
 
   <style>
+    /* (kept your existing styles — truncated slightly here for clarity) */
     #pdfReorderWrap[hidden],
     #fileMeta[hidden]{ display:none !important; }
     [hidden]{ display:none !important; }
 
     .toolChips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-    .toolChip{
-      font-size:12px; padding:6px 10px; border-radius:999px;
-      border:1px solid rgba(15,23,42,.10);
-      background:rgba(255,255,255,.72);
-      box-shadow:0 10px 26px rgba(2,6,23,.06);
-      opacity:.92; user-select:none;
-    }
+    .toolChip{ font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(15,23,42,.10); background:rgba(255,255,255,.72); box-shadow:0 10px 26px rgba(2,6,23,.06); opacity:.92; user-select:none; }
     .rotateHint{ margin-top:8px; font-size:13px; opacity:.82; line-height:1.35; }
 
-    .pdfReorderWrap{
-      margin-top:10px; padding-top:10px;
-      border-top:1px solid rgba(15,23,42,.08);
-    }
-    .rotatePreviewHead{
-      display:flex; align-items:flex-end; justify-content:space-between;
-      gap:10px; margin-top:14px;
-    }
+    .pdfReorderWrap{ margin-top:10px; padding-top:10px; border-top:1px solid rgba(15,23,42,.08); }
+    .rotatePreviewHead{ display:flex; align-items:flex-end; justify-content:space-between; gap:10px; margin-top:14px; }
     .rotatePreviewTitle{ font-weight:900; letter-spacing:-.02em; font-size:14px; opacity:.92; }
     .rotatePreviewMeta{ font-size:12px; opacity:.74; white-space:nowrap; }
 
-    .pdfThumbGrid{
-      display:grid;
-      grid-template-columns:repeat(6, minmax(0,1fr));
-      gap:10px; margin-top:10px;
-    }
+    .pdfThumbGrid{ display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:10px; margin-top:10px; }
     @media (max-width:980px){ .pdfThumbGrid{ grid-template-columns:repeat(4, minmax(0,1fr)); } }
     @media (max-width:640px){ .pdfThumbGrid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
 
-    .pdfThumb{
-      border:1px solid rgba(15,23,42,.10);
-      background:rgba(255,255,255,.86);
-      border-radius:14px;
-      overflow:hidden;
-      box-shadow:0 12px 30px rgba(2,6,23,.06);
-      cursor:pointer;
-      position:relative;
-      transition:transform .12s ease, box-shadow .12s ease;
-      user-select:none;
-    }
-    .pdfThumb:hover{
-      transform:translateY(-1px);
-      box-shadow:0 16px 36px rgba(2,6,23,.10);
-    }
+    .pdfThumb{ border:1px solid rgba(15,23,42,.10); background:rgba(255,255,255,.86); border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(2,6,23,.06); cursor:pointer; position:relative; transition:transform .12s ease, box-shadow .12s ease; user-select:none; }
+    .pdfThumb:hover{ transform:translateY(-1px); box-shadow:0 16px 36px rgba(2,6,23,.10); }
     .pdfThumb canvas{ width:100%; height:auto; display:block; background:#fff; }
 
-    .thumbBadge{
-      position:absolute; top:8px; left:8px;
-      padding:4px 8px; border-radius:999px;
-      font-size:12px; font-weight:900;
-      background:rgba(11,18,32,.88); color:#fff;
-      pointer-events:none;
-    }
-    .thumbRot{
-      position:absolute; top:8px; right:8px;
-      padding:4px 8px; border-radius:999px;
-      font-size:12px; font-weight:900;
-      border:1px solid rgba(15,23,42,.10);
-      background:rgba(255,255,255,.92); color:rgba(11,18,32,.92);
-      pointer-events:none;
-    }
-    .thumbFoot{
-      padding:8px 10px;
-      display:flex; justify-content:space-between; align-items:center; gap:8px;
-      border-top:1px solid rgba(15,23,42,.08);
-      background:rgba(248,250,252,.92);
-    }
+    .thumbBadge{ position:absolute; top:8px; left:8px; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:900; background:rgba(11,18,32,.88); color:#fff; pointer-events:none; }
+    .thumbRot{ position:absolute; top:8px; right:8px; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:900; border:1px solid rgba(15,23,42,.10); background:rgba(255,255,255,.92); color:rgba(11,18,32,.92); pointer-events:none; }
+    .thumbFoot{ padding:8px 10px; display:flex; justify-content:space-between; align-items:center; gap:8px; border-top:1px solid rgba(15,23,42,.08); background:rgba(248,250,252,.92); }
     .thumbFoot .thumbLabel{ font-size:12px; font-weight:800; opacity:.86; }
     .thumbFoot .thumbAction{ font-size:12px; opacity:.72; }
     .thumbFoot .thumbAction strong{ font-weight:900; opacity:.92; }
 
-    .rotateBar{
-      margin-top:10px; padding:10px; border-radius:16px;
-      border:1px solid rgba(15,23,42,.10);
-      background:rgba(255,255,255,.78);
-      box-shadow:0 12px 28px rgba(2,6,23,.06);
-      display:flex; justify-content:space-between; align-items:center; gap:10px;
-      flex-wrap:wrap;
-    }
+    .rotateBar{ margin-top:10px; padding:10px; border-radius:16px; border:1px solid rgba(15,23,42,.10); background:rgba(255,255,255,.78); box-shadow:0 12px 28px rgba(2,6,23,.06); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
     .rotateBarTitle{ font-weight:900; letter-spacing:-.02em; font-size:13px; opacity:.92; }
     .rotateBarSub{ font-size:12px; opacity:.74; line-height:1.25; }
     .rotateBarRight{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
 
     #rotateDegrees{ display:none !important; }
 
-    /* ===== Preview modal (Rotate) ===== */
-    .pdfPreviewModal{
-      position:fixed; inset:0; z-index:1000;
-      background:rgba(2,6,23,.62);
-      display:flex; align-items:center; justify-content:center;
-      padding:18px;
-      backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
-    }
-    .pdfPreviewCard{
-      width:min(980px,96vw); max-height:90vh;
-      background:rgba(255,255,255,.96);
-      border:1px solid rgba(15,23,42,.10);
-      border-radius:16px;
-      overflow:hidden;
-      box-shadow:0 30px 90px rgba(0,0,0,.35);
-      display:flex; flex-direction:column;
-    }
-    .pdfPreviewTop{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px; padding:12px 14px;
-      border-bottom:1px solid rgba(15,23,42,.10);
-    }
-    .pdfPreviewTitle{
-      font-weight:900; letter-spacing:-.02em;
-      overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:62%;
-    }
-    .pdfPreviewBody{
-      padding:12px; overflow:auto;
-      background:linear-gradient(180deg, rgba(15,23,42,.02), rgba(15,23,42,.01));
-    }
-    .pdfPreviewCanvas{
-      width:100%; display:block; background:#fff;
-      border-radius:12px; border:1px solid rgba(15,23,42,.10);
-    }
+    /* Preview modal */
+    .pdfPreviewModal{ position:fixed; inset:0; z-index:1000; background:rgba(2,6,23,.62); display:flex; align-items:center; justify-content:center; padding:18px; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+    .pdfPreviewCard{ width:min(980px,96vw); max-height:90vh; background:rgba(255,255,255,.96); border:1px solid rgba(15,23,42,.10); border-radius:16px; overflow:hidden; box-shadow:0 30px 90px rgba(0,0,0,.35); display:flex; flex-direction:column; }
+    .pdfPreviewTop{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; border-bottom:1px solid rgba(15,23,42,.10); }
+    .pdfPreviewTitle{ font-weight:900; letter-spacing:-.02em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:62%; }
+    .pdfPreviewBody{ padding:12px; overflow:auto; background:linear-gradient(180deg, rgba(15,23,42,.02), rgba(15,23,42,.01)); }
+    .pdfPreviewCanvas{ width:100%; display:block; background:#fff; border-radius:12px; border:1px solid rgba(15,23,42,.10); }
   </style>
 </head>
 
@@ -348,7 +260,7 @@
   </div>
 </footer>
 
-<!-- Checkout modal -->
+<!-- Checkout modal (unchanged) -->
 <div class="modalOverlay" id="priceModal" aria-hidden="true">
   <div class="modalCard premiumModal">
     <div class="modalTop">
@@ -410,50 +322,11 @@
   </div>
 </div>
 
+<!-- =========================
+     ROTATE THUMBS + MODAL (moved ABOVE app.js)
+     - no defer, binds to input in capture phase before app.js
+========================= -->
 <script>
-  (function () {
-
-    function setSelectedFromInput(input) {
-      try {
-        const files = input && input.files ? Array.from(input.files) : [];
-        window.__PDFOPS_SELECTED__ = files;
-
-        // Emit event with real File objects
-        try {
-          document.dispatchEvent(new CustomEvent("pdfops:selectedfiles", {
-            detail: { files }
-          }));
-        } catch (_) {}
-
-      } catch (_) {
-        window.__PDFOPS_SELECTED__ = [];
-      }
-    }
-
-    function attach() {
-      const input = document.getElementById("files");
-      if (!input) return;
-
-      // Capture phase: runs BEFORE app.js handlers
-      input.addEventListener("change", () => setSelectedFromInput(input), true);
-
-      // Initial check
-      setSelectedFromInput(input);
-    }
-
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", attach, { once: true });
-    } else {
-      attach();
-    }
-
-  })();
-</script>
-<!-- app.js -->
-<script src="/app.js?v=17.7" defer></script>
-
-<!-- Rotate thumbnails + modal preview (reads window.__PDFOPS_SELECTED__) -->
-<script defer>
 (() => {
   const $ = (id) => document.getElementById(id);
 
@@ -483,10 +356,10 @@
 
   window.__PDFOPS_ROTATE_MAP__ = window.__PDFOPS_ROTATE_MAP__ || [];
 
+  // robust wait for the loader to set __pdfjsReady and for the library to be usable
   async function ensurePdfJs(){
-    // Wait until the module loader sets __pdfjsReady
     let spins = 0;
-    while (!window.__pdfjsReady && spins < 200) { // ~4s max
+    while (!window.__pdfjsReady && spins < 200) { // ~4s
       await new Promise(r => setTimeout(r, 20));
       spins++;
     }
@@ -584,7 +457,7 @@
     if (!modalCanvas) return;
     const deg = window.__PDFOPS_ROTATE_MAP__[pageNo] || 0;
     const maxW = Math.min(920, window.innerWidth * 0.92);
-    try { await renderPageToCanvas(pageNo, modalCanvas, maxW, deg); } catch {}
+    try { await renderPageToCanvas(pageNo, modalCanvas, maxW, deg); } catch (err) { console.error(err); }
   }
 
   async function setThumbRotation(card, deg){
@@ -598,7 +471,7 @@
     if (rotPill) rotPill.textContent = deg ? `${deg}°` : "0°";
 
     if (canvas && pdfDoc){
-      try { await renderPageToCanvas(pageNo, canvas, 240, deg); } catch {}
+      try { await renderPageToCanvas(pageNo, canvas, 240, deg); } catch (err) { console.error(err); }
     }
 
     updatePlan();
@@ -655,7 +528,7 @@
     for (let i = 1; i <= numPages; i++){
       const { card, canvas } = makeThumb(i);
       grid.appendChild(card);
-      try { await renderPageToCanvas(i, canvas, 240, 0); } catch {}
+      try { await renderPageToCanvas(i, canvas, 240, 0); } catch (err) { console.error(err); }
     }
 
     if (meta) meta.textContent = `${numPages} page${numPages === 1 ? "" : "s"} • click pages to preview`;
@@ -666,9 +539,8 @@
     emit();
   }
 
-  async function loadFromSelectedFile(){
-    const arr = window.__PDFOPS_SELECTED__;
-    const f = (Array.isArray(arr) && arr[0]) ? arr[0] : null;
+  // Load from the File object directly (used by input change listener)
+  async function loadFromFile(f){
     if (!f) return false;
     if (!(f.type === "application/pdf" || /\.pdf$/i.test(f.name || ""))) return false;
 
@@ -677,30 +549,46 @@
     lastSig = sig;
 
     await ensurePdfJs();
-    const bytes = await f.arrayBuffer();
-    const task = window.pdfjsLib.getDocument({
-      data: bytes,
-      disableWorker: window.__pdfjsWorkerOK === false
-    });
 
-    pdfDoc = await task.promise;
-    numPages = pdfDoc.numPages || 1;
-
-    await renderThumbs();
-    return true;
+    try {
+      const bytes = await f.arrayBuffer();
+      const task = window.pdfjsLib.getDocument({
+        data: bytes,
+        disableWorker: window.__pdfjsWorkerOK === false
+      });
+      pdfDoc = await task.promise;
+      numPages = pdfDoc.numPages || 1;
+      await renderThumbs();
+      return true;
+    } catch (err) {
+      console.error("Failed to load PDF:", err);
+      return false;
+    }
   }
 
-  // Keep trying until app.js sets window.__PDFOPS_SELECTED__
-  let tries = 0;
-  const t = setInterval(async () => {
-    tries++;
-    try {
-      const ok = await loadFromSelectedFile();
-      if (ok || tries > 200) clearInterval(t); // ~80s max
-    } catch {
-      if (tries > 200) clearInterval(t);
-    }
-  }, 400);
+  // Optional fallback (if some code writes into __PDFOPS_SELECTED__)
+  async function loadFromSelectedFile(){
+    const arr = window.__PDFOPS_SELECTED__;
+    const f = (Array.isArray(arr) && arr[0]) ? arr[0] : null;
+    return loadFromFile(f);
+  }
+
+  // ----------------------------------------
+  // BIND to the file input in CAPTURE phase so we run before app.js clears it
+  // ----------------------------------------
+  (function bindInputListener(){
+    const input = document.getElementById("files");
+    if (!input) return;
+
+    input.addEventListener("change", async (e) => {
+      const f = e?.target?.files?.[0] || null;
+      if (!f) return;
+      try { await loadFromFile(f); } catch (err) { console.error(err); }
+    }, true);
+
+    // Also try once in case input already has files (rare)
+    setTimeout(() => { if (input.files && input.files[0]) loadFromFile(input.files[0]).catch(console.error); }, 20);
+  })();
 
   // Modal controls
   modalClose?.addEventListener("click", hideModal);
@@ -749,8 +637,12 @@
       await renderModalPage(previewPageNo);
     }
   });
+
 })();
 </script>
+
+<!-- app.js (load AFTER rotate script so our listener runs first) -->
+<script src="/app.js?v=17.7" defer></script>
 
 </body>
 </html>
