@@ -366,7 +366,7 @@ strong,b{ font-weight: 800; }
   color: rgba(11,18,32,.62);
   background: rgba(2,6,23,.03);
   border: 1px solid rgba(15,23,42,.10);
-  border-radius: 999px;
+  border-radius: 10px;          /* was 999px */
   padding: 8px 10px;
 }
 
@@ -400,9 +400,9 @@ strong,b{ font-weight: 800; }
   color: rgba(11,18,32,.70);
   border: 1px solid rgba(15,23,42,.10);
   background: rgba(255,255,255,.80);
-  border-radius: 999px;
+  border-radius: 10px;          /* was 999px */
   padding: 9px 12px;
-  box-shadow: 0 12px 28px rgba(2,6,23,.06);
+  box-shadow: none;             /* remove bubble shadow */
 }
 
 /* =========================
@@ -624,42 +624,12 @@ strong,b{ font-weight: 800; }
   letter-spacing: -0.01em;
 }
 
-.presetButtons{
+.presetBtns{
   display:flex;
-  flex-wrap: wrap;
   gap: 10px;
+  flex-wrap: wrap;
+  align-items:center;
   margin-left: auto;
-}
-
-.presetBtn{
-  border-radius: 999px;
-  padding: 10px 12px;
-  font-size: 12px;
-  font-weight: 950;
-  border: 1px solid rgba(15,23,42,.12);
-  background: rgba(255,255,255,.94);
-  box-shadow: 0 10px 22px rgba(2,6,23,.06);
-  color: rgba(11,18,32,.78);
-  transition: transform .10s var(--ease), background .16s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease), opacity .16s var(--ease);
-}
-
-.presetBtn:hover{
-  border-color: rgba(15,23,42,.18);
-  background: rgba(2,6,23,.02);
-  box-shadow: 0 14px 34px rgba(2,6,23,.08);
-}
-
-.presetBtn.isActive,
-.presetBtn[aria-pressed="true"]{
-  border-color: rgba(14,165,164,.34);
-  background: rgba(14,165,164,.12);
-  box-shadow: 0 18px 52px rgba(14,165,164,.10);
-  color: rgba(11,18,32,.92);
-}
-
-@media (max-width: 720px){
-  .presetButtons{ width: 100%; margin-left: 0; }
-  .presetBtn{ flex: 1 1 auto; text-align: center; }
 }
 
 .convertGroup{ min-width: 160px; }
@@ -702,58 +672,8 @@ strong,b{ font-weight: 800; }
   color: rgba(11,18,32,.58);
 }
 
-.presetLabel{
-  font-size: 12px;
-  font-weight: 950;
-  color: rgba(11,18,32,.68);
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-}
-
-.presetButtons{
-  display:flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items:center;
-  margin-left: auto;
-}
-
-.presetBtn{
-  appearance:none;
-  border: 1px solid rgba(15,23,42,.12);
-  background: rgba(255,255,255,.96);
-  color: rgba(11,18,32,.86);
-  border-radius: 999px;
-  padding: 10px 12px;
-  font-weight: 950;
-  font-size: 12px;
-  letter-spacing: -0.01em;
-  cursor:pointer;
-  box-shadow: 0 10px 22px rgba(2,6,23,.06);
-  transition: transform .10s var(--ease), background .16s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease);
-}
-
-.presetBtn:hover{
-  border-color: rgba(15,23,42,.18);
-  background: rgba(2,6,23,.02);
-  box-shadow: 0 16px 34px rgba(2,6,23,.08);
-}
-
 .presetBtn:active{
   transform: translateY(1px);
-}
-
-/* Optional “selected” styling (we’ll toggle this in app.js later).
-   Safe to include now even if unused. */
-.presetBtn.isActive{
-  border-color: rgba(14,165,164,.30);
-  background: rgba(14,165,164,.12);
-  box-shadow: 0 18px 52px rgba(14,165,164,.10);
-}
-
-@media (max-width: 720px){
-  .presetButtons{ margin-left: 0; }
-  .presetBtn{ width: 100%; text-align: center; }
 }
 
 /* =========================
@@ -1786,4 +1706,25 @@ body.premium .heroToolFirst {
 /* Ensure hero container spans width properly */
 body.premium .heroToolFirst .heroWide {
   width: 100%;
+}
+
+/* ===== v34 CLEAN PRESET BUTTONS (single source of truth) ===== */
+
+.presetBtn{
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+
+  border: 1px solid rgba(15,23,42,.14);
+  background: #ffffff;
+  color: rgba(11,18,32,.88);
+
+  box-shadow: none;
+  transition: background .12s ease, border-color .12s ease, transform .08s ease;
+}
+
+.presetBtn:active{
+  transform: translateY(1px);
 }
