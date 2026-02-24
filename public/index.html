@@ -1,10 +1,11 @@
-<!-- public/index.html — PDFOperations (v58 - INFORMATION SECTION LIGHT GREY + CLEAN PANEL ABOVE FAQ)
-     ✅ Keeps ALL app.js v17.7 IDs preserved
+<!-- public/index.html — PDFOperations (v59 - COMPRESSJPEG-STYLE “SIMPLE WORK PANEL” AFTER UPLOAD + CLEAN THUMB TILE)
+     ✅ Keeps ALL app.js v17.7 IDs preserved (NO hook breaks)
      ✅ style.css?v=36 + app.js?v=17.7
-     ✅ Information section now light grey / neutral (no dark/blue)
-     ✅ Fixes messy block above FAQ: wraps internal links + trust into a clean panel
-     ✅ Keeps FAQ + JSON-LD schema (WebSite + SoftwareApplication + FAQPage)
-     ✅ No new global CSS dependencies (page-owned styles only)
+     ✅ NEW: After file selected → switches to a clean “work panel” like your reference site
+     ✅ NEW: Centered top buttons (Select PDF / Clear) + single thumbnail tile + bottom action bar
+     ✅ NO duplicate upload buttons (uses existing #upload / #continue)
+     ✅ Removes “messy list” feel via CSS + tiny MutationObserver toggle (no app.js edits)
+     ✅ Removes “Checkout” wording in steps/button copy (money-mode outcome language)
 -->
 <!doctype html>
 <html lang="en">
@@ -91,6 +92,190 @@
     }
 
     [hidden]{ display:none !important; }
+
+    /* ======================================================
+       MONEY-MODE: SIMPLE “WORK PANEL” AFTER FILE SELECT
+       (matches your reference: centered buttons + simple thumb)
+       ====================================================== */
+
+    /* We toggle body.hasFile via MutationObserver (below) */
+    .workPanel{
+      margin-top:12px;
+      border:1px solid rgba(15,23,42,.10);
+      background:#fff;
+      border-radius:18px;
+      box-shadow:0 18px 46px rgba(2,6,23,.08);
+      overflow:hidden;
+    }
+    .workTop{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      padding:14px 14px;
+      border-bottom:1px solid rgba(15,23,42,.10);
+      background:linear-gradient(180deg, rgba(11,18,32,.02), transparent);
+    }
+
+    /* Button look (re-using your existing button classes) */
+    .workTop .btnPrimary,
+    .workTop .btnGhost{
+      min-width:140px;
+      height:38px;
+      border-radius:12px;
+      font-weight:950;
+      letter-spacing:-.01em;
+    }
+
+    /* Stage area */
+    .workStage{
+      padding:18px 18px 10px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:220px;
+    }
+
+    /* Make the app.js mini file list look like a single thumbnail tile */
+    #fileMeta{
+      margin:0 !important;
+      padding:0 !important;
+      border:0 !important;
+      background:transparent !important;
+      box-shadow:none !important;
+    }
+    #fileMeta .fileMetaTop{ display:none !important; } /* hide “Selected X files” row */
+    #fileSummary{ display:none !important; }          /* hide summary text */
+
+    #fileList{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:flex;
+      gap:14px;
+      justify-content:center;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    /* Try to “catch” whatever markup app.js uses inside li */
+    #fileList > li{
+      position:relative;
+      width:140px;
+      height:180px;
+      border-radius:16px;
+      border:1px solid rgba(15,23,42,.12);
+      background:
+        radial-gradient(120px 120px at 30% 15%, rgba(11,18,32,.06), transparent 60%),
+        linear-gradient(180deg, #ffffff 0%, #fafbfe 100%);
+      box-shadow:0 14px 34px rgba(2,6,23,.10);
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px;
+    }
+
+    /* Generic “PDF” badge if app.js just outputs text */
+    #fileList > li::before{
+      content:"PDF";
+      position:absolute;
+      top:10px;
+      left:10px;
+      font-weight:950;
+      font-size:12px;
+      letter-spacing:.08em;
+      color:rgba(11,18,32,.70);
+      background:rgba(11,18,32,.06);
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:10px;
+      padding:6px 10px;
+    }
+
+    /* Filename styling (works even if filename is just a text node / span / strong) */
+    #fileList > li *{
+      max-width:100%;
+    }
+    #fileList > li .name,
+    #fileList > li .fileName,
+    #fileList > li strong,
+    #fileList > li span{
+      display:block;
+      text-align:center;
+      font-size:12px;
+      font-weight:900;
+      color:rgba(11,18,32,.88);
+      line-height:1.25;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    /* Remove button — app.js might render a button/link; make it a clean X in the corner */
+    #fileList > li button,
+    #fileList > li .remove,
+    #fileList > li a[aria-label*="Remove"],
+    #fileList > li a[title*="Remove"]{
+      position:absolute !important;
+      top:10px !important;
+      right:10px !important;
+      width:28px !important;
+      height:28px !important;
+      border-radius:10px !important;
+      border:1px solid rgba(15,23,42,.14) !important;
+      background:#fff !important;
+      color:rgba(11,18,32,.85) !important;
+      display:flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+      padding:0 !important;
+      font-weight:950 !important;
+      box-shadow:0 10px 22px rgba(2,6,23,.10) !important;
+    }
+    #fileList > li button::before,
+    #fileList > li .remove::before{
+      content:"×";
+      font-size:18px;
+      line-height:1;
+    }
+
+    /* Bottom actions like reference: one primary row */
+    .workBottom{
+      padding:14px 16px 16px 16px;
+      border-top:1px solid rgba(15,23,42,.10);
+      background:linear-gradient(180deg, transparent, rgba(11,18,32,.02));
+    }
+    .workActions{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:center;
+    }
+    .workActions .btnSoft,
+    .workActions .btnPrimary{
+      height:44px;
+      border-radius:14px;
+      font-weight:950;
+      letter-spacing:-.01em;
+      min-width:220px;
+    }
+    @media(max-width: 620px){
+      .workActions{
+        flex-direction:column;
+      }
+      .workActions .btnSoft,
+      .workActions .btnPrimary{
+        width:100%;
+        min-width:unset;
+      }
+    }
+
+    /* When file is selected: hide big dropzone + steps, show work panel */
+    body.hasFile #dropzone{ display:none !important; }
+    body.hasFile .stepsLine{ display:none !important; }
+
+    /* When NO file selected: show dropzone, hide work panel (still in DOM for hooks) */
+    body:not(.hasFile) .workPanel{ display:none !important; }
 
     /* ======================================================
        INFORMATION SECTION (PDF24-STYLE) — LIGHT GREY / NEUTRAL
@@ -367,7 +552,7 @@
         "name":"How do I compress a PDF?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"Select or drop a single PDF, click Upload, then Continue. After checkout, download your compressed PDF."
+          "text":"Select or drop a single PDF, click Upload, then Continue. After payment, download your compressed PDF."
         }
       },
       {
@@ -490,7 +675,7 @@
           </select>
         </div>
 
-        <!-- DROPZONE -->
+        <!-- DROPZONE (pre-upload) -->
         <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
           <div class="dzCenter">
             <div class="dzTitle" id="dzTitle">Drop a PDF here</div>
@@ -503,20 +688,44 @@
           </div>
         </div>
 
-        <!-- MINI FILE CARD LIST (rendered by app.js) -->
-        <div class="fileMeta" id="fileMeta" hidden>
-          <div class="fileMetaTop">
-            <div class="fileSummary" id="fileSummary"></div>
-            <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+        <!-- SIMPLE WORK PANEL (post-select) -->
+        <div class="workPanel" aria-label="Selected file">
+          <div class="workTop">
+            <!-- Re-use existing choose/clear IDs (NO duplicates) -->
+            <button class="btnPrimary" id="chooseBtnWork" type="button"
+              onclick="document.getElementById('chooseBtn') && document.getElementById('chooseBtn').click()">
+              Select PDF
+            </button>
+            <button class="btnGhost" id="clearBtnWork" type="button"
+              onclick="document.getElementById('clearBtn') && document.getElementById('clearBtn').click()">
+              Clear
+            </button>
           </div>
-          <ul class="fileList" id="fileList"></ul>
+
+          <div class="workStage">
+            <!-- MINI FILE CARD LIST (rendered by app.js) -->
+            <div class="fileMeta" id="fileMeta" hidden>
+              <div class="fileMetaTop">
+                <div class="fileSummary" id="fileSummary"></div>
+                <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+              </div>
+              <ul class="fileList" id="fileList"></ul>
+            </div>
+          </div>
+
+          <div class="workBottom">
+            <div class="workActions">
+              <button class="btnSoft" id="upload" disabled>Upload PDF</button>
+              <button class="btnPrimary btnStrong" id="continue" disabled>Continue → Generate download</button>
+            </div>
+          </div>
         </div>
 
-        <!-- STEPS -->
+        <!-- STEPS (pre-select only; hidden when hasFile) -->
         <div class="stepsLine">
           <div class="stepItem"><span class="stepNum">1</span>Select / Drop a PDF</div>
           <div class="stepItem"><span class="stepNum">2</span>Click <strong>Upload</strong></div>
-          <div class="stepItem"><span class="stepNum">3</span>Continue → Checkout</div>
+          <div class="stepItem"><span class="stepNum">3</span>Continue → Download</div>
         </div>
 
         <!-- PROGRESS -->
@@ -528,12 +737,6 @@
           <div class="progressBar">
             <div class="progressFill" id="progressFill"></div>
           </div>
-        </div>
-
-        <!-- ACTIONS -->
-        <div class="actionRow actionRowWide">
-          <button class="btnSoft" id="upload" disabled>Upload PDF</button>
-          <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
         </div>
 
       </div>
@@ -558,7 +761,7 @@
         <article class="infoCard">
           <div class="infoIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM6 7v10h12V7z"/></svg></div>
           <h3 class="infoH">How to compress PDF files</h3>
-          <p class="infoP">Select or drop a PDF and click <b>Upload</b>. When processing is complete, continue to checkout and download your compressed PDF.</p>
+          <p class="infoP">Select or drop a PDF and click <b>Upload</b>. When processing is complete, continue and download your compressed PDF.</p>
         </article>
 
         <article class="infoCard">
@@ -628,7 +831,7 @@
           <summary>How do I compress a PDF?</summary>
           <div class="faqAnswer">
             Click <strong>Select PDF</strong> (or drag &amp; drop), then click <strong>Upload</strong>, then <strong>Continue</strong>.
-            After checkout, download your compressed PDF.
+            After payment, download your compressed PDF.
           </div>
         </details>
 
@@ -672,6 +875,32 @@
     </div>
   </div>
 </footer>
+
+<!-- Tiny, safe toggle: when app.js shows #fileMeta (removes hidden), we switch to the simple work panel -->
+<script>
+(() => {
+  const meta = document.getElementById("fileMeta");
+  if (!meta) return;
+
+  const apply = () => {
+    const hasFile = !meta.hasAttribute("hidden");
+    document.body.classList.toggle("hasFile", hasFile);
+  };
+
+  apply();
+
+  const obs = new MutationObserver((muts) => {
+    for (const m of muts) {
+      if (m.type === "attributes" && m.attributeName === "hidden") {
+        apply();
+        break;
+      }
+    }
+  });
+
+  obs.observe(meta, { attributes: true });
+})();
+</script>
 
 <script src="/app.js?v=17.7" defer></script>
 </body>
