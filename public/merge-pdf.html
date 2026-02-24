@@ -1,11 +1,10 @@
-<!-- public/merge-pdf.html — PDFOperations (v6 - PAGE PREVIEW + DRAG REORDER (SAFE WITH CLIPPED PAGES) + CANONICAL FIX)
-     ✅ Uses pretty URL routes (no .html in nav/canonical)
+<!-- public/merge-pdf.html — PDFOperations (v7 - SEO UPGRADE + v53 ALIGN + PAGE REORDER SAFE)
+     ✅ style.css?v=36 + app.js?v=17.7 (matches current site)
+     ✅ Stronger SEO: WebPage + BreadcrumbList + FAQPage schema
+     ✅ On-page SEO content (no fluff) + internal links
      ✅ Keeps ALL existing app.js IDs unchanged
-     ✅ Real PDF page thumbnails + drag & drop reorder + click-to-preview modal
-     ✅ Exposes window.__pdfopsPageOrder (["fileIndex:pageNumber", ...]) + dispatches "pdfops:pageorder"
-     ✅ IMPORTANT FIX: if preview is clipped, non-preview pages are STILL included in __pdfopsPageOrder
-        (they just aren’t draggable). This prevents “missing pages” merges.
-     ✅ FIX v6.1: modal/page sections respect [hidden] even if global style.css overrides it
+     ✅ Keeps window.__pdfopsPageOrder + pdfops:pageorder dispatch
+     ✅ Keeps preview + drag reorder (clip-safe: never drops pages)
 -->
 <!doctype html>
 <html lang="en">
@@ -13,10 +12,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Merge PDF Files Online — Combine PDFs Instantly | PDFOperations</title>
-  <meta name="description" content="Merge PDF files online instantly. Combine multiple PDF documents into one file. Drag, reorder pages and download when ready. Secure. No signup required." />
-
-  <!-- ✅ canonical should be the pretty route you actually serve/index -->
+  <title>Merge PDF Online — Combine PDFs in Seconds | PDFOperations</title>
+  <meta name="description" content="Merge PDF files online. Combine multiple PDFs into one document, reorder pages, then download the merged PDF. Secure, fast, no signup." />
   <link rel="canonical" href="https://pdfoperations.com/merge-pdf" />
 
   <meta name="robots" content="index,follow" />
@@ -24,8 +21,8 @@
   <meta name="color-scheme" content="light" />
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Merge PDF Files Online — Combine PDFs Instantly" />
-  <meta property="og:description" content="Combine multiple PDF files into one document. Drag, reorder and download securely." />
+  <meta property="og:title" content="Merge PDF Online — Combine PDFs in Seconds" />
+  <meta property="og:description" content="Combine multiple PDF files into one. Reorder pages and download securely." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/merge-pdf" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
@@ -33,36 +30,103 @@
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Merge PDF Files Online — Combine PDFs Instantly" />
-  <meta name="twitter:description" content="Merge multiple PDF documents into one file. Secure and fast." />
+  <meta name="twitter:title" content="Merge PDF Online — Combine PDFs in Seconds" />
+  <meta name="twitter:description" content="Merge multiple PDFs into one. Reorder pages and download." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-  <!-- Fonts (match index) -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/style.css?v=29" />
+  <!-- ✅ Align with your current site -->
+  <link rel="stylesheet" href="/style.css?v=36" />
+
+  <!-- =========================
+       SCHEMA (SEO)
+  ========================== -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebPage",
+    "name":"Merge PDF Online — PDFOperations",
+    "url":"https://pdfoperations.com/merge-pdf",
+    "description":"Merge PDF files online. Combine multiple PDFs into one document, reorder pages, then download the merged PDF.",
+    "isPartOf":{
+      "@type":"WebSite",
+      "name":"PDFOperations",
+      "url":"https://pdfoperations.com/"
+    }
+  }
+  </script>
 
   <script type="application/ld+json">
   {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "PDFOperations",
-    "url": "https://pdfoperations.com/merge-pdf",
-    "applicationCategory": "UtilitiesApplication",
-    "operatingSystem": "All",
-    "description": "Merge PDF files online instantly. Combine multiple PDF documents into one file. Drag to reorder pages and download when ready.",
-    "browserRequirements": "Requires JavaScript. Works in modern browsers."
+    "@context":"https://schema.org",
+    "@type":"BreadcrumbList",
+    "itemListElement":[
+      {"@type":"ListItem","position":1,"name":"PDFOperations","item":"https://pdfoperations.com/"},
+      {"@type":"ListItem","position":2,"name":"Merge PDF","item":"https://pdfoperations.com/merge-pdf"}
+    ]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity":[
+      {
+        "@type":"Question",
+        "name":"How do I merge PDF files?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Add two or more PDF files, upload them, reorder pages if needed, then continue to download a single merged PDF."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"Can I reorder pages before merging?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Yes. Use the page grid to drag and reorder pages. The final merged PDF follows your chosen order."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"Is my PDF data secure?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Files are processed to generate your merged output. Downloads are available after payment. See the Privacy page for retention and deletion details."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"Do I need an account to merge PDFs?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"No. There is no signup. Upload, continue, then download when ready."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"Why does the preview show fewer pages sometimes?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"For performance, thumbnails may be limited on very large documents. All pages are still included in the merge (nothing is dropped)."
+        }
+      }
+    ]
   }
   </script>
 
   <style>
     /* =========================
-       Merge v6 — page preview UX
+       Merge v7 — page preview UX
        (scoped, safe, no style.css edits)
     ========================== */
 
@@ -207,23 +271,67 @@
       opacity: .75;
     }
 
-    /* =========================
-       FIX v6.1 — PROTECT [hidden]
-       If global style.css overrides [hidden], the modal becomes visible on load.
-       These rules force native hidden behavior on this page.
-    ========================== */
+    /* Protect [hidden] */
     #pdfPreviewModal[hidden],
     #pdfReorderWrap[hidden],
     #fileMeta[hidden]{
       display:none !important;
     }
-    [hidden]{
-      display:none !important;
+    [hidden]{ display:none !important; }
+
+    /* SEO content section spacing */
+    .seoWrap{ padding: 18px 0 40px; }
+    .seoCard{
+      background: rgba(255,255,255,.86);
+      border: 1px solid rgba(15,23,42,.10);
+      border-radius: 20px;
+      box-shadow: 0 18px 50px rgba(2,6,23,.06);
+      padding: 18px;
+    }
+    .seoGrid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 16px;
+      margin-top: 14px;
+    }
+    @media (max-width: 920px){
+      .seoGrid{ grid-template-columns: 1fr; }
+    }
+    .seoCard h2{ margin: 0 0 8px; }
+    .seoCard p{ margin: 0 0 10px; }
+    .seoCard ul{ margin: 0 0 10px; padding-left: 18px; }
+    .faqList{ display:grid; gap: 10px; margin-top: 10px; }
+    details.faq{
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.78);
+      border-radius: 16px;
+      padding: 10px 12px;
+    }
+    details.faq summary{
+      cursor: pointer;
+      font-weight: 800;
+      letter-spacing: -.01em;
+      list-style: none;
+    }
+    details.faq summary::-webkit-details-marker{ display:none; }
+    .relTools{
+      display:flex; flex-wrap:wrap; gap: 10px;
+      margin-top: 12px;
+    }
+    .relTools a{
+      display:inline-flex; align-items:center; gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.75);
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 13px;
     }
   </style>
 </head>
 
-<body class="premium" data-tool="merge_pdf">
+<body class="page" data-tool="merge_pdf">
 
 <a href="#tool" class="srOnly">Skip to the tool</a>
 
@@ -232,7 +340,10 @@
 
     <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/favicon.svg" width="26" height="26" alt="">
-      <span>PDFOperations</span>
+      <span class="brandText">
+        <span class="top">PDFOperations</span>
+        <span class="sub">Compress • Merge • Split</span>
+      </span>
     </a>
 
     <nav class="navLinks" aria-label="Primary navigation">
@@ -244,8 +355,11 @@
       <a href="/pricing">Pricing</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
-      <a href="#tool" class="navCta">Start</a>
     </nav>
+
+    <div class="navCta">
+      <a class="btn btnSmall btnGhost" href="#tool">Start</a>
+    </div>
 
   </div>
 </header>
@@ -258,9 +372,9 @@
       <div id="tool" class="tool toolPremium toolMega">
 
         <div class="toolHead toolHeadMinimal">
-          <h1 class="toolTitle">Merge PDF Files</h1>
+          <h1 class="toolTitle">Merge PDF</h1>
           <p class="toolSub">
-            Combine multiple PDFs into a single file. Upload your PDFs, reorder pages, then download the result.
+            Combine multiple PDF files into one. Upload PDFs, reorder pages, then download the merged PDF.
           </p>
 
           <div class="trustBar" aria-label="Trust indicators">
@@ -281,12 +395,14 @@
           </div>
         </div>
 
+        <!-- Hidden mode controls (app.js compatibility) -->
         <fieldset style="display:none;">
           <input type="radio" name="mode" id="modeCompress">
           <input type="radio" name="mode" id="modeCompressPdf">
           <input type="radio" name="mode" id="modeConvert">
           <input type="radio" name="mode" id="modeMergePdf" checked>
           <input type="radio" name="mode" id="modeSplitPdf">
+          <input type="radio" name="mode" id="modeRotatePdf">
         </fieldset>
 
         <div id="pdfCompressRow" style="display:none;">
@@ -303,6 +419,17 @@
           </select>
           <select id="convertTarget">
             <option value="jpg" selected>JPG</option>
+            <option value="png">PNG</option>
+            <option value="webp">WEBP</option>
+          </select>
+        </div>
+
+        <!-- rotate select (hidden; app.js reads when rotate mode is used elsewhere) -->
+        <div style="display:none;">
+          <select id="rotateDegrees">
+            <option value="90" selected>90°</option>
+            <option value="180">180°</option>
+            <option value="270">270°</option>
           </select>
         </div>
 
@@ -331,7 +458,7 @@
 
             <ol class="fileList" id="fileList"></ol>
 
-            <!-- ====== NEW: REAL page preview + reorder grid ====== -->
+            <!-- Page preview + reorder grid -->
             <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
               <div class="pdfReorderHead">
                 <div>
@@ -350,7 +477,6 @@
               <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
               <div class="pdfTinyNote" id="pdfThumbNote" hidden></div>
             </div>
-            <!-- ================================================ -->
           </div>
 
         </div>
@@ -372,7 +498,7 @@
         </div>
 
         <div class="fineprint">
-          No signup. Secure processing.
+          Tip: For best results, upload the PDFs in the rough order you want — then fine-tune with page reorder.
         </div>
 
       </div>
@@ -380,36 +506,72 @@
     </div>
   </section>
 
-  <section class="section sectionSupport" id="how">
-    <div class="container">
-      <div class="supportCard">
-        <div class="supportHead">
-          <h2>How merging works</h2>
-          <p class="supportSub">Upload PDFs, reorder pages, then download the merged file.</p>
-        </div>
+  <!-- =========================
+       SEO CONTENT (REAL)
+  ========================== -->
+  <section class="seoWrap" id="about">
+    <div class="container heroWide">
+      <div class="seoCard">
 
-        <div class="supportGrid">
-          <div class="supportStep">
-            <div class="stepNum">1</div>
-            <div class="stepBody">
-              <div class="stepTitle">Add 2+ PDFs</div>
-              <div class="stepText">Drag & drop or select your files. PDFs only.</div>
+        <h2>Merge PDF files online</h2>
+        <p>
+          PDFOperations lets you combine multiple PDF documents into a single merged PDF.
+          This is useful for submitting documents to portals, sending one attachment by email, or creating one clean file for clients.
+        </p>
+
+        <div class="seoGrid">
+          <div>
+            <h3 style="margin:10px 0 6px;">What you can do</h3>
+            <ul>
+              <li><strong>Combine PDFs</strong> into one file</li>
+              <li><strong>Reorder pages</strong> before merging</li>
+              <li><strong>Preview pages</strong> to check the final order</li>
+              <li><strong>Download a single merged PDF</strong> when ready</li>
+            </ul>
+
+            <h3 style="margin:10px 0 6px;">Related tools</h3>
+            <div class="relTools" aria-label="Related PDF tools">
+              <a href="/split-pdf">Split PDF</a>
+              <a href="/">Compress PDF</a>
+              <a href="/rotate-pdf">Rotate PDF</a>
+              <a href="/convert">Convert</a>
             </div>
           </div>
 
-          <div class="supportStep">
-            <div class="stepNum">2</div>
-            <div class="stepBody">
-              <div class="stepTitle">Reorder pages</div>
-              <div class="stepText">Use the page grid to set the final order.</div>
-            </div>
-          </div>
+          <div>
+            <h3 style="margin:10px 0 6px;">FAQs</h3>
+            <div class="faqList" id="faq">
+              <details class="faq">
+                <summary>Can I reorder pages before merging?</summary>
+                <div style="margin-top:8px; opacity:.85;">
+                  Yes — use the page grid to drag pages into the exact order you want. The merged output follows that order.
+                </div>
+              </details>
 
-          <div class="supportStep">
-            <div class="stepNum">3</div>
-            <div class="stepBody">
-              <div class="stepTitle">Download</div>
-              <div class="stepText">Get a single merged PDF.</div>
+              <details class="faq">
+                <summary>Will any pages be dropped?</summary>
+                <div style="margin-top:8px; opacity:.85;">
+                  No. If previews are limited for speed, all remaining pages are still included in the merge.
+                </div>
+              </details>
+
+              <details class="faq">
+                <summary>Do I need an account?</summary>
+                <div style="margin-top:8px; opacity:.85;">
+                  No signup required. Upload, continue, then download.
+                </div>
+              </details>
+
+              <details class="faq">
+                <summary>Is there a file limit?</summary>
+                <div style="margin-top:8px; opacity:.85;">
+                  Limits are enforced in the app. If you hit a limit, split the job into smaller batches.
+                </div>
+              </details>
+            </div>
+
+            <div style="margin-top:12px; font-size:12px; opacity:.75;">
+              Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
             </div>
           </div>
         </div>
@@ -420,23 +582,20 @@
 
 </main>
 
-<footer class="footer footerPremium">
+<footer class="footer">
   <div class="container footerInner">
-    <div class="footerLeft">
-      <div class="footerBrand">
-        <img src="/favicon.svg" width="18" height="18" alt="">
-        <span>PDFOperations</span>
-      </div>
-      <div class="footerNote">Secure PDF merging online.</div>
+    <div>
+      <strong>PDFOperations</strong>
+      <div style="margin-top:4px;">PDF tools for email, portals and document workflows.</div>
     </div>
-    <div class="footerRight">
+    <div class="footerLinks">
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
     </div>
   </div>
 </footer>
 
-<!-- ====== NEW: page preview modal ====== -->
+<!-- Preview modal -->
 <div id="pdfPreviewModal" class="pdfPreviewModal" hidden aria-hidden="true">
   <div class="pdfPreviewCard" role="dialog" aria-modal="true" aria-labelledby="pdfPreviewTitle">
     <div class="pdfPreviewTop">
@@ -448,7 +607,6 @@
     </div>
   </div>
 </div>
-<!-- ===================================== -->
 
 <!-- pdf.js (CDN) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -459,14 +617,12 @@
 
 <script>
 /* =========================================================
-   Merge v6 — PDF page thumbnails + drag reorder + preview
+   Merge — PDF page thumbnails + drag reorder + preview
    - Coexists with /app.js (does not change existing IDs)
    - Sets window.__pdfopsPageOrder (array of "fileIndex:pageNumber")
    - Dispatches "pdfops:pageorder" event after any reorder
    - CLIP SAFE: if thumbnails are clipped for performance, we STILL
-     include all remaining pages in __pdfopsPageOrder so merges
-     never drop pages.
-   - FIX v6.1: forces modal hidden at boot (CSS + JS) to defeat global [hidden] overrides
+     include all remaining pages in __pdfopsPageOrder so merges never drop pages.
 ========================================================= */
 (() => {
   const fileInput = document.getElementById("files");
@@ -483,33 +639,26 @@
   const modalClose = document.getElementById("pdfPreviewClose");
   const modalCanvas = document.getElementById("pdfPreviewCanvas");
 
-  // Safety: only run on merge tool page
   if (!document.body || document.body.dataset.tool !== "merge_pdf") return;
 
-  // =========================
-  // FIX v6.1 — HARD FORCE HIDE ON BOOT
-  // (in case global CSS fights the hidden attribute)
-  // =========================
   if (modal) {
     modal.hidden = true;
     modal.setAttribute("aria-hidden", "true");
   }
 
-  // Limits (thumb rendering can be heavy)
-  const MAX_THUMB_PAGES = 160;     // thumbs rendered across all PDFs
-  const THUMB_TARGET_W = 260;      // scale target
+  const MAX_THUMB_PAGES = 160;
+  const THUMB_TARGET_W = 260;
 
-  let originalOrder = [];   // all pageKey[] in initial order (includes non-thumb pages too)
-  let currentOrder = [];    // all pageKey[] current order (includes non-thumb pages too)
-  let pageMap = new Map();  // pageKey -> { fileIndex, pageNumber, name } (ONLY for thumb pages)
-  let pdfBytesByFile = [];  // arrayBuffer per file (for preview)
+  let originalOrder = [];
+  let currentOrder = [];
+  let pageMap = new Map();
+  let pdfBytesByFile = [];
 
   let dragKey = null;
 
   function setOrder(order) {
     currentOrder = order.slice();
     window.__pdfopsPageOrder = currentOrder.slice();
-
     document.dispatchEvent(new CustomEvent("pdfops:pageorder", {
       detail: { order: window.__pdfopsPageOrder.slice() }
     }));
@@ -517,11 +666,9 @@
 
   function updateCount() {
     if (!countEl) return;
-    if (!currentOrder.length) {
-      countEl.textContent = "";
-      return;
-    }
-    countEl.textContent = ` • ${currentOrder.length} page${currentOrder.length === 1 ? "" : "s"}`;
+    countEl.textContent = currentOrder.length
+      ? ` • ${currentOrder.length} page${currentOrder.length === 1 ? "" : "s"}`
+      : "";
   }
 
   function showModal(title) {
@@ -549,7 +696,6 @@
     Object.entries(attrs).forEach(([k, v]) => {
       if (k === "class") n.className = v;
       else if (k === "text") n.textContent = v;
-      else if (k.startsWith("data-")) n.setAttribute(k, v);
       else n[k] = v;
     });
     children.forEach(c => n.appendChild(c));
@@ -611,9 +757,7 @@
   }
 
   function rebuildGridFromOrder() {
-    // Only rebuild visible thumbs (keys present in pageMap)
     const frag = document.createDocumentFragment();
-
     currentOrder.forEach((key) => {
       const meta = pageMap.get(key);
       if (!meta) return;
@@ -624,10 +768,7 @@
       } catch {
         node = grid.querySelector(`[data-page-key="${key.replace(/"/g, '\\"')}"]`);
       }
-
-      if (node) {
-        frag.appendChild(node);
-      }
+      if (node) frag.appendChild(node);
     });
 
     grid.innerHTML = "";
@@ -686,7 +827,6 @@
       node.addEventListener("click", async () => {
         const meta = pageMap.get(key);
         if (!meta) return;
-
         showModal(`${meta.name} • page ${meta.pageNumber}`);
         await renderPreviewPage(meta.fileIndex, meta.pageNumber);
       });
@@ -700,7 +840,6 @@
     const pdfs = [...files].filter(f => (f.type === "application/pdf") || /\.pdf$/i.test(f.name));
     if (pdfs.length < 1) return;
 
-    // Read bytes for preview rendering
     pdfBytesByFile = await Promise.all(pdfs.map(f => f.arrayBuffer()));
 
     let thumbsRendered = 0;
@@ -718,12 +857,9 @@
       clippedTotalPages += numPages;
 
       for (let p = 1; p <= numPages; p++) {
-        const pageKey = `${fileIndex}:${p}`; // stable key for backend
-
-        // Always include ALL pages in the final order (even if not thumb-rendered)
+        const pageKey = `${fileIndex}:${p}`;
         originalOrder.push(pageKey);
 
-        // Only render thumbs for the first MAX_THUMB_PAGES pages
         if (thumbsRendered >= MAX_THUMB_PAGES) {
           clipped = true;
           continue;
@@ -732,17 +868,31 @@
         pageMap.set(pageKey, { fileIndex, pageNumber: p, name });
         thumbsRendered++;
 
-        // create thumb node
-        const node = el("div", { class: "pdfThumb", draggable: true });
+        const node = document.createElement("div");
+        node.className = "pdfThumb";
+        node.draggable = true;
         node.setAttribute("data-page-key", pageKey);
 
-        const imgEl = el("img", { alt: `${name} page ${p}` });
-        const imgWrap = el("div", { class: "pdfThumbImg" }, [imgEl]);
+        const imgEl = document.createElement("img");
+        imgEl.alt = `${name} page ${p}`;
 
-        const meta = el("div", { class: "pdfThumbMeta" }, [
-          el("div", { class: "pdfThumbPill", text: `p${p}` }),
-          el("div", { class: "pdfThumbPill", text: name })
-        ]);
+        const imgWrap = document.createElement("div");
+        imgWrap.className = "pdfThumbImg";
+        imgWrap.appendChild(imgEl);
+
+        const meta = document.createElement("div");
+        meta.className = "pdfThumbMeta";
+
+        const pill1 = document.createElement("div");
+        pill1.className = "pdfThumbPill";
+        pill1.textContent = `p${p}`;
+
+        const pill2 = document.createElement("div");
+        pill2.className = "pdfThumbPill";
+        pill2.textContent = name;
+
+        meta.appendChild(pill1);
+        meta.appendChild(pill2);
 
         node.appendChild(imgWrap);
         node.appendChild(meta);
@@ -752,12 +902,11 @@
           const { url } = await renderThumbForPage(pdfDoc, p);
           imgEl.src = url;
         } catch {
-          // keep gradient placeholder if rendering fails
+          // leave placeholder
         }
       }
     }
 
-    // Start with default order (ALL pages included)
     setOrder(originalOrder);
     wrap.hidden = false;
     updateCount();
@@ -771,12 +920,10 @@
     }
   }
 
-  // Modal close
   modalClose?.addEventListener("click", hideModal);
   modal?.addEventListener("click", (e) => { if (e.target === modal) hideModal(); });
   window.addEventListener("keydown", (e) => { if (e.key === "Escape" && !modal.hidden) hideModal(); });
 
-  // Reset order
   resetBtn?.addEventListener("click", () => {
     if (!originalOrder.length) return;
     setOrder(originalOrder);
@@ -785,7 +932,6 @@
     updateCount();
   });
 
-  // When file input changes (works alongside app.js listeners)
   fileInput?.addEventListener("change", async () => {
     const files = fileInput.files;
     if (!files || files.length < 1) {
@@ -795,7 +941,6 @@
     await buildThumbsForFiles(files);
   });
 
-  // Clear button should clear thumbs too
   clearBtn?.addEventListener("click", () => {
     clearThumbs();
   });
@@ -804,6 +949,5 @@
 
 <!-- Keep your existing frontend logic -->
 <script src="/app.js?v=17.7" defer></script>
-
 </body>
 </html>

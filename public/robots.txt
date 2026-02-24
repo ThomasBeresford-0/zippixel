@@ -1,4 +1,11 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://zippixel.it.com/sitemap.xml
+# Block ephemeral / non-SEO pages
+Disallow: /success
+Disallow: /cancel
+Disallow: /share
+Disallow: /s/
+Disallow: /api/
+
+Sitemap: https://pdfoperations.com/sitemap.xml
