@@ -566,6 +566,8 @@
     }
   }
 
+  window.__pdfopsLoadFromFile = loadFromFile;
+
   // Optional fallback (if some code writes into __PDFOPS_SELECTED__)
   async function loadFromSelectedFile(){
     const arr = window.__PDFOPS_SELECTED__;
@@ -578,24 +580,25 @@
   // window.__PDFOPS_SELECTED__ = [File]
   // ----------------------------------------
   (function watchAppSelected(){
-    let lastSelectedSig = "";
+    let lastSig = "";
 
     async function tick(){
       const arr = window.__PDFOPS_SELECTED__;
       const f = (Array.isArray(arr) && arr[0]) ? arr[0] : null;
-      if (!f) return;
+      if (!f || !window.__pdfopsLoadFromFile) return;
 
       const sig = `${f.name}|${f.size}|${f.lastModified || 0}`;
-      if (sig === lastSelectedSig) return;
-      lastSelectedSig = sig;
+      if (sig === lastSig) return;
+      lastSig = sig;
 
-      try { await loadFromFile(f); } catch (err) { console.error(err); }
+      try {
+        await window.__pdfopsLoadFromFile(f);
+      } catch (err) {
+        console.error(err);
+      }
     }
 
-    // poll quickly; cheap and reliable
-    setInterval(tick, 250);
-    // run immediately too
-    setTimeout(tick, 0);
+    setInterval(tick, 300);
   })();
 
   // Modal controls
