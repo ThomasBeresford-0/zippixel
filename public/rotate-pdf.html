@@ -1,3 +1,10 @@
+<!-- public/rotate-pdf.html — PDFOperations (v4 - CLEAN UX + SEO LIFT, NO FUNCTION CHANGES)
+     ✅ NO JS/function changes (your rotate logic + app.js hooks untouched)
+     ✅ Cleaner, flatter layout (no “bubble” pills)
+     ✅ Stronger hierarchy + trust line + “How it works” + FAQ (SEO)
+     ✅ Adds OG/Twitter + JSON-LD WebPage/Breadcrumb/FAQ
+     ✅ Protects hidden states to prevent flashing
+-->
 <!doctype html>
 <html lang="en">
 <head>
@@ -12,6 +19,20 @@
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light" />
 
+  <!-- Open Graph -->
+  <meta property="og:title" content="Rotate PDF Online — Turn Pages 90°, 180°, 270°" />
+  <meta property="og:description" content="Upload one PDF, preview pages, rotate them, then download the updated file." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pdfoperations.com/rotate-pdf" />
+  <meta property="og:image" content="https://pdfoperations.com/og.png" />
+  <meta property="og:image:alt" content="PDFOperations — Rotate PDF" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Rotate PDF Online — Turn Pages 90°, 180°, 270°" />
+  <meta name="twitter:description" content="Upload one PDF, preview pages, rotate them, then download the updated file." />
+  <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
+
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
@@ -22,7 +43,77 @@
   <link rel="stylesheet" href="/style.css?v=36" />
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
-  <!-- PDF.js — ESM loader (same pattern as merge page) -->
+  <!-- =========================
+       SCHEMA (SEO)
+  ========================== -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebPage",
+    "name":"Rotate PDF Online — PDFOperations",
+    "url":"https://pdfoperations.com/rotate-pdf",
+    "description":"Rotate a PDF online in seconds. Upload one PDF, preview pages, rotate them, then download the updated file.",
+    "isPartOf":{
+      "@type":"WebSite",
+      "name":"PDFOperations",
+      "url":"https://pdfoperations.com/"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"BreadcrumbList",
+    "itemListElement":[
+      {"@type":"ListItem","position":1,"name":"PDFOperations","item":"https://pdfoperations.com/"},
+      {"@type":"ListItem","position":2,"name":"Rotate PDF","item":"https://pdfoperations.com/rotate-pdf"}
+    ]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity":[
+      {
+        "@type":"Question",
+        "name":"How do I rotate a PDF online?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Upload one PDF, preview pages, rotate them by 90° steps, then continue to download the updated PDF."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"Can I rotate only some pages?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Yes. Rotate any page individually from the preview. Your final PDF uses your selected rotations."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"What rotation angles are supported?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Rotate pages by 90°, 180°, or 270°."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"Do I need an account?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"No. There is no signup required."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- PDF.js — ESM loader (NO CHANGE TO YOUR CURRENT LOGIC/PATHS) -->
   <script type="module">
     // IMPORTANT: set these to the actual files you have on disk.
     // If your vendor files are .mjs, change accordingly.
@@ -52,53 +143,284 @@
   </script>
 
   <style>
+    /* ===== Prevent flashes ===== */
+    #pdfPreviewModal[hidden],
     #pdfReorderWrap[hidden],
-    #fileMeta[hidden]{ display:none !important; }
+    #fileMeta[hidden],
+    #priceModal[aria-hidden="true"]{
+      display:none !important;
+    }
     [hidden]{ display:none !important; }
 
-    .toolChips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-    .toolChip{ font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(15,23,42,.10); background:rgba(255,255,255,.72); box-shadow:0 10px 26px rgba(2,6,23,.06); opacity:.92; user-select:none; }
-    .rotateHint{ margin-top:8px; font-size:13px; opacity:.82; line-height:1.35; }
+    /* ===== Brand logo alignment ===== */
+    .brandLogo{ height:34px; width:auto; display:block; }
 
-    .pdfReorderWrap{ margin-top:10px; padding-top:10px; border-top:1px solid rgba(15,23,42,.08); }
-    .rotatePreviewHead{ display:flex; align-items:flex-end; justify-content:space-between; gap:10px; margin-top:14px; }
-    .rotatePreviewTitle{ font-weight:900; letter-spacing:-.02em; font-size:14px; opacity:.92; }
-    .rotatePreviewMeta{ font-size:12px; opacity:.74; white-space:nowrap; }
+    /* ===== Clean header block (no bubbles) ===== */
+    .toolHeadMinimal .kicker{
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+      opacity:.78;
+      margin-bottom:6px;
+    }
+
+    .trustLine{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 16px;
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1px solid rgba(15,23,42,.10);
+      color:rgba(11,18,32,.72);
+      font-size:13px;
+    }
+    .trustItem{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight:750;
+      padding:0 !important;
+      border:0 !important;
+      background:transparent !important;
+      box-shadow:none !important;
+    }
+    .trustItem::before{ content:"•"; opacity:.55; }
+    .trustLine .trustItem:first-child::before{ content:""; }
+
+    .howHint{
+      margin-top:10px;
+      font-size:13px;
+      line-height:1.45;
+      color:rgba(11,18,32,.78);
+      max-width: 70ch;
+    }
+
+    /* ===== Tool framing (flatter, sharper) ===== */
+    .tool.toolPremium.toolMega{
+      border-radius: 18px;
+    }
+
+    /* ===== Rotate thumbs (cleaner, less “bubble”) ===== */
+    .pdfReorderWrap{
+      margin-top:14px;
+      padding-top:14px;
+      border-top:1px solid rgba(15,23,42,.10);
+    }
+    .rotatePreviewHead{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:0;
+      margin-bottom:10px;
+    }
+    .rotatePreviewTitle{
+      font-weight:950;
+      letter-spacing:-.02em;
+      font-size:14px;
+      color:rgba(11,18,32,.92);
+    }
+    .rotatePreviewMeta{
+      font-size:12px;
+      opacity:.72;
+      white-space:nowrap;
+    }
 
     .pdfThumbGrid{
-      opacity: 0;
+      opacity:0;
       transition: opacity .12s ease;
       will-change: opacity;
       display:grid;
       grid-template-columns:repeat(6, minmax(0,1fr));
-      gap:10px; margin-top:10px;
+      gap:10px;
+      margin-top:10px;
     }
-    .pdfThumbGrid.isReady{ opacity: 1; }
+    .pdfThumbGrid.isReady{ opacity:1; }
+    @media (max-width:1100px){ .pdfThumbGrid{ grid-template-columns:repeat(4, minmax(0,1fr)); } }
+    @media (max-width:720px){ .pdfThumbGrid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
 
-    .pdfThumb{ border:1px solid rgba(15,23,42,.10); background:rgba(255,255,255,.86); border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(2,6,23,.06); cursor:pointer; position:relative; transition:transform .12s ease, box-shadow .12s ease; user-select:none; }
-    .pdfThumb:hover{ transform:translateY(-1px); box-shadow:0 16px 36px rgba(2,6,23,.10); }
-    .pdfThumb canvas{ width:100%; height:auto; display:block; background:#fff; }
+    .pdfThumb{
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow:0 10px 28px rgba(2,6,23,.06);
+      cursor:pointer;
+      position:relative;
+      transition:transform .10s ease, box-shadow .10s ease, border-color .10s ease;
+      user-select:none;
+    }
+    .pdfThumb:hover{
+      transform:translateY(-1px);
+      border-color:rgba(15,23,42,.18);
+      box-shadow:0 14px 36px rgba(2,6,23,.10);
+    }
+    .pdfThumb canvas{
+      width:100%;
+      height:auto;
+      display:block;
+      background:#fff;
+    }
 
-    .thumbBadge{ position:absolute; top:8px; left:8px; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:900; background:rgba(11,18,32,.88); color:#fff; pointer-events:none; }
-    .thumbRot{ position:absolute; top:8px; right:8px; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:900; border:1px solid rgba(15,23,42,.10); background:rgba(255,255,255,.92); color:rgba(11,18,32,.92); pointer-events:none; }
-    .thumbFoot{ padding:8px 10px; display:flex; justify-content:space-between; align-items:center; gap:8px; border-top:1px solid rgba(15,23,42,.08); background:rgba(248,250,252,.92); }
-    .thumbFoot .thumbLabel{ font-size:12px; font-weight:800; opacity:.86; }
+    .thumbBadge{
+      position:absolute;
+      top:10px; left:10px;
+      width:28px; height:28px;
+      display:flex; align-items:center; justify-content:center;
+      border-radius:999px;
+      background:rgba(11,18,32,.92);
+      color:#fff;
+      font-weight:950;
+      font-size:12px;
+      box-shadow:0 10px 24px rgba(2,6,23,.18);
+      pointer-events:none;
+      border:1px solid rgba(255,255,255,.16);
+    }
+    .thumbRot{
+      position:absolute;
+      top:10px; right:10px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:950;
+      border:1px solid rgba(15,23,42,.12);
+      background:rgba(255,255,255,.96);
+      color:rgba(11,18,32,.92);
+      pointer-events:none;
+    }
+    .thumbFoot{
+      padding:10px 12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      border-top:1px solid rgba(15,23,42,.08);
+      background:rgba(248,250,252,.96);
+    }
+    .thumbFoot .thumbLabel{ font-size:12px; font-weight:850; opacity:.88; }
     .thumbFoot .thumbAction{ font-size:12px; opacity:.72; }
     .thumbFoot .thumbAction strong{ font-weight:900; opacity:.92; }
 
-    .rotateBar{ margin-top:10px; padding:10px; border-radius:16px; border:1px solid rgba(15,23,42,.10); background:rgba(255,255,255,.78); box-shadow:0 12px 28px rgba(2,6,23,.06); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
-    .rotateBarTitle{ font-weight:900; letter-spacing:-.02em; font-size:13px; opacity:.92; }
-    .rotateBarSub{ font-size:12px; opacity:.74; line-height:1.25; }
+    .rotateBar{
+      margin-top:10px;
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;
+      box-shadow:0 12px 28px rgba(2,6,23,.06);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .rotateBarTitle{ font-weight:950; letter-spacing:-.02em; font-size:13px; }
+    .rotateBarSub{ font-size:12px; opacity:.72; line-height:1.25; }
     .rotateBarRight{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
 
     #rotateDegrees{ display:none !important; }
 
-    .pdfPreviewModal{ position:fixed; inset:0; z-index:1000; background:rgba(2,6,23,.62); display:flex; align-items:center; justify-content:center; padding:18px; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
-    .pdfPreviewCard{ width:min(980px,96vw); max-height:90vh; background:rgba(255,255,255,.96); border:1px solid rgba(15,23,42,.10); border-radius:16px; overflow:hidden; box-shadow:0 30px 90px rgba(0,0,0,.35); display:flex; flex-direction:column; }
-    .pdfPreviewTop{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; border-bottom:1px solid rgba(15,23,42,.10); }
-    .pdfPreviewTitle{ font-weight:900; letter-spacing:-.02em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:62%; }
-    .pdfPreviewBody{ padding:12px; overflow:auto; background:linear-gradient(180deg, rgba(15,23,42,.02), rgba(15,23,42,.01)); }
-    .pdfPreviewCanvas{ width:100%; display:block; background:#fff; border-radius:12px; border:1px solid rgba(15,23,42,.10); }
+    /* ===== Modal keeps your look, just slightly cleaner ===== */
+    .pdfPreviewModal{
+      position:fixed; inset:0; z-index:1000;
+      background:rgba(2,6,23,.62);
+      display:flex; align-items:center; justify-content:center;
+      padding:18px;
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+    .pdfPreviewCard{
+      width:min(980px,96vw);
+      max-height:90vh;
+      background:rgba(255,255,255,.98);
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:0 30px 90px rgba(0,0,0,.35);
+      display:flex;
+      flex-direction:column;
+    }
+    .pdfPreviewTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 14px;
+      border-bottom:1px solid rgba(15,23,42,.10);
+    }
+    .pdfPreviewTitle{
+      font-weight:950;
+      letter-spacing:-.02em;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      max-width:62%;
+    }
+    .pdfPreviewBody{
+      padding:12px;
+      overflow:auto;
+      background:linear-gradient(180deg, rgba(15,23,42,.02), rgba(15,23,42,.01));
+    }
+    .pdfPreviewCanvas{
+      width:100%;
+      display:block;
+      background:#fff;
+      border-radius:12px;
+      border:1px solid rgba(15,23,42,.10);
+    }
+
+    /* ===== SEO section (matches merge/split vibe) ===== */
+    .seoWrap{ padding:18px 0 42px; }
+    .seoCard{
+      background:rgba(255,255,255,.92);
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:20px;
+      box-shadow:0 18px 50px rgba(2,6,23,.06);
+      padding:18px;
+    }
+    .seoGrid{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:16px;
+      margin-top:14px;
+    }
+    @media (max-width:920px){ .seoGrid{ grid-template-columns:1fr; } }
+
+    .relTools{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+    .relTools a{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(15,23,42,.12);
+      background:rgba(255,255,255,.96);
+      text-decoration:none;
+      font-weight:850;
+      font-size:13px;
+      color:rgba(11,18,32,.92);
+    }
+    .relTools a:hover{
+      border-color:rgba(15,23,42,.18);
+      box-shadow:0 10px 24px rgba(2,6,23,.08);
+      transform:translateY(-1px);
+    }
+
+    .faqList{ display:grid; gap:10px; margin-top:10px; }
+    details.faq{
+      border:1px solid rgba(15,23,42,.10);
+      background:rgba(255,255,255,.92);
+      border-radius:14px;
+      padding:10px 12px;
+    }
+    details.faq summary{
+      cursor:pointer;
+      font-weight:900;
+      letter-spacing:-.01em;
+      list-style:none;
+    }
+    details.faq summary::-webkit-details-marker{ display:none; }
   </style>
 </head>
 
@@ -138,17 +460,19 @@
       <div id="tool" class="tool toolPremium toolMega">
 
         <div class="toolHead toolHeadMinimal">
+          <div class="kicker">PDF Tool</div>
           <h1 class="toolTitle">Rotate PDF</h1>
           <p class="toolSub">Upload one PDF, preview pages, rotate them, then download the updated file.</p>
 
-          <div class="toolChips" aria-hidden="true">
-            <div class="toolChip">Preview pages</div>
-            <div class="toolChip">Rotate inside preview</div>
-            <div class="toolChip">One PDF</div>
+          <div class="trustLine" aria-label="Trust indicators">
+            <div class="trustItem">No signup</div>
+            <div class="trustItem">PDF only</div>
+            <div class="trustItem">Rotate specific pages</div>
+            <div class="trustItem">Secure processing</div>
           </div>
 
-          <div class="rotateHint">
-            Click a page thumbnail to preview it. In preview, tap <strong>Rotate 90°</strong> to cycle:
+          <div class="howHint">
+            Click a page thumbnail to preview it. In preview, press <strong>Rotate 90°</strong> to cycle:
             <strong>0° → 90° → 180° → 270°</strong>.
           </div>
         </div>
@@ -233,30 +557,30 @@
           </div>
         </div>
 
-      <!-- =========================
-          STABLE ROTATE PREVIEW MOUNT (NOT TOUCHED BY app.js)
-      ========================= -->
-      <section id="pdfopsRotateMount" class="pdfReorderWrap" hidden>
-        <div class="rotatePreviewHead">
-          <div class="rotatePreviewTitle">Pages</div>
-          <div class="rotatePreviewMeta" id="pdfopsRotateMeta">—</div>
-        </div>
-
-        <div class="rotateBar" id="pdfopsRotateBar" hidden>
-          <div>
-            <div class="rotateBarTitle">Rotation plan</div>
-            <div class="rotateBarSub" id="pdfopsRotatePlan">No pages rotated yet.</div>
+        <!-- =========================
+            STABLE ROTATE PREVIEW MOUNT (NOT TOUCHED BY app.js)
+        ========================= -->
+        <section id="pdfopsRotateMount" class="pdfReorderWrap" hidden>
+          <div class="rotatePreviewHead">
+            <div class="rotatePreviewTitle">Pages</div>
+            <div class="rotatePreviewMeta" id="pdfopsRotateMeta">—</div>
           </div>
-          <div class="rotateBarRight">
-            <button class="btnSoft" id="pdfopsRotateAll90" type="button">Rotate all 90°</button>
-            <button class="btnSoft" id="pdfopsResetRotations" type="button">Reset rotations</button>
+
+          <div class="rotateBar" id="pdfopsRotateBar" hidden>
+            <div>
+              <div class="rotateBarTitle">Rotation plan</div>
+              <div class="rotateBarSub" id="pdfopsRotatePlan">No pages rotated yet.</div>
+            </div>
+            <div class="rotateBarRight">
+              <button class="btnSoft" id="pdfopsRotateAll90" type="button">Rotate all 90°</button>
+              <button class="btnSoft" id="pdfopsResetRotations" type="button">Reset rotations</button>
+            </div>
           </div>
-        </div>
 
-        <div id="pdfopsThumbGrid" class="pdfThumbGrid"></div>
-      </section>
+          <div id="pdfopsThumbGrid" class="pdfThumbGrid"></div>
+        </section>
 
-      <div class="progressWrap" id="progressWrap" hidden>
+        <div class="progressWrap" id="progressWrap" hidden>
           <div class="progressTop">
             <div id="progressLabel">Uploading…</div>
             <div id="progressPct">0%</div>
@@ -271,9 +595,86 @@
         </div>
 
         <div class="fineprint">No signup. Upload, preview pages, rotate, download.</div>
+
       </div>
     </div>
   </section>
+
+  <!-- =========================
+       SEO SUPPORT
+  ========================== -->
+  <section class="seoWrap" id="about">
+    <div class="container heroWide">
+      <div class="seoCard">
+
+        <div class="kicker">About</div>
+        <h2>Rotate PDF pages online</h2>
+        <p>
+          Rotate scanned pages, sideways exports, or misaligned documents without installing software.
+          Preview your pages, rotate only what you need, then download the updated PDF.
+        </p>
+
+        <div class="seoGrid">
+          <div>
+            <h3 style="margin:10px 0 6px;">Common uses</h3>
+            <ul style="margin:0 0 10px; padding-left:18px;">
+              <li>Fix sideways scan pages</li>
+              <li>Rotate a single page in a multi-page PDF</li>
+              <li>Correct orientation before portal upload</li>
+              <li>Prepare PDFs for printing or sharing</li>
+            </ul>
+
+            <h3 style="margin:10px 0 6px;">Related tools</h3>
+            <div class="relTools" aria-label="Related PDF tools">
+              <a href="/">Compress PDF</a>
+              <a href="/merge-pdf">Merge PDF</a>
+              <a href="/split-pdf">Split PDF</a>
+              <a href="/convert">Convert</a>
+            </div>
+
+            <div style="margin-top:12px; font-size:12px; opacity:.75;">
+              Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="margin:10px 0 6px;">FAQ</h3>
+            <div class="faqList" id="faq">
+              <details class="faq">
+                <summary>Can I rotate only some pages?</summary>
+                <div style="margin-top:8px; opacity:.85;">
+                  Yes — preview a page and rotate it. Your downloaded PDF reflects your chosen rotations.
+                </div>
+              </details>
+
+              <details class="faq">
+                <summary>What rotation angles are supported?</summary>
+                <div style="margin-top:8px; opacity:.85;">
+                  90°, 180°, and 270° (in 90° steps).
+                </div>
+              </details>
+
+              <details class="faq">
+                <summary>Do I need an account?</summary>
+                <div style="margin-top:8px; opacity:.85;">
+                  No signup required. Upload, rotate, continue, then download.
+                </div>
+              </details>
+
+              <details class="faq">
+                <summary>Will rotation change the PDF contents?</summary>
+                <div style="margin-top:8px; opacity:.85;">
+                  Rotation updates page orientation. The page content remains the same.
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <footer class="footer footerPremium">
@@ -292,6 +693,7 @@
   </div>
 </footer>
 
+<!-- Checkout modal (required by app.js) — unchanged -->
 <div class="modalOverlay" id="priceModal" aria-hidden="true">
   <div class="modalCard premiumModal">
     <div class="modalTop">
@@ -337,6 +739,7 @@
   </div>
 </div>
 
+<!-- Preview modal (unchanged) -->
 <div id="pdfPreviewModal" class="pdfPreviewModal" hidden aria-hidden="true">
   <div class="pdfPreviewCard" role="dialog" aria-modal="true" aria-labelledby="pdfPreviewTitle">
     <div class="pdfPreviewTop">
@@ -353,10 +756,7 @@
 </div>
 
 <!-- =========================
-     ROTATE THUMBS + MODAL (BEFORE app.js)
-     IMPORTANT CHANGE:
-       - NO polling
-       - MutationObserver re-renders AFTER app.js rebuilds fileMeta/wrap/grid
+     ROTATE THUMBS + MODAL (BEFORE app.js) — UNCHANGED JS
 ========================= -->
 <script>
 (() => {
