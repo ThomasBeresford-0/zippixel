@@ -1,8 +1,10 @@
-<!-- public/index.html — PDFOperations (v43 - VISIBLE SELECTED FILE + OBVIOUS “CLICK UPLOAD” NUDGE)
+<!-- public/index.html — PDFOperations (v46 - TOOL-FIRST LIKE SPLIT + REAL PDF PREVIEW + REAL DRAG & DROP)
+     ✅ Matches split-pdf "tool-first" vibe (no trust pills/bubbles)
      ✅ ALL app.js v17.7 IDs preserved
-     ✅ Makes selected file clearly visible (dedicated card)
-     ✅ Adds “Next step: click Upload” guidance (CSS-only, no JS changes)
-     ✅ No pricing visible before checkout
+     ✅ Real PDF preview panel (iframe) after select/drop
+     ✅ Real drag & drop that sets #files via DataTransfer (so app.js works)
+     ✅ Big “Step 2: Click Upload” prompt when Upload is enabled
+     ✅ NO price visible before checkout
      ✅ style.css?v=36 + app.js?v=17.7
 -->
 <!doctype html>
@@ -11,11 +13,25 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Compress PDF Online | PDFOperations</title>
-  <meta name="description" content="Compress a PDF for strict upload limits. Choose a level and download instantly. No signup." />
+  <title>Compress PDF Online — PDFOperations</title>
+  <meta name="description" content="Compress a PDF for strict upload limits. Upload one PDF, choose a level, then download." />
   <link rel="canonical" href="https://pdfoperations.com/" />
+
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
+  <meta name="color-scheme" content="light" />
+
+  <meta property="og:title" content="Compress PDF Online — PDFOperations" />
+  <meta property="og:description" content="Upload one PDF, choose a compression level, then download." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pdfoperations.com/" />
+  <meta property="og:image" content="https://pdfoperations.com/og.png" />
+  <meta property="og:image:alt" content="PDFOperations — Compress PDF" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Compress PDF Online — PDFOperations" />
+  <meta name="twitter:description" content="Upload one PDF, choose a compression level, then download." />
+  <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -23,127 +39,119 @@
 
   <link rel="stylesheet" href="/style.css?v=36" />
 
-  <!-- Page-only UX boosts (no JS changes) -->
   <style>
-    /* Make "selected file" impossible to miss */
-    .fileCard{
-      margin-top: 14px;
-      border: 1px solid rgba(15,23,42,.12);
-      background: rgba(255,255,255,.92);
-      border-radius: 16px;
-      padding: 12px 12px;
-      box-shadow: 0 10px 24px rgba(15,23,42,.06);
+    [hidden]{ display:none !important; }
+
+    /* Minimal “steps” line (not pills) */
+    .stepsLine{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(15,23,42,.08);
+      color: rgba(11,18,32,.78);
+      font-size: 13px;
+      line-height: 1.35;
     }
-    .fileCardHead{
+    .stepItem{ display:flex; align-items:center; gap:8px; white-space: nowrap; }
+    .stepNum{
+      width: 22px; height: 22px;
+      border-radius: 8px;
+      border: 1px solid rgba(15,23,42,.14);
+      background: rgba(255,255,255,.92);
+      display:flex; align-items:center; justify-content:center;
+      font-weight: 800; font-size: 12px;
+      color: rgba(11,18,32,.85);
+    }
+
+    /* Drag & Drop: subtle state */
+    .dropzone{ position: relative; }
+    .dropzone.isDragOver{
+      outline: 3px solid rgba(11,18,32,.08);
+      box-shadow: 0 18px 46px rgba(2,6,23,.10);
+      transform: translateY(-1px);
+    }
+    .dropzoneHint{
+      margin-top: 10px;
+      font-size: 13px;
+      color: rgba(11,18,32,.68);
+    }
+
+    /* Preview panel */
+    .previewWrap{
+      margin-top: 14px;
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.86);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 12px 34px rgba(2,6,23,.08);
+    }
+    .previewHead{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:10px;
-      margin-bottom: 8px;
+      gap:12px;
+      padding: 12px 12px;
+      border-bottom: 1px solid rgba(15,23,42,.10);
+      background: rgba(245,247,251,.72);
     }
-    .fileCardTitle{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight: 700;
-      color: rgba(11,18,32,.92);
-      letter-spacing: -0.01em;
-    }
-    .pdfBadge{
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border: 1px solid rgba(15,23,42,.12);
-      background: rgba(245,247,251,.9);
+    .previewMeta{ min-width:0; }
+    .previewTitle{
       font-weight: 800;
-      font-size: 11px;
-      color: rgba(11,18,32,.78);
+      letter-spacing: -.01em;
+      color: rgba(11,18,32,.92);
+      line-height: 1.15;
     }
-    .fileSummary{
-      font-size: 14px;
-      color: rgba(11,18,32,.78);
-      line-height: 1.35;
-      word-break: break-word;
+    .previewSub{
+      margin-top: 4px;
+      font-size: 13px;
+      color: rgba(11,18,32,.72);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 70ch;
     }
-    .fileSummary strong{ color: rgba(11,18,32,.92); }
+    .previewBody{ height: 360px; background:#fff; }
+    .pdfFrame{ width:100%; height:100%; border:0; display:block; background:#fff; }
 
-    /* Action row: stronger “Step 1 / Step 2” vibes without breaking IDs */
-    .actionRowWide{
-      align-items: stretch;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .actionRowWide > button{
-      min-height: 44px;
-    }
-
-    /* Nudge: appears automatically when Upload becomes enabled */
-    .actionHint{
-      width: 100%;
-      display: none;
-      margin-top: 8px;
-      padding: 10px 12px;
-      border-radius: 14px;
+    /* Loud “click Upload” callout when enabled */
+    .nextStep{
+      display:none;
+      margin-top: 12px;
+      padding: 12px 12px;
+      border-radius: 16px;
       border: 1px solid rgba(15,23,42,.12);
       background: rgba(11,18,32,.04);
       color: rgba(11,18,32,.82);
       font-size: 14px;
       line-height: 1.35;
     }
-    .actionHint strong{ color: rgba(11,18,32,.92); }
-    .actionHint .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 12px;
-      padding: 2px 6px;
-      border-radius: 8px;
-      border: 1px solid rgba(15,23,42,.12);
-      background: rgba(255,255,255,.9);
-    }
-
-    /* When upload button becomes enabled, show the hint */
-    .actionRowWide #upload:not(:disabled) ~ .actionHint{
-      display: block;
-    }
-
-    /* Also visually “arm” the Upload button when enabled */
-    .actionRowWide #upload:not(:disabled){
-      box-shadow: 0 10px 24px rgba(15,23,42,.10);
+    .nextStep strong{ color: rgba(11,18,32,.92); }
+    #upload:not(:disabled) ~ #nextStepBanner{ display:block; }
+    #upload:not(:disabled){
+      box-shadow: 0 12px 28px rgba(2,6,23,.14);
       transform: translateY(-0.5px);
     }
 
-    /* Make dropzone center text less dominant once a file is selected (when fileMeta is visible) */
-    #fileMeta:not([hidden]) ~ .dzCenter{
-      opacity: .55;
-    }
-
-    /* Mobile: keep it clean */
     @media (max-width: 640px){
-      .fileCard{ border-radius: 14px; }
-      .fileCardTitle{ font-size: 14px; }
-      .fileSummary{ font-size: 13px; }
+      .previewBody{ height: 300px; }
+      .previewSub{ max-width: 44ch; }
     }
   </style>
 </head>
 
-<body class="page pageCompressPdf">
-<div class="bg" aria-hidden="true"></div>
-
+<body class="page pageCompressPdf premium" data-tool="compress_pdf">
 <a href="#tool" class="srOnly">Skip to tool</a>
 
 <header class="nav">
   <div class="container navInner">
     <a class="brand" href="/" aria-label="PDFOperations home">
-      <span class="brandMark"></span>
-      <span class="brandText">
-        <span class="top">PDFOperations</span>
-        <span class="sub">Compress • Merge • Split</span>
-      </span>
+      <img src="/favicon.svg" width="26" height="26" alt="">
+      <span>PDFOperations</span>
     </a>
 
-    <nav class="navLinks">
+    <nav class="navLinks" aria-label="Primary navigation">
       <a href="/" aria-current="page">Compress</a>
       <a href="/merge-pdf">Merge</a>
       <a href="/split-pdf">Split</a>
@@ -152,37 +160,24 @@
       <a href="/pricing">Pricing</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
+      <a href="#tool" class="navCta">Start</a>
     </nav>
-
-    <div class="navCta">
-      <a class="btn btnSmall btnGhost" href="#tool">Start</a>
-    </div>
   </div>
 </header>
 
 <main>
-
-  <!-- CENTERED HERO TOOL -->
   <section class="hero heroPremium heroToolFirst">
     <div class="container heroWide">
-
       <div id="tool" class="tool toolPremium toolMega">
 
         <div class="toolHead toolHeadMinimal">
-          <h1 class="toolTitle">
-            Reduce PDF file size for strict upload limits.
-          </h1>
+          <h1 class="toolTitle">Compress PDF</h1>
+          <p class="toolSub">Upload one PDF. Choose a level. Click Upload. Then Continue.</p>
 
-          <p class="toolSub">
-            Choose a compression level, upload one PDF, and download instantly.
-            Built for portals that reject large files.
-          </p>
-
-          <div class="trustBar">
-            <div class="trustPill">No signup</div>
-            <div class="trustPill">Single PDF</div>
-            <div class="trustPill">Instant download</div>
-            <div class="trustPill">Secure processing</div>
+          <div class="stepsLine" aria-hidden="true">
+            <div class="stepItem"><span class="stepNum">1</span> Select / Drop a PDF</div>
+            <div class="stepItem"><span class="stepNum">2</span> Click <strong>Upload</strong></div>
+            <div class="stepItem"><span class="stepNum">3</span> Continue → Checkout</div>
           </div>
         </div>
 
@@ -192,7 +187,7 @@
             <div class="status" id="status">Ready</div>
             <div class="spinner" id="spinner"></div>
           </div>
-          <div class="statusHint" id="statusHint">Add one PDF to begin.</div>
+          <div class="statusHint" id="statusHint">Add 1 PDF to begin.</div>
         </div>
 
         <!-- Hidden mode controls -->
@@ -216,7 +211,6 @@
                 <option value="max">Maximum (smallest size)</option>
               </select>
             </div>
-
             <div>
               <span class="label">Output</span>
               <div class="notice">Compressed PDF (same layout)</div>
@@ -245,39 +239,44 @@
         </div>
 
         <!-- DROPZONE -->
-        <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
-
-          <!-- Selected file card (app.js toggles hidden + fills #fileSummary) -->
-          <div class="fileCard" id="fileMeta" hidden>
-            <div class="fileCardHead">
-              <div class="fileCardTitle">
-                <span class="pdfBadge">PDF</span>
-                <span>Selected file</span>
-              </div>
-              <button class="btnGhost" id="clearBtn" type="button">Clear</button>
-            </div>
-
-            <div class="fileSummary" id="fileSummary">
-              <!-- app.js will populate this -->
-            </div>
-          </div>
+        <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone" role="button" tabindex="0" aria-label="Drop a PDF here or click to select">
 
           <div class="dzCenter">
-            <div class="dzTitle" id="dzTitle">Drop your PDF here</div>
+            <div class="dzIcon"><span class="dzArrow">↑</span></div>
+            <div class="dzTitle" id="dzTitle">Drop a PDF here</div>
             <div class="dzSub" id="dzSub">PDF only • Single file</div>
 
             <div class="filePick">
-              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">
-                Select PDF
-              </button>
-              <input id="files" type="file" accept="application/pdf" />
+              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
+              <input id="files" type="file" accept="application/pdf,.pdf" />
             </div>
 
-            <div class="dzFine">
-              After selecting a file, click <strong>Upload</strong>.
-            </div>
+            <div class="dropzoneHint" id="dropHint">Tip: drag a PDF onto this area.</div>
           </div>
 
+          <!-- Keep app.js hooks but hidden -->
+          <div class="fileMeta" id="fileMeta" hidden>
+            <div class="fileMetaTop">
+              <div class="fileSummary" id="fileSummary"></div>
+              <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PREVIEW PANEL -->
+        <div class="previewWrap" id="pdfPreviewWrap" hidden>
+          <div class="previewHead">
+            <div class="previewMeta">
+              <div class="previewTitle">Preview</div>
+              <div class="previewSub" id="pdfPreviewMeta">—</div>
+            </div>
+            <div class="previewActions">
+              <button class="btnGhost" id="previewClearBtn" type="button">Clear</button>
+            </div>
+          </div>
+          <div class="previewBody">
+            <iframe class="pdfFrame" id="pdfPreviewFrame" title="PDF preview"></iframe>
+          </div>
         </div>
 
         <!-- PROGRESS -->
@@ -293,40 +292,177 @@
 
         <!-- ACTIONS -->
         <div class="actionRow actionRowWide">
-          <button class="btnSoft" id="upload" disabled>1) Upload PDF</button>
-          <button class="btnPrimary btnStrong" id="continue" disabled>2) Continue →</button>
+          <button class="btnSoft" id="upload" disabled>Upload PDF</button>
+          <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
 
-          <!-- CSS-only nudge: appears when Upload becomes enabled -->
-          <div class="actionHint">
-            <strong>Next step:</strong> click <strong>Upload PDF</strong> to send your file.
-            Then press <strong>Continue</strong> when it’s ready.
+          <div class="nextStep" id="nextStepBanner">
+            <strong>Next step:</strong> click <strong>Upload PDF</strong> to send your file, then press <strong>Continue</strong>.
           </div>
         </div>
 
-      </div>
+        <div class="fineprint">No signup. Secure processing.</div>
 
+      </div>
     </div>
   </section>
-
 </main>
 
-<footer class="footer">
+<footer class="footer footerPremium">
   <div class="container footerInner">
-    <div>
-      <strong>PDFOperations</strong>
-      <div style="margin-top:4px;">
-        PDF tools for email, portals and document workflows.
+    <div class="footerLeft">
+      <div class="footerBrand">
+        <img src="/favicon.svg" width="18" height="18" alt="">
+        <span>PDFOperations</span>
       </div>
+      <div class="footerNote">Compress PDFs for portals and email.</div>
     </div>
-
-    <div class="footerLinks">
+    <div class="footerRight">
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
     </div>
   </div>
 </footer>
 
-<script src="/app.js?v=17.7" defer></script>
+<!-- Page-owned: Preview + Drag & Drop (does NOT modify app.js) -->
+<script>
+(() => {
+  const dropzone = document.getElementById("dropzone");
+  const input = document.getElementById("files");
 
+  const frame = document.getElementById("pdfPreviewFrame");
+  const wrap  = document.getElementById("pdfPreviewWrap");
+  const meta  = document.getElementById("pdfPreviewMeta");
+
+  const previewClear = document.getElementById("previewClearBtn");
+  const appClear = document.getElementById("clearBtn");
+
+  const statusHint = document.getElementById("statusHint");
+  const dzTitle = document.getElementById("dzTitle");
+  const dzSub = document.getElementById("dzSub");
+  const dropHint = document.getElementById("dropHint");
+
+  if (!dropzone || !input || !frame || !wrap || !meta) return;
+
+  let objUrl = null;
+
+  const fmtBytes = (n) => {
+    const x = Number(n || 0);
+    if (!x) return "0 B";
+    const units = ["B","KB","MB","GB"];
+    let i = 0, v = x;
+    while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+    return `${v.toFixed(v >= 10 || i === 0 ? 0 : 1)} ${units[i]}`;
+  };
+
+  const looksPdf = (file) =>
+    !!file && (/pdf/i.test(file.type) || /\.pdf$/i.test(file.name || ""));
+
+  function revoke(){
+    if (objUrl) {
+      try { URL.revokeObjectURL(objUrl); } catch(e){}
+      objUrl = null;
+    }
+  }
+
+  function hardClear(){
+    revoke();
+    wrap.hidden = true;
+    frame.removeAttribute("src");
+    meta.textContent = "—";
+    if (dzTitle) dzTitle.textContent = "Drop a PDF here";
+    if (dzSub) dzSub.textContent = "PDF only • Single file";
+    if (dropHint) dropHint.textContent = "Tip: drag a PDF onto this area.";
+    if (statusHint) statusHint.textContent = "Add 1 PDF to begin.";
+  }
+
+  function showPreview(file){
+    if (!looksPdf(file)) return hardClear();
+
+    revoke();
+    objUrl = URL.createObjectURL(file);
+    meta.textContent = `${file.name} • ${fmtBytes(file.size)}`;
+    frame.src = objUrl;
+    wrap.hidden = false;
+
+    if (dzTitle) dzTitle.textContent = "PDF ready";
+    if (dzSub) dzSub.textContent = "Next step: click Upload PDF";
+    if (dropHint) dropHint.textContent = "If you choose a different file, drop it here or use Select PDF.";
+    if (statusHint) statusHint.textContent = "File selected — click Upload PDF.";
+  }
+
+  function setInputFile(file){
+    // Makes the dropped file appear as if selected normally (so app.js works).
+    try{
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    } catch(e){
+      // Fallback: if DataTransfer blocked, at least show preview.
+      showPreview(file);
+    }
+  }
+
+  // Show preview when user selects via picker
+  input.addEventListener("change", () => {
+    const f = input.files && input.files[0];
+    showPreview(f);
+  });
+
+  // Clear preview (and trigger app.js clear if wired)
+  function doClear(){
+    if (appClear) appClear.click();
+    try { input.value = ""; } catch(e){}
+    hardClear();
+  }
+  if (previewClear) previewClear.addEventListener("click", doClear);
+  if (appClear) appClear.addEventListener("click", hardClear);
+
+  // Drag & drop handling
+  const stop = (e) => { e.preventDefault(); e.stopPropagation(); };
+
+  ["dragenter","dragover"].forEach(evt => {
+    dropzone.addEventListener(evt, (e) => {
+      stop(e);
+      dropzone.classList.add("isDragOver");
+    });
+  });
+
+  ["dragleave","dragend"].forEach(evt => {
+    dropzone.addEventListener(evt, (e) => {
+      stop(e);
+      dropzone.classList.remove("isDragOver");
+    });
+  });
+
+  dropzone.addEventListener("drop", (e) => {
+    stop(e);
+    dropzone.classList.remove("isDragOver");
+
+    const files = e.dataTransfer && e.dataTransfer.files;
+    const file = files && files[0];
+
+    if (!looksPdf(file)) {
+      if (statusHint) statusHint.textContent = "PDF only — drop a .pdf file.";
+      return;
+    }
+
+    setInputFile(file);
+    // showPreview will run from the change event; but call anyway as fallback
+    showPreview(file);
+  });
+
+  // Optional: keyboard “Enter/Space” triggers file picker
+  dropzone.addEventListener("keydown", (e) => {
+    const k = e.key;
+    if (k === "Enter" || k === " ") {
+      e.preventDefault();
+      input.click();
+    }
+  });
+})();
+</script>
+
+<script src="/app.js?v=17.7" defer></script>
 </body>
 </html>
