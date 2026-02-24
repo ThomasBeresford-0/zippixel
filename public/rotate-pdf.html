@@ -64,9 +64,15 @@
     .rotatePreviewTitle{ font-weight:900; letter-spacing:-.02em; font-size:14px; opacity:.92; }
     .rotatePreviewMeta{ font-size:12px; opacity:.74; white-space:nowrap; }
 
-    .pdfThumbGrid{ display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:10px; margin-top:10px; }
-    @media (max-width:980px){ .pdfThumbGrid{ grid-template-columns:repeat(4, minmax(0,1fr)); } }
-    @media (max-width:640px){ .pdfThumbGrid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
+    .pdfThumbGrid{
+      opacity: 0;
+      transition: opacity .12s ease;
+      will-change: opacity;
+      display:grid;
+      grid-template-columns:repeat(6, minmax(0,1fr));
+      gap:10px; margin-top:10px;
+    }
+    .pdfThumbGrid.isReady{ opacity: 1; }
 
     .pdfThumb{ border:1px solid rgba(15,23,42,.10); background:rgba(255,255,255,.86); border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(2,6,23,.06); cursor:pointer; position:relative; transition:transform .12s ease, box-shadow .12s ease; user-select:none; }
     .pdfThumb:hover{ transform:translateY(-1px); box-shadow:0 16px 36px rgba(2,6,23,.10); }
@@ -352,6 +358,11 @@
   let readyToEmit = false;
   let previewPageNo = 0;
 
+  // render-lock to stop flashing / double renders
+  let __rendering = false;
+  let __pendingFile = null;
+  let __lastGridEl = null;
+
   window.__PDFOPS_ROTATE_MAP__ = window.__PDFOPS_ROTATE_MAP__ || [];
 
   async function ensurePdfJs(){
@@ -526,6 +537,7 @@
     wrap.hidden = false;
 
     readyToEmit = false;
+    grid.classList.remove("isReady");
     grid.innerHTML = "";
 
     window.__PDFOPS_ROTATE_MAP__ = [];
@@ -540,19 +552,35 @@
     if (meta) meta.textContent = `${numPages} page${numPages === 1 ? "" : "s"} • click pages to preview`;
     updatePlan();
 
+    // fade in only when fully rendered
+    grid.classList.add("isReady");
+    __lastGridEl = grid;
+
     readyToEmit = true;
     emit();
   }
 
-  async function loadFromFile(f){
-    refreshRefs();
-    if (!f) return false;
-    if (!(f.type === "application/pdf" || /\.pdf$/i.test(f.name || ""))) return false;
+async function loadFromFile(f){
+  refreshRefs();
+  if (!f) return false;
+  if (!(f.type === "application/pdf" || /\.pdf$/i.test(f.name || ""))) return false;
 
-    const sig = `${f.name}|${f.size}|${f.lastModified || 0}`;
+  // if already rendering, queue the latest file and exit
+  if (__rendering) {
+    __pendingFile = f;
+    return true;
+  }
 
-    // Only skip if we already rendered something visible
-    if (sig === lastSig && pdfDoc && grid && grid.children && grid.children.length > 0) return true;
+  const sig = `${f.name}|${f.size}|${f.lastModified || 0}`;
+
+  // if file unchanged AND our current grid already has thumbs, skip
+  const hasThumbs = !!(grid && grid.children && grid.children.length > 0);
+  if (sig === lastSig && pdfDoc && hasThumbs) return true;
+
+  __rendering = true;
+  __pendingFile = null;
+
+  try {
     lastSig = sig;
 
     await ensurePdfJs();
@@ -562,12 +590,27 @@
       data: bytes,
       disableWorker: window.__pdfjsWorkerOK === false
     });
+
     pdfDoc = await task.promise;
     numPages = pdfDoc.numPages || 1;
 
     await renderThumbs();
     return true;
+  } catch (e) {
+    console.error("loadFromFile failed", e);
+    return false;
+  } finally {
+    __rendering = false;
+
+    // if something queued while we rendered, render once more (only once)
+    if (__pendingFile) {
+      const next = __pendingFile;
+      __pendingFile = null;
+      // slight delay lets app.js finish DOM toggles
+      setTimeout(() => loadFromFile(next), 50);
+    }
   }
+}
 
   // expose for debugging
   window.__pdfopsLoadFromFile = loadFromFile;
@@ -641,45 +684,49 @@
 
   // ✅ THE KEY FIX: app.js rebuilds the UI after file select.
   // We observe mutations and re-render AFTER app.js finishes its DOM work.
-  (function attachReRenderObserver(){
-    let timer = null;
-    let lastObservedSig = "";
+(function attachReRenderObserver(){
+  let timer = null;
 
-    async function rerenderSoon(){
-      clearTimeout(timer);
-      timer = setTimeout(async () => {
-        try {
-          const f = window.__PDFOPS_SELECTED__?.[0];
-          if (!f) return;
+  function scheduleOnce(){
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      try {
+        const f = window.__PDFOPS_SELECTED__?.[0];
+        if (!f) return;
 
-          const sig = `${f.name}|${f.size}|${f.lastModified || 0}`;
-          // Don’t spam renders; render if grid empty OR file changed.
-          refreshRefs();
-          const empty = !grid || !grid.children || grid.children.length === 0;
+        refreshRefs();
 
-          if (!empty && sig === lastObservedSig) return;
-          lastObservedSig = sig;
+        // Only render if:
+        // - grid doesn’t exist yet (app.js still building), OR
+        // - grid exists but is empty, OR
+        // - app.js replaced the grid element
+        const gridMissing = !grid;
+        const gridEmpty = !!(grid && (!grid.children || grid.children.length === 0));
+        const gridReplaced = !!(grid && __lastGridEl && grid !== __lastGridEl);
 
-          // Force containers visible (app.js toggles these)
-          const fm = $("fileMeta");
-          const w = $("pdfReorderWrap");
-          if (fm) fm.hidden = false;
-          if (w) w.hidden = false;
+        if (!(gridMissing || gridEmpty || gridReplaced)) return;
 
-          await loadFromFile(f);
-        } catch (e) {
-          console.error("rerender failed", e);
-        }
-      }, 120);
-    }
+        // ensure containers visible (app.js may hide them)
+        const fm = document.getElementById("fileMeta");
+        const w = document.getElementById("pdfReorderWrap");
+        if (fm) fm.hidden = false;
+        if (w) w.hidden = false;
 
-    const tool = $("tool") || document.body;
-    const obs = new MutationObserver(rerenderSoon);
-    obs.observe(tool, { childList:true, subtree:true, attributes:true });
+        await loadFromFile(f);
+      } catch (e) {
+        console.error("observer rerender failed", e);
+      }
+    }, 120);
+  }
 
-    // Also kick once shortly after load
-    setTimeout(rerenderSoon, 300);
-  })();
+  // Observe ONLY fileMeta (app.js toggles/rebuilds here)
+  const fm = document.getElementById("fileMeta") || document.body;
+  const obs = new MutationObserver(scheduleOnce);
+  obs.observe(fm, { childList:true, subtree:true, attributes:true });
+
+  // initial kick
+  setTimeout(scheduleOnce, 250);
+})();
 
 })();
 </script>
