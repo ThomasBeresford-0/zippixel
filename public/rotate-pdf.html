@@ -1,7 +1,10 @@
-<!-- public/rotate-pdf.html — PDFOperations (v1 - FULL RAMBO ROTATE + MODAL INCLUDED)
+<!-- public/rotate-pdf.html — PDFOperations (v2 - PREMIUM ROTATE TOOL + SUPPORT SECTIONS)
      ✅ Dedicated SEO landing page for "rotate pdf"
      ✅ Preselects rotate_pdf mode
-     ✅ Keeps ALL app.js IDs unchanged (adds optional #modeRotatePdf)
+     ✅ Keeps ALL app.js IDs unchanged (includes #modeRotatePdf)
+     ✅ Rotation controls feel first-class (buttons + select)
+     ✅ Pretty routes in nav + canonical
+     ✅ Adds how-it-works + FAQ using existing supportCard system
      ✅ Includes FULL checkout modal markup (consistent flow)
      ✅ No payment mentions outside modal
 -->
@@ -17,9 +20,10 @@
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
+  <meta name="color-scheme" content="light" />
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Rotate PDF Online — Turn Pages 90°, 180°, 270°" />
+  <meta property="og:title" content="Rotate PDF Online — Turn Pages 90°, 180°, 270° | PDFOperations" />
   <meta property="og:description" content="Upload one PDF, choose the rotation, then download the rotated file." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/rotate-pdf" />
@@ -35,12 +39,70 @@
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
-  <!-- Fonts (match index) -->
+  <!-- Fonts (match the suite) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/style.css?v=33" />
+
+  <style>
+    /* Prevent hidden flashes */
+    [hidden]{ display:none !important; }
+
+    /* Page-owned polish for rotation controls */
+    .rotateControls{
+      margin-top: 12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+      align-items:center;
+      justify-content:flex-start;
+    }
+    .rotatePills{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .rotateSelect{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-left: 4px;
+    }
+    .rotateLabel{
+      font-weight: 800;
+      letter-spacing: -.01em;
+      opacity: .86;
+      font-size: 13px;
+    }
+    .rotateHint{
+      margin-top: 8px;
+      font-size: 13px;
+      opacity: .82;
+      line-height: 1.35;
+    }
+
+    /* A small “chip” row under the subcopy */
+    .toolChips{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .toolChip{
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 10px 26px rgba(2,6,23,.06);
+      opacity: .92;
+      user-select:none;
+    }
+  </style>
 </head>
 
 <body class="premium" data-tool="rotate_pdf">
@@ -49,24 +111,25 @@
 
 <header class="nav">
   <div class="container navInner">
-
     <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/favicon.svg" width="26" height="26" alt="">
       <span>PDFOperations</span>
     </a>
 
-    <nav class="navLinks">
+    <nav class="navLinks" aria-label="Primary navigation">
       <a href="/">Compress</a>
-      <a href="/merge-pdf.html">Merge</a>
-      <a href="/split-pdf.html">Split</a>
-      <a href="/convert.html">Convert</a>
-      <a href="/rotate-pdf.html" aria-current="page">Rotate</a>
-      <a href="/pricing.html">Pricing</a>
-      <a href="/privacy.html">Privacy</a>
-      <a href="/terms.html">Terms</a>
+      <a href="/compress-pdf">Compress PDF</a>
+      <a href="/merge-pdf">Merge</a>
+      <a href="/split-pdf">Split</a>
+      <a href="/convert">Convert</a>
+      <a href="/rotate-pdf" aria-current="page">Rotate</a>
+
+      <a href="/pricing">Pricing</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+
       <a href="#tool" class="navCta">Start</a>
     </nav>
-
   </div>
 </header>
 
@@ -83,21 +146,32 @@
             Upload one PDF, choose a rotation, then download the updated file.
           </p>
 
-          <!-- Rotation controls (app.js v17.6 reads data-rotate-deg) -->
-          <div class="trustBar" aria-label="Rotation controls">
-            <button class="trustPill" type="button" data-rotate-deg="90">Rotate 90°</button>
-            <button class="trustPill" type="button" data-rotate-deg="180">Rotate 180°</button>
-            <button class="trustPill" type="button" data-rotate-deg="270">Rotate 270°</button>
+          <div class="toolChips" aria-hidden="true">
+            <div class="toolChip">90° / 180° / 270°</div>
+            <div class="toolChip">One PDF</div>
+            <div class="toolChip">Fast download</div>
           </div>
 
-          <!-- Optional select for accessibility (app.js reads #rotateDegrees if present) -->
-          <div style="margin-top:12px; display:flex; gap:10px; align-items:center;">
-            <div style="font-weight:700; opacity:.85;">Rotation</div>
-            <select id="rotateDegrees" aria-label="Rotation degrees">
-              <option value="90" selected>90°</option>
-              <option value="180">180°</option>
-              <option value="270">270°</option>
-            </select>
+          <!-- Rotation controls (app.js reads data-rotate-deg + #rotateDegrees) -->
+          <div class="rotateControls" aria-label="Rotation controls">
+            <div class="rotatePills" role="group" aria-label="Quick rotate">
+              <button class="trustPill" type="button" data-rotate-deg="90">Rotate 90°</button>
+              <button class="trustPill" type="button" data-rotate-deg="180">Rotate 180°</button>
+              <button class="trustPill" type="button" data-rotate-deg="270">Rotate 270°</button>
+            </div>
+
+            <div class="rotateSelect">
+              <div class="rotateLabel">Rotation</div>
+              <select id="rotateDegrees" aria-label="Rotation degrees">
+                <option value="90" selected>90°</option>
+                <option value="180">180°</option>
+                <option value="270">270°</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="rotateHint">
+            Tip: Use the buttons for quick changes, or the dropdown for accessibility. Your choice is applied to the output file.
           </div>
         </div>
 
@@ -116,7 +190,6 @@
           <input type="radio" name="mode" id="modeConvert">
           <input type="radio" name="mode" id="modeMergePdf">
           <input type="radio" name="mode" id="modeSplitPdf">
-          <!-- NEW (optional) rotate mode radio -->
           <input type="radio" name="mode" id="modeRotatePdf" checked>
         </fieldset>
 
@@ -130,17 +203,12 @@
         </div>
 
         <div id="convertRow" style="display:none;">
-          <select id="convertFrom">
-            <option value="auto" selected>Auto detect</option>
-          </select>
-          <select id="convertTarget">
-            <option value="jpg" selected>JPG</option>
-          </select>
+          <select id="convertFrom"><option value="auto" selected>Auto detect</option></select>
+          <select id="convertTarget"><option value="jpg" selected>JPG</option></select>
         </div>
 
         <!-- DROPZONE -->
         <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
-
           <div class="dzCenter">
             <div class="dzIcon"><span class="dzArrow">↑</span></div>
             <div class="dzTitle" id="dzTitle">Drop a PDF here</div>
@@ -151,9 +219,7 @@
               <input id="files" type="file" accept="application/pdf,.pdf" />
             </div>
 
-            <div class="dzFine">
-              Tip: selecting a new PDF replaces the current one.
-            </div>
+            <div class="dzFine">Selecting a new PDF replaces the current one.</div>
           </div>
 
           <div class="fileMeta" id="fileMeta" hidden>
@@ -173,7 +239,6 @@
               <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
             </div>
           </div>
-
         </div>
 
         <!-- PROGRESS -->
@@ -182,9 +247,7 @@
             <div id="progressLabel">Uploading…</div>
             <div id="progressPct">0%</div>
           </div>
-          <div class="progressBar">
-            <div class="progressFill" id="progressFill"></div>
-          </div>
+          <div class="progressBar"><div class="progressFill" id="progressFill"></div></div>
           <div id="progressMeta"></div>
         </div>
 
@@ -194,10 +257,71 @@
           <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
         </div>
 
-        <div class="fineprint">
-          No signup. Upload, rotate, download.
+        <div class="fineprint">No signup. Upload, rotate, download.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="sectionSupport">
+    <div class="supportCard">
+      <div class="supportHead">
+        <h2>How it works</h2>
+        <p class="supportSub">Rotate a PDF in three quick steps.</p>
+      </div>
+
+      <div class="supportGrid">
+        <div class="supportStep">
+          <div class="stepNum">1</div>
+          <div>
+            <div class="stepTitle">Upload your PDF</div>
+            <div class="stepText">Add one PDF file. We’ll prepare it for processing.</div>
+          </div>
         </div>
 
+        <div class="supportStep">
+          <div class="stepNum">2</div>
+          <div>
+            <div class="stepTitle">Choose rotation</div>
+            <div class="stepText">Pick 90°, 180°, or 270° using the buttons or dropdown.</div>
+          </div>
+        </div>
+
+        <div class="supportStep">
+          <div class="stepNum">3</div>
+          <div>
+            <div class="stepTitle">Download</div>
+            <div class="stepText">Your rotated PDF is generated and ready to download.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="sectionSupport">
+    <div class="supportCard">
+      <div class="supportHead">
+        <h2>FAQ</h2>
+        <p class="supportSub">Common questions about rotating PDFs.</p>
+      </div>
+
+      <div class="faqPro">
+        <details class="faqItemPro">
+          <summary>Does this change the content of my PDF?</summary>
+          <div class="faqBodyPro">No — it only rotates page orientation. Text and images remain the same.</div>
+        </details>
+
+        <details class="faqItemPro">
+          <summary>Can I rotate by different degrees per page?</summary>
+          <div class="faqBodyPro">Not on this page yet — this tool applies one rotation to the whole PDF. Per-page rotation is a separate tool we can add next.</div>
+        </details>
+
+        <details class="faqItemPro">
+          <summary>Will the file size change?</summary>
+          <div class="faqBodyPro">Usually it stays similar. Rotation updates page metadata without re-encoding images.</div>
+        </details>
       </div>
     </div>
   </section>
@@ -260,10 +384,7 @@
             <div class="priceDesc">Send one link instead of attachments.</div>
           </div>
           <div class="priceAmt">
-            <label>
-              <input type="checkbox" id="optShareLink" />
-              +£2.49
-            </label>
+            <label><input type="checkbox" id="optShareLink" /> +£2.49</label>
           </div>
         </div>
 
@@ -277,19 +398,16 @@
         </div>
       </div>
 
-      <div class="modalNote" id="priceModalNote">
-        You’ll be redirected to secure Stripe Checkout.
-      </div>
+      <div class="modalNote" id="priceModalNote">You’ll be redirected to secure Stripe Checkout.</div>
     </div>
 
     <div class="modalFoot">
       <button class="btnSoft" id="modalBackBtn" type="button">Back</button>
-      <button class="btnPrimary btnStrong" id="modalPayBtn" type="button">Pay & continue →</button>
+      <button class="btnPrimary btnStrong" id="modalPayBtn" type="button">Continue to checkout →</button>
     </div>
   </div>
 </div>
 
-<!-- IMPORTANT: keep version in sync with your deployed app.js -->
-<script src="/app.js?v=17.6" defer></script>
+<script src="/app.js?v=17.7" defer></script>
 </body>
 </html>
