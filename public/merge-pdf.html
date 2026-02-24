@@ -1,10 +1,7 @@
-<!-- public/merge-pdf.html — PDFOperations (v10 - PRO UI + SEO UPGRADE + PAGE REORDER SAFE + PDF.JS ESM + DRAG FIXED)
-     ✅ style.css?v=36 + app.js?v=17.7
-     ✅ Uses self-hosted PDF.js ESM loader (no CDN, no import.meta issues)
-     ✅ Drag reorder FIXED (img drag disabled + grid event delegation + pointer-events hardened)
-     ✅ Keeps ALL existing app.js IDs unchanged
-     ✅ Keeps window.__pdfopsPageOrder + pdfops:pageorder dispatch
-     ✅ Keeps preview + drag reorder (clip-safe: never drops pages)
+<!-- public/merge-pdf.html — PDFOperations (v11 - PRO UI + SEO + PAGE REORDER SAFE + PDF.JS ESM + DRAG FIXED + ORDER NUMBERS)
+     ✅ Adds visible order numbers on each page thumbnail (1..N) so users don’t get lost
+     ✅ Numbers auto-update after drag reorder + reset
+     ✅ Everything else preserved (IDs/hooks/order dispatch/clip-safe)
 -->
 <!doctype html>
 <html lang="en">
@@ -125,13 +122,6 @@
 
   <!-- =========================================================
        PDF.js (self-hosted ESM) — module loader
-       expects:
-         /public/vendor/pdfjs/pdf.min.mjs
-         /public/vendor/pdfjs/pdf.worker.min.mjs
-       exposes:
-         window.__pdfjsReady (Promise)
-         window.pdfjsLib
-         window.__pdfjsWorkerOK
   ========================================================== -->
   <script type="module">
     const PDFJS_SRC = "/vendor/pdfjs/pdf.min.mjs";
@@ -228,7 +218,7 @@
     .pdfThumb.isDragging{ opacity:.55; transform:scale(.99); }
     .pdfThumb.isOver{ outline:2px solid rgba(11,18,32,.18); outline-offset:2px; }
 
-    /* CRITICAL: prevent the inner image/labels from stealing drag */
+    /* CRITICAL: prevent inner nodes stealing drag */
     .pdfThumbImg,
     .pdfThumbMeta,
     .pdfThumbImg *{ pointer-events:none; }
@@ -295,6 +285,28 @@
       border-radius:12px; border:1px solid rgba(15,23,42,.10);
     }
 
+    /* ===== ORDER NUMBER BADGE (NEW) ===== */
+    .pdfOrderBadge{
+      position:absolute;
+      top:10px; left:10px;
+      width:28px; height:28px;
+      display:flex; align-items:center; justify-content:center;
+      border-radius:999px;
+      background:rgba(11,18,32,.92);
+      color:#fff;
+      font-weight:900;
+      font-size:12px;
+      letter-spacing:-.01em;
+      box-shadow:0 10px 24px rgba(2,6,23,.22);
+      border:1px solid rgba(255,255,255,.18);
+      pointer-events:none; /* don’t break drag */
+    }
+    .pdfThumb.isDragging .pdfOrderBadge{ opacity:.9; }
+    .pdfThumb.isOver .pdfOrderBadge{
+      background:rgba(11,18,32,.98);
+      transform:translateY(-.5px);
+    }
+
     .seoWrap{ padding:18px 0 40px; }
     .seoCard{
       background:rgba(255,255,255,.92);
@@ -344,7 +356,6 @@
 
 <header class="nav">
   <div class="container navInner">
-
     <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/favicon.svg" width="26" height="26" alt="">
       <span class="brandText">
@@ -367,7 +378,6 @@
     <div class="navCta">
       <a class="btn btnSmall btnGhost" href="#tool">Start</a>
     </div>
-
   </div>
 </header>
 
@@ -616,12 +626,7 @@
 
 <script>
 /* =========================================================
-   Merge — PDF page thumbnails + drag reorder + preview
-   - Robust drag: event delegation + prevents inner elements stealing drag
-   - Sets window.__pdfopsPageOrder (array of "fileIndex:pageNumber")
-   - Dispatches "pdfops:pageorder" event after any reorder
-   - CLIP SAFE: if thumbnails are clipped for performance, we STILL
-     include all remaining pages in __pdfopsPageOrder so merges never drop pages.
+   Merge — PDF page thumbnails + drag reorder + preview + ORDER NUMBERS
 ========================================================= */
 (() => {
   const fileInput = document.getElementById("files");
@@ -662,6 +667,7 @@
     document.dispatchEvent(new CustomEvent("pdfops:pageorder", {
       detail: { order: window.__pdfopsPageOrder.slice() }
     }));
+    updateOrderBadges(); // NEW
   }
 
   function updateCount() {
@@ -669,6 +675,22 @@
     countEl.textContent = currentOrder.length
       ? ` • ${currentOrder.length} page${currentOrder.length === 1 ? "" : "s"}`
       : "";
+  }
+
+  // NEW: update visible 1..N numbers on the currently rendered thumbs
+  function updateOrderBadges() {
+    const nodes = [...grid.querySelectorAll(".pdfThumb")];
+    // After reorder, DOM order equals intended order (we rebuild grid), so just number DOM order.
+    nodes.forEach((node, idx) => {
+      let badge = node.querySelector(".pdfOrderBadge");
+      if (!badge) {
+        badge = document.createElement("div");
+        badge.className = "pdfOrderBadge";
+        node.appendChild(badge);
+      }
+      badge.textContent = String(idx + 1);
+      node.setAttribute("aria-label", `Page ${idx + 1} in final order`);
+    });
   }
 
   function showModal(title) {
@@ -766,6 +788,7 @@
     });
     grid.innerHTML = "";
     grid.appendChild(frag);
+    updateOrderBadges(); // NEW
   }
 
   function clearOverStates() {
@@ -792,7 +815,7 @@
   grid.addEventListener("dragover", (e) => {
     const over = e.target.closest(".pdfThumb");
     if (!over) return;
-    e.preventDefault(); // REQUIRED to allow drop
+    e.preventDefault();
     clearOverStates();
     over.classList.add("isOver");
     try { e.dataTransfer.dropEffect = "move"; } catch (_) {}
@@ -836,7 +859,9 @@
     const meta = pageMap.get(key);
     if (!meta) return;
 
-    showModal(`${meta.name} • page ${meta.pageNumber}`);
+    // NEW: show both final position + source page
+    const position = [...grid.querySelectorAll(".pdfThumb")].indexOf(thumb) + 1;
+    showModal(`#${position} • ${meta.name} • page ${meta.pageNumber}`);
     await renderPreviewPage(meta.fileIndex, meta.pageNumber);
   });
 
@@ -886,6 +911,12 @@
         node.setAttribute("data-page-key", pageKey);
         node.draggable = true;
 
+        // NEW badge injected immediately (text updated later)
+        const badge = document.createElement("div");
+        badge.className = "pdfOrderBadge";
+        badge.textContent = String(thumbsRendered); // initial (will be normalized after build)
+        node.appendChild(badge);
+
         const imgEl = document.createElement("img");
         imgEl.alt = `${name} page ${p}`;
         imgEl.draggable = false;
@@ -925,6 +956,7 @@
     setOrder(originalOrder);
     if (wrap) wrap.hidden = false;
     updateCount();
+    updateOrderBadges(); // NEW
 
     if (clipped && noteEl) {
       noteEl.hidden = false;
