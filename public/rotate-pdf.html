@@ -1,11 +1,9 @@
-<!-- public/rotate-pdf.html — PDFOperations (v6 - CLASSIC PDF.JS + APP.JS COMPAT + PER-PAGE CLICK ROTATE)
-     ✅ Uses classic PDF.js (pdf.min.js) to avoid ESM/MIME/module issues
-     ✅ Per-page rotation: click thumbnail 0/90/180/270
-     ✅ TRUE rotation previews: re-render with viewport rotation
-     ✅ Robust: watches fileList + polls + input change
+<!-- public/rotate-pdf.html — PDFOperations (DROP-IN FIX: CLASSIC PDF.JS + USE __PDFOPS_SELECTED__)
+     ✅ NO ESM .mjs anywhere (fixes import.meta error)
+     ✅ Uses window.__PDFOPS_SELECTED__ (set by app.js) to access the File reliably
+     ✅ Per-page click rotate 0/90/180/270 with TRUE re-render rotation
+     ✅ Emits pdfops:rotatemap so app.js can send rotateMap to backend
      ✅ Keeps ALL app.js IDs unchanged
-     ✅ Exposes window.__PDFOPS_ROTATE_MAP__ (index = page number; value = degrees)
-     ✅ Version sync: style.css?v=36 + app.js?v=17.7
 -->
 <!doctype html>
 <html lang="en">
@@ -14,12 +12,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Rotate PDF Online — Turn Pages 90°, 180°, 270° | PDFOperations</title>
-  <meta name="description" content="Rotate a PDF online in seconds. Upload one PDF, click pages to rotate them, then download the updated file. Secure. No signup required." />
+  <meta name="description" content="Rotate a PDF online in seconds. Upload one PDF, click pages to rotate them, then download the updated file." />
   <link rel="canonical" href="https://pdfoperations.com/rotate-pdf" />
-
-  <meta name="robots" content="index,follow" />
-  <meta name="theme-color" content="#0b1220" />
-  <meta name="color-scheme" content="light" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -27,22 +21,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="/style.css?v=36" />
 
-  <!-- ✅ Classic PDF.js (no modules) -->
+  <!-- ✅ Classic PDF.js ONLY (no .mjs anywhere) -->
   <script src="/vendor/pdfjs/pdf.min.js"></script>
   <script>
-    // Make this match your worker filename (you have both .js and .mjs)
-    try {
-      window.pdfjsLib = window.pdfjsLib || window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
+    (function(){
+      // pdf.min.js should expose window.pdfjsLib
+      if (!window.pdfjsLib) {
+        // Some builds expose it differently
+        window.pdfjsLib = window["pdfjs-dist/build/pdf"] || window.pdfjsLib;
+      }
       if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
         window.pdfjsLib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.js";
       }
       window.__pdfjsReady = Promise.resolve(window.pdfjsLib);
-    } catch (e) {
-      window.__pdfjsReady = Promise.reject(e);
-    }
+    })();
   </script>
 
   <style>
@@ -58,17 +52,10 @@
       box-shadow:0 10px 26px rgba(2,6,23,.06);
       opacity:.92; user-select:none;
     }
-
     .rotateHint{ margin-top:8px; font-size:13px; opacity:.82; line-height:1.35; }
 
-    .pdfReorderWrap{
-      margin-top:10px; padding-top:10px;
-      border-top:1px solid rgba(15,23,42,.08);
-    }
-    .rotatePreviewHead{
-      display:flex; align-items:flex-end; justify-content:space-between;
-      gap:10px; margin-top:14px;
-    }
+    .pdfReorderWrap{ margin-top:10px; padding-top:10px; border-top:1px solid rgba(15,23,42,.08); }
+    .rotatePreviewHead{ display:flex; align-items:flex-end; justify-content:space-between; gap:10px; margin-top:14px; }
     .rotatePreviewTitle{ font-weight:900; letter-spacing:-.02em; font-size:14px; opacity:.92; }
     .rotatePreviewMeta{ font-size:12px; opacity:.74; white-space:nowrap; }
 
@@ -91,13 +78,8 @@
       transition:transform .12s ease, box-shadow .12s ease;
       user-select:none;
     }
-    .pdfThumb:hover{
-      transform:translateY(-1px);
-      box-shadow:0 16px 36px rgba(2,6,23,.10);
-    }
-    .pdfThumb canvas{
-      width:100%; height:auto; display:block; background:#fff;
-    }
+    .pdfThumb:hover{ transform:translateY(-1px); box-shadow:0 16px 36px rgba(2,6,23,.10); }
+    .pdfThumb canvas{ width:100%; height:auto; display:block; background:#fff; }
 
     .thumbBadge{
       position:absolute; top:8px; left:8px;
@@ -142,7 +124,6 @@
 </head>
 
 <body class="premium" data-tool="rotate_pdf">
-<a href="#tool" class="srOnly">Skip to the tool</a>
 
 <header class="nav">
   <div class="container navInner">
@@ -286,23 +267,6 @@
   </section>
 </main>
 
-<footer class="footer footerPremium">
-  <div class="container footerInner">
-    <div class="footerLeft">
-      <div class="footerBrand">
-        <img src="/favicon.svg" width="18" height="18" alt="">
-        <span>PDFOperations</span>
-      </div>
-      <div class="footerNote">Fast PDF tools that feel premium.</div>
-    </div>
-    <div class="footerRight">
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
-    </div>
-  </div>
-</footer>
-
-<!-- Checkout modal (kept for suite consistency) -->
 <div class="modalOverlay" id="priceModal" aria-hidden="true">
   <div class="modalCard premiumModal">
     <div class="modalTop">
@@ -350,40 +314,22 @@
 
 <script src="/app.js?v=17.7" defer></script>
 
-<!-- =========================
-     Per-page rotate thumbnails
-========================= -->
 <script defer>
 (() => {
   const $ = (id) => document.getElementById(id);
 
-  const wrap = $("pdfReorderWrap");
-  const grid = $("pdfThumbGrid");
-  const meta = $("rotatePreviewMeta");
-  const rotateBar = $("rotateBar");
-  const rotatePlanText = $("rotatePlanText");
-  const rotateAll90Btn = $("rotateAll90");
-  const resetRotationsBtn = $("resetRotations");
-  const clearBtn = $("clearBtn");
-
   let pdfDoc = null;
   let numPages = 0;
-  let lastSig = "";
+  let readyToEmit = false;
 
-  // index = page number (1-based); value = 0/90/180/270
+  // index = pageNo (1-based)
   window.__PDFOPS_ROTATE_MAP__ = [];
 
   async function ensurePdfJs(){
     await (window.__pdfjsReady || Promise.resolve());
-    if (!window.pdfjsLib || typeof window.pdfjsLib.getDocument !== "function") {
-      throw new Error("pdfjsLib not available");
+    if (!window.pdfjsLib || !window.pdfjsLib.getDocument) {
+      throw new Error("pdfjsLib not available (pdf.min.js not loaded)");
     }
-  }
-
-  function isPdfFile(f){
-    const t = String(f?.type || "").toLowerCase();
-    if (t === "application/pdf") return true;
-    return /\.pdf$/i.test(String(f?.name || ""));
   }
 
   function nextDeg(d){
@@ -395,14 +341,15 @@
   }
 
   function emit(){
-    try {
-      document.dispatchEvent(new CustomEvent("pdfops:rotatemap", {
-        detail: { rotateMap: window.__PDFOPS_ROTATE_MAP__.slice() }
-      }));
-    } catch {}
+    if (!readyToEmit) return;
+    document.dispatchEvent(new CustomEvent("pdfops:rotatemap", {
+      detail: { rotateMap: window.__PDFOPS_ROTATE_MAP__.slice() }
+    }));
   }
 
-  function updatePlan(){
+  function updatePlanText(){
+    const rotatePlanText = $("rotatePlanText");
+    const rotateBar = $("rotateBar");
     if (!rotatePlanText || !rotateBar) return;
     if (!numPages) { rotateBar.hidden = true; return; }
 
@@ -418,7 +365,17 @@
         : `${changed} page${changed === 1 ? "" : "s"} rotated. Click again to cycle rotation.`;
   }
 
+  function showWrap(){
+    const wrap = $("pdfReorderWrap");
+    if (wrap) wrap.hidden = false;
+  }
+
   function cleanup(){
+    const grid = $("pdfThumbGrid");
+    const wrap = $("pdfReorderWrap");
+    const meta = $("rotatePreviewMeta");
+    const rotateBar = $("rotateBar");
+
     if (grid) grid.innerHTML = "";
     if (wrap) wrap.hidden = true;
     if (meta) meta.textContent = "—";
@@ -426,14 +383,8 @@
 
     pdfDoc = null;
     numPages = 0;
-    lastSig = "";
     window.__PDFOPS_ROTATE_MAP__ = [];
-    emit();
-  }
-
-  function forceShowWrap(){
-    if (!wrap || !grid) return;
-    if (grid.children.length > 0) wrap.hidden = false;
+    readyToEmit = false;
   }
 
   function makeThumb(pageNo){
@@ -476,44 +427,48 @@
   async function renderPageToCanvas(pageNo, targetCanvas, targetWidth, rotation = 0){
     const page = await pdfDoc.getPage(pageNo);
 
-    // rotation via viewport => no CSS rotate clipping
-    const base = page.getViewport({ scale: 1, rotation });
-    const scale = Math.max(0.25, targetWidth / base.width);
-    const vp = page.getViewport({ scale, rotation });
+    const baseViewport = page.getViewport({ scale: 1, rotation });
+    const scale = Math.max(0.25, targetWidth / baseViewport.width);
+    const viewport = page.getViewport({ scale, rotation });
 
     const ctx = targetCanvas.getContext("2d", { alpha: false });
-    targetCanvas.width = Math.ceil(vp.width);
-    targetCanvas.height = Math.ceil(vp.height);
+    targetCanvas.width = Math.ceil(viewport.width);
+    targetCanvas.height = Math.ceil(viewport.height);
 
     ctx.save();
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
     ctx.restore();
 
-    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+    await page.render({ canvasContext: ctx, viewport }).promise;
   }
 
   async function setThumbRotation(card, deg){
-    const pageNo = Number(card.dataset.page);
     const rotPill = card.querySelector(".thumbRot");
     const canvas = card.querySelector("canvas");
+    const pageNo = Number(card.dataset.page);
 
     window.__PDFOPS_ROTATE_MAP__[pageNo] = deg;
     if (rotPill) rotPill.textContent = deg ? `${deg}°` : "0°";
 
-    try {
-      if (canvas && pdfDoc) await renderPageToCanvas(pageNo, canvas, 240, deg);
-    } catch {}
+    if (canvas && pdfDoc){
+      try { await renderPageToCanvas(pageNo, canvas, 240, deg); } catch {}
+    }
 
-    updatePlan();
+    updatePlanText();
     emit();
-    forceShowWrap();
+    showWrap();
   }
 
   async function renderThumbs(){
+    const grid = $("pdfThumbGrid");
+    const wrap = $("pdfReorderWrap");
+    const meta = $("rotatePreviewMeta");
     if (!grid || !wrap) return;
 
+    readyToEmit = false;
     grid.innerHTML = "";
+
     window.__PDFOPS_ROTATE_MAP__ = [];
     for (let i = 1; i <= numPages; i++) window.__PDFOPS_ROTATE_MAP__[i] = 0;
 
@@ -526,17 +481,19 @@
     if (meta) meta.textContent = `${numPages} page${numPages === 1 ? "" : "s"} • click pages to rotate`;
     wrap.hidden = false;
 
-    updatePlan();
+    updatePlanText();
+    readyToEmit = true;
     emit();
-    forceShowWrap();
+    showWrap();
   }
 
-  async function loadFromFile(file){
-    if (!file || !isPdfFile(file)) return;
+  async function loadFromSelected(){
+    // Use the file that app.js stored (this is the key change)
+    const sel = window.__PDFOPS_SELECTED__;
+    const file = Array.isArray(sel) && sel[0] ? sel[0] : null;
 
-    const sig = `${file.name}|${file.size}|${file.lastModified || 0}`;
-    if (sig === lastSig && pdfDoc) { forceShowWrap(); return; }
-    lastSig = sig;
+    if (!file) return;
+    if (file.type !== "application/pdf" && !/\.pdf$/i.test(file.name || "")) return;
 
     await ensurePdfJs();
 
@@ -548,50 +505,35 @@
     await renderThumbs();
   }
 
-  // ✅ NEW: get the selected PDF from app.js memory (NOT from input)
-  function getSelectedPdfFromApp(){
-    const arr = window.__PDFOPS_SELECTED__;
-    if (!Array.isArray(arr) || !arr.length) return null;
-    return arr.find(isPdfFile) || null;
+  // Watch file list updates (app.js updates UI)
+  const fileList = $("fileList");
+  if (fileList){
+    const mo = new MutationObserver(() => {
+      loadFromSelected().catch(() => {});
+    });
+    mo.observe(fileList, { childList: true, subtree: true });
   }
 
-  async function tryLoad(){
-    const f = getSelectedPdfFromApp();
-    if (!f) return;
-    try { await loadFromFile(f); } catch {}
-  }
+  // Also try after a short delay (in case the page loads with a file)
+  setTimeout(() => { loadFromSelected().catch(() => {}); }, 400);
 
-  // ✅ Listen for app.js “selection changed”
-  document.addEventListener("pdfops:selected", () => { tryLoad(); });
+  // Clear
+  $("clearBtn")?.addEventListener("click", () => cleanup());
 
-  // ✅ First load (covers refresh / already selected)
-  setTimeout(() => { tryLoad(); }, 300);
-
-  // Optional quick poll fallback (covers edge cases)
-  const poll = setInterval(() => { tryLoad(); }, 400);
-  setTimeout(() => { try { clearInterval(poll); } catch {} }, 15000);
-
-  clearBtn?.addEventListener("click", () => cleanup());
-
-  rotateAll90Btn?.addEventListener("click", async () => {
+  // Buttons
+  $("rotateAll90")?.addEventListener("click", async () => {
+    const grid = $("pdfThumbGrid");
     if (!grid) return;
-    for (const card of Array.from(grid.querySelectorAll(".pdfThumb"))) {
-      await setThumbRotation(card, 90);
-    }
+    const cards = Array.from(grid.querySelectorAll(".pdfThumb"));
+    for (const card of cards) await setThumbRotation(card, 90);
   });
 
-  resetRotationsBtn?.addEventListener("click", async () => {
+  $("resetRotations")?.addEventListener("click", async () => {
+    const grid = $("pdfThumbGrid");
     if (!grid) return;
-    for (const card of Array.from(grid.querySelectorAll(".pdfThumb"))) {
-      await setThumbRotation(card, 0);
-    }
+    const cards = Array.from(grid.querySelectorAll(".pdfThumb"));
+    for (const card of cards) await setThumbRotation(card, 0);
   });
-
-  // If app.js ever re-hides the wrap after thumbs exist
-  if (wrap) {
-    const mo = new MutationObserver(() => forceShowWrap());
-    mo.observe(wrap, { attributes: true, attributeFilter: ["hidden"] });
-  }
 })();
 </script>
 
