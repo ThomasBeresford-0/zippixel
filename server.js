@@ -552,12 +552,34 @@ app.post("/api/jobs", (_, res) => {
 });
 
 // Presigned upload url
+// Presigned upload url
 app.post("/api/upload-url", async (req, res) => {
   try {
     requireR2();
 
-    const { jobId, filename, type } = req.body || {};
-    if (!jobId || !filename) throw new Error("Missing jobId/filename");
+    const body = req.body || {};
+
+    // Accept multiple client shapes (backwards compatible)
+    const jobId = body.jobId;
+    const filename =
+      body.filename ||
+      body.fileName ||
+      body.name ||
+      (body.file && (body.file.name || body.file.filename));
+
+    const contentType =
+      body.type ||
+      body.contentType ||
+      body.mimetype ||
+      (body.file && (body.file.type || body.file.mimetype)) ||
+      "application/octet-stream";
+
+    if (!jobId || !filename) {
+      // helpful debugging payload (safe)
+      throw new Error(
+        `Missing jobId/filename. Got keys: ${Object.keys(body).join(", ")}`
+      );
+    }
 
     const job = getJob(jobId);
     if (job.status !== "CREATED") throw new Error("Invalid job state");
@@ -569,7 +591,7 @@ app.post("/api/upload-url", async (req, res) => {
       new PutObjectCommand({
         Bucket: R2_BUCKET,
         Key: key,
-        ContentType: type || "application/octet-stream",
+        ContentType: contentType,
       }),
       { expiresIn: 60 }
     );
