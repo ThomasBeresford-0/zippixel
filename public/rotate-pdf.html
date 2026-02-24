@@ -1,8 +1,8 @@
-<!-- public/rotate-pdf.html — PDFOperations (v7 - WORKING CLASSIC PDF.JS + APP.JS SELECTED BRIDGE + PER-PAGE ROTATE)
-     ✅ Loads classic PDF.js (NO ESM, NO import.meta)
-     ✅ Uses window.__PDFOPS_SELECTED__[0] (because app.js clears <input>)
-     ✅ Renders thumbnails + true rotation (viewport rotation)
-     ✅ Emits window.__PDFOPS_ROTATE_MAP__ + pdfops:rotatemap event
+<!-- public/rotate-pdf.html — PDFOperations (v8 - MODAL PREVIEW + ROTATE IN MODAL + PER-PAGE ROTATE MAP)
+     ✅ Click thumbnail = opens preview modal
+     ✅ Rotate happens inside modal (Rotate 90° button) so customer SEE it rotate live
+     ✅ Thumbnail rerenders to match rotation
+     ✅ Emits window.__PDFOPS_ROTATE_MAP__ + pdfops:rotatemap event (unchanged)
      ✅ Keeps ALL app.js IDs unchanged
 -->
 <!doctype html>
@@ -12,7 +12,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Rotate PDF Online — Turn Pages 90°, 180°, 270° | PDFOperations</title>
-  <meta name="description" content="Rotate a PDF online in seconds. Upload one PDF, click pages to rotate them, then download the updated file. Secure. No signup required." />
+  <meta name="description" content="Rotate a PDF online in seconds. Upload one PDF, preview pages, rotate them, then download the updated file. Secure. No signup required." />
   <link rel="canonical" href="https://pdfoperations.com/rotate-pdf" />
 
   <meta name="robots" content="index,follow" />
@@ -35,7 +35,6 @@
     (function () {
       try {
         if (!window.pdfjsLib) {
-          // Some builds expose under a different name; keep it defensive.
           window.pdfjsLib = window['pdfjsLib'] || window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
         }
         if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
@@ -141,6 +140,41 @@
     .rotateBarRight{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
 
     #rotateDegrees{ display:none !important; }
+
+    /* ===== Preview modal (Rotate) ===== */
+    .pdfPreviewModal{
+      position:fixed; inset:0; z-index:1000;
+      background:rgba(2,6,23,.62);
+      display:flex; align-items:center; justify-content:center;
+      padding:18px;
+      backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    }
+    .pdfPreviewCard{
+      width:min(980px,96vw); max-height:90vh;
+      background:rgba(255,255,255,.96);
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:0 30px 90px rgba(0,0,0,.35);
+      display:flex; flex-direction:column;
+    }
+    .pdfPreviewTop{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; padding:12px 14px;
+      border-bottom:1px solid rgba(15,23,42,.10);
+    }
+    .pdfPreviewTitle{
+      font-weight:900; letter-spacing:-.02em;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:62%;
+    }
+    .pdfPreviewBody{
+      padding:12px; overflow:auto;
+      background:linear-gradient(180deg, rgba(15,23,42,.02), rgba(15,23,42,.01));
+    }
+    .pdfPreviewCanvas{
+      width:100%; display:block; background:#fff;
+      border-radius:12px; border:1px solid rgba(15,23,42,.10);
+    }
   </style>
 </head>
 
@@ -175,16 +209,16 @@
 
         <div class="toolHead toolHeadMinimal">
           <h1 class="toolTitle">Rotate PDF</h1>
-          <p class="toolSub">Upload one PDF, then click pages to rotate them. Download the updated file.</p>
+          <p class="toolSub">Upload one PDF, preview pages, rotate them, then download the updated file.</p>
 
           <div class="toolChips" aria-hidden="true">
-            <div class="toolChip">Click pages to rotate</div>
-            <div class="toolChip">Per-page control</div>
+            <div class="toolChip">Preview pages</div>
+            <div class="toolChip">Rotate inside preview</div>
             <div class="toolChip">One PDF</div>
           </div>
 
           <div class="rotateHint">
-            Click a page thumbnail to rotate it: <strong>0° → 90° → 180° → 270°</strong>. Only rotated pages are changed.
+            Click a page thumbnail to preview it. In preview, tap <strong>Rotate 90°</strong> to cycle: <strong>0° → 90° → 180° → 270°</strong>.
           </div>
         </div>
 
@@ -219,6 +253,7 @@
           <select id="convertTarget"><option value="jpg" selected>JPG</option></select>
         </div>
 
+        <!-- app.js uses this, keep it (hidden) -->
         <select id="rotateDegrees" aria-label="Rotation degrees">
           <option value="90">90°</option>
           <option value="180">180°</option>
@@ -283,7 +318,7 @@
           <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
         </div>
 
-        <div class="fineprint">No signup. Upload, click-rotate pages, download.</div>
+        <div class="fineprint">No signup. Upload, preview pages, rotate, download.</div>
       </div>
     </div>
   </section>
@@ -351,10 +386,26 @@
   </div>
 </div>
 
+<!-- Preview modal (Rotate) -->
+<div id="pdfPreviewModal" class="pdfPreviewModal" hidden aria-hidden="true">
+  <div class="pdfPreviewCard" role="dialog" aria-modal="true" aria-labelledby="pdfPreviewTitle">
+    <div class="pdfPreviewTop">
+      <div class="pdfPreviewTitle" id="pdfPreviewTitle">Preview</div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="btnSoft" id="pdfPreviewRotate" type="button">Rotate 90°</button>
+        <button class="btnGhost" id="pdfPreviewClose" type="button">Close</button>
+      </div>
+    </div>
+    <div class="pdfPreviewBody">
+      <canvas id="pdfPreviewCanvas" class="pdfPreviewCanvas"></canvas>
+    </div>
+  </div>
+</div>
+
 <!-- app.js -->
 <script src="/app.js?v=17.7" defer></script>
 
-<!-- Rotate thumbnails (reads window.__PDFOPS_SELECTED__) -->
+<!-- Rotate thumbnails + modal preview (reads window.__PDFOPS_SELECTED__) -->
 <script defer>
 (() => {
   const $ = (id) => document.getElementById(id);
@@ -368,10 +419,20 @@
   const rotateAll90 = $("rotateAll90");
   const resetRotations = $("resetRotations");
 
+  // Modal refs
+  const modal = $("pdfPreviewModal");
+  const modalTitle = $("pdfPreviewTitle");
+  const modalClose = $("pdfPreviewClose");
+  const modalRotate = $("pdfPreviewRotate");
+  const modalCanvas = $("pdfPreviewCanvas");
+
   let pdfDoc = null;
   let numPages = 0;
   let lastSig = "";
   let readyToEmit = false;
+
+  // Modal state
+  let previewPageNo = 0;
 
   window.__PDFOPS_ROTATE_MAP__ = window.__PDFOPS_ROTATE_MAP__ || [];
 
@@ -402,8 +463,8 @@
     for (let i = 1; i <= numPages; i++) if ((window.__PDFOPS_ROTATE_MAP__[i] || 0) !== 0) changed++;
     rotateBar.hidden = false;
     rotatePlanText.textContent = changed === 0
-      ? "No pages rotated yet. Click pages to rotate them."
-      : `${changed} page${changed === 1 ? "" : "s"} rotated. Click again to cycle rotation.`;
+      ? "No pages rotated yet. Preview a page and tap Rotate 90°."
+      : `${changed} page${changed === 1 ? "" : "s"} rotated. Preview pages to adjust.`;
   }
 
   function cleanup(){
@@ -415,8 +476,76 @@
     numPages = 0;
     readyToEmit = false;
     lastSig = "";
+    previewPageNo = 0;
     window.__PDFOPS_ROTATE_MAP__ = [];
+    hideModal();
     emit();
+  }
+
+  function showModal(title){
+    if (!modal) return;
+    modal.hidden = false;
+    modal.setAttribute("aria-hidden", "false");
+    if (modalTitle) modalTitle.textContent = title || "Preview";
+    document.body.style.overflow = "hidden";
+  }
+
+  function hideModal(){
+    if (!modal) return;
+    modal.hidden = true;
+    modal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  function getCard(pageNo){
+    if (!grid) return null;
+    return grid.querySelector(`.pdfThumb[data-page="${pageNo}"]`);
+  }
+
+  async function renderPageToCanvas(pageNo, targetCanvas, targetWidth, rotation){
+    if (!pdfDoc) return;
+    const page = await pdfDoc.getPage(pageNo);
+
+    const baseViewport = page.getViewport({ scale: 1, rotation });
+    const scale = Math.max(0.25, targetWidth / baseViewport.width);
+    const viewport = page.getViewport({ scale, rotation });
+
+    const ctx = targetCanvas.getContext("2d", { alpha: false });
+    targetCanvas.width = Math.ceil(viewport.width);
+    targetCanvas.height = Math.ceil(viewport.height);
+
+    ctx.save();
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
+    ctx.restore();
+
+    await page.render({ canvasContext: ctx, viewport }).promise;
+  }
+
+  async function renderModalPage(pageNo){
+    if (!modalCanvas) return;
+    const deg = window.__PDFOPS_ROTATE_MAP__[pageNo] || 0;
+    const maxW = Math.min(920, window.innerWidth * 0.92);
+    try { await renderPageToCanvas(pageNo, modalCanvas, maxW, deg); } catch {}
+  }
+
+  async function setThumbRotation(card, deg){
+    const pageNo = Number(card?.dataset?.page);
+    if (!pageNo) return;
+
+    const rotPill = card.querySelector(".thumbRot");
+    const canvas = card.querySelector("canvas");
+
+    window.__PDFOPS_ROTATE_MAP__[pageNo] = deg;
+    if (rotPill) rotPill.textContent = deg ? `${deg}°` : "0°";
+
+    if (canvas && pdfDoc){
+      try { await renderPageToCanvas(pageNo, canvas, 240, deg); } catch {}
+    }
+
+    updatePlan();
+    emit();
+    if (wrap) wrap.hidden = false;
   }
 
   function makeThumb(pageNo){
@@ -438,55 +567,22 @@
 
     const foot = document.createElement("div");
     foot.className = "thumbFoot";
-    foot.innerHTML = `<div class="thumbLabel">Page ${pageNo}</div><div class="thumbAction">Click to <strong>rotate</strong></div>`;
+    foot.innerHTML = `<div class="thumbLabel">Page ${pageNo}</div><div class="thumbAction">Click to <strong>preview</strong></div>`;
 
     card.appendChild(badge);
     card.appendChild(rot);
     card.appendChild(canvas);
     card.appendChild(foot);
 
+    // CLICK = PREVIEW (rotation happens inside modal)
     card.addEventListener("click", async () => {
-      const cur = window.__PDFOPS_ROTATE_MAP__[pageNo] || 0;
-      const nxt = nextDeg(cur);
-      await setThumbRotation(card, nxt);
+      previewPageNo = pageNo;
+      const deg = window.__PDFOPS_ROTATE_MAP__[pageNo] || 0;
+      showModal(`Page ${pageNo} • ${deg ? deg + "°" : "0°"}`);
+      await renderModalPage(pageNo);
     });
 
     return { card, canvas };
-  }
-
-  async function renderPageToCanvas(pageNo, targetCanvas, targetWidth, rotation){
-    const page = await pdfDoc.getPage(pageNo);
-
-    const baseViewport = page.getViewport({ scale: 1, rotation });
-    const scale = Math.max(0.25, targetWidth / baseViewport.width);
-    const viewport = page.getViewport({ scale, rotation });
-
-    const ctx = targetCanvas.getContext("2d", { alpha: false });
-    targetCanvas.width = Math.ceil(viewport.width);
-    targetCanvas.height = Math.ceil(viewport.height);
-
-    ctx.save();
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
-    ctx.restore();
-
-    await page.render({ canvasContext: ctx, viewport }).promise;
-  }
-
-  async function setThumbRotation(card, deg){
-    const pageNo = Number(card.dataset.page);
-    const rotPill = card.querySelector(".thumbRot");
-    const canvas = card.querySelector("canvas");
-
-    window.__PDFOPS_ROTATE_MAP__[pageNo] = deg;
-    if (rotPill) rotPill.textContent = deg ? `${deg}°` : "0°";
-
-    if (canvas && pdfDoc){
-      try { await renderPageToCanvas(pageNo, canvas, 240, deg); } catch {}
-    }
-    updatePlan();
-    emit();
-    if (wrap) wrap.hidden = false;
   }
 
   async function renderThumbs(){
@@ -504,7 +600,7 @@
       try { await renderPageToCanvas(i, canvas, 240, 0); } catch {}
     }
 
-    if (meta) meta.textContent = `${numPages} page${numPages === 1 ? "" : "s"} • click pages to rotate`;
+    if (meta) meta.textContent = `${numPages} page${numPages === 1 ? "" : "s"} • click pages to preview`;
     wrap.hidden = false;
 
     updatePlan();
@@ -544,10 +640,32 @@
       const ok = await loadFromSelectedFile();
       if (ok || tries > 200) clearInterval(t); // ~80s max
     } catch {
-      // keep retrying
       if (tries > 200) clearInterval(t);
     }
   }, 400);
+
+  // Modal controls
+  modalClose?.addEventListener("click", hideModal);
+  modal?.addEventListener("click", (e) => { if (e.target === modal) hideModal(); });
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal && !modal.hidden) hideModal();
+  });
+
+  // Rotate inside modal (customer sees rotation live)
+  modalRotate?.addEventListener("click", async () => {
+    if (!previewPageNo) return;
+    const card = getCard(previewPageNo);
+    if (!card) return;
+
+    const cur = window.__PDFOPS_ROTATE_MAP__[previewPageNo] || 0;
+    const nxt = nextDeg(cur);
+
+    await setThumbRotation(card, nxt);
+
+    // Update modal title + rerender modal
+    if (modalTitle) modalTitle.textContent = `Page ${previewPageNo} • ${nxt ? nxt + "°" : "0°"}`;
+    await renderModalPage(previewPageNo);
+  });
 
   clearBtn?.addEventListener("click", () => cleanup());
 
@@ -555,12 +673,23 @@
     if (!grid) return;
     const cards = Array.from(grid.querySelectorAll(".pdfThumb"));
     for (const card of cards) await setThumbRotation(card, 90);
+
+    // If modal open, rerender current page so user sees it update too
+    if (previewPageNo && modal && !modal.hidden) {
+      if (modalTitle) modalTitle.textContent = `Page ${previewPageNo} • 90°`;
+      await renderModalPage(previewPageNo);
+    }
   });
 
   resetRotations?.addEventListener("click", async () => {
     if (!grid) return;
     const cards = Array.from(grid.querySelectorAll(".pdfThumb"));
     for (const card of cards) await setThumbRotation(card, 0);
+
+    if (previewPageNo && modal && !modal.hidden) {
+      if (modalTitle) modalTitle.textContent = `Page ${previewPageNo} • 0°`;
+      await renderModalPage(previewPageNo);
+    }
   });
 })();
 </script>
