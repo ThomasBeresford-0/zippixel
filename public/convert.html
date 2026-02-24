@@ -29,25 +29,28 @@
 
 <header class="nav">
   <div class="container navInner">
-    <a class="brand" href="/index.html">
-      <img src="/favicon.svg" width="26" height="26" alt="">
-      <span>PDFOperations</span>
+    <a class="brand" href="/" aria-label="PDFOperations home">
+      <img src="/favicon.svg" alt="PDFOperations" class="brandLogo" />
+      <span class="brandText">
+        <span class="top">PDFOperations</span>
+        <span class="sub">Compress • Merge • Split</span>
+      </span>
     </a>
 
-    <nav class="navLinks">
-      <a href="/index.html">ZIP</a>
-      <a href="/compress-pdf.html">Compress PDF</a>
-      <a href="/merge-pdf.html">Merge</a>
-      <a href="/split-pdf.html">Split</a>
-      <a href="/convert.html" aria-current="page">Convert</a>
-      <a href="/rotate-pdf.html">Rotate</a>
-
-      <a href="/pricing.html">Pricing</a>
-      <a href="/privacy.html">Privacy</a>
-      <a href="/terms.html">Terms</a>
-
-      <a href="#tool" class="navCta">Start</a>
+    <nav class="navLinks" aria-label="Tools">
+      <a href="/">Compress</a>
+      <a href="/merge-pdf">Merge</a>
+      <a href="/split-pdf">Split</a>
+      <a href="/convert" aria-current="page">Convert</a>
+      <a href="/rotate-pdf">Rotate</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
     </nav>
+
+    <div class="navCta">
+      <a class="btn btnSmall btnGhost" href="#tool">Start</a>
+    </div>
   </div>
 </header>
 
