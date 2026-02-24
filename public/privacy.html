@@ -1,86 +1,372 @@
-<!-- public/privacy.html — PDFOperations (v23 - PREMIUM SHELL) -->
+<!-- public/privacy.html — PDFOperations (v24 - CLEAN TRUST-FIRST + SEO + BETTER READABILITY)
+     ✅ No backend changes
+     ✅ Cleaner layout (no bubbles), stronger trust + scannability
+     ✅ Adds SEO: JSON-LD WebPage + FAQPage, better headings, internal links
+-->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Privacy — PDFOperations</title>
-  <meta name="description" content="PDFOperations privacy policy. What we collect, how we use it, and how uploads are handled." />
+  <title>Privacy Policy — PDFOperations</title>
+  <meta name="description" content="PDFOperations privacy policy: what we collect, how uploads are handled, retention, payments via Stripe, and how to contact us." />
   <link rel="canonical" href="https://pdfoperations.com/privacy" />
+
+  <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
+  <meta name="color-scheme" content="light" />
+
+  <meta property="og:title" content="Privacy Policy — PDFOperations" />
+  <meta property="og:description" content="What we collect, how uploads are handled, retention, payments via Stripe, and how to contact us." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pdfoperations.com/privacy" />
+  <meta property="og:image" content="https://pdfoperations.com/og.png" />
+  <meta property="og:image:alt" content="PDFOperations privacy policy" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Privacy Policy — PDFOperations" />
+  <meta name="twitter:description" content="What we collect, how uploads are handled, retention, payments via Stripe, and how to contact us." />
+  <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
+
   <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/style.css?v=36" />
+
+  <!-- JSON-LD: WebPage -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebPage",
+    "name":"Privacy Policy — PDFOperations",
+    "url":"https://pdfoperations.com/privacy",
+    "description":"PDFOperations privacy policy: what we collect, how uploads are handled, retention, payments via Stripe, and how to contact us.",
+    "isPartOf":{
+      "@type":"WebSite",
+      "name":"PDFOperations",
+      "url":"https://pdfoperations.com/"
+    }
+  }
+  </script>
+
+  <!-- JSON-LD: FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity":[
+      {
+        "@type":"Question",
+        "name":"Do you store my files?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Files are uploaded to temporary storage to process your request and deliver your output. We aim to delete files automatically over time, but exact timing is not guaranteed."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"Do you store payment card details?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Payments are handled by Stripe. PDFOperations does not store full card details."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"What data do you collect?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"We collect uploaded files and basic metadata needed to process them, payment status from Stripe to enable downloads, and basic technical logs for reliability and abuse prevention."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"What is a share link?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"If you purchase an optional share link, anyone with the link may be able to download the output. Treat it like a password."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    /* Page-local: clean, flat premium docs */
+    .kicker{
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      letter-spacing:.02em;
+      opacity:.75;
+      text-transform:uppercase;
+    }
+
+    .docWrap{ padding: 22px 0 44px; }
+    .docGrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .panel{
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(15,23,42,.10);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(2,6,23,.06);
+      overflow:hidden;
+    }
+    .panelPad{ padding: 16px; }
+
+    .metaLine{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px 14px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(15,23,42,.10);
+      font-size: 13px;
+      color: rgba(11,18,32,.78);
+    }
+    .metaItem{ font-weight: 800; white-space: nowrap; }
+    .metaDot{ opacity:.55; }
+
+    .toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .toc a{
+      display:inline-flex;
+      align-items:center;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(15,23,42,.12);
+      background: rgba(255,255,255,.96);
+      text-decoration:none;
+      font-weight: 900;
+      font-size: 13px;
+      color: rgba(11,18,32,.92);
+    }
+    .toc a:hover{
+      border-color: rgba(15,23,42,.18);
+      box-shadow: 0 10px 24px rgba(2,6,23,.08);
+      transform: translateY(-1px);
+    }
+
+    .callouts{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    @media (max-width: 920px){
+      .callouts{ grid-template-columns: 1fr; }
+    }
+    .callout{
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.96);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .calloutTitle{
+      font-weight: 950;
+      letter-spacing: -.01em;
+    }
+    .calloutBody{
+      margin-top: 6px;
+      opacity: .84;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .doc h2{ margin-top: 18px; letter-spacing:-.01em; }
+    .doc p, .doc li{ line-height: 1.7; }
+    .doc ul{ padding-left: 18px; }
+    .doc code{
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    details.faq{
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.96);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+    details.faq summary{
+      cursor:pointer;
+      font-weight: 900;
+      letter-spacing: -.01em;
+      list-style:none;
+    }
+    details.faq summary::-webkit-details-marker{ display:none; }
+
+    .fine{
+      margin-top: 10px;
+      font-size: 12px;
+      opacity: .75;
+      line-height: 1.45;
+    }
+  </style>
 </head>
 
 <body class="premium">
+
+<a href="#main" class="srOnly">Skip to content</a>
+
 <header class="nav">
   <div class="container navInner">
     <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/favicon.svg" width="26" height="26" alt="">
-      <span>PDFOperations</span>
+      <span class="brandText">
+        <span class="top">PDFOperations</span>
+        <span class="sub">Compress • Merge • Split</span>
+      </span>
     </a>
 
     <nav class="navLinks" aria-label="Site">
-      <a href="/#how">How it works</a>
-      <a href="/#faq">FAQ</a>
+      <a href="/">Tools</a>
+      <a href="/pricing">Pricing</a>
       <a href="/privacy" aria-current="page">Privacy</a>
       <a href="/terms">Terms</a>
     </nav>
+
+    <div class="navCta">
+      <a class="btn btnSmall btnGhost" href="/">Open tool</a>
+    </div>
   </div>
 </header>
 
-<main>
-  <section class="pageShell">
-    <div class="container">
-      <div class="pageInner">
-        <h1 class="pageTitle">Privacy</h1>
-        <p class="pageLead">
-          This policy explains what PDFOperations collects and how uploads are handled.
-        </p>
+<main id="main">
+  <section class="docWrap">
+    <div class="container heroWide">
 
-        <div class="doc">
-          <div class="meta">Last updated: 19 Feb 2026</div>
+      <div class="kicker">Privacy</div>
+      <h1 style="margin:6px 0 8px; letter-spacing:-.02em;">Privacy Policy</h1>
+      <p style="max-width:70ch; margin:0; opacity:.82; line-height:1.55;">
+        This policy explains what PDFOperations collects, how uploads are handled, and what happens after payment.
+      </p>
 
-          <h2>What we collect</h2>
+      <div class="metaLine" aria-label="Policy metadata">
+        <div class="metaItem"><span class="metaDot">•</span> Last updated: <strong>19 Feb 2026</strong></div>
+        <div class="metaItem"><span class="metaDot">•</span> Applies to: <strong>pdfoperations.com</strong></div>
+        <div class="metaItem"><span class="metaDot">•</span> Payments: <strong>Stripe</strong></div>
+      </div>
+
+      <div class="panel" style="margin-top:14px;">
+        <div class="panelPad">
+          <div style="font-weight:950; letter-spacing:-.01em;">Quick navigation</div>
+          <div class="toc" aria-label="On-page navigation">
+            <a href="#what-we-collect">What we collect</a>
+            <a href="#uploads">Uploads & processing</a>
+            <a href="#retention">Retention</a>
+            <a href="#payments">Payments</a>
+            <a href="#share-links">Share links</a>
+            <a href="#contact">Contact</a>
+          </div>
+
+          <div class="callouts" aria-label="Key points">
+            <div class="callout">
+              <div class="calloutTitle">We collect the minimum needed</div>
+              <div class="calloutBody">
+                Files + basic metadata to generate your output, payment status to unlock downloads, and basic logs for reliability.
+              </div>
+            </div>
+            <div class="callout">
+              <div class="calloutTitle">Temporary storage</div>
+              <div class="calloutBody">
+                Files are stored temporarily to process your request and deliver the download. We aim to delete automatically over time.
+              </div>
+            </div>
+          </div>
+
+          <div class="fine">
+            Tip: If you’re looking for pricing details, see <a href="/pricing">Pricing</a>. For legal terms, see <a href="/terms">Terms</a>.
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:14px;">
+        <div class="panelPad doc">
+
+          <h2 id="what-we-collect">What we collect</h2>
           <p>
-            We collect the minimum required to operate the service:
+            We collect the minimum required to operate PDFOperations:
           </p>
           <ul>
-            <li>Uploaded files and basic metadata (e.g. filename, type) to generate your download.</li>
-            <li>Payment status from Stripe to allow download after payment.</li>
-            <li>Basic technical logs (e.g. request timing/errors) for reliability and abuse prevention.</li>
+            <li><strong>Uploaded files</strong> and basic metadata (e.g. filename, file type) to generate your output.</li>
+            <li><strong>Payment status</strong> from Stripe to allow download after payment.</li>
+            <li><strong>Basic technical logs</strong> (e.g. request timing, errors) for reliability, abuse prevention, and support.</li>
           </ul>
 
-          <h2>How uploads work</h2>
+          <h2 id="uploads">Uploads & processing</h2>
           <p>
-            Files are uploaded to temporary storage to process your request. We aim to delete files automatically over time.
-            Deletion timing is not guaranteed (e.g. operational delays, retries, system maintenance).
+            Files are uploaded to temporary storage to process your request (for example, to compress, merge, split, rotate, or convert files).
+            Processing produces an output (e.g. a single PDF or a ZIP bundle) that you can download after checkout.
+          </p>
+          <p>
+            We do not make your uploads public. Access to outputs may be controlled by payment status and, if enabled, a share link.
           </p>
 
-          <h2>Payments</h2>
+          <h2 id="retention">Retention</h2>
           <p>
-            Payments are handled by Stripe. PDFOperations does not store your full card details. Stripe may store and process
-            payment information according to their policies.
+            We aim to delete uploaded files and outputs automatically over time. Exact deletion timing is not guaranteed
+            (for example, operational delays, retries, system maintenance, or incident recovery).
+          </p>
+          <p class="fine">
+            If you purchased a share link, the output may remain accessible via that link until it expires or is removed by our cleanup process.
           </p>
 
-          <h2>Sharing</h2>
+          <h2 id="payments">Payments</h2>
           <p>
-            If you purchase an optional share link, anyone with the link may be able to download the output. Treat share links
-            like a password and only share them with people you trust.
+            Payments are handled by <strong>Stripe</strong>. PDFOperations does not store your full card details.
+            Stripe may store and process payment information according to their policies.
           </p>
 
-          <h2>Contact</h2>
+          <h2 id="share-links">Share links</h2>
+          <p>
+            If you purchase an optional share link, anyone with the link may be able to download the output.
+            Treat share links like a password and only share them with people you trust.
+          </p>
+
+          <h2 id="contact">Contact</h2>
           <p>
             For privacy questions, contact us via the email shown on the Stripe receipt for your purchase.
           </p>
+
+          <h2 id="faq">FAQs</h2>
+          <details class="faq" open>
+            <summary>Do you store my files?</summary>
+            <div style="margin-top:8px; opacity:.85; line-height:1.6;">
+              Files are uploaded to temporary storage to process your request and deliver your output.
+              We aim to delete automatically over time, but exact timing is not guaranteed.
+            </div>
+          </details>
+
+          <details class="faq">
+            <summary>Do you store payment card details?</summary>
+            <div style="margin-top:8px; opacity:.85; line-height:1.6;">
+              No. Payments are handled by Stripe and PDFOperations does not store full card details.
+            </div>
+          </details>
+
+          <details class="faq">
+            <summary>What is a share link?</summary>
+            <div style="margin-top:8px; opacity:.85; line-height:1.6;">
+              It’s an optional paid add-on that creates a download link. Anyone with the link may be able to download the output.
+            </div>
+          </details>
+
         </div>
       </div>
+
     </div>
   </section>
 </main>

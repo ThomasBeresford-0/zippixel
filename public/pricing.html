@@ -1,8 +1,8 @@
-<!-- public/pricing.html — PDFOperations (v23 FULL RAMBO)
-     ✅ Matches pricing logic: £2.99 (≤10 files) / £9.99 (11–50) + optional share link (+£2.49)
-     ✅ Premium shell (static)
-     ✅ No backend changes
-     ✅ Conversion-first, consistent with PDFOperations (ZIP + PDF outputs)
+<!-- public/pricing.html — PDFOperations (v24 - CLEAN PREMIUM PRICING + SEO + CONVERSION)
+     ✅ Same pricing logic: £2.99 (≤10 files) / £9.99 (11–50) + optional share link (+£2.49)
+     ✅ No backend/app.js changes
+     ✅ Cleaner premium layout (no bubble boxes)
+     ✅ Stronger SEO: headings, FAQ schema, clearer copy, internal links
 -->
 <!doctype html>
 <html lang="en">
@@ -14,140 +14,395 @@
   <meta name="description" content="Pay once when your download is ready. £2.99 (up to 10 files) or £9.99 (up to 50). Optional share link +£2.49. No subscriptions." />
   <link rel="canonical" href="https://pdfoperations.com/pricing" />
 
+  <meta name="robots" content="index,follow" />
+  <meta name="theme-color" content="#0b1220" />
+  <meta name="color-scheme" content="light" />
+
+  <!-- Open Graph -->
   <meta property="og:title" content="Pricing — PDFOperations" />
   <meta property="og:description" content="Pay once. £2.99 (up to 10 files) or £9.99 (up to 50). Optional share link +£2.49. No subscriptions." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/pricing" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
+  <meta property="og:image:alt" content="PDFOperations pricing" />
 
+  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Pricing — PDFOperations" />
   <meta name="twitter:description" content="Pay once. £2.99 (up to 10 files) or £9.99 (up to 50). Optional share link +£2.49. No subscriptions." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
-  <meta name="theme-color" content="#0b1220" />
-
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <!-- Premium fonts -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/style.css?v=36" />
+
+  <!-- JSON-LD: WebPage -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebPage",
+    "name":"Pricing — PDFOperations",
+    "url":"https://pdfoperations.com/pricing",
+    "description":"Pay once when your download is ready. £2.99 (up to 10 files) or £9.99 (up to 50). Optional share link +£2.49. No subscriptions.",
+    "isPartOf":{
+      "@type":"WebSite",
+      "name":"PDFOperations",
+      "url":"https://pdfoperations.com/"
+    }
+  }
+  </script>
+
+  <!-- JSON-LD: FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity":[
+      {
+        "@type":"Question",
+        "name":"Do you charge a subscription?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"No. PDFOperations is pay-once per job. You only pay when your download is ready."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"How do tiers work?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Standard is £2.99 for up to 10 files. Pro is £9.99 for up to 50 files. Your tool will show the correct tier before Stripe Checkout."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"What is the Share link add-on?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Share link (+£2.49) creates a download link instead of attaching files."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"What outputs do I get?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Outputs depend on the tool: merge/rotate/compress PDF produces a single PDF. Split and some conversions may produce a ZIP bundle."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    /* Page-local: clean, flat premium layout (no bubbles) */
+    .pricingHero{ padding: 26px 0 10px; }
+    .pricingGrid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+      align-items:start;
+      margin-top: 16px;
+    }
+    @media (max-width: 920px){
+      .pricingGrid{ grid-template-columns: 1fr; }
+    }
+
+    .kicker{
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      letter-spacing:.02em;
+      opacity:.75;
+      text-transform:uppercase;
+    }
+
+    .panel{
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(15,23,42,.10);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(2,6,23,.06);
+      overflow:hidden;
+    }
+    .panelPad{ padding: 16px; }
+
+    .trustRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px 14px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(15,23,42,.10);
+      font-size: 13px;
+      color: rgba(11,18,32,.78);
+    }
+    .trustItem{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .trustDot{ opacity:.55; }
+
+    .priceTable{ display:grid; gap: 10px; margin-top: 12px; }
+    .priceLine{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 14px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.98);
+    }
+    .priceLine.isPrimary{
+      border-color: rgba(11,18,32,.18);
+      box-shadow: 0 12px 30px rgba(2,6,23,.06);
+    }
+    .priceName{ font-weight: 950; letter-spacing: -.01em; }
+    .priceDesc{ margin-top: 2px; font-size: 13px; opacity: .78; line-height: 1.35; }
+    .priceAmt{
+      font-weight: 1000;
+      letter-spacing: -.02em;
+      font-size: 18px;
+      white-space: nowrap;
+    }
+
+    .ctaStack{ display:grid; gap: 10px; margin-top: 12px; }
+    .ctaStack a{ text-align:center; }
+
+    .fine{
+      margin-top: 10px;
+      font-size: 12px;
+      opacity: .75;
+      line-height: 1.35;
+    }
+
+    .miniList{ margin: 10px 0 0; padding-left: 18px; }
+    .miniList li{ margin: 6px 0; }
+
+    .faqList{ display:grid; gap: 10px; margin-top: 12px; }
+    details.faq{
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.96);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+    details.faq summary{
+      cursor:pointer;
+      font-weight: 900;
+      letter-spacing: -.01em;
+      list-style:none;
+    }
+    details.faq summary::-webkit-details-marker{ display:none; }
+
+    .toolLinks{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .toolLinks a{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(15,23,42,.12);
+      background: rgba(255,255,255,.96);
+      text-decoration:none;
+      font-weight: 900;
+      font-size: 13px;
+      color: rgba(11,18,32,.92);
+    }
+    .toolLinks a:hover{
+      border-color: rgba(15,23,42,.18);
+      box-shadow: 0 10px 24px rgba(2,6,23,.08);
+      transform: translateY(-1px);
+    }
+  </style>
 </head>
 
 <body class="premium">
+
+<a href="#main" class="srOnly">Skip to content</a>
 
 <header class="nav">
   <div class="container navInner">
     <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/favicon.svg" width="26" height="26" alt="">
-      <span>PDFOperations</span>
+      <span class="brandText">
+        <span class="top">PDFOperations</span>
+        <span class="sub">Compress • Merge • Split</span>
+      </span>
     </a>
 
     <nav class="navLinks" aria-label="Site">
-      <a href="/">Tool</a>
+      <a href="/">Tools</a>
       <a href="/pricing" aria-current="page">Pricing</a>
-      <a href="/#how">How it works</a>
-      <a href="/#faq">FAQ</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
     </nav>
+
+    <div class="navCta">
+      <a class="btn btnSmall btnGhost" href="/">Open tool</a>
+    </div>
   </div>
 </header>
 
-<main>
-  <section class="pageShell">
-    <div class="container">
-      <div class="pageInner">
+<main id="main">
+  <section class="pricingHero">
+    <div class="container heroWide">
+      <div class="kicker">Pricing</div>
+      <h1 style="margin:6px 0 8px; letter-spacing:-.02em;">Pay once. Download instantly.</h1>
+      <p style="max-width: 62ch; opacity:.82; line-height:1.5; margin:0;">
+        You only pay when your output is ready to download. No accounts, no subscriptions.
+        Stripe Checkout shows the full total before you confirm payment.
+      </p>
 
-        <h1 class="pageTitle">Simple pricing. No subscriptions.</h1>
-        <p class="pageLead">
-          Pay once when your download is ready. You’ll always see the full total before Stripe Checkout.
-        </p>
+      <div class="pricingGrid">
+        <!-- LEFT: pricing -->
+        <div class="panel">
+          <div class="panelPad">
+            <h2 style="margin:0; letter-spacing:-.02em;">One-time pricing</h2>
+            <div class="trustRow" aria-label="Trust indicators">
+              <div class="trustItem"><span class="trustDot">•</span>No subscriptions</div>
+              <div class="trustItem"><span class="trustDot">•</span>No signup</div>
+              <div class="trustItem"><span class="trustDot">•</span>Secure Stripe checkout</div>
+              <div class="trustItem"><span class="trustDot">•</span>Instant download</div>
+            </div>
 
-        <!-- Limits / trust box -->
-        <div class="tool" style="margin-top:18px; padding:16px;">
-          <div class="successBox">
-            <div class="successIcon" aria-hidden="true">i</div>
-            <div style="min-width:0;">
-              <div class="successTitle">Limits</div>
-              <div class="successDesc">
-                Max <b>50 files</b> per job • Max <b>25MB</b> per file.<br/>
-                Output depends on the tool: <b>ZIP</b> (bundles), or a single <b>PDF</b> (merge / rotate / compress PDF).<br/>
-                Files are stored temporarily to process your request, then deleted automatically over time.
+            <div class="priceTable" aria-label="Pricing tiers">
+              <div class="priceLine isPrimary">
+                <div>
+                  <div class="priceName">Standard</div>
+                  <div class="priceDesc">Up to 10 files per job.</div>
+                </div>
+                <div class="priceAmt">£2.99</div>
               </div>
+
+              <div class="priceLine">
+                <div>
+                  <div class="priceName">Pro</div>
+                  <div class="priceDesc">Up to 50 files per job (bigger batches).</div>
+                </div>
+                <div class="priceAmt">£9.99</div>
+              </div>
+
+              <div class="priceLine">
+                <div>
+                  <div class="priceName">Share link (optional)</div>
+                  <div class="priceDesc">Create a download link instead of sending attachments.</div>
+                </div>
+                <div class="priceAmt">+£2.49</div>
+              </div>
+            </div>
+
+            <div class="ctaStack">
+              <a class="btnPrimary btnBlock" href="/">Open PDF tools</a>
+              <a class="btnSoft btnBlock" href="/#faq">See tool FAQs</a>
+            </div>
+
+            <div class="fine">
+              Limits: max <strong>50 files</strong> per job • max <strong>25MB</strong> per file.
+              Output depends on the tool (single PDF or ZIP bundle).
             </div>
           </div>
-
-          <!-- Pricing cards -->
-          <div style="margin-top:14px; display:grid; gap:12px;">
-
-            <!-- Tier 10 -->
-            <div class="priceRow isChosen" style="align-items:center;">
-              <div>
-                <div class="priceName">Standard (up to 10 files)</div>
-                <div class="priceDesc">Best for small batches</div>
-              </div>
-              <div class="priceAmt">£2.99</div>
-            </div>
-
-            <!-- Tier 50 -->
-            <div class="priceRow" style="align-items:center;">
-              <div>
-                <div class="priceName">Pro (up to 50 files)</div>
-                <div class="priceDesc">For larger batches</div>
-              </div>
-              <div class="priceAmt">£9.99</div>
-            </div>
-
-            <!-- Share link -->
-            <div class="priceRow" style="align-items:center;">
-              <div>
-                <div class="priceName">Share link (optional)</div>
-                <div class="priceDesc">Create a download link instead of attaching files</div>
-              </div>
-              <div class="priceAmt">+£2.49</div>
-            </div>
-          </div>
-
-          <!-- CTAs -->
-          <div class="successActions" style="margin-top:14px;">
-            <a class="btnPrimary btnBlock" href="/">Open the tool</a>
-            <a class="btnSoft btnBlock" href="/#faq">Read FAQ</a>
-          </div>
-
-          <p class="fineprint" style="margin-top:12px;">
-            Secure checkout powered by Stripe • No account required
-          </p>
         </div>
 
-        <!-- Why + how -->
-        <div class="doc" style="margin-top:18px;">
-          <h2>Why PDFOperations</h2>
-          <p>
-            Built for fast, clean delivery — ideal when you need to compress, merge, split, rotate, or bundle files for clients,
-            teammates, or suppliers. Upload → pay once → download immediately. No logins, no subscriptions, no nonsense.
-          </p>
+        <!-- RIGHT: explanation + internal links -->
+        <div class="panel">
+          <div class="panelPad">
+            <h2 style="margin:0; letter-spacing:-.02em;">What you get</h2>
+            <p style="margin:10px 0 0; opacity:.84; line-height:1.55;">
+              PDFOperations is built for fast delivery: upload, process, then download immediately.
+              The exact output depends on the tool:
+            </p>
+            <ul class="miniList">
+              <li><strong>Compress / Merge / Rotate</strong>: one updated PDF</li>
+              <li><strong>Split</strong>: ZIP containing separate per-page PDFs</li>
+              <li><strong>Convert</strong>: one file per input (bundled to ZIP if multiple)</li>
+            </ul>
 
-          <h2>How it works</h2>
-          <ul>
-            <li>Add your file(s)</li>
-            <li>Upload</li>
-            <li>Choose your tool settings (and optional share link)</li>
-            <li>Pay via Stripe → download instantly</li>
-          </ul>
+            <h3 style="margin:14px 0 6px; letter-spacing:-.01em;">Jump to a tool</h3>
+            <div class="toolLinks" aria-label="Tool links">
+              <a href="/">Compress PDF</a>
+              <a href="/merge-pdf">Merge PDF</a>
+              <a href="/split-pdf">Split PDF</a>
+              <a href="/rotate-pdf">Rotate PDF</a>
+              <a href="/convert">Convert</a>
+            </div>
 
-          <h2>Support</h2>
-          <p>
-            Questions? Email <a href="mailto:support@pdfoperations.com">support@pdfoperations.com</a>.
-          </p>
+            <h3 style="margin:14px 0 6px; letter-spacing:-.01em;">Support</h3>
+            <p style="margin:0; opacity:.84; line-height:1.55;">
+              Questions or issues? Email
+              <a href="mailto:support@pdfoperations.com">support@pdfoperations.com</a>.
+            </p>
+
+            <div class="fine">
+              Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
+            </div>
+          </div>
         </div>
-
       </div>
+
+      <!-- FAQ (SEO + conversion objections) -->
+      <section style="margin-top:18px;">
+        <div class="panel">
+          <div class="panelPad">
+            <h2 style="margin:0; letter-spacing:-.02em;">Pricing FAQs</h2>
+
+            <div class="faqList" id="faq">
+              <details class="faq" open>
+                <summary>Do you charge a subscription?</summary>
+                <div style="margin-top:8px; opacity:.85; line-height:1.55;">
+                  No. You pay once per job, only when your download is ready.
+                </div>
+              </details>
+
+              <details class="faq">
+                <summary>How do tiers work?</summary>
+                <div style="margin-top:8px; opacity:.85; line-height:1.55;">
+                  Standard is <strong>£2.99</strong> for up to <strong>10 files</strong>.
+                  Pro is <strong>£9.99</strong> for up to <strong>50 files</strong>.
+                  Your tool shows the tier before Stripe Checkout.
+                </div>
+              </details>
+
+              <details class="faq">
+                <summary>What is the Share link add-on?</summary>
+                <div style="margin-top:8px; opacity:.85; line-height:1.55;">
+                  It adds <strong>+£2.49</strong> and creates a download link instead of sending attachments.
+                </div>
+              </details>
+
+              <details class="faq">
+                <summary>What do I download?</summary>
+                <div style="margin-top:8px; opacity:.85; line-height:1.55;">
+                  It depends on the tool. Some outputs are a single PDF (merge/rotate/compress),
+                  and others may bundle into a ZIP (split and multi-file conversions).
+                </div>
+              </details>
+
+              <details class="faq">
+                <summary>Do you store my files?</summary>
+                <div style="margin-top:8px; opacity:.85; line-height:1.55;">
+                  Files are stored temporarily to process your request and deliver the download.
+                  See the Privacy page for retention details.
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   </section>
 </main>
@@ -166,5 +421,6 @@
   const y = document.getElementById("y");
   if (y) y.textContent = new Date().getFullYear();
 </script>
+
 </body>
 </html>
