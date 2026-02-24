@@ -330,21 +330,26 @@
 (() => {
   const $ = (id) => document.getElementById(id);
 
-  const grid = $("pdfThumbGrid");
-  const wrap = $("pdfReorderWrap");
-  const meta = $("rotatePreviewMeta");
-  const rotateBar = $("rotateBar");
-  const rotatePlanText = $("rotatePlanText");
-  const clearBtn = $("clearBtn");
-  const rotateAll90 = $("rotateAll90");
-  const resetRotations = $("resetRotations");
+  let grid, wrap, meta, rotateBar, rotatePlanText, clearBtn, rotateAll90, resetRotations;
+  let modal, modalTitle, modalClose, modalRotate, modalCanvas;
 
-  // Modal refs
-  const modal = $("pdfPreviewModal");
-  const modalTitle = $("pdfPreviewTitle");
-  const modalClose = $("pdfPreviewClose");
-  const modalRotate = $("pdfPreviewRotate");
-  const modalCanvas = $("pdfPreviewCanvas");
+  function refreshRefs(){
+    grid = $("pdfThumbGrid");
+    wrap = $("pdfReorderWrap");
+    meta = $("rotatePreviewMeta");
+    rotateBar = $("rotateBar");
+    rotatePlanText = $("rotatePlanText");
+    clearBtn = $("clearBtn");
+    rotateAll90 = $("rotateAll90");
+    resetRotations = $("resetRotations");
+
+    modal = $("pdfPreviewModal");
+    modalTitle = $("pdfPreviewTitle");
+    modalClose = $("pdfPreviewClose");
+    modalRotate = $("pdfPreviewRotate");
+    modalCanvas = $("pdfPreviewCanvas");
+  }
+  refreshRefs();
 
   let pdfDoc = null;
   let numPages = 0;
@@ -429,6 +434,7 @@
   }
 
   function getCard(pageNo){
+    refreshRefs();
     if (!grid) return null;
     return grid.querySelector(`.pdfThumb[data-page="${pageNo}"]`);
   }
@@ -517,6 +523,7 @@
   }
 
   async function renderThumbs(){
+    refreshRefs();
     if (!grid || !wrap) return;
 
     readyToEmit = false;
