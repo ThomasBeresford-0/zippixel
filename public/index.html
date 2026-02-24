@@ -302,7 +302,11 @@
   </script>
 
   <!-- ✅ SELF-HOST PDF.JS (reliable; avoids CDN blocking) -->
-  <script src="/vendor/pdfjs/pdf.min.js"></script>
+  <script type="module">
+    import * as pdfjsLib from "/vendor/pdfjs/pdf.min.mjs";
+    window.pdfjsLib = pdfjsLib;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.mjs";
+  </script>
 </head>
 
 <body class="page pageCompressPdf">
@@ -487,11 +491,11 @@
 
   // ✅ If pdfjs didn't load, you'll see it instantly in console
   if (!window.pdfjsLib) {
-    console.warn("[PDFOperations] pdfjsLib missing. Ensure /vendor/pdfjs/pdf.min.js is present and served.");
+    console.warn("[PDFOperations] pdfjsLib missing. Ensure /vendor/pdfjs/pdf.min.mjs is present and served.");
   } else {
     // ✅ Set worker path to same-origin file (reliable)
     try {
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.js";
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.mjs";
     } catch(_) {}
   }
 
