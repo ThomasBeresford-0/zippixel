@@ -1,8 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://zippixel.it.com/</loc></url>
-  <url><loc>https://zippixel.it.com/privacy</loc></url>
-  <url><loc>https://zippixel.it.com/terms</loc></url>
-</urlset>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-<url><loc>https://pdfoperations.com/convert</loc></url>
+  <url>
+    <loc>https://pdfoperations.com/</loc>
+  </url>
+
+  <url>
+    <loc>https://pdfoperations.com/compress-pdf</loc>
+  </url>
+
+  <url>
+    <loc>https://pdfoperations.com/merge-pdf</loc>
+  </url>
+
+  <url>
+    <loc>https://pdfoperations.com/split-pdf</loc>
+  </url>
+
+  <url>
+    <loc>https://pdfoperations.com/pricing</loc>
+  </url>
+
+  <url>
+    <loc>https://pdfoperations.com/terms</loc>
+  </url>
+
+  <url>
+    <loc>https://pdfoperations.com/privacy</loc>
+  </url>
+
+</urlset>
