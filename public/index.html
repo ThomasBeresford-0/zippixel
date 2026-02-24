@@ -1,9 +1,10 @@
-<!-- public/index.html — PDFOperations (v54 - SEO UPGRADE + FAQ SCHEMA + INTERNAL LINKS + MINI FILE CARD ONLY)
+<!-- public/index.html — PDFOperations (v55 - PRO SEO + NO SOAPY PILLS + PROFESSIONAL LINK ROW + FAQ + SCHEMA)
      ✅ Keeps ALL app.js v17.7 IDs preserved
      ✅ style.css?v=36 + app.js?v=17.7
-     ✅ Adds OG/Twitter tags + JSON-LD (WebSite + SoftwareApplication + FAQPage)
-     ✅ Adds internal links block for tool pages (SEO + crawl)
-     ✅ Adds real FAQ section with on-page anchors (#faq) to match nav
+     ✅ Removes “bubble/soapy” pill buttons entirely (no rounded chip links)
+     ✅ Replaces with professional inline link row + minimal cards (enterprise, not AI slop)
+     ✅ Keeps SEO blocks + FAQ + JSON-LD (WebSite + SoftwareApplication + FAQPage)
+     ✅ Avoids any new global CSS dependencies (page-owned styles only)
 -->
 <!doctype html>
 <html lang="en">
@@ -23,6 +24,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
+  <meta property="og:image:alt" content="PDFOperations — Compress PDF" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
@@ -90,30 +92,56 @@
 
     [hidden]{ display:none !important; }
 
-    /* SEO blocks */
-    .seoBlock{
+    /* ======================================================
+       SEO / INTERNAL LINKS — PROFESSIONAL (NO PILLS)
+       ====================================================== */
+
+    .seoWrap{
       margin-top:18px;
       padding:16px;
     }
+
+    .seoKicker{
+      font-size:12px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:rgba(11,18,32,.62);
+      margin:0 0 10px 0;
+    }
+
+    .seoTitle{
+      font-size:16px;
+      letter-spacing:-.01em;
+      margin:0;
+    }
+    .seoLead{
+      margin:8px 0 0 0;
+      color:rgba(11,18,32,.76);
+      font-size:13px;
+      line-height:1.5;
+    }
+
     .seoGrid{
       margin-top:14px;
       display:grid;
       grid-template-columns: 1fr;
       gap:12px;
     }
-    @media(min-width: 880px){
+    @media(min-width: 920px){
       .seoGrid{ grid-template-columns: 1fr 1fr; }
     }
+
     .seoCard{
       border:1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.75);
-      border-radius: 16px;
+      background: rgba(255,255,255,.85);
+      border-radius: 14px;
       padding:14px;
     }
     .seoCard h2{
-      font-size:14px;
+      font-size:13px;
       margin:0 0 6px 0;
       letter-spacing:-.01em;
+      font-weight:900;
     }
     .seoCard p{
       margin:0;
@@ -121,41 +149,80 @@
       font-size:13px;
       line-height:1.45;
     }
-    .toolLinks{
+
+    /* Inline tool nav — not pills, not bubbles */
+    .toolNav{
+      margin-top:14px;
+      border-top:1px solid rgba(15,23,42,.10);
+      padding-top:12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 14px;
+      align-items:center;
+    }
+    .toolNavLabel{
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:rgba(11,18,32,.62);
+      margin-right:2px;
+    }
+    .toolNav a{
+      font-size:13px;
+      font-weight:900;
+      color:rgba(11,18,32,.92);
+      text-decoration:none;
+      border-bottom:1px solid rgba(11,18,32,.25);
+      padding-bottom:2px;
+    }
+    .toolNav a:hover{
+      border-bottom-color: rgba(11,18,32,.65);
+    }
+
+    /* Secondary SEO links — small, clean, not “chips” */
+    .seoSubLinks{
       margin-top:10px;
       display:flex;
       flex-wrap:wrap;
-      gap:10px;
+      gap:8px 14px;
     }
-    .toolLinks a{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:10px 12px;
-      border-radius: 999px;
-      border:1px solid rgba(15,23,42,.12);
-      background:#fff;
+    .seoSubLinks a{
+      font-size:12px;
       font-weight:800;
-      font-size:13px;
+      color:rgba(11,18,32,.78);
       text-decoration:none;
-      color: rgba(11,18,32,.92);
     }
-    .toolLinks a:hover{
-      border-color: rgba(15,23,42,.20);
-      box-shadow: 0 10px 24px rgba(2,6,23,.08);
-      transform: translateY(-1px);
+    .seoSubLinks a:hover{
+      text-decoration:underline;
     }
 
-    /* FAQ */
+    /* ======================================================
+       FAQ — clean, enterprise
+       ====================================================== */
+
     .faq{
       margin-top:18px;
       padding:16px;
     }
+    .faqHead{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:10px;
+    }
     .faq h2{
-      margin:0 0 10px 0;
+      margin:0;
       font-size:16px;
       letter-spacing:-.01em;
     }
+    .faqNote{
+      margin:0;
+      font-size:12px;
+      color:rgba(11,18,32,.62);
+    }
+
     details.faqItem{
       border:1px solid rgba(15,23,42,.10);
       background:#fff;
@@ -165,16 +232,27 @@
     }
     details.faqItem summary{
       cursor:pointer;
-      font-weight:900;
+      font-weight:950;
       list-style:none;
+      letter-spacing:-.01em;
     }
     details.faqItem summary::-webkit-details-marker{ display:none; }
+
     .faqAnswer{
       margin-top:8px;
       color:rgba(11,18,32,.78);
       line-height:1.55;
       font-size:13px;
     }
+    .faqAnswer a{ color:rgba(11,18,32,.92); font-weight:900; }
+
+    /* Keep it feeling “built”, not “template” */
+    .microTrust{
+      margin-top:10px;
+      font-size:12px;
+      color:rgba(11,18,32,.62);
+    }
+    .microTrust b{ color:rgba(11,18,32,.88); }
   </style>
 
   <!-- JSON-LD: WebSite -->
@@ -193,9 +271,10 @@
     "@context":"https://schema.org",
     "@type":"SoftwareApplication",
     "name":"PDFOperations",
-    "applicationCategory":"BusinessApplication",
+    "applicationCategory":"UtilitiesApplication",
     "operatingSystem":"Web",
     "url":"https://pdfoperations.com/",
+    "description":"Compress PDF files online. Reduce PDF file size quickly for email and upload limits.",
     "offers":{
       "@type":"Offer",
       "priceCurrency":"GBP",
@@ -237,10 +316,10 @@
       },
       {
         "@type":"Question",
-        "name":"What is the maximum file size and file count?",
+        "name":"What are the limits?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"Max 50 files per job and max 25MB per file. Compress PDF uses 1 file."
+          "text":"Max 25MB per file and 50 files per job. Compress PDF uses a single PDF."
         }
       }
     ]
@@ -385,42 +464,50 @@
           <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
         </div>
 
-        <!-- SEO / INTERNAL LINKS (below tool, still inside container rhythm) -->
-        <div class="tool seoBlock" style="margin-top:18px;">
-          <div class="successBox">
-            <div class="successIcon" aria-hidden="true">✓</div>
-            <div style="min-width:0;">
-              <div class="successTitle">Fast PDF compression for upload limits</div>
-              <div class="successDesc">
-                Reduce PDF file size for email attachments, client portals, and strict upload forms. No signup. Pay once when your download is ready.
-              </div>
-            </div>
-          </div>
+        <!-- SEO / INTERNAL LINKS — PROFESSIONAL -->
+        <div class="tool seoWrap" style="margin-top:18px;">
+          <div class="seoKicker">PDF compression</div>
+          <h2 class="seoTitle">Reduce PDF file size for email, portals, and strict upload forms</h2>
+          <p class="seoLead">
+            Upload a single PDF and get back a smaller file, ready to send. No accounts. Pay once when your download is ready.
+          </p>
 
           <div class="seoGrid">
             <div class="seoCard">
-              <h2>What this tool does</h2>
-              <p>Uploads one PDF, processes it, then returns a smaller PDF you can download immediately after checkout.</p>
+              <h2>Best for</h2>
+              <p>Email attachments, job applications, client portals, invoicing systems, and government upload limits.</p>
             </div>
             <div class="seoCard">
-              <h2>Need a different PDF tool?</h2>
-              <p>Use dedicated tools for merging, splitting pages, rotating, or converting formats.</p>
+              <h2>Other tools</h2>
+              <p>Merge documents, split pages, rotate scans, or convert files using dedicated tools.</p>
             </div>
           </div>
 
-          <div class="toolLinks" aria-label="More PDF tools" style="margin-top:14px;">
-            <a href="/merge-pdf">Merge PDFs</a>
+          <div class="toolNav" aria-label="More PDF tools">
+            <span class="toolNavLabel">Tools</span>
+            <a href="/merge-pdf">Merge PDF</a>
             <a href="/split-pdf">Split PDF</a>
             <a href="/rotate-pdf">Rotate PDF</a>
-            <a href="/convert">Convert files</a>
+            <a href="/convert">Convert</a>
+            <a href="/pricing">Pricing</a>
+          </div>
+
+          <div class="seoSubLinks" aria-label="Popular searches">
             <a href="/reduce-pdf-size">Reduce PDF size</a>
             <a href="/compress-pdf-to-5mb">Compress PDF to 5MB</a>
+          </div>
+
+          <div class="microTrust">
+            <b>No signup</b> • <b>PDF-only</b> • <b>One-time checkout</b>
           </div>
         </div>
 
         <!-- FAQ (on-page + schema) -->
         <div id="faq" class="tool faq">
-          <h2>FAQ</h2>
+          <div class="faqHead">
+            <h2>FAQ</h2>
+            <p class="faqNote">Quick answers. No fluff.</p>
+          </div>
 
           <details class="faqItem">
             <summary>How do I compress a PDF?</summary>
@@ -448,7 +535,8 @@
           <details class="faqItem">
             <summary>What are the limits?</summary>
             <div class="faqAnswer">
-              Max <strong>50 files</strong> per job and max <strong>25MB</strong> per file. Compress PDF uses <strong>1 file</strong>.
+              Max <strong>25MB</strong> per file and max <strong>50 files</strong> per job. Compress PDF uses <strong>1 file</strong>.
+              For bulk workflows, use <a href="/merge-pdf">Merge</a> or <a href="/split-pdf">Split</a>.
             </div>
           </details>
         </div>
