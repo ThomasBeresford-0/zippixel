@@ -49,27 +49,36 @@
        PDF.js (SELF-HOSTED ESM)
        Exposes: window.__pdfjsReady + window.pdfjsLib
   ============================ -->
-  <script type="module">
-    (async () => {
-      try {
-        const lib = await import("/vendor/pdfjs/pdf.min.mjs");
-        window.pdfjsLib = lib;
-        window.__pdfjsWorkerOK = true;
-        lib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.mjs";
-        window.__pdfjsReady = Promise.resolve(true);
-      } catch (e) {
-        console.warn("[pdfjs] module/worker load failed; falling back to disableWorker", e);
-        try {
-          const lib = await import("/vendor/pdfjs/pdf.min.mjs");
-          window.pdfjsLib = lib;
-        } catch (e2) {
-          console.error("[pdfjs] failed to load core module", e2);
-        }
-        window.__pdfjsWorkerOK = false;
-        window.__pdfjsReady = Promise.resolve(false);
-      }
-    })();
-  </script>
+<script type="module">
+  const PDFJS_SRC = "/vendor/pdfjs/pdf.min.mjs";
+  const WORKER_SRC = "/vendor/pdfjs/pdf.worker.min.mjs";
+
+  window.__pdfjsReady = (async () => {
+    const mod = await import(PDFJS_SRC);
+    const lib = mod?.default ?? mod;
+    window.pdfjsLib = lib;
+
+    try {
+      lib.GlobalWorkerOptions.workerSrc = WORKER_SRC;
+      window.__pdfjsWorkerOK = true;
+    } catch (_) {
+      window.__pdfjsWorkerOK = false;
+    }
+
+    return lib;
+  })().catch(async (err) => {
+    try {
+      const mod2 = await import(PDFJS_SRC);
+      const lib2 = mod2?.default ?? mod2;
+      window.pdfjsLib = lib2;
+      window.__pdfjsWorkerOK = false;
+      return lib2;
+    } catch (_) {
+      window.__pdfjsWorkerOK = false;
+      throw err;
+    }
+  });
+</script>
 
   <style>
     [hidden]{ display:none !important; }
