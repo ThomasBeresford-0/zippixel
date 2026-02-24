@@ -1,11 +1,11 @@
-<!-- public/index.html — PDFOperations (v49 - FORCE HIDE DROPDOWN + FIX DOUBLE PICKER)
+<!-- public/index.html — PDFOperations (v50 - THUMBNAIL PREVIEW (NO PDF VIEWER) + FORCE HIDE DROPDOWN)
+     ✅ Shows a clean PDF thumbnail preview (page 1) — NOT Chrome viewer
      ✅ KILLS compression dropdown visually (even if app.js/CSS tries to show it)
-     ✅ KILLS native file input UI (no "Choose File / no file chosen")
-     ✅ Keeps ONE clean Select button (chooseBtn)
+     ✅ KILLS native file input UI ("Choose File / no file chosen")
+     ✅ Drag & drop supported
      ✅ Keeps ALL app.js v17.7 IDs preserved
      ✅ style.css?v=36 + app.js?v=17.7
 -->
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -39,8 +39,8 @@
       overflow:hidden !important;
     }
 
-    /* 2) Stop the native "Choose File / no file chosen" UI from ever showing */
-    .filePick{ position:relative; display:inline-flex; align-items:center; justify-content:center; gap:10px; }
+    /* 2) Stop the native file input UI from ever showing */
+    .filePick{ position:relative; display:inline-flex; align-items:center; justify-content:center; }
     #files{
       position:absolute !important;
       inset:0 !important;
@@ -51,17 +51,14 @@
       z-index:5 !important;
     }
 
-    /* make dropzone feel interactive on drag */
+    /* drag over state */
     #dropzone.isDragOver{
       outline:3px solid rgba(11,18,32,.08);
       box-shadow:0 18px 46px rgba(2,6,23,.12);
       transform:translateY(-1px);
     }
 
-    /* optional: keep “Output Compressed PDF…” from looking like a floating random label */
-    .notice { margin-top:6px; }
-
-    /* steps: sits under dropzone cleanly */
+    /* steps: sits under preview cleanly */
     .stepsLine{
       display:flex;
       flex-wrap:wrap;
@@ -82,7 +79,7 @@
       background:#fff;
     }
 
-    /* preview block */
+    /* preview block (thumbnail, not viewer) */
     .previewWrap{
       margin-top:14px;
       border:1px solid rgba(15,23,42,.10);
@@ -95,14 +92,59 @@
       display:flex;
       justify-content:space-between;
       align-items:center;
+      gap:10px;
       padding:12px 12px;
       border-bottom:1px solid rgba(15,23,42,.10);
       background:#f7f8fb;
-      font-size:14px;
-      font-weight:600;
     }
-    .previewBody{ height:380px; }
-    .pdfFrame{ width:100%; height:100%; border:0; background:#fff; }
+    .previewMeta{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .previewName{
+      font-size:14px;
+      font-weight:700;
+      color:#0b1220;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 58ch;
+    }
+    .previewSub{
+      font-size:12px;
+      color:rgba(11,18,32,.65);
+    }
+    .previewBody{
+      padding:14px;
+    }
+    .thumbShell{
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:14px;
+      background:#fff;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:220px;
+    }
+    canvas#pdfThumb{
+      display:block;
+      width:100%;
+      height:auto;
+      max-height:260px; /* stops it becoming a “whole viewer” */
+    }
+    .thumbLoading{
+      font-size:13px;
+      color:rgba(11,18,32,.68);
+      padding:18px;
+    }
+    .thumbError{
+      font-size:13px;
+      color:rgba(11,18,32,.78);
+      padding:18px;
+    }
     [hidden]{ display:none !important; }
   </style>
 </head>
@@ -147,7 +189,7 @@
 
         <div class="toolHead toolHeadMinimal">
           <h1 class="toolTitle">Compress PDF</h1>
-          <p class="toolSub">Upload one PDF, click <strong>Upload</strong>, then <strong>Continue</strong>.</p>
+          <p class="toolSub">Select or drop one PDF. Click <strong>Upload</strong>, then <strong>Continue</strong>.</p>
         </div>
 
         <!-- STATUS -->
@@ -206,10 +248,7 @@
             <div class="dzSub" id="dzSub">PDF only • 1 file</div>
 
             <div class="filePick">
-              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">
-                Select PDF
-              </button>
-              <!-- input is invisible but clickable (covers the button area) -->
+              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
               <input id="files" type="file" accept="application/pdf" />
             </div>
 
@@ -226,18 +265,25 @@
 
         </div>
 
-        <!-- PREVIEW -->
+        <!-- THUMB PREVIEW -->
         <div class="previewWrap" id="pdfPreviewWrap" hidden>
           <div class="previewHead">
-            <div id="pdfPreviewMeta">Selected file</div>
+            <div class="previewMeta">
+              <div class="previewName" id="pdfPreviewName">Selected file</div>
+              <div class="previewSub" id="pdfPreviewSub">Preview (page 1)</div>
+            </div>
             <button class="btnGhost" id="previewClearBtn" type="button">Clear</button>
           </div>
           <div class="previewBody">
-            <iframe id="pdfPreviewFrame" class="pdfFrame"></iframe>
+            <div class="thumbShell">
+              <div class="thumbLoading" id="thumbLoading">Rendering preview…</div>
+              <canvas id="pdfThumb" hidden></canvas>
+              <div class="thumbError" id="thumbError" hidden>Couldn’t render preview.</div>
+            </div>
           </div>
         </div>
 
-        <!-- STEPS (below dropzone, as requested) -->
+        <!-- STEPS -->
         <div class="stepsLine">
           <div class="stepItem"><span class="stepNum">1</span>Select / Drop a PDF</div>
           <div class="stepItem"><span class="stepNum">2</span>Click <strong>Upload</strong></div>
@@ -271,11 +317,8 @@
   <div class="container footerInner">
     <div>
       <strong>PDFOperations</strong>
-      <div style="margin-top:4px;">
-        PDF tools for email, portals and document workflows.
-      </div>
+      <div style="margin-top:4px;">PDF tools for email, portals and document workflows.</div>
     </div>
-
     <div class="footerLinks">
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
@@ -283,32 +326,92 @@
   </div>
 </footer>
 
-<!-- Preview + drag/drop (does NOT touch app.js logic; just visual layer) -->
+<!-- PDF.js (thumbnail rendering) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.js"></script>
+
 <script>
 (() => {
   const dropzone = document.getElementById("dropzone");
   const input = document.getElementById("files");
 
   const wrap = document.getElementById("pdfPreviewWrap");
-  const frame = document.getElementById("pdfPreviewFrame");
-  const meta = document.getElementById("pdfPreviewMeta");
+  const nameEl = document.getElementById("pdfPreviewName");
+  const subEl = document.getElementById("pdfPreviewSub");
+
+  const loadingEl = document.getElementById("thumbLoading");
+  const errEl = document.getElementById("thumbError");
+  const canvas = document.getElementById("pdfThumb");
+  const ctx = canvas.getContext("2d", { alpha: false });
+
   const previewClear = document.getElementById("previewClearBtn");
   const appClear = document.getElementById("clearBtn");
 
-  let objUrl = null;
+  function fmtMB(bytes){
+    return (bytes/1024/1024).toFixed(bytes > 1024*1024 ? 2 : 2) + " MB";
+  }
 
-  function showPreview(file){
+  async function renderThumb(file){
     if(!file) return;
-    if(objUrl) URL.revokeObjectURL(objUrl);
-    objUrl = URL.createObjectURL(file);
-    frame.src = objUrl;
-    meta.textContent = file.name + " • " + (file.size/1024/1024).toFixed(2) + " MB";
+
     wrap.hidden = false;
+    canvas.hidden = true;
+    errEl.hidden = true;
+    loadingEl.hidden = false;
+
+    nameEl.textContent = `${file.name} • ${fmtMB(file.size)}`;
+    subEl.textContent = "Preview (page 1)";
+
+    try{
+      // pdf.js worker
+      if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.js";
+      }
+
+      const buf = await file.arrayBuffer();
+      const doc = await pdfjsLib.getDocument({ data: buf }).promise;
+      const page = await doc.getPage(1);
+
+      // Fit to a compact thumbnail height
+      const targetMaxH = 240; // keeps it a preview, not a viewer
+      const baseViewport = page.getViewport({ scale: 1 });
+      const scale = Math.min(2, targetMaxH / baseViewport.height); // cap scale to avoid huge work
+      const viewport = page.getViewport({ scale });
+
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
+
+      // white background
+      ctx.save();
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.restore();
+
+      await page.render({ canvasContext: ctx, viewport }).promise;
+
+      loadingEl.hidden = true;
+      errEl.hidden = true;
+      canvas.hidden = false;
+    }catch(e){
+      loadingEl.hidden = true;
+      canvas.hidden = true;
+      errEl.hidden = false;
+    }
+  }
+
+  function clearAll(){
+    if(appClear) appClear.click(); // keeps app.js state correct
+    wrap.hidden = true;
+    loadingEl.hidden = false;
+    errEl.hidden = true;
+    canvas.hidden = true;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    input.value = "";
   }
 
   input.addEventListener("change", () => {
     const file = input.files && input.files[0];
-    showPreview(file);
+    if(file) renderThumb(file);
   });
 
   dropzone.addEventListener("dragover", (e) => {
@@ -332,13 +435,7 @@
     input.dispatchEvent(new Event("change", { bubbles:true }));
   });
 
-  previewClear.addEventListener("click", () => {
-    if(appClear) appClear.click(); // let app.js clear its state
-    wrap.hidden = true;
-    frame.removeAttribute("src");
-    input.value = "";
-    if(objUrl){ URL.revokeObjectURL(objUrl); objUrl = null; }
-  });
+  previewClear.addEventListener("click", clearAll);
 })();
 </script>
 
