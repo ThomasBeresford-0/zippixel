@@ -181,15 +181,15 @@ function computeTotalPence(job) {
   return { total, tier };
 }
 
-// ====== MODE HELPERS ======
-const VALID_MODES = new Set([
-  "compress",
-  "compress_pdf",
-  "convert",
-  "merge_pdf",
-  "split_pdf",
-  "rotate_pdf",
-]);
+  const VALID_MODES = new Set([
+    "compress",
+    "compress_pdf",
+    "convert",
+    "merge_pdf",
+    "split_pdf",
+    "rotate_pdf",
+    "sign_pdf",
+  ]);
 
 const VALID_CONVERT_TARGETS = new Set(["jpg", "jpeg", "png", "webp", "pdf"]);
 const VALID_PDF_COMPRESS_LEVELS = new Set(["light", "balanced", "max"]);
@@ -345,7 +345,13 @@ function validateJobFilesForMode(job) {
       throw new Error("Invalid convert target");
     }
   }
-}
+
+  if (job.mode === "sign_pdf") {
+    if (files.length !== 1) throw new Error("Sign PDF requires exactly 1 PDF.");
+    const nonPdf = files.find((f) => !isPdfMeta(f));
+    if (nonPdf) throw new Error("Sign PDF only accepts a PDF file.");
+  }
+  }
 
 // ====== R2 CLEANUP HELPERS ======
 async function deleteJobObjectsFromR2(jobId) {
@@ -527,6 +533,7 @@ const TOOL_PAGES = [
   "reduce-pdf-size",
   "compress-pdf-to-5mb",
   "convert",
+  "sign-pdf",
 ];
 
 TOOL_PAGES.forEach((slug) => {
@@ -734,6 +741,17 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
 
       // Fallback legacy whole-doc rotate
       job.rotateDegrees = normalizeRotateDegrees(degrees != null ? degrees : angle);
+          } else if (m === "sign_pdf") {
+      // Client-side signing — server just returns uploaded signed PDF
+      job.convertTarget = null;
+
+      job.pageOrder = null;
+      job.pageOrderType = "none";
+      job.splitOrder = null;
+
+      job.pdfCompressLevel = "balanced";
+      job.rotateDegrees = 90;
+      job.rotateMap = null;
     } else {
       job.convertTarget = null;
 
@@ -796,13 +814,15 @@ app.post("/api/checkout", async (req, res) => {
         ? "Merge PDFs"
         : job.mode === "split_pdf"
             ? "Split PDF"
-            : (job.mode === "compress_pdf"
+            : job.mode === "compress_pdf"
                 ? `Compress PDF (${levelLabel})`
-                : (job.mode === "rotate_pdf"
+                : job.mode === "rotate_pdf"
                     ? `Rotate PDF (${rotateLabel})`
-                    : (job.mode === "convert"
+                    : job.mode === "convert"
                         ? `Convert to ${String(job.convertTarget || "").toUpperCase() || "format"}`
-                        : "ZIP download")));
+                        : job.mode === "sign_pdf"
+                            ? "Sign PDF"
+                            : "ZIP download";
 
     const productName = `${productNameBase} — ${modeLabel}`;
 
@@ -1110,6 +1130,25 @@ app.get("/api/download/:jobId", async (req, res) => {
       );
 
       return res.send(Buffer.from(outBytes));
+    }
+
+    // ====== SIGN PDF MODE (PASS-THROUGH) ======
+    if (job.mode === "sign_pdf") {
+      const only = job.files[0];
+      const obj = await r2.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: only.key }));
+
+      res.setHeader("Content-Type", "application/pdf");
+
+      const base = sanitizeName(
+        String(only.originalname || "document").replace(/\.pdf$/i, "")
+      );
+
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${base}_signed.pdf"`
+      );
+
+      return obj.Body.pipe(res);
     }
 
     // ====== ZIP MODES ======
