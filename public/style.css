@@ -1492,3 +1492,9 @@ select:focus, .select:focus{
 @media (max-width: 980px){
   .signGrid{ grid-template-columns: 1fr; }
 }
+
+.brandLogoFull {
+  height: 42px; /* adjust if needed */
+  width: auto;
+  display: block;
+}
