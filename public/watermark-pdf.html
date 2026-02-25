@@ -53,24 +53,34 @@ window.__pdfjsReady = import("/vendor/pdfjs/pdf.min.mjs")
 
 <header class="nav">
   <div class="container navInner">
-    <a class="brand" href="/">
-      <img src="/favicon.svg" class="brandLogo" alt="PDFOperations"/>
+
+    <a class="brand" href="/" aria-label="PDFOperations home">
+      <img src="/favicon.svg" alt="PDFOperations" class="brandLogo" />
       <span class="brandText">
         <span class="top">PDFOperations</span>
-        <span class="sub">Compress • Merge • Split • Rotate • Convert • Sign • Protect</span>
+        <span class="sub">Professional PDF Tools</span>
       </span>
     </a>
-    <nav class="navLinks">
-      <a href="/">Compress</a>
-      <a href="/merge-pdf">Merge</a>
-      <a href="/split-pdf">Split</a>
-      <a href="/rotate-pdf">Rotate</a>
-      <a href="/convert">Convert</a>
-      <a href="/sign-pdf">Sign</a>
-      <a href="/protect-pdf">Protect</a>
+
+    <nav class="navLinks" aria-label="Primary tools">
+      <a href="/" data-nav="compress">Compress</a>
+      <a href="/merge-pdf" data-nav="merge">Merge</a>
+      <a href="/split-pdf" data-nav="split">Split</a>
+      <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
+      <a href="/convert" data-nav="convert">Convert</a>
     </nav>
+
   </div>
 </header>
+
+<div class="subNav">
+  <div class="container subNavInner">
+    <a href="/sign-pdf" data-nav="sign">Sign</a>
+    <a href="/protect-pdf" data-nav="protect">Protect</a>
+    <a href="/edit-pdf" data-nav="edit">Edit</a>
+    <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
+  </div>
+</div>
 
 <main>
 <section class="hero heroPremium heroToolFirst">
@@ -346,6 +356,31 @@ document.getElementById("upload").disabled=false;
 document.getElementById("continue").disabled=false;
 });
 
+})();
+</script>
+
+<script>
+(function(){
+  const path = window.location.pathname.replace(/\/$/, "");
+
+  const map = {
+    "": "compress",
+    "/": "compress",
+    "/merge-pdf": "merge",
+    "/split-pdf": "split",
+    "/rotate-pdf": "rotate",
+    "/convert": "convert",
+    "/sign-pdf": "sign",
+    "/protect-pdf": "protect",
+    "/edit-pdf": "edit",
+    "/watermark-pdf": "watermark"
+  };
+
+  const key = map[path];
+  if (!key) return;
+
+  document.querySelectorAll(`[data-nav="${key}"]`)
+    .forEach(el => el.setAttribute("aria-current","page"));
 })();
 </script>
 

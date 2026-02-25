@@ -38,22 +38,29 @@ window.__pdfjsReady = import("/vendor/pdfjs/pdf.min.mjs")
       <img src="/favicon.svg" alt="PDFOperations" class="brandLogo" />
       <span class="brandText">
         <span class="top">PDFOperations</span>
-        <span class="sub">Compress • Merge • Split • Rotate • Convert • Sign • Protect</span>
+        <span class="sub">Professional PDF Tools</span>
       </span>
     </a>
 
-    <nav class="navLinks" aria-label="Tools">
-      <a href="/">Compress</a>
-      <a href="/merge-pdf">Merge</a>
-      <a href="/split-pdf">Split</a>
-      <a href="/rotate-pdf">Rotate</a>
-      <a href="/convert">Convert</a>
-      <a href="/sign-pdf">Sign</a>
-      <a href="/protect-pdf">Protect</a>
+    <nav class="navLinks" aria-label="Primary tools">
+      <a href="/" data-nav="compress">Compress</a>
+      <a href="/merge-pdf" data-nav="merge">Merge</a>
+      <a href="/split-pdf" data-nav="split">Split</a>
+      <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
+      <a href="/convert" data-nav="convert">Convert</a>
     </nav>
 
   </div>
 </header>
+
+<div class="subNav">
+  <div class="container subNavInner">
+    <a href="/sign-pdf" data-nav="sign">Sign</a>
+    <a href="/protect-pdf" data-nav="protect">Protect</a>
+    <a href="/edit-pdf" data-nav="edit">Edit</a>
+    <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
+  </div>
+</div>
 
 <main>
 

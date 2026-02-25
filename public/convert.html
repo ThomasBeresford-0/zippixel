@@ -80,7 +80,7 @@
     "@context":"https://schema.org",
     "@type":"SoftwareApplication",
     "name":"PDFOperations - Convert Files",
-    "applicationCategory": "BusinessApplication"
+    "applicationCategory": "BusinessApplication",
     "applicationSubCategory":"File Conversion",
     "operatingSystem":"Web",
     "browserRequirements":"Requires JavaScript. Works in modern browsers.",
@@ -320,30 +320,24 @@
 
 <header class="nav">
   <div class="container navInner">
+
     <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/favicon.svg" alt="PDFOperations" class="brandLogo" />
       <span class="brandText">
         <span class="top">PDFOperations</span>
-        <span class="sub">Compress • Merge • Split • Protect • Sign •</span>
+        <span class="sub">Professional PDF Tools</span>
       </span>
     </a>
 
-    <nav class="navLinks" aria-label="Tools">
-      <a href="/">Compress</a>
-      <a href="/merge-pdf">Merge</a>
-      <a href="/split-pdf">Split</a>
-      <a href="/convert" aria-current="page">Convert</a>
-      <a href="/rotate-pdf">Rotate</a>
-      <a href="/protect-pdf">Protect</a>
-      <a href="/sign-pdf">Sign</a>
-      <a href="/pricing">Pricing</a>
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
+    <nav class="navLinks" aria-label="Primary tools">
+      <a href="/" data-nav="compress">Compress</a>
+      <a href="/merge-pdf" data-nav="merge">Merge</a>
+      <a href="/split-pdf" data-nav="split">Split</a>
+      <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
+      <a href="/convert" data-nav="convert" aria-current="page">Convert</a>
+      <a href="/pricing" data-nav="pricing">Pricing</a>
     </nav>
 
-    <div class="navCta">
-      <a class="btn btnSmall btnGhost" href="#tool">Start</a>
-    </div>
   </div>
 </header>
 
@@ -635,6 +629,7 @@
       <div class="footerNote">Professional online file tools.</div>
     </div>
     <div class="footerRight">
+      <a href="/pricing">Pricing</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
     </div>

@@ -69,6 +69,22 @@ const TIER_50_LIMIT = Number(process.env.TIER_50_LIMIT || 50);
 const TIER_50_PRICE_GBP_PENCE = Number(process.env.TIER_50_PRICE_GBP_PENCE || 999);
 const SHARE_LINK_UPSELL_PENCE = Number(process.env.SHARE_LINK_UPSELL_PENCE || 249);
 
+// ====== TOOL-BASED PRICING (OVERRIDES TIER BASE) ======
+const TOOL_BASE_PRICE = {
+  compress: 299,
+  compress_pdf: 299,
+  convert: 299,
+  merge_pdf: 299,
+  split_pdf: 299,
+  rotate_pdf: 299,
+
+  protect_pdf: 399,
+  watermark_pdf: 399,
+
+  sign_pdf: 499,
+  edit_pdf: 499
+};
+
 // ====== TTL ======
 const UNPAID_JOB_TTL_MS = Number(process.env.UNPAID_JOB_TTL_MS || 1000 * 60 * 60); // 1h
 const PAID_JOB_TTL_MS = Number(process.env.PAID_JOB_TTL_MS || 1000 * 60 * 60 * 24); // 24h
@@ -175,9 +191,23 @@ function inferTierFromFileCount(count) {
 
 function computeTotalPence(job) {
   const count = job?.files?.length || 0;
-  const tier = inferTierFromFileCount(count);
   const share = !!job?.options?.shareLink;
-  const total = tier.price + (share ? SHARE_LINK_UPSELL_PENCE : 0);
+
+  // Base price by tool
+  let base = TOOL_BASE_PRICE[job.mode] || TIER_10_PRICE_GBP_PENCE;
+
+  // If file count exceeds lower tier, upgrade to Pro price
+  if (count > TIER_10_LIMIT) {
+    base = TIER_50_PRICE_GBP_PENCE;
+  }
+
+  const total = base + (share ? SHARE_LINK_UPSELL_PENCE : 0);
+
+  // Fake tier object for compatibility (used in metadata + naming)
+  const tier = count > TIER_10_LIMIT
+    ? { key: "zip50", price: TIER_50_PRICE_GBP_PENCE }
+    : { key: "zip10", price: base };
+
   return { total, tier };
 }
 

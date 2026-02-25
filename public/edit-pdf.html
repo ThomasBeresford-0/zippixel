@@ -5,60 +5,82 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <title>Edit PDF Online — Add Text to PDF | PDFOperations</title>
-<meta name="description" content="Edit PDF online. Add text anywhere, drag, resize and download securely. Business-ready PDF editing." />
+<meta name="description" content="Edit PDF online. Add text anywhere, drag to reposition, resize and download securely. Business-ready PDF editing." />
 <link rel="canonical" href="https://pdfoperations.com/edit-pdf" />
 <meta name="robots" content="index,follow" />
 <meta name="theme-color" content="#0b1220" />
+<meta name="color-scheme" content="light" />
 
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/style.css?v=36" />
 <script defer src="/app.js?v=17.7"></script>
 
+<!-- PDF.js (ESM, self-hosted) -->
 <script type="module">
-  import("/vendor/pdfjs/pdf.min.mjs").then((lib)=>{
-    window.pdfjsLib = lib;
-    lib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.mjs";
-  });
+  window.__pdfjsReady = import("/vendor/pdfjs/pdf.min.mjs")
+    .then((mod) => {
+      const lib = mod?.default || mod;
+      window.pdfjsLib = lib;
+      try { lib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.mjs"; } catch(_) {}
+      return lib;
+    })
+    .catch((err) => {
+      console.warn("[PDFOperations] PDF.js failed to load:", err);
+      window.pdfjsLib = null;
+      return null;
+    });
 </script>
 
 <script type="application/ld+json">
 {
  "@context":"https://schema.org",
  "@type":"SoftwareApplication",
- "name":"Edit PDF Online — PDFOperations",
+ "name":"PDFOperations — Edit PDF",
  "applicationCategory":"BusinessApplication",
  "operatingSystem":"Web",
- "description":"Visual PDF editor to add text and modify PDF documents online."
+ "url":"https://pdfoperations.com/edit-pdf",
+ "description":"Online PDF editor to add text overlays to PDF pages, then download the edited file."
 }
 </script>
 </head>
 
-<body class="page pageEditPdf">
+<body class="page pageEditPdf premium" data-tool="edit_pdf">
+<a href="#tool" class="srOnly">Skip to the tool</a>
+
 <div class="bg" aria-hidden="true"></div>
 
 <header class="nav">
   <div class="container navInner">
-    <a class="brand" href="/">
-      <img src="/favicon.svg" class="brandLogo"/>
+
+    <a class="brand" href="/" aria-label="PDFOperations home">
+      <img src="/favicon.svg" alt="PDFOperations" class="brandLogo" />
       <span class="brandText">
         <span class="top">PDFOperations</span>
-        <span class="sub">Business PDF Tools</span>
+        <span class="sub">Professional PDF Tools</span>
       </span>
     </a>
 
-    <nav class="navLinks">
-      <a href="/">Compress</a>
-      <a href="/merge-pdf">Merge</a>
-      <a href="/split-pdf">Split</a>
-      <a href="/rotate-pdf">Rotate</a>
-      <a href="/convert">Convert</a>
-      <a href="/protect-pdf">Protect</a>
-      <a href="/watermark-pdf">Watermark</a>
-      <a href="/sign-pdf">Sign</a>
-      <a href="/edit-pdf" aria-current="page">Edit</a>
+    <nav class="navLinks" aria-label="Primary tools">
+      <a href="/" data-nav="compress">Compress</a>
+      <a href="/merge-pdf" data-nav="merge">Merge</a>
+      <a href="/split-pdf" data-nav="split">Split</a>
+      <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
+      <a href="/convert" data-nav="convert">Convert</a>
+      <a href="/pricing" data-nav="pricing">Pricing</a>
     </nav>
+
   </div>
 </header>
+
+<!-- Secondary tools -->
+<div class="subNav">
+  <div class="container subNavInner">
+    <a href="/sign-pdf" data-nav="sign">Sign</a>
+    <a href="/protect-pdf" data-nav="protect">Protect</a>
+    <a href="/edit-pdf" data-nav="edit" aria-current="page">Edit</a>
+    <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
+  </div>
+</div>
 
 <main>
 
@@ -68,7 +90,7 @@
     <div id="tool" class="tool toolPremium toolMega">
 
       <div class="toolHead toolHeadMinimal">
-        <h1 class="toolTitle">Edit PDF Online</h1>
+        <h1 class="toolTitle">Edit PDF</h1>
         <p class="toolSub">Click anywhere to add text. Drag to reposition. Resize and download securely.</p>
       </div>
 
@@ -80,18 +102,27 @@
         <div class="statusHint" id="statusHint">Drop a PDF to begin.</div>
       </div>
 
-      <!-- hidden mode -->
+      <!-- hidden mode (app.js compatibility) -->
       <fieldset style="display:none;">
+        <input type="radio" name="mode" id="modeCompress">
+        <input type="radio" name="mode" id="modeCompressPdf">
+        <input type="radio" name="mode" id="modeConvert">
+        <input type="radio" name="mode" id="modeMergePdf">
+        <input type="radio" name="mode" id="modeSplitPdf">
+        <input type="radio" name="mode" id="modeRotatePdf">
+        <input type="radio" name="mode" id="modeProtectPdf">
+        <input type="radio" name="mode" id="modeWatermarkPdf">
+        <input type="radio" name="mode" id="modeSignPdf">
         <input type="radio" name="mode" id="modeEditPdf" checked>
       </fieldset>
 
-      <!-- DROPZONE -->
+      <!-- DROPZONE (IDs preserved) -->
       <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
         <div class="dzCenter">
-          <div class="dzTitle">Drop a PDF here</div>
-          <div class="dzSub">1 PDF • £3 per document</div>
+          <div class="dzTitle" id="dzTitle">Drop a PDF here</div>
+          <div class="dzSub" id="dzSub">PDF only • 1 file</div>
           <button id="chooseBtn" class="btnPrimary btnLarge" type="button">Select PDF</button>
-          <input id="files" type="file" accept="application/pdf" hidden />
+          <input id="files" type="file" accept="application/pdf,.pdf" hidden />
         </div>
       </div>
 
@@ -105,19 +136,16 @@
       <div class="workPanel" aria-label="Selected file">
 
         <div class="workTop">
-          <button class="btnPrimary" type="button"
-            onclick="document.getElementById('chooseBtn').click()">
+          <button class="btnPrimary" type="button" onclick="document.getElementById('chooseBtn').click()">
             Select PDF
           </button>
           <button class="btnGhost" type="button" id="clearBtn">Clear</button>
         </div>
 
         <div class="workStage">
-
           <div class="editorStage">
             <div id="pdfEditor"></div>
           </div>
-
         </div>
 
         <div class="workBottom">
@@ -140,9 +168,8 @@
     <div class="plainKicker">Edit</div>
     <h2 class="plainH2">Add text to a PDF document</h2>
     <p class="plainLead">
-      Use this visual PDF editor to modify documents online.
-      Click anywhere on the page to insert text blocks.
-      Drag to reposition and resize before downloading your edited file.
+      Use this visual PDF editor to add text overlays to documents online.
+      Click anywhere to insert text blocks, drag to reposition, and resize before downloading your edited file.
       Ideal for contracts, forms and business paperwork.
     </p>
 
@@ -156,7 +183,7 @@
 
           <div class="faqItemPlain">
             <div class="faqQ">Can I edit existing text?</div>
-            <p class="faqA">This tool allows you to add new text overlays. It does not modify embedded original PDF text.</p>
+            <p class="faqA">This tool adds new text overlays. It does not modify embedded original PDF text.</p>
           </div>
 
           <div class="faqItemPlain">
@@ -166,19 +193,20 @@
 
           <div class="faqItemPlain">
             <div class="faqQ">How much does it cost?</div>
-            <p class="faqA">£3 per document after upload.</p>
+            <p class="faqA">Pricing is shown at checkout after upload.</p>
           </div>
 
         </div>
       </div>
 
       <div>
-        <div class="plainKicker">More Tools</div>
+        <div class="plainKicker">More tools</div>
         <div class="relatedLinks">
           <a href="/">Compress PDF</a>
           <a href="/merge-pdf">Merge PDF</a>
-          <a href="/protect-pdf">Protect PDF</a>
-          <a href="/sign-pdf">Sign PDF</a>
+          <a href="/split-pdf">Split PDF</a>
+          <a href="/rotate-pdf">Rotate PDF</a>
+          <a href="/convert">Convert</a>
         </div>
       </div>
 
@@ -189,7 +217,7 @@
 
 </main>
 
-<footer class="footer">
+<footer class="footer footerPremium">
   <div class="container footerInner">
     <div><strong>PDFOperations</strong></div>
     <div class="footerLinks">
@@ -202,96 +230,97 @@
 
 <script>
 (function(){
+  let active = null;
+  window.__PDFOPS_EDIT_MAP__ = [];
 
-let active=null;
-window.__PDFOPS_EDIT_MAP__=[];
+  const editor = document.getElementById("pdfEditor");
 
-const editor=document.getElementById("pdfEditor");
+  document.addEventListener("pdfops:selected", async (e) => {
+    // ✅ ensure PDF.js is ready even if selection fires fast
+    try { await (window.__pdfjsReady || Promise.resolve(null)); } catch {}
 
-document.addEventListener("pdfops:selected",async e=>{
-const file=e.detail.files[0];
-if(!file||!window.pdfjsLib)return;
+    const file = e?.detail?.files?.[0];
+    if (!file || !window.pdfjsLib) return;
 
-editor.innerHTML="";
-window.__PDFOPS_EDIT_MAP__=[];
+    editor.innerHTML = "";
+    window.__PDFOPS_EDIT_MAP__ = [];
 
-const buffer=await file.arrayBuffer();
-const pdf=await pdfjsLib.getDocument({data:buffer}).promise;
+    const buffer = await file.arrayBuffer();
+    const pdf = await window.pdfjsLib.getDocument({ data: buffer }).promise;
 
-for(let p=1;p<=pdf.numPages;p++){
-const page=await pdf.getPage(p);
-const viewport=page.getViewport({scale:1.5});
+    for (let p = 1; p <= pdf.numPages; p++) {
+      const page = await pdf.getPage(p);
+      const viewport = page.getViewport({ scale: 1.5 });
 
-const wrap=document.createElement("div");
-wrap.className="editPage";
+      const wrap = document.createElement("div");
+      wrap.className = "editPage";
 
-const canvas=document.createElement("canvas");
-canvas.width=viewport.width;
-canvas.height=viewport.height;
-await page.render({canvasContext:canvas.getContext("2d"),viewport}).promise;
+      const canvas = document.createElement("canvas");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
 
-const overlay=document.createElement("div");
-overlay.className="overlay";
-overlay.addEventListener("click",ev=>{
-if(ev.target!==overlay)return;
-createBlock(p,ev.offsetX,ev.offsetY);
-});
+      const overlay = document.createElement("div");
+      overlay.className = "overlay";
+      overlay.addEventListener("click", (ev) => {
+        if (ev.target !== overlay) return;
+        createBlock(p, ev.offsetX, ev.offsetY);
+      });
 
-wrap.appendChild(canvas);
-wrap.appendChild(overlay);
-editor.appendChild(wrap);
+      wrap.appendChild(canvas);
+      wrap.appendChild(overlay);
+      editor.appendChild(wrap);
 
-window.__PDFOPS_EDIT_MAP__.push({page:p,elements:[]});
-}
-});
+      window.__PDFOPS_EDIT_MAP__.push({ page: p, elements: [] });
+    }
+  });
 
-function createBlock(page,x,y){
-const block=document.createElement("div");
-block.className="textBlock";
-block.contentEditable=true;
-block.style.left=x+"px";
-block.style.top=y+"px";
-block.style.fontSize="24px";
-block.textContent="Text";
+  function createBlock(page, x, y){
+    const block = document.createElement("div");
+    block.className = "textBlock";
+    block.contentEditable = true;
+    block.style.left = x + "px";
+    block.style.top = y + "px";
+    block.style.fontSize = "24px";
+    block.textContent = "Text";
 
-block.addEventListener("mousedown",startDrag);
-block.addEventListener("click",()=>selectBlock(block));
+    block.addEventListener("mousedown", startDrag);
+    block.addEventListener("click", () => selectBlock(block));
 
-document.querySelectorAll(".overlay")[page-1].appendChild(block);
+    document.querySelectorAll(".overlay")[page - 1].appendChild(block);
 
-window.__PDFOPS_EDIT_MAP__[page-1].elements.push({
-type:"text",
-x,y,
-size:24,
-text:"Text"
-});
+    window.__PDFOPS_EDIT_MAP__[page - 1].elements.push({
+      type: "text",
+      x, y,
+      size: 24,
+      text: "Text"
+    });
 
-selectBlock(block);
-}
+    selectBlock(block);
+  }
 
-function selectBlock(el){
-document.querySelectorAll(".textBlock").forEach(b=>b.classList.remove("active"));
-active=el;
-el.classList.add("active");
-}
+  function selectBlock(el){
+    document.querySelectorAll(".textBlock").forEach(b => b.classList.remove("active"));
+    active = el;
+    el.classList.add("active");
+  }
 
-function startDrag(e){
-const el=e.currentTarget;
-selectBlock(el);
-let ox=e.offsetX,oy=e.offsetY;
+  function startDrag(e){
+    const el = e.currentTarget;
+    selectBlock(el);
+    let ox = e.offsetX, oy = e.offsetY;
 
-function move(ev){
-el.style.left=(ev.pageX-el.parentElement.getBoundingClientRect().left-ox)+"px";
-el.style.top=(ev.pageY-el.parentElement.getBoundingClientRect().top-oy)+"px";
-}
-function stop(){
-document.removeEventListener("mousemove",move);
-document.removeEventListener("mouseup",stop);
-}
-document.addEventListener("mousemove",move);
-document.addEventListener("mouseup",stop);
-}
-
+    function move(ev){
+      el.style.left = (ev.pageX - el.parentElement.getBoundingClientRect().left - ox) + "px";
+      el.style.top  = (ev.pageY - el.parentElement.getBoundingClientRect().top  - oy) + "px";
+    }
+    function stop(){
+      document.removeEventListener("mousemove", move);
+      document.removeEventListener("mouseup", stop);
+    }
+    document.addEventListener("mousemove", move);
+    document.addEventListener("mouseup", stop);
+  }
 })();
 </script>
 
@@ -300,12 +329,12 @@ document.addEventListener("mouseup",stop);
 .editPage{position:relative;margin-bottom:60px;}
 .overlay{position:absolute;inset:0;}
 .textBlock{
-position:absolute;
-min-width:40px;
-padding:4px 6px;
-background:#fff;
-border:1px dashed #2563eb;
-cursor:move;
+  position:absolute;
+  min-width:40px;
+  padding:4px 6px;
+  background:#fff;
+  border:1px dashed #2563eb;
+  cursor:move;
 }
 .textBlock.active{border:2px solid #111;}
 </style>

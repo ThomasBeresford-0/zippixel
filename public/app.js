@@ -10,13 +10,34 @@
   const MAX_FILES = 50;
   const MAX_MB_EACH = 25;
 
-  // ====== PRICING (modal only; never shown until AFTER upload) ======
-  const TIER_10_LIMIT = 10;
-  const TIER_10_PRICE = 2.99;
-  const TIER_50_LIMIT = 50;
-  const TIER_50_PRICE = 9.99;
-  const SHARE_LINK_PRICE = 2.49;
+  // ====== TOOL PRICING ======
+  const TOOL_PRICING = {
+    compress_pdf: 2.99,
+    merge_pdf: 2.99,
+    split_pdf: 2.99,
+    rotate_pdf: 2.99,
 
+    protect_pdf: 3.99,
+    watermark_pdf: 3.99,
+
+    sign_pdf: 4.99,
+    edit_pdf: 4.99,
+
+    compress: 2.99,
+    convert: 2.99
+  };
+
+  // File count upgrade (large jobs)
+  const PRO_FILE_LIMIT = 10;
+  const PRO_FILE_PRICE = 9.99;
+
+  // Share link
+  const SHARE_LINK_PRICE = 2.49;
+  // ZIP tiers (used by getTier + modal labels)
+  const TIER_10_LIMIT = 10;
+  const TIER_50_LIMIT = 50;
+  const TIER_10_PRICE = 2.99;
+  const TIER_50_PRICE = 9.99;
   // ====== DOM ======
   const dropzone = document.getElementById("dropzone");
   const filesEl = document.getElementById("files");
@@ -80,6 +101,10 @@
 
   // NEW (optional) rotate mode radio — safe if missing
   const modeRotatePdf = document.getElementById("modeRotatePdf");
+  const modeProtectPdf = document.getElementById("modeProtectPdf");
+  const modeWatermarkPdf = document.getElementById("modeWatermarkPdf");
+  const modeSignPdf = document.getElementById("modeSignPdf");
+  const modeEditPdf = document.getElementById("modeEditPdf");
 
   const convertRow = document.getElementById("convertRow");
   const convertFrom = document.getElementById("convertFrom"); // informational
@@ -252,9 +277,17 @@
   };
 
   const calcTotal = () => {
-    const tier = getTier(selected.length);
+    const fileCount = selected.length;
     const share = !!optShareLink?.checked;
-    return tier.base + (share ? SHARE_LINK_PRICE : 0);
+
+    let base = TOOL_PRICING[mode] || 2.99;
+
+    // Upgrade large jobs
+    if (fileCount > PRO_FILE_LIMIT) {
+      base = PRO_FILE_PRICE;
+    }
+
+    return base + (share ? SHARE_LINK_PRICE : 0);
   };
 
   const disableLegacyOptions = () => {
@@ -423,7 +456,17 @@
 
   const setFileInputAccept = () => {
     if (!filesEl) return;
-    if (mode === "merge_pdf" || mode === "split_pdf" || mode === "compress_pdf" || mode === "rotate_pdf") {
+    if (
+    mode === "merge_pdf" ||
+    mode === "split_pdf" ||
+    mode === "compress_pdf" ||
+    mode === "rotate_pdf" ||
+    mode === "protect_pdf" ||
+    mode === "watermark_pdf" ||
+    mode === "sign_pdf" ||
+    mode === "edit_pdf"
+  ) 
+  {
       filesEl.setAttribute("accept", "application/pdf,.pdf");
     } else {
       filesEl.removeAttribute("accept");
@@ -435,6 +478,10 @@
     if (mode === "split_pdf") return selected.length === 1;
     if (mode === "compress_pdf") return selected.length === 1;
     if (mode === "rotate_pdf") return selected.length === 1;
+    if (mode === "protect_pdf") return selected.length === 1;
+    if (mode === "watermark_pdf") return selected.length === 1;
+    if (mode === "sign_pdf") return selected.length === 1;
+    if (mode === "edit_pdf") return selected.length === 1;
     return selected.length >= 1;
   };
 
@@ -450,19 +497,30 @@
     const baseErr = validateFileBase(f);
     if (baseErr) return baseErr;
 
-    if (mode === "merge_pdf" || mode === "split_pdf" || mode === "compress_pdf" || mode === "rotate_pdf") {
-      if (!isPdfFile(f)) {
-        const label =
-          mode === "merge_pdf"
-            ? "Merge PDFs"
-            : mode === "split_pdf"
-              ? "Split PDF"
-              : mode === "compress_pdf"
-                ? "Compress PDF"
-                : "Rotate PDF";
-        return `“${f.name}” isn’t a PDF. ${label} only accepts PDF files.`;
-      }
+    const pdfOnly =
+      mode === "merge_pdf" ||
+      mode === "split_pdf" ||
+      mode === "compress_pdf" ||
+      mode === "rotate_pdf" ||
+      mode === "protect_pdf" ||
+      mode === "watermark_pdf" ||
+      mode === "sign_pdf" ||
+      mode === "edit_pdf";
+
+    if (pdfOnly && !isPdfFile(f)) {
+    const label =
+      mode === "merge_pdf" ? "Merge PDFs"
+      : mode === "split_pdf" ? "Split PDF"
+      : mode === "compress_pdf" ? "Compress PDF"
+      : mode === "rotate_pdf" ? "Rotate PDF"
+      : mode === "protect_pdf" ? "Protect PDF"
+      : mode === "watermark_pdf" ? "Watermark PDF"
+      : mode === "sign_pdf" ? "Sign PDF"
+      : mode === "edit_pdf" ? "Edit PDF"
+      : "This tool";
+      return `“${f.name}” isn’t a PDF. ${label} only accepts PDF files.`;
     }
+
     return null;
   };
 
@@ -654,15 +712,14 @@
         } else {
           priceModalLead.innerHTML = `You’re rotating <b>1</b> PDF by <b>${rotateDegreesValue}°</b>.`;
         }
-      }
       } else if (mode === "convert") {
-          priceModalLead.innerHTML = `You’re converting <b>${n}</b> file${n === 1 ? "" : "s"} to <b>${escapeHtml(
+        priceModalLead.innerHTML = `You’re converting <b>${n}</b> file${n === 1 ? "" : "s"} to <b>${escapeHtml(
           (convertTargetValue || "jpg").toUpperCase()
         )}</b>.`;
       } else {
         priceModalLead.innerHTML = `You’re continuing with <b>${n}</b> file${n === 1 ? "" : "s"}.`;
       }
-    }
+    }  };
 
   const syncModalTotalUI = () => {
     const total = calcTotal();
@@ -1230,9 +1287,18 @@
     const isSplit = !!modeSplitPdf?.checked;
     const isRotate = !!modeRotatePdf?.checked;
 
-    mode = isRotate ? "rotate_pdf" : isMerge ? "merge_pdf" : isSplit ? "split_pdf" : isCompressPdf ? "compress_pdf" : isConvert ? "convert" : "compress";
-
-    safeLocalSet(LS.lastMode, mode);
+    mode =
+      isRotate ? "rotate_pdf"
+      : isMerge ? "merge_pdf"
+      : isSplit ? "split_pdf"
+      : isCompressPdf ? "compress_pdf"
+      : isConvert ? "convert"
+      : (modeProtectPdf?.checked ? "protect_pdf"
+      : modeWatermarkPdf?.checked ? "watermark_pdf"
+      : modeSignPdf?.checked ? "sign_pdf"
+      : modeEditPdf?.checked ? "edit_pdf"
+      : "compress");
+        safeLocalSet(LS.lastMode, mode);
 
     if (convertRow) convertRow.style.display = mode === "convert" ? "flex" : "none";
     if (pdfCompressRow) pdfCompressRow.style.display = mode === "compress_pdf" ? "flex" : "none";
@@ -1431,7 +1497,15 @@
     disarmPricingUI();
 
     // Single-PDF tools: selecting another PDF REPLACES
-    if (mode === "split_pdf" || mode === "compress_pdf" || mode === "rotate_pdf") {
+    if (
+      mode === "split_pdf" ||
+      mode === "compress_pdf" ||
+      mode === "rotate_pdf" ||
+      mode === "protect_pdf" ||
+      mode === "watermark_pdf" ||
+      mode === "sign_pdf" ||
+      mode === "edit_pdf"
+    ) {
       if (!incomingValid.length) {
         setPrimaryStates();
         return;
@@ -1624,6 +1698,21 @@
         from: convertFrom?.value || "auto",
       };
 
+      // ✅ NEW TOOLS — send extra config to backend
+      if (mode === "protect_pdf") payload.protect = true;
+
+      if (mode === "watermark_pdf") {
+        payload.watermarkConfig = window.__PDFOPS_WATERMARK_CONFIG__ || null;
+      }
+
+      if (mode === "sign_pdf") {
+        payload.signMap = window.__PDFOPS_SIGN_MAP__ || null;
+      }
+
+      if (mode === "edit_pdf") {
+        payload.editMap = window.__PDFOPS_EDIT_MAP__ || null;
+      }
+
       if (mode === "merge_pdf" && Array.isArray(pdfPageOrder) && pdfPageOrder.length) payload.order = pdfPageOrder;
 
       if (mode === "split_pdf") {
@@ -1660,6 +1749,7 @@
       setHint("Couldn’t set mode. Refresh and try again.");
     }
   };
+
 
   uploadBtn.addEventListener("click", async () => {
     if (uploading) return;
@@ -1863,9 +1953,9 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           jobId,
+          mode,
           shareLink: !!optShareLink?.checked,
-          tier: tier.key,
-          fileCount: n,
+          fileCount: n
         }),
       }).then((r) => r.json());
 

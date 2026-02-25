@@ -3,6 +3,8 @@
      ✅ Keeps preview + PDF.js .mjs loader untouched
      ✅ Rebuilds visual layer to “hard premium utility” (no bubbles, no rounded hero vibes)
      ✅ Keeps SEO JSON-LD blocks (WebSite + WebPage + Breadcrumb + FAQ + SoftwareApplication)
+     ✅ NAV FIX: Adds Pricing to main header + adds subNav for Sign/Protect/Edit/Watermark
+     ✅ FIX: app.js loaded ONCE (was twice)
 -->
 <!doctype html>
 <html lang="en">
@@ -11,7 +13,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Compress PDF Online — Reduce PDF File Size Instantly | PDFOperations</title>
-  <meta name="description" content="Compress PDF online to reduce file size for email attachments, university submissions, government portals and client uploads. Secure browser-based PDF compression." />  <link rel="canonical" href="https://pdfoperations.com/" />
+  <meta name="description" content="Compress PDF online to reduce file size for email attachments, university submissions, government portals and client uploads. Secure browser-based PDF compression." />
+  <link rel="canonical" href="https://pdfoperations.com/" />
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
 
@@ -113,6 +116,38 @@
     .navLinks a[aria-current="page"]{
       opacity:1;
       border-bottom:1px solid rgba(11,18,32,.35);
+    }
+
+    /* Secondary nav (Sign/Protect/Edit/Watermark) */
+    .subNav{
+      border-bottom: 1px solid rgba(15,23,42,.10);
+      background: rgba(245,247,251,.72);
+      backdrop-filter: blur(10px);
+    }
+    .subNavInner{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:18px;
+      padding:10px 0;
+    }
+    .subNav a{
+      text-decoration:none;
+      font-weight:850;
+      letter-spacing:-.01em;
+      color:rgba(11,18,32,.88);
+      opacity:.82;
+      border-bottom:1px solid transparent;
+      padding-bottom:2px;
+    }
+    .subNav a:hover{ opacity:1; }
+    .subNav a[aria-current="page"]{
+      opacity:1;
+      border-bottom-color: rgba(11,18,32,.35);
+    }
+    @media (max-width: 720px){
+      .subNavInner{ justify-content:flex-start; overflow:auto; }
+      .subNavInner::-webkit-scrollbar{ display:none; }
     }
 
     /* Steps (pre-select only) */
@@ -490,26 +525,26 @@
   }
   </script>
 
-<script type="application/ld+json">
-{
-  "@context":"https://schema.org",
-  "@type":"SoftwareApplication",
-  "name":"PDFOperations",
-  "applicationCategory": "BusinessApplication"
-  "applicationSubCategory":"PDF Utilities",
-  "operatingSystem":"Web",
-  "browserRequirements":"Requires JavaScript. Works in modern browsers.",
-  "url":"https://pdfoperations.com/",
-  "description":"Online PDF utilities to compress, merge, split, rotate and convert PDF files.",
-  "featureList":[
-    "Compress PDF files",
-    "Merge PDF documents",
-    "Split PDF pages",
-    "Rotate PDF pages",
-    "Convert PDF to image formats"
-  ]
-}
-</script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"PDFOperations",
+    "applicationCategory": "BusinessApplication",
+    "applicationSubCategory":"PDF Utilities",
+    "operatingSystem":"Web",
+    "browserRequirements":"Requires JavaScript. Works in modern browsers.",
+    "url":"https://pdfoperations.com/",
+    "description":"Online PDF utilities to compress, merge, split, rotate and convert PDF files.",
+    "featureList":[
+      "Compress PDF files",
+      "Merge PDF documents",
+      "Split PDF pages",
+      "Rotate PDF pages",
+      "Convert PDF to image formats"
+    ]
+  }
+  </script>
 
   <!-- ✅ PDF.js module load (THIS fixes import.meta error) -->
   <script type="module">
@@ -526,6 +561,9 @@
         return null;
       });
   </script>
+
+  <!-- ✅ app.js ONCE -->
+  <script defer src="/app.js?v=17.7"></script>
 </head>
 
 <body class="page pageCompressPdf">
@@ -540,22 +578,31 @@
       <img src="/favicon.svg" alt="PDFOperations" class="brandLogo" />
       <span class="brandText">
         <span class="top">PDFOperations</span>
-        <span class="sub">Compress • Merge • Split • Rotate • Convert • Sign • Protect</span>
+        <span class="sub">Professional PDF Tools</span>
       </span>
     </a>
 
-    <nav class="navLinks" aria-label="Tools">
-      <a href="/">Compress</a>
-      <a href="/merge-pdf">Merge</a>
-      <a href="/split-pdf">Split</a>
-      <a href="/rotate-pdf">Rotate</a>
-      <a href="/convert">Convert</a>
-      <a href="/sign-pdf">Sign</a>
-      <a href="/protect-pdf">Protect</a>
+    <nav class="navLinks" aria-label="Primary tools">
+      <a href="/" data-nav="compress" aria-current="page">Compress</a>
+      <a href="/merge-pdf" data-nav="merge">Merge</a>
+      <a href="/split-pdf" data-nav="split">Split</a>
+      <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
+      <a href="/convert" data-nav="convert">Convert</a>
+      <a href="/pricing" data-nav="pricing">Pricing</a>
     </nav>
 
   </div>
 </header>
+
+<!-- Secondary tools -->
+<div class="subNav">
+  <div class="container subNavInner">
+    <a href="/sign-pdf" data-nav="sign">Sign</a>
+    <a href="/protect-pdf" data-nav="protect">Protect</a>
+    <a href="/edit-pdf" data-nav="edit">Edit</a>
+    <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
+  </div>
+</div>
 
 <main>
   <section class="hero heroPremium heroToolFirst">
@@ -995,6 +1042,5 @@
 })();
 </script>
 
-<script src="/app.js?v=17.7" defer></script>
 </body>
 </html>
