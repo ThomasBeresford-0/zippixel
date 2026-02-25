@@ -129,7 +129,7 @@ body.premium > main{ flex: 1; }
 }
 
 .navInner{
-  height: 70px;
+  height: 78px;
   display:flex;
   align-items:center;
   justify-content: space-between;
@@ -172,19 +172,29 @@ body.premium > main{ flex: 1; }
 .navLinks{
   display:flex;
   align-items:center;
-  gap: 14px;
-  font-size: 13px;
+  gap: 10px;
 }
 
 .navLinks a{
-  color: rgba(11,18,32,.78);
-  font-weight: 800;
-  padding: 8px 10px;
+  font-size: 15px;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+  color: rgba(11,18,32,.88);
+  padding: 10px 14px;
   border-radius: 12px;
-  transition: background .14s var(--ease), color .14s var(--ease);
+  transition: background .14s var(--ease), color .14s var(--ease), box-shadow .14s var(--ease);
 }
-.navLinks a:hover{ background: rgba(15,23,42,.06); }
-.navLinks a[aria-current="page"]{ color: rgba(11,18,32,.96); background: rgba(15,23,42,.06); }
+
+.navLinks a:hover{
+  background: rgba(15,23,42,.07);
+  color: rgba(11,18,32,1);
+}
+
+.navLinks a[aria-current="page"]{
+  background: rgba(15,23,42,.10);
+  color: rgba(11,18,32,1);
+  box-shadow: 0 10px 22px rgba(15,23,42,.10);
+}
 
 .navCta{ display:flex; gap: 10px; align-items:center; }
 
