@@ -1,8 +1,9 @@
-<!-- public/convert.html — PDFOperations (v14 - FULL RAMBO / HARD UI + MAX SEO + NO FUNCTION CHANGES)
-     ✅ NO app.js hook/ID changes
-     ✅ Matches Merge + Split visual system exactly
-     ✅ Hard instrument panel aesthetic (no bubble UI)
-     ✅ Strong SEO (WebPage + SoftwareApplication + FAQ + Breadcrumb)
+<!-- public/convert.html — PDFOperations (v4 - CLEAN PRO LAYOUT + SEO + NO “BUBBLE” PILLS + STABLE BRAND LOGO)
+     ✅ NO functional changes / all app.js IDs preserved
+     ✅ style.css?v=36 + app.js?v=17.7
+     ✅ Removes “bubble box” look (trust + steps use clean inline layout)
+     ✅ Adds proper canonical (/convert), OG/Twitter, Schema (WebPage + Breadcrumb + FAQ)
+     ✅ Adds SEO support section + internal links (keeps tool-first UX)
 -->
 <!doctype html>
 <html lang="en">
@@ -10,8 +11,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Convert PDF, JPG, PNG & WebP Online — Free File Converter | PDFOperations</title>
-  <meta name="description" content="Convert PDF, JPG, PNG and WebP files online. Change PDF to JPG, JPG to PDF, PNG to WebP and more. Secure processing. No signup required." />
+  <title>Convert Files Online — PDF, JPG, PNG & WebP | PDFOperations</title>
+  <meta name="description" content="Convert PDF, JPG, PNG and WebP files online. Upload files, choose a format, and download instantly. Secure processing. No signup required." />
   <link rel="canonical" href="https://pdfoperations.com/convert" />
 
   <meta name="robots" content="index,follow" />
@@ -19,8 +20,8 @@
   <meta name="color-scheme" content="light" />
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Convert PDF, JPG, PNG & WebP Online" />
-  <meta property="og:description" content="Convert PDF to JPG, JPG to PDF, PNG to WebP and more. Secure online file converter." />
+  <meta property="og:title" content="Convert Files Online — PDF, JPG, PNG & WebP" />
+  <meta property="og:description" content="Upload files, choose a format, and download instantly. Multiple files supported." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/convert" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
@@ -28,8 +29,8 @@
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Convert PDF, JPG, PNG & WebP Online" />
-  <meta name="twitter:description" content="Free online file converter. PDF, JPG, PNG and WebP supported." />
+  <meta name="twitter:title" content="Convert Files Online — PDF, JPG, PNG & WebP" />
+  <meta name="twitter:description" content="Upload files, choose a format, and download instantly. Multiple files supported." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -39,42 +40,20 @@
   <link rel="stylesheet" href="/style.css?v=36" />
 
   <!-- =========================
-       SCHEMA (MAX SEO)
+       SCHEMA (SEO)
   ========================== -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
     "@type":"WebPage",
-    "name":"Convert PDF, JPG, PNG & WebP Online — PDFOperations",
+    "name":"Convert Files Online — PDFOperations",
     "url":"https://pdfoperations.com/convert",
-    "description":"Convert PDF to JPG, JPG to PDF, PNG to WebP and more using this online file converter.",
+    "description":"Convert PDF, JPG, PNG and WebP files online. Upload files, choose a format, and download instantly.",
     "isPartOf":{
       "@type":"WebSite",
       "name":"PDFOperations",
       "url":"https://pdfoperations.com/"
     }
-  }
-  </script>
-
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"SoftwareApplication",
-    "name":"PDFOperations - File Converter",
-    "applicationCategory":"UtilitiesApplication",
-    "applicationSubCategory":"File Conversion",
-    "operatingSystem":"Web",
-    "browserRequirements":"Requires JavaScript. Works in modern browsers.",
-    "url":"https://pdfoperations.com/convert",
-    "description":"Online file converter supporting PDF, JPG, PNG and WebP formats.",
-    "featureList":[
-      "Convert PDF to JPG",
-      "Convert JPG to PDF",
-      "Convert PNG to PDF",
-      "Convert WebP to JPG",
-      "Batch file conversion",
-      "Download multiple files as ZIP"
-    ]
   }
   </script>
 
@@ -96,131 +75,190 @@
     "mainEntity":[
       {
         "@type":"Question",
-        "name":"Can I convert PDF to JPG?",
-        "acceptedAnswer":{"@type":"Answer","text":"Yes. Upload your PDF, choose JPG as the output format, and download the converted images."}
+        "name":"Can I convert multiple files at once?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Yes. Add multiple files and they’ll be converted in one session. Multiple outputs are bundled into a ZIP."
+        }
       },
       {
         "@type":"Question",
-        "name":"Can I convert JPG to PDF?",
-        "acceptedAnswer":{"@type":"Answer","text":"Yes. Upload one or more JPG files and choose PDF as the output format."}
+        "name":"What formats can I convert?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"You can convert between PDF, JPG, PNG and WebP."
+        }
       },
       {
         "@type":"Question",
-        "name":"Are multiple files supported?",
-        "acceptedAnswer":{"@type":"Answer","text":"Yes. Add multiple files and convert them in one session. Multiple outputs are bundled into a ZIP."}
-      },
-      {
-        "@type":"Question",
-        "name":"Do I need an account?",
-        "acceptedAnswer":{"@type":"Answer","text":"No signup required. Upload, continue, then download."}
+        "name":"Do I need an account to convert files?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"No signup required. Upload, continue, then download."
+        }
       }
     ]
   }
   </script>
 
   <style>
-    /* HARD NAV (matches merge/split) */
-    .nav{
-      border-bottom:1px solid rgba(15,23,42,.10);
-      background:rgba(245,247,251,.86);
-      backdrop-filter:blur(10px);
-    }
-    .navLinks a{
-      font-weight:900;
-      letter-spacing:-.01em;
-      opacity:.86;
-    }
-    .navLinks a[aria-current="page"]{
-      opacity:1;
-      border-bottom:1px solid rgba(11,18,32,.35);
-    }
-
+    /* Keep brand logo stable across pages */
     .brandLogo{ height:34px; width:auto; display:block; }
 
-    /* TRUST ROW */
+    /* Protect [hidden] from flashing */
+    #progressWrap[hidden],
+    #fileMeta[hidden]{ display:none !important; }
+    [hidden]{ display:none !important; }
+
+    /* ---- No “bubble” look: make trust + steps clean + inline ---- */
+    .proKicker{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      font-size:12px;
+      letter-spacing:.02em;
+      opacity:.76;
+      text-transform:uppercase;
+      margin-bottom:8px;
+    }
+
     .trustBar{
-      display:flex; flex-wrap:wrap; gap:10px 16px;
-      margin-top:12px; padding-top:12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 18px;
+      margin-top:14px;
+      padding-top:14px;
       border-top:1px solid rgba(15,23,42,.10);
-      color:rgba(11,18,32,.72); font-size:13px;
+      color:rgba(11,18,32,.72);
+      font-size:13px;
     }
     .trustPill{
-      padding:0 !important; border:0 !important; background:transparent !important;
-      border-radius:0 !important; box-shadow:none !important;
-      font-weight:800; display:flex; align-items:center; gap:8px;
+      padding:0 !important;
+      border:0 !important;
+      background:transparent !important;
+      box-shadow:none !important;
+      border-radius:0 !important;
+      font-weight:750;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
     }
     .trustPill::before{ content:"•"; opacity:.55; }
     .trustBar .trustPill:first-child::before{ content:""; }
 
-    /* SUPPORT SECTION (IDENTICAL SYSTEM TO MERGE/SPLIT) */
-    .plainSection{ padding:56px 0 38px; }
-    .plainKicker{
-      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size:12px; letter-spacing:.10em; text-transform:uppercase; opacity:.70;
-    }
-    .plainH2{
-      margin:12px 0 8px;
-      font-size:44px; line-height:1.05;
-      letter-spacing:-.03em; font-weight:950;
-      color:rgba(11,18,32,.96);
-    }
-    @media (max-width:720px){ .plainH2{ font-size:34px; } }
+    /* Tool layout: tighten + align */
+    .toolHeadMinimal .toolSub{ max-width: 66ch; }
 
-    .plainLead{
-      margin:0;
-      font-size:16px; line-height:1.65;
-      max-width:78ch; opacity:.78;
+    .convertRowFull{
+      margin-top:12px;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:flex-end;
+      gap:12px;
+    }
+    .convertGroup{ display:flex; flex-direction:column; gap:6px; min-width:220px; }
+    .convertLabel{ font-size:12px; font-weight:800; opacity:.74; letter-spacing:-.01em; }
+    .convertArrow{ font-weight:950; opacity:.55; padding:0 6px 8px; }
+    .convertHint{
+      flex:1;
+      min-width:240px;
+      padding-bottom:10px;
+      font-size:13px;
+      opacity:.75;
+      line-height:1.35;
     }
 
-    .featureGrid{
-      margin-top:34px;
+    /* Dropzone polish without “bubbles” */
+    .dropzoneMega{
+      margin-top:14px;
+    }
+    .dzTitle{ font-weight:950; letter-spacing:-.02em; }
+    .dzSub{ opacity:.78; }
+    .dzFine{ opacity:.74; }
+
+    /* Steps + support sections in a clean “editorial” style */
+    .seoWrap{ padding:18px 0 46px; }
+    .seoCard{
+      background:rgba(255,255,255,.92);
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:20px;
+      box-shadow:0 18px 50px rgba(2,6,23,.06);
+      padding:18px;
+    }
+    .seoGrid{
       display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:42px 44px;
+      grid-template-columns:1.15fr .85fr;
+      gap:16px;
+      margin-top:14px;
     }
-    @media (max-width:980px){
-      .featureGrid{ grid-template-columns:repeat(2,1fr); gap:32px 28px; }
-    }
-    @media (max-width:640px){
-      .featureGrid{ grid-template-columns:1fr; gap:26px; }
-    }
+    @media (max-width:920px){ .seoGrid{ grid-template-columns:1fr; } }
 
-    .featTitle{ margin:0 0 10px; font-size:18px; font-weight:950; }
-    .featText{ margin:0; font-size:15px; line-height:1.65; opacity:.78; }
-
-    .plainDivider{ margin:52px 0 0; border-top:1px solid rgba(15,23,42,.10); }
-
-    .plainBottomGrid{
-      margin-top:34px;
+    .howGrid{
       display:grid;
-      grid-template-columns:1.1fr .9fr;
-      gap:44px;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:12px;
+      margin-top:12px;
     }
-    @media (max-width:980px){ .plainBottomGrid{ grid-template-columns:1fr; } }
+    @media (max-width:820px){ .howGrid{ grid-template-columns:1fr; } }
 
-    .faqItemPlain{
-      padding-top:16px;
+    .howStep{
       border-top:1px solid rgba(15,23,42,.10);
+      padding-top:12px;
     }
-    .faqItemPlain:first-child{ border-top:0; padding-top:0; }
-    .faqQ{ font-weight:950; margin-bottom:8px; }
-    .faqA{ opacity:.78; line-height:1.65; }
-
-    .relatedLinks{
-      display:flex; flex-wrap:wrap; gap:14px 18px;
-      font-size:15px; margin-top:12px;
-    }
-    .relatedLinks a{
-      text-decoration:none;
+    .howNum{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
       font-weight:900;
-      color:rgba(11,18,32,.92);
-      border-bottom:1px solid rgba(11,18,32,.20);
+      font-size:12px;
+      opacity:.70;
+      margin-bottom:6px;
     }
-    .relatedLinks a:hover{ border-bottom-color:rgba(11,18,32,.55); }
+    .howTitle{ font-weight:950; letter-spacing:-.01em; margin-bottom:4px; }
+    .howText{ font-size:13px; opacity:.80; line-height:1.45; }
+
+    .relTools{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
+    .relTools a{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(15,23,42,.12);
+      background:rgba(255,255,255,.96);
+      text-decoration:none;
+      font-weight:850;
+      font-size:13px;
+      color:rgba(11,18,32,.92);
+    }
+    .relTools a:hover{
+      border-color:rgba(15,23,42,.18);
+      box-shadow:0 10px 24px rgba(2,6,23,.08);
+      transform:translateY(-1px);
+    }
+
+    .faqList{ display:grid; gap:10px; margin-top:10px; }
+    details.faq{
+      border:1px solid rgba(15,23,42,.10);
+      background:rgba(255,255,255,.92);
+      border-radius:14px;
+      padding:10px 12px;
+    }
+    details.faq summary{
+      cursor:pointer;
+      font-weight:900;
+      letter-spacing:-.01em;
+      list-style:none;
+    }
+    details.faq summary::-webkit-details-marker{ display:none; }
+
+    /* Ensure convert selects feel consistent even if global CSS is opinionated */
+    #convertFrom, #convertTarget{
+      width:100%;
+      max-width:100%;
+    }
   </style>
 </head>
 
-<body class="page" data-tool="convert">
+<body class="premium" data-tool="convert">
+
 <a href="#tool" class="srOnly">Skip to the tool</a>
 
 <header class="nav">
@@ -233,7 +271,7 @@
       </span>
     </a>
 
-    <nav class="navLinks">
+    <nav class="navLinks" aria-label="Tools">
       <a href="/">Compress</a>
       <a href="/merge-pdf">Merge</a>
       <a href="/split-pdf">Split</a>
@@ -265,7 +303,7 @@
           Upload your files, choose a format, and download the result.
         </p>
 
-        <div class="trustBar">
+        <div class="trustBar" aria-label="Trust indicators">
           <div class="trustPill">No signup</div>
           <div class="trustPill">Secure processing</div>
           <div class="trustPill">Multiple files</div>
@@ -273,103 +311,213 @@
         </div>
       </div>
 
-      <!-- ALL ORIGINAL TOOL MARKUP + IDs REMAIN UNCHANGED BELOW -->
-      <!-- (Your convert controls, dropzone, progress, actions stay exactly as in v4) -->
+      <div class="statusWrap">
+        <div class="statusLeft">
+          <div class="status" id="status">Ready</div>
+          <div class="spinner" id="spinner"></div>
+        </div>
+        <div class="statusHint" id="statusHint">Choose a target format and add your files.</div>
+      </div>
+
+      <!-- REQUIRED MODE INPUTS (app.js compatibility) -->
+      <fieldset class="modeRow" style="display:none;">
+        <input type="radio" name="mode" id="modeCompress">
+        <input type="radio" name="mode" id="modeCompressPdf">
+        <input type="radio" name="mode" id="modeConvert" checked>
+        <input type="radio" name="mode" id="modeMergePdf">
+        <input type="radio" name="mode" id="modeSplitPdf">
+        <input type="radio" name="mode" id="modeRotatePdf">
+      </fieldset>
+
+      <!-- Hidden controls expected by app.js in other flows -->
+      <div id="pdfCompressRow" style="display:none;">
+        <select id="pdfCompressLevel">
+          <option value="balanced" selected>Balanced</option>
+          <option value="light">Light</option>
+          <option value="max">Maximum</option>
+        </select>
+      </div>
+      <div style="display:none;">
+        <select id="rotateDegrees">
+          <option value="90" selected>90°</option>
+          <option value="180">180°</option>
+          <option value="270">270°</option>
+        </select>
+      </div>
+
+      <!-- CONVERT CONTROLS (IDs preserved) -->
+      <div class="convertRow convertRowFull" aria-label="Conversion options">
+
+        <div class="convertGroup">
+          <div class="convertLabel">From</div>
+          <select id="convertFrom">
+            <option value="auto" selected>Auto detect</option>
+            <option value="pdf">PDF</option>
+            <option value="jpg">JPG</option>
+            <option value="png">PNG</option>
+            <option value="webp">WebP</option>
+          </select>
+        </div>
+
+        <span class="convertArrow" aria-hidden="true">→</span>
+
+        <div class="convertGroup">
+          <div class="convertLabel">To</div>
+          <select id="convertTarget">
+            <option value="pdf">PDF</option>
+            <option value="jpg">JPG</option>
+            <option value="png">PNG</option>
+            <option value="webp">WebP</option>
+          </select>
+        </div>
+
+        <div class="convertHint">
+          Tip: converting multiple files may produce multiple outputs — they’ll be bundled into a ZIP.
+        </div>
+
+      </div>
+
+      <!-- DROPZONE (IDs preserved) -->
+      <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
+        <div class="dzCenter">
+          <div class="dzIcon"><span class="dzArrow">↑</span></div>
+          <div class="dzTitle" id="dzTitle">Drop files here</div>
+          <div class="dzSub" id="dzSub">Drag & drop or select your files</div>
+
+          <div class="filePick">
+            <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select files</button>
+            <input id="files" type="file" multiple />
+          </div>
+
+          <div class="dzFine">No signup. Secure processing.</div>
+        </div>
+
+        <div class="fileMeta" id="fileMeta" hidden>
+          <div class="fileMetaTop">
+            <div class="fileSummary" id="fileSummary"></div>
+            <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+          </div>
+          <ol class="fileList" id="fileList"></ol>
+        </div>
+      </div>
+
+      <!-- PROGRESS (IDs preserved) -->
+      <div class="progressWrap" id="progressWrap" hidden>
+        <div class="progressTop">
+          <div id="progressLabel">Uploading…</div>
+          <div id="progressPct">0%</div>
+        </div>
+        <div class="progressBar">
+          <div class="progressFill" id="progressFill"></div>
+        </div>
+        <div id="progressMeta"></div>
+      </div>
+
+      <!-- ACTIONS (IDs preserved) -->
+      <div class="actionRow actionRowWide">
+        <button class="btnSoft" id="upload" disabled>Upload files</button>
+        <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
+      </div>
+
+      <div class="fineprint">
+        Convert, then download when ready.
+      </div>
 
     </div>
+
   </div>
 </section>
 
-<section class="plainSection" id="about">
+<!-- SEO SUPPORT (clean, not “bubbly”) -->
+<section class="seoWrap" id="about">
   <div class="container heroWide">
+    <div class="seoCard">
 
-    <div class="plainKicker">About</div>
-    <h2 class="plainH2">Convert PDF, JPG, PNG and WebP online</h2>
-    <p class="plainLead">
-      Convert common document and image formats in your browser.
-      Change PDF to JPG, JPG to PDF, PNG to WebP, and more.
-      Multiple outputs are bundled into a ZIP when needed.
-    </p>
+      <div class="proKicker">About</div>
+      <h2>Convert PDF, JPG, PNG and WebP online</h2>
+      <p style="max-width:76ch;">
+        Use PDFOperations to convert common document and image formats in your browser.
+        Upload files, choose an output format, and download the results.
+        When a conversion produces multiple outputs, you’ll receive a single ZIP for easy download.
+      </p>
 
-    <div class="featureGrid">
-      <div>
-        <h3 class="featTitle">PDF to JPG</h3>
-        <p class="featText">Extract images from PDF files as JPG for sharing and web use.</p>
+      <div class="seoGrid">
+        <div>
+          <h3 style="margin:10px 0 6px;">How it works</h3>
+          <div class="howGrid" aria-label="How conversion works">
+            <div class="howStep">
+              <div class="howNum">01</div>
+              <div class="howTitle">Upload</div>
+              <div class="howText">Add one or more files. We detect the format automatically.</div>
+            </div>
+            <div class="howStep">
+              <div class="howNum">02</div>
+              <div class="howTitle">Choose format</div>
+              <div class="howText">Pick your output format: PDF, JPG, PNG or WebP.</div>
+            </div>
+            <div class="howStep">
+              <div class="howNum">03</div>
+              <div class="howTitle">Download</div>
+              <div class="howText">Get the converted file(s). Multiple outputs are bundled into a ZIP.</div>
+            </div>
+          </div>
+
+          <h3 style="margin:14px 0 6px;">Related tools</h3>
+          <div class="relTools" aria-label="Related PDF tools">
+            <a href="/">Compress PDF</a>
+            <a href="/merge-pdf">Merge PDF</a>
+            <a href="/split-pdf">Split PDF</a>
+            <a href="/rotate-pdf">Rotate PDF</a>
+          </div>
+
+          <div style="margin-top:12px; font-size:12px; opacity:.75;">
+            Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="margin:10px 0 6px;">FAQs</h3>
+          <div class="faqList" id="faq">
+            <details class="faq">
+              <summary>Can I convert multiple files at once?</summary>
+              <div style="margin-top:8px; opacity:.85;">
+                Yes. Add multiple files and convert them in one session. Multiple outputs are bundled into a ZIP.
+              </div>
+            </details>
+
+            <details class="faq">
+              <summary>What formats are supported?</summary>
+              <div style="margin-top:8px; opacity:.85;">
+                You can convert between PDF, JPG, PNG and WebP.
+              </div>
+            </details>
+
+            <details class="faq">
+              <summary>Do I need an account?</summary>
+              <div style="margin-top:8px; opacity:.85;">
+                No signup required. Upload, continue, then download.
+              </div>
+            </details>
+          </div>
+        </div>
       </div>
-      <div>
-        <h3 class="featTitle">JPG to PDF</h3>
-        <p class="featText">Convert images into clean PDF documents for portals and submissions.</p>
-      </div>
-      <div>
-        <h3 class="featTitle">PNG & WebP support</h3>
-        <p class="featText">Convert between PNG and WebP for optimized file size and compatibility.</p>
-      </div>
-      <div>
-        <h3 class="featTitle">Batch conversion</h3>
-        <p class="featText">Upload multiple files and process them in one session.</p>
-      </div>
-      <div>
-        <h3 class="featTitle">ZIP downloads</h3>
-        <p class="featText">When multiple files are generated, download them as a single ZIP.</p>
-      </div>
-      <div>
-        <h3 class="featTitle">No account required</h3>
-        <p class="featText">Upload, convert, and download without signup.</p>
-      </div>
+
     </div>
-
-    <div class="plainDivider"></div>
-
-    <div class="plainBottomGrid">
-      <div>
-        <div class="plainKicker">FAQ</div>
-        <h3 style="margin:12px 0 6px;font-size:22px;font-weight:950;">Common questions</h3>
-
-        <div class="faqItemPlain">
-          <div class="faqQ">Can I convert PDF to JPG?</div>
-          <p class="faqA">Yes. Upload your PDF, choose JPG as the output format, and download the converted images.</p>
-        </div>
-
-        <div class="faqItemPlain">
-          <div class="faqQ">Can I convert JPG to PDF?</div>
-          <p class="faqA">Yes. Upload one or more JPG files and choose PDF as the output format.</p>
-        </div>
-
-        <div class="faqItemPlain">
-          <div class="faqQ">Are multiple files supported?</div>
-          <p class="faqA">Yes. Multiple outputs are bundled into a ZIP when needed.</p>
-        </div>
-
-        <div class="faqItemPlain">
-          <div class="faqQ">Do I need an account?</div>
-          <p class="faqA">No signup required.</p>
-        </div>
-      </div>
-
-      <div>
-        <div class="plainKicker">Related tools</div>
-        <h3 style="margin:12px 0 6px;font-size:22px;font-weight:950;">More PDF tools</h3>
-        <div class="relatedLinks">
-          <a href="/">Compress PDF</a>
-          <a href="/merge-pdf">Merge PDF</a>
-          <a href="/split-pdf">Split PDF</a>
-          <a href="/rotate-pdf">Rotate PDF</a>
-        </div>
-      </div>
-    </div>
-
   </div>
 </section>
 
 </main>
 
-<footer class="footer">
+<footer class="footer footerPremium">
   <div class="container footerInner">
-    <div>
-      <strong>PDFOperations</strong>
-      <div style="margin-top:4px;">PDF tools for email, portals and document workflows.</div>
+    <div class="footerLeft">
+      <div class="footerBrand">
+        <img src="/favicon.svg" width="18" height="18" alt="">
+        <span>PDFOperations</span>
+      </div>
+      <div class="footerNote">Professional online file tools.</div>
     </div>
-    <div class="footerLinks">
+    <div class="footerRight">
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
     </div>
