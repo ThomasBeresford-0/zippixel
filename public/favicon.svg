@@ -1,31 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="PDFOperations">
-  <!-- solid background -->
+  <!-- Background -->
   <rect width="64" height="64" rx="12" fill="#000"></rect>
 
-  <!-- page (bold, padded) -->
-  <path fill="#fff" d="M18 14c0-2.2 1.8-4 4-4h18l8 8v28c0 2.2-1.8 4-4 4H22c-2.2 0-4-1.8-4-4V14z"></path>
-  <!-- fold cutout -->
-  <path fill="#000" d="M40 10v8h8z"></path>
+  <!-- Bold "P" monogram (reads at 16px) -->
+  <path fill="#fff" d="M18 16h16c8.3 0 14 5.1 14 12.5S42.3 41 34 41H28v9c0 2.2-1.8 4-4 4h-2c-2.2 0-4-1.8-4-4V20c0-2.2 1.8-4 4-4zm10 8v9h6c3.2 0 5.5-1.9 5.5-4.6S37.2 24 34 24h-6z"></path>
 
-  <!-- small gear badge (simple + readable at 16px) -->
-  <g transform="translate(44 44)">
-    <!-- teeth -->
-    <g fill="#fff">
-      <rect x="-1.5" y="-10.5" width="3" height="4.5" rx="1"></rect>
-      <rect x="-1.5" y="6" width="3" height="4.5" rx="1"></rect>
-      <rect x="-10.5" y="-1.5" width="4.5" height="3" rx="1"></rect>
-      <rect x="6" y="-1.5" width="4.5" height="3" rx="1"></rect>
-      <g transform="rotate(45)">
-        <rect x="-1.5" y="-10.5" width="3" height="4.5" rx="1"></rect>
-        <rect x="-1.5" y="6" width="3" height="4.5" rx="1"></rect>
-      </g>
-    </g>
-
+  <!-- Gear "bite" (simple notch ring) -->
+  <g transform="translate(46 46)">
     <!-- outer ring -->
-    <circle r="7.5" fill="#000"></circle>
-    <circle r="7.5" fill="none" stroke="#fff" stroke-width="3"></circle>
+    <circle r="9" fill="none" stroke="#fff" stroke-width="4"></circle>
+    <!-- 4 chunky teeth -->
+    <g fill="#fff">
+      <rect x="-2" y="-14" width="4" height="6" rx="1"></rect>
+      <rect x="-2" y="8" width="4" height="6" rx="1"></rect>
+      <rect x="-14" y="-2" width="6" height="4" rx="1"></rect>
+      <rect x="8" y="-2" width="6" height="4" rx="1"></rect>
+    </g>
     <!-- hub -->
-    <circle r="2.25" fill="#000"></circle>
-    <circle r="2.25" fill="none" stroke="#fff" stroke-width="2"></circle>
+    <circle r="2.5" fill="#fff"></circle>
   </g>
 </svg>
