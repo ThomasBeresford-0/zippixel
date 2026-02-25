@@ -1,0 +1,353 @@
+<!-- public/watermark-pdf.html — PDFOperations (v2 FULL RAMBO WATERMARK TOOL) -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>Add Watermark to PDF Online — Text or Logo | PDFOperations</title>
+<meta name="description" content="Add a professional watermark to your PDF. Use text or logo, adjust size, opacity, rotation and position. Apply to all pages." />
+<link rel="canonical" href="https://pdfoperations.com/watermark-pdf" />
+<meta name="robots" content="index,follow" />
+
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css?v=36" />
+
+<style>
+.tabRow{display:flex;gap:10px;margin-bottom:14px}
+.tabBtn{padding:8px 14px;border:1px solid rgba(15,23,42,.2);border-radius:10px;background:#fff;font-weight:900;cursor:pointer}
+.tabBtn.active{background:#0b1220;color:#fff}
+.previewOverlay{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+}
+.previewWatermark{
+  font-weight:900;
+  opacity:.4;
+  transform:rotate(45deg);
+  font-size:60px;
+  white-space:nowrap;
+}
+.pageStage{position:relative}
+</style>
+
+<script type="module">
+window.__pdfjsReady = import("/vendor/pdfjs/pdf.min.mjs")
+.then((mod)=>{
+  const lib = mod?.default || mod;
+  window.pdfjsLib = lib;
+  try{ lib.GlobalWorkerOptions.workerSrc="/vendor/pdfjs/pdf.worker.min.mjs"; }catch(_){}
+  return lib;
+})
+.catch(()=>null);
+</script>
+</head>
+
+<body class="page pageWatermarkPdf">
+<div class="bg"></div>
+
+<header class="nav">
+  <div class="container navInner">
+    <a class="brand" href="/">
+      <img src="/favicon.svg" class="brandLogo" alt="PDFOperations"/>
+      <span class="brandText">
+        <span class="top">PDFOperations</span>
+        <span class="sub">Compress • Merge • Split • Rotate • Convert • Sign • Protect</span>
+      </span>
+    </a>
+    <nav class="navLinks">
+      <a href="/">Compress</a>
+      <a href="/merge-pdf">Merge</a>
+      <a href="/split-pdf">Split</a>
+      <a href="/rotate-pdf">Rotate</a>
+      <a href="/convert">Convert</a>
+      <a href="/sign-pdf">Sign</a>
+      <a href="/protect-pdf">Protect</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero heroPremium heroToolFirst">
+<div class="container heroWide">
+<div id="tool" class="tool toolPremium toolMega">
+
+<div class="toolHead toolHeadMinimal">
+<h1 class="toolTitle">Add Watermark to PDF</h1>
+<p class="toolSub">Text or logo watermark. Live preview. Apply to all pages.</p>
+</div>
+
+<div class="statusWrap">
+<div class="statusLeft">
+<div class="status" id="status">Ready</div>
+<div class="spinner" id="spinner"></div>
+</div>
+<div class="statusHint" id="statusHint">Drop a PDF to begin.</div>
+</div>
+
+<input type="hidden" id="mode" value="watermark_pdf"/>
+
+<div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
+<div class="dzCenter">
+<div class="dzTitle">Drop a PDF here</div>
+<div class="dzSub">PDF only • 1 file</div>
+<button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
+<input id="files" type="file" accept="application/pdf" hidden/>
+</div>
+</div>
+
+<div class="workPanel" hidden id="workPanel">
+
+<div class="workStage">
+
+<div class="pageStageWrap">
+<div class="pageStageTop"><div class="miniTitle">Live Preview</div></div>
+<div class="pageStage">
+<canvas id="pageCanvas" class="pageCanvas"></canvas>
+<div class="previewOverlay" id="previewOverlay">
+<div class="previewWatermark" id="previewWatermark">CONFIDENTIAL</div>
+</div>
+</div>
+</div>
+
+<div class="sigPanelWrap">
+<div class="panelHead">
+<h2 class="panelTitle">Watermark Settings</h2>
+<p class="panelSub">Adjust and preview instantly.</p>
+</div>
+
+<div class="sigPanel">
+
+<div class="tabRow">
+<button class="tabBtn active" data-tab="text">Text</button>
+<button class="tabBtn" data-tab="image">Image</button>
+</div>
+
+<div id="textPanel">
+<label class="field">
+<span class="label">Text</span>
+<input id="wmText" class="input" value="CONFIDENTIAL"/>
+</label>
+
+<label class="field">
+<span class="label">Font Size</span>
+<input id="wmSize" type="range" min="30" max="120" value="60"/>
+</label>
+
+<label class="field">
+<span class="label">Color</span>
+<input id="wmColor" type="color" value="#000000"/>
+</label>
+</div>
+
+<div id="imagePanel" hidden>
+<label class="field">
+<span class="label">Upload Logo</span>
+<input id="wmImage" type="file" accept="image/*"/>
+</label>
+</div>
+
+<label class="field">
+<span class="label">Opacity</span>
+<input id="wmOpacity" type="range" min="0.1" max="1" step="0.1" value="0.4"/>
+</label>
+
+<label class="field">
+<span class="label">Rotation</span>
+<input id="wmRotation" type="range" min="0" max="360" value="45"/>
+</label>
+
+<label class="field">
+<span class="label">Position</span>
+<select id="wmPosition" class="select">
+<option value="center">Center</option>
+<option value="topleft">Top Left</option>
+<option value="topright">Top Right</option>
+<option value="bottomleft">Bottom Left</option>
+<option value="bottomright">Bottom Right</option>
+<option value="tile">Tile</option>
+</select>
+</label>
+
+<button class="btn btnPrimary btnStrong" id="applyWatermark">
+Apply Watermark
+</button>
+
+</div>
+</div>
+
+</div>
+
+<div class="workBottom">
+<div class="workActions">
+<button class="btnSoft" id="upload" disabled>Upload PDF</button>
+<button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</main>
+
+<footer class="footer">
+<div class="container footerInner">
+<strong>PDFOperations</strong>
+<div>Professional PDF tools for real workflows.</div>
+</div>
+</footer>
+
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="/app.js?v=17.7" defer></script>
+
+<script>
+(async function(){
+
+const filesInput=document.getElementById("files");
+const dropzone=document.getElementById("dropzone");
+const workPanel=document.getElementById("workPanel");
+const pageCanvas=document.getElementById("pageCanvas");
+const ctx=pageCanvas.getContext("2d");
+const overlay=document.getElementById("previewOverlay");
+const previewWM=document.getElementById("previewWatermark");
+
+const wmText=document.getElementById("wmText");
+const wmSize=document.getElementById("wmSize");
+const wmColor=document.getElementById("wmColor");
+const wmOpacity=document.getElementById("wmOpacity");
+const wmRotation=document.getElementById("wmRotation");
+const wmPosition=document.getElementById("wmPosition");
+
+const textPanel=document.getElementById("textPanel");
+const imagePanel=document.getElementById("imagePanel");
+const tabs=document.querySelectorAll(".tabBtn");
+
+let imageBytes=null;
+
+function updatePreview(){
+previewWM.textContent=wmText.value||"";
+previewWM.style.fontSize=wmSize.value+"px";
+previewWM.style.color=wmColor.value;
+previewWM.style.opacity=wmOpacity.value;
+previewWM.style.transform="rotate("+wmRotation.value+"deg)";
+if(wmPosition.value==="center"){
+overlay.style.justifyContent="center";
+overlay.style.alignItems="center";
+}else{
+overlay.style.justifyContent="flex-start";
+overlay.style.alignItems="flex-start";
+}
+}
+
+[wmText,wmSize,wmColor,wmOpacity,wmRotation,wmPosition].forEach(el=>{
+el.addEventListener("input",updatePreview);
+});
+
+tabs.forEach(btn=>{
+btn.addEventListener("click",()=>{
+tabs.forEach(b=>b.classList.remove("active"));
+btn.classList.add("active");
+if(btn.dataset.tab==="text"){
+textPanel.hidden=false;
+imagePanel.hidden=true;
+}else{
+textPanel.hidden=true;
+imagePanel.hidden=false;
+}
+});
+});
+
+document.getElementById("wmImage").addEventListener("change",async e=>{
+if(!e.target.files[0])return;
+imageBytes=await e.target.files[0].arrayBuffer();
+previewWM.textContent="";
+});
+
+filesInput.addEventListener("change",async()=>{
+const f=filesInput.files[0];
+if(!f)return;
+window.__PDFOPS_SELECTED__=[f];
+window.dispatchEvent(new Event("pdfops:selected"));
+dropzone.hidden=true;
+workPanel.hidden=false;
+const lib=window.pdfjsLib||await window.__pdfjsReady;
+const pdf=await lib.getDocument({data:await f.arrayBuffer()}).promise;
+const page=await pdf.getPage(1);
+const vp=page.getViewport({scale:1});
+pageCanvas.width=vp.width;
+pageCanvas.height=vp.height;
+await page.render({canvasContext:ctx,viewport:vp}).promise;
+updatePreview();
+});
+
+document.getElementById("applyWatermark").addEventListener("click",async()=>{
+const file=window.__PDFOPS_SELECTED__?.[0];
+if(!file)return;
+
+const bytes=await file.arrayBuffer();
+const pdfDoc=await PDFLib.PDFDocument.load(bytes);
+const pages=pdfDoc.getPages();
+let embeddedImage=null;
+
+if(imageBytes){
+try{embeddedImage=await pdfDoc.embedPng(imageBytes);}
+catch{embeddedImage=await pdfDoc.embedJpg(imageBytes);}
+}
+
+pages.forEach(page=>{
+const {width,height}=page.getSize();
+if(wmPosition.value==="tile"){
+for(let x=0;x<width;x+=300){
+for(let y=0;y<height;y+=200){
+draw(page,x,y,width,height);
+}
+}
+}else{
+draw(page,width/2,height/2,width,height,true);
+}
+
+function draw(page,x,y,w,h,center=false){
+const opts={opacity:parseFloat(wmOpacity.value),rotate:PDFLib.degrees(parseFloat(wmRotation.value))};
+if(embeddedImage){
+page.drawImage(embeddedImage,{
+x:center? w/2-100 : x,
+y:center? h/2-50 : y,
+width:200,
+height:100,
+...opts
+});
+}else{
+page.drawText(wmText.value,{
+x:center? w/2-100 : x,
+y:center? h/2 : y,
+size:parseInt(wmSize.value),
+color:PDFLib.rgb(
+parseInt(wmColor.value.substr(1,2),16)/255,
+parseInt(wmColor.value.substr(3,2),16)/255,
+parseInt(wmColor.value.substr(5,2),16)/255
+),
+...opts
+});
+}
+}
+});
+
+const out=await pdfDoc.save();
+const newFile=new File([out],file.name.replace(/\.pdf$/i,"")+" (watermarked).pdf",{type:"application/pdf"});
+window.__PDFOPS_SELECTED__=[newFile];
+window.dispatchEvent(new Event("pdfops:selected"));
+document.getElementById("upload").disabled=false;
+document.getElementById("continue").disabled=false;
+});
+
+})();
+</script>
+
+</body>
+</html>

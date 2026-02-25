@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>Edit PDF Online — Add Text to PDF | PDFOperations</title>
+<meta name="description" content="Edit PDF online. Add text anywhere, drag, resize and download securely. Business-ready PDF editing." />
+<link rel="canonical" href="https://pdfoperations.com/edit-pdf" />
+<meta name="robots" content="index,follow" />
+<meta name="theme-color" content="#0b1220" />
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css?v=36" />
+<script defer src="/app.js?v=17.7"></script>
+
+<script type="module">
+  import("/vendor/pdfjs/pdf.min.mjs").then((lib)=>{
+    window.pdfjsLib = lib;
+    lib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.mjs";
+  });
+</script>
+
+<script type="application/ld+json">
+{
+ "@context":"https://schema.org",
+ "@type":"SoftwareApplication",
+ "name":"Edit PDF Online — PDFOperations",
+ "applicationCategory":"BusinessApplication",
+ "operatingSystem":"Web",
+ "description":"Visual PDF editor to add text and modify PDF documents online."
+}
+</script>
+</head>
+
+<body class="page pageEditPdf">
+<div class="bg" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="container navInner">
+    <a class="brand" href="/">
+      <img src="/favicon.svg" class="brandLogo"/>
+      <span class="brandText">
+        <span class="top">PDFOperations</span>
+        <span class="sub">Business PDF Tools</span>
+      </span>
+    </a>
+
+    <nav class="navLinks">
+      <a href="/">Compress</a>
+      <a href="/merge-pdf">Merge</a>
+      <a href="/split-pdf">Split</a>
+      <a href="/rotate-pdf">Rotate</a>
+      <a href="/convert">Convert</a>
+      <a href="/protect-pdf">Protect</a>
+      <a href="/watermark-pdf">Watermark</a>
+      <a href="/sign-pdf">Sign</a>
+      <a href="/edit-pdf" aria-current="page">Edit</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="hero heroPremium heroToolFirst">
+  <div class="container heroWide">
+
+    <div id="tool" class="tool toolPremium toolMega">
+
+      <div class="toolHead toolHeadMinimal">
+        <h1 class="toolTitle">Edit PDF Online</h1>
+        <p class="toolSub">Click anywhere to add text. Drag to reposition. Resize and download securely.</p>
+      </div>
+
+      <div class="statusWrap">
+        <div class="statusLeft">
+          <div class="status" id="status">Ready</div>
+          <div class="spinner" id="spinner"></div>
+        </div>
+        <div class="statusHint" id="statusHint">Drop a PDF to begin.</div>
+      </div>
+
+      <!-- hidden mode -->
+      <fieldset style="display:none;">
+        <input type="radio" name="mode" id="modeEditPdf" checked>
+      </fieldset>
+
+      <!-- DROPZONE -->
+      <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
+        <div class="dzCenter">
+          <div class="dzTitle">Drop a PDF here</div>
+          <div class="dzSub">1 PDF • £3 per document</div>
+          <button id="chooseBtn" class="btnPrimary btnLarge" type="button">Select PDF</button>
+          <input id="files" type="file" accept="application/pdf" hidden />
+        </div>
+      </div>
+
+      <!-- FILE META (hidden but required by app.js) -->
+      <div id="fileMeta" hidden>
+        <div id="fileSummary"></div>
+        <ul id="fileList"></ul>
+      </div>
+
+      <!-- WORK PANEL -->
+      <div class="workPanel" aria-label="Selected file">
+
+        <div class="workTop">
+          <button class="btnPrimary" type="button"
+            onclick="document.getElementById('chooseBtn').click()">
+            Select PDF
+          </button>
+          <button class="btnGhost" type="button" id="clearBtn">Clear</button>
+        </div>
+
+        <div class="workStage">
+
+          <div class="editorStage">
+            <div id="pdfEditor"></div>
+          </div>
+
+        </div>
+
+        <div class="workBottom">
+          <div class="workActions">
+            <button id="upload" class="btnSoft" disabled>Upload PDF</button>
+            <button id="continue" class="btnPrimary btnStrong" disabled>Continue →</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SEO SECTION -->
+<section class="plainSection">
+  <div class="container heroWide">
+
+    <div class="plainKicker">Edit</div>
+    <h2 class="plainH2">Add text to a PDF document</h2>
+    <p class="plainLead">
+      Use this visual PDF editor to modify documents online.
+      Click anywhere on the page to insert text blocks.
+      Drag to reposition and resize before downloading your edited file.
+      Ideal for contracts, forms and business paperwork.
+    </p>
+
+    <div class="plainDivider"></div>
+
+    <div class="plainBottomGrid">
+
+      <div>
+        <div class="plainKicker">FAQ</div>
+        <div class="faqListPlain">
+
+          <div class="faqItemPlain">
+            <div class="faqQ">Can I edit existing text?</div>
+            <p class="faqA">This tool allows you to add new text overlays. It does not modify embedded original PDF text.</p>
+          </div>
+
+          <div class="faqItemPlain">
+            <div class="faqQ">Is my file secure?</div>
+            <p class="faqA">Files are processed securely. No account required.</p>
+          </div>
+
+          <div class="faqItemPlain">
+            <div class="faqQ">How much does it cost?</div>
+            <p class="faqA">£3 per document after upload.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <div>
+        <div class="plainKicker">More Tools</div>
+        <div class="relatedLinks">
+          <a href="/">Compress PDF</a>
+          <a href="/merge-pdf">Merge PDF</a>
+          <a href="/protect-pdf">Protect PDF</a>
+          <a href="/sign-pdf">Sign PDF</a>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="container footerInner">
+    <div><strong>PDFOperations</strong></div>
+    <div class="footerLinks">
+      <a href="/pricing">Pricing</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+
+let active=null;
+window.__PDFOPS_EDIT_MAP__=[];
+
+const editor=document.getElementById("pdfEditor");
+
+document.addEventListener("pdfops:selected",async e=>{
+const file=e.detail.files[0];
+if(!file||!window.pdfjsLib)return;
+
+editor.innerHTML="";
+window.__PDFOPS_EDIT_MAP__=[];
+
+const buffer=await file.arrayBuffer();
+const pdf=await pdfjsLib.getDocument({data:buffer}).promise;
+
+for(let p=1;p<=pdf.numPages;p++){
+const page=await pdf.getPage(p);
+const viewport=page.getViewport({scale:1.5});
+
+const wrap=document.createElement("div");
+wrap.className="editPage";
+
+const canvas=document.createElement("canvas");
+canvas.width=viewport.width;
+canvas.height=viewport.height;
+await page.render({canvasContext:canvas.getContext("2d"),viewport}).promise;
+
+const overlay=document.createElement("div");
+overlay.className="overlay";
+overlay.addEventListener("click",ev=>{
+if(ev.target!==overlay)return;
+createBlock(p,ev.offsetX,ev.offsetY);
+});
+
+wrap.appendChild(canvas);
+wrap.appendChild(overlay);
+editor.appendChild(wrap);
+
+window.__PDFOPS_EDIT_MAP__.push({page:p,elements:[]});
+}
+});
+
+function createBlock(page,x,y){
+const block=document.createElement("div");
+block.className="textBlock";
+block.contentEditable=true;
+block.style.left=x+"px";
+block.style.top=y+"px";
+block.style.fontSize="24px";
+block.textContent="Text";
+
+block.addEventListener("mousedown",startDrag);
+block.addEventListener("click",()=>selectBlock(block));
+
+document.querySelectorAll(".overlay")[page-1].appendChild(block);
+
+window.__PDFOPS_EDIT_MAP__[page-1].elements.push({
+type:"text",
+x,y,
+size:24,
+text:"Text"
+});
+
+selectBlock(block);
+}
+
+function selectBlock(el){
+document.querySelectorAll(".textBlock").forEach(b=>b.classList.remove("active"));
+active=el;
+el.classList.add("active");
+}
+
+function startDrag(e){
+const el=e.currentTarget;
+selectBlock(el);
+let ox=e.offsetX,oy=e.offsetY;
+
+function move(ev){
+el.style.left=(ev.pageX-el.parentElement.getBoundingClientRect().left-ox)+"px";
+el.style.top=(ev.pageY-el.parentElement.getBoundingClientRect().top-oy)+"px";
+}
+function stop(){
+document.removeEventListener("mousemove",move);
+document.removeEventListener("mouseup",stop);
+}
+document.addEventListener("mousemove",move);
+document.addEventListener("mouseup",stop);
+}
+
+})();
+</script>
+
+<style>
+.editorStage{width:100%;max-width:900px;margin:0 auto;}
+.editPage{position:relative;margin-bottom:60px;}
+.overlay{position:absolute;inset:0;}
+.textBlock{
+position:absolute;
+min-width:40px;
+padding:4px 6px;
+background:#fff;
+border:1px dashed #2563eb;
+cursor:move;
+}
+.textBlock.active{border:2px solid #111;}
+</style>
+
+</body>
+</html>
