@@ -1,285 +1,821 @@
-<!-- public/protect-pdf.html — PDFOperations (v3 FULL AUTHORITY SECURITY TOOL) -->
+<!-- public/protect-pdf.html — PDFOperations (v4 - FULL RAMBO AUTHORITY SECURITY TOOL; SEO SUPPORT SECTION MATCHES INDEX v71)
+     ✅ NO app.js hook/ID changes
+     ✅ Keeps existing protect flow + IDs (files/dropzone/workPanel/password1/password2/strength/applyProtect/upload/continue)
+     ✅ Adds the SAME “plainSection” support layout as index v71 (but individualized for Protect)
+     ✅ Adds JSON-LD blocks (Organization + WebPage + Breadcrumb + FAQ + SoftwareApplication)
+     ✅ Keeps PDF.js ESM loader paths (/vendor/pdfjs/*.mjs)
+     ✅ app.js loaded ONCE
+-->
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<title>Password Protect PDF Online — Encrypt PDF Securely | PDFOperations</title>
-<meta name="description" content="Encrypt a PDF with password protection before sending contracts, legal or financial documents. Secure browser-based processing. No signup required." />
-<link rel="canonical" href="https://pdfoperations.com/protect-pdf" />
-<meta name="robots" content="index,follow" />
-<meta name="theme-color" content="#0b1220" />
+  <title>Password Protect PDF Online — Encrypt PDF Securely | PDFOperations</title>
+  <meta name="description" content="Encrypt a PDF with password protection before sending contracts, legal or financial documents. Secure browser-based processing. No signup required." />
+  <link rel="canonical" href="https://pdfoperations.com/protect-pdf" />
+  <meta name="robots" content="index,follow" />
+  <meta name="theme-color" content="#0b1220" />
 
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/style.css?v=36" />
+  <meta property="og:title" content="Password Protect PDF Online — Encrypt PDF Securely | PDFOperations" />
+  <meta property="og:description" content="Add password protection to a PDF before sharing sensitive documents. Secure processing. No account required." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pdfoperations.com/protect-pdf" />
+  <meta property="og:image" content="https://pdfoperations.com/og.png" />
+  <meta property="og:image:alt" content="PDFOperations — Protect PDF" />
 
-<!-- PDF.js loader -->
-<script type="module">
-window.__pdfjsReady = import("/vendor/pdfjs/pdf.min.mjs")
-.then((mod)=>{
-  const lib = mod?.default || mod;
-  window.pdfjsLib = lib;
-  try{ lib.GlobalWorkerOptions.workerSrc="/vendor/pdfjs/pdf.worker.min.mjs"; }catch(_){}
-  return lib;
-})
-.catch(()=>null);
-</script>
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Password Protect PDF Online — Encrypt PDF Securely | PDFOperations" />
+  <meta name="twitter:description" content="Encrypt a PDF with password protection before sending contracts, legal or financial documents." />
+  <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+  <link rel="stylesheet" href="/style.css?v=36" />
+
+  <style>
+    /* =========================
+       HARD AUTHORITY LAYER (NO FUNCTION CHANGES)
+       Aligns shell + “plainSection” look with index v71
+    ========================== */
+
+    .brandLogo{ height:32px; width:auto; display:block; flex:0 0 auto; }
+
+    .nav{
+      border-bottom: 1px solid rgba(15,23,42,.10);
+      background: rgba(245,247,251,.86);
+      backdrop-filter: blur(10px);
+    }
+    .brandText .sub{ opacity:.70; }
+
+    .navLinks a{
+      font-weight: 850;
+      letter-spacing:-.01em;
+      opacity:.86;
+    }
+    .navLinks a[aria-current="page"]{
+      opacity:1;
+      border-bottom:1px solid rgba(11,18,32,.35);
+    }
+
+    #dropzone.isDragOver{
+      outline:2px solid rgba(11,18,32,.14);
+      box-shadow:0 24px 70px rgba(2,6,23,.14);
+      transform:translateY(-1px);
+    }
+
+    [hidden]{ display:none !important; }
+
+    /* Flatten “hero” feel into clean stage */
+    .hero.heroPremium.heroToolFirst{
+      padding-top: 22px;
+      padding-bottom: 20px;
+    }
+
+    /* Instrument-panel tool container */
+    .tool.toolPremium.toolMega{
+      border-radius: 14px;
+      border:1px solid rgba(15,23,42,.14);
+      box-shadow: 0 26px 80px rgba(2,6,23,.10);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,1));
+    }
+
+    .toolHeadMinimal{
+      border-bottom:1px solid rgba(15,23,42,.10);
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+    }
+    .toolTitle{
+      letter-spacing:-.03em;
+      font-weight: 1000;
+    }
+    .toolSub{ opacity:.78; }
+
+    /* Protect: work panel polish */
+    #workPanel{
+      margin-top:12px;
+      border:1px solid rgba(15,23,42,.14);
+      background:#fff;
+      border-radius:14px;
+      box-shadow:0 26px 70px rgba(2,6,23,.10);
+      overflow:hidden;
+    }
+
+    .workStage{
+      padding:16px;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:16px;
+      align-items:start;
+      background:#fff;
+    }
+
+    @media (max-width: 980px){
+      .workStage{ grid-template-columns: 1fr; }
+    }
+
+    .pageStageWrap{
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:14px;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(11,18,32,.03), transparent);
+    }
+    .pageStageTop{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(15,23,42,.10);
+      background:rgba(255,255,255,.7);
+    }
+    .miniTitle{
+      font-weight:1000;
+      letter-spacing:-.02em;
+      color:rgba(11,18,32,.92);
+    }
+    .pageStage{
+      padding:14px;
+      background:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height: 380px;
+    }
+    .pageCanvas{
+      max-width:100%;
+      height:auto;
+      display:block;
+      background:#fff;
+      border-radius:10px;
+      border:1px solid rgba(15,23,42,.10);
+      box-shadow:0 18px 50px rgba(2,6,23,.08);
+    }
+
+    .sigPanelWrap{
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:14px;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(11,18,32,.03), transparent);
+    }
+    .panelHead{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(15,23,42,.10);
+      background:rgba(255,255,255,.7);
+    }
+    .panelTitle{
+      margin:0;
+      font-size:16px;
+      font-weight:1000;
+      letter-spacing:-.02em;
+    }
+    .panelSub{
+      margin:6px 0 0;
+      font-size:13px;
+      opacity:.78;
+      line-height:1.55;
+    }
+
+    .sigPanel{
+      padding:14px;
+      background:#fff;
+    }
+    .field{ display:block; margin-bottom:12px; }
+    .label{
+      display:block;
+      font-size:12px;
+      font-weight:950;
+      letter-spacing:.02em;
+      opacity:.78;
+      text-transform:uppercase;
+      margin-bottom:6px;
+    }
+    .input{
+      width:100%;
+      height:44px;
+      border-radius:12px;
+      border:1px solid rgba(15,23,42,.14);
+      background:#fff;
+      padding:0 12px;
+      font-weight:800;
+      letter-spacing:-.01em;
+      outline:none;
+    }
+    .input:focus{
+      border-color: rgba(11,18,32,.32);
+      box-shadow:0 0 0 4px rgba(11,18,32,.06);
+    }
+
+    .miniNote{
+      margin:12px 0 0;
+      font-size:13px;
+      opacity:.72;
+      line-height:1.55;
+    }
+
+    .workBottom{
+      padding:14px 16px 16px 16px;
+      border-top:1px solid rgba(15,23,42,.10);
+      background:linear-gradient(180deg, transparent, rgba(11,18,32,.02));
+    }
+    .workActions{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    .workActions .btnSoft,
+    .workActions .btnPrimary{
+      height:46px;
+      border-radius:12px;
+      font-weight:950;
+      letter-spacing:-.01em;
+      min-width:240px;
+    }
+    @media(max-width: 620px){
+      .workActions{ flex-direction:column; }
+      .workActions .btnSoft,
+      .workActions .btnPrimary{ width:100%; min-width:unset; }
+    }
+
+    /* =========================
+       “WE COMPRESS” SUPPORT LAYER — HARD EDITORIAL (MATCH INDEX v71)
+    ========================== */
+    .plainSection{ padding:64px 0 40px; }
+    .plainKicker{
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      opacity:.72;
+    }
+    .plainH2{
+      margin:14px 0 10px;
+      font-size:44px;
+      line-height:1.05;
+      letter-spacing:-.04em;
+      font-weight:1000;
+      color:rgba(11,18,32,.96);
+    }
+    @media (max-width: 720px){ .plainH2{ font-size:34px; } }
+    .plainLead{
+      margin:0;
+      font-size:16px;
+      line-height:1.65;
+      max-width: 78ch;
+      opacity:.80;
+    }
+
+    .featureGrid{
+      margin-top:34px;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:40px 44px;
+    }
+    @media (max-width: 980px){
+      .featureGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap:30px 28px; }
+    }
+    @media (max-width: 640px){
+      .featureGrid{ grid-template-columns: 1fr; gap:24px; }
+    }
+
+    .featIcon{ width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center; margin-bottom:12px; opacity:.95; }
+    .featTitle{ margin:0 0 10px; font-size:18px; letter-spacing:-.02em; font-weight:1000; }
+    .featText{ margin:0; font-size:15px; line-height:1.65; opacity:.80; }
+
+    .plainDivider{ margin:56px 0 0; border-top:1px solid rgba(15,23,42,.12); }
+
+    .plainBottomGrid{
+      margin-top:36px;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:44px;
+      align-items:start;
+    }
+    @media (max-width: 980px){ .plainBottomGrid{ grid-template-columns: 1fr; gap:32px; } }
+
+    .faqListPlain{ margin-top:10px; display:grid; gap:18px; }
+    .faqItemPlain{ padding-top:16px; border-top:1px solid rgba(15,23,42,.12); }
+    .faqItemPlain:first-child{ border-top:0; padding-top:0; }
+    .faqQ{ margin:0 0 8px; font-weight:1000; letter-spacing:-.02em; font-size:16px; }
+    .faqA{ margin:0; opacity:.80; line-height:1.65; font-size:15px; max-width: 68ch; }
+
+    .relatedLinks{
+      margin-top:12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px 18px;
+      font-size:15px;
+    }
+    .relatedLinks a{
+      text-decoration:none;
+      font-weight:1000;
+      color:rgba(11,18,32,.92);
+      border-bottom:1px solid rgba(11,18,32,.24);
+    }
+    .relatedLinks a:hover{ border-bottom-color: rgba(11,18,32,.60); }
+
+    .plainNote{
+      margin-top:14px;
+      font-size:13px;
+      opacity:.72;
+      line-height:1.55;
+      max-width: 80ch;
+    }
+
+    .icoStroke{ stroke: rgba(11,18,32,.92); }
+  </style>
+
+  <!-- JSON-LD: Organization -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Organization",
+    "name":"PDFOperations",
+    "url":"https://pdfoperations.com/",
+    "logo":"https://pdfoperations.com/favicon.svg"
+  }
+  </script>
+
+  <!-- JSON-LD: WebPage -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebPage",
+    "name":"Password Protect PDF Online — PDFOperations",
+    "url":"https://pdfoperations.com/protect-pdf",
+    "description":"Encrypt a PDF with password protection before sending contracts, legal or financial documents. Secure browser-based processing. No signup required.",
+    "isPartOf":{
+      "@type":"WebSite",
+      "name":"PDFOperations",
+      "url":"https://pdfoperations.com/"
+    }
+  }
+  </script>
+
+  <!-- JSON-LD: Breadcrumb -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"BreadcrumbList",
+    "itemListElement":[
+      {"@type":"ListItem","position":1,"name":"PDFOperations","item":"https://pdfoperations.com/"},
+      {"@type":"ListItem","position":2,"name":"Protect PDF","item":"https://pdfoperations.com/protect-pdf"}
+    ]
+  }
+  </script>
+
+  <!-- JSON-LD: FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity":[
+      {
+        "@type":"Question",
+        "name":"How do I password protect a PDF?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Select or drop a PDF, set and confirm a password, click Encrypt PDF, then upload and continue to download your protected file."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"Can you recover my password if I forget it?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"No. Keep your password safe — protected PDFs cannot be unlocked without the correct password."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"Will protection change the PDF content or quality?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Password protection restricts access but should not change readability or layout of your document."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"Is my PDF secure?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Files are processed to generate your protected output. See the Privacy page for retention and deletion details."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- JSON-LD: SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"PDFOperations",
+    "applicationCategory":"BusinessApplication",
+    "applicationSubCategory":"PDF Utilities",
+    "operatingSystem":"Web",
+    "browserRequirements":"Requires JavaScript. Works in modern browsers.",
+    "url":"https://pdfoperations.com/protect-pdf",
+    "description":"Online PDF tools to compress, merge, split, rotate, convert and protect PDF files.",
+    "featureList":[
+      "Password protect PDF files",
+      "Compress PDF files",
+      "Merge PDF documents",
+      "Split PDF pages",
+      "Rotate PDF pages",
+      "Convert PDF to image formats"
+    ]
+  }
+  </script>
+
+  <!-- ✅ PDF.js module load -->
+  <script type="module">
+    window.__pdfjsReady = import("/vendor/pdfjs/pdf.min.mjs")
+      .then((mod) => {
+        const lib = mod?.default || mod;
+        window.pdfjsLib = lib;
+        try { lib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.mjs"; } catch(_) {}
+        return lib;
+      })
+      .catch((err) => {
+        console.warn("[PDFOperations] PDF.js failed to load:", err);
+        window.pdfjsLib = null;
+        return null;
+      });
+  </script>
 </head>
 
 <body class="page pageProtectPdf">
-<div class="bg"></div>
+  <div class="bg" aria-hidden="true"></div>
 
-<header class="nav">
-  <div class="container navInner">
+  <a href="#tool" class="srOnly">Skip to tool</a>
 
-    <a class="brand" href="/" aria-label="PDFOperations home">
-      <img src="/favicon.svg" alt="PDFOperations" class="brandLogo" />
-      <span class="brandText">
-        <span class="top">PDFOperations</span>
-        <span class="sub">Professional PDF Tools</span>
-      </span>
-    </a>
+  <header class="nav">
+    <div class="container navInner">
 
-    <nav class="navLinks" aria-label="Primary tools">
-      <a href="/" data-nav="compress">Compress</a>
-      <a href="/merge-pdf" data-nav="merge">Merge</a>
-      <a href="/split-pdf" data-nav="split">Split</a>
-      <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
-      <a href="/convert" data-nav="convert">Convert</a>
-      <a href="/sign-pdf" data-nav="sign">Sign</a>
-      <a href="/protect-pdf" data-nav="protect" aria-current="page">Protect</a>
-      <a href="/edit-pdf" data-nav="edit">Edit</a>
-      <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
-    </nav>
+      <a class="brand" href="/" aria-label="PDFOperations home">
+        <img src="/favicon.svg" alt="PDFOperations" class="brandLogo" />
+        <span class="brandText">
+          <span class="top">PDFOperations</span>
+          <span class="sub">Professional PDF Tools</span>
+        </span>
+      </a>
 
-  </div>
-</header>
+      <nav class="navLinks" aria-label="Primary tools">
+        <a href="/" data-nav="compress">Compress</a>
+        <a href="/merge-pdf" data-nav="merge">Merge</a>
+        <a href="/split-pdf" data-nav="split">Split</a>
+        <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
+        <a href="/convert" data-nav="convert">Convert</a>
+        <a href="/sign-pdf" data-nav="sign">Sign</a>
+        <a href="/protect-pdf" data-nav="protect" aria-current="page">Protect</a>
+        <a href="/edit-pdf" data-nav="edit">Edit</a>
+        <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
+      </nav>
 
-<main>
-
-<section class="hero heroPremium heroToolFirst">
-<div class="container heroWide">
-
-<div id="tool" class="tool toolPremium toolMega">
-
-<div class="toolHead toolHeadMinimal">
-  <h1 class="toolTitle">Password Protect PDF</h1>
-  <p class="toolSub">
-    Encrypt sensitive documents before sending contracts, tax forms or legal files.
-  </p>
-</div>
-
-<div class="statusWrap">
-  <div class="statusLeft">
-    <div class="status" id="status">Ready</div>
-    <div class="spinner" id="spinner"></div>
-  </div>
-  <div class="statusHint" id="statusHint">Drop a PDF to begin.</div>
-</div>
-
-<input type="hidden" id="mode" value="protect_pdf" />
-
-<!-- DROPZONE -->
-<div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
-  <div class="dzCenter">
-    <div class="dzTitle">Drop a PDF here</div>
-    <div class="dzSub">PDF only • 1 file</div>
-    <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
-    <input id="files" type="file" accept="application/pdf" hidden />
-    <div class="dzFine">Encrypted locally before upload</div>
-  </div>
-</div>
-
-<!-- WORK PANEL -->
-<div class="workPanel" hidden id="workPanel">
-
-  <div class="workStage">
-
-    <!-- LEFT: PDF PREVIEW -->
-    <div class="pageStageWrap">
-      <div class="pageStageTop">
-        <div class="miniTitle">Preview</div>
-      </div>
-      <div class="pageStage">
-        <canvas id="pageCanvas" class="pageCanvas"></canvas>
-      </div>
     </div>
+  </header>
 
-    <!-- RIGHT: SECURITY PANEL -->
-    <div class="sigPanelWrap">
-      <div class="panelHead">
-        <h2 class="panelTitle">Set password</h2>
-        <p class="panelSub">Choose a strong password to encrypt this PDF.</p>
+  <main>
+    <section class="hero heroPremium heroToolFirst">
+      <div class="container heroWide">
+
+        <div id="tool" class="tool toolPremium toolMega">
+
+          <div class="toolHead toolHeadMinimal">
+            <h1 class="toolTitle">Password Protect PDF</h1>
+            <p class="toolSub">
+              Encrypt sensitive documents before sending contracts, tax forms or legal files.
+            </p>
+          </div>
+
+          <div class="statusWrap">
+            <div class="statusLeft">
+              <div class="status" id="status">Ready</div>
+              <div class="spinner" id="spinner"></div>
+            </div>
+            <div class="statusHint" id="statusHint">Drop a PDF to begin.</div>
+          </div>
+
+          <input type="hidden" id="mode" value="protect_pdf" />
+
+          <!-- DROPZONE -->
+          <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
+            <div class="dzCenter">
+              <div class="dzTitle">Drop a PDF here</div>
+              <div class="dzSub">PDF only • 1 file</div>
+              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
+              <input id="files" type="file" accept="application/pdf" hidden />
+              <div class="dzFine">Encrypt locally, then upload when ready</div>
+            </div>
+          </div>
+
+          <!-- WORK PANEL -->
+          <div class="workPanel" hidden id="workPanel">
+
+            <div class="workStage">
+
+              <!-- LEFT: PDF PREVIEW -->
+              <div class="pageStageWrap">
+                <div class="pageStageTop">
+                  <div class="miniTitle">Preview</div>
+                </div>
+                <div class="pageStage">
+                  <canvas id="pageCanvas" class="pageCanvas"></canvas>
+                </div>
+              </div>
+
+              <!-- RIGHT: SECURITY PANEL -->
+              <div class="sigPanelWrap">
+                <div class="panelHead">
+                  <h2 class="panelTitle">Set password</h2>
+                  <p class="panelSub">Choose a strong password to encrypt this PDF. Keep it safe — it can’t be recovered.</p>
+                </div>
+
+                <div class="sigPanel">
+
+                  <label class="field">
+                    <span class="label">Password</span>
+                    <input type="password" id="password1" class="input" placeholder="Enter password" />
+                  </label>
+
+                  <label class="field">
+                    <span class="label">Confirm password</span>
+                    <input type="password" id="password2" class="input" placeholder="Re-enter password" />
+                  </label>
+
+                  <div style="margin-top:8px; font-size:13px; opacity:.85;">
+                    Strength: <span id="strength">–</span>
+                  </div>
+
+                  <div style="margin-top:18px;">
+                    <button class="btn btnPrimary btnStrong" id="applyProtect" type="button">Encrypt PDF</button>
+                  </div>
+
+                  <p class="miniNote">
+                    Tip: Use 10+ characters. Mix letters, numbers, and one symbol for stronger protection.
+                  </p>
+
+                </div>
+              </div>
+
+            </div>
+
+            <div class="workBottom">
+              <div class="workActions">
+                <button class="btnSoft" id="upload" disabled>Upload PDF</button>
+                <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
+    </section>
 
-      <div class="sigPanel">
+    <!-- CLEAN LANDING SUPPORT SECTION (SEO-friendly, visible text) -->
+    <section class="plainSection" id="about">
+      <div class="container heroWide">
 
-        <label class="field">
-          <span class="label">Password</span>
-          <input type="password" id="password1" class="input" placeholder="Enter password"/>
-        </label>
-
-        <label class="field">
-          <span class="label">Confirm password</span>
-          <input type="password" id="password2" class="input" placeholder="Re-enter password"/>
-        </label>
-
-        <div style="margin-top:8px; font-size:13px;">
-          Strength: <span id="strength">–</span>
-        </div>
-
-        <div style="margin-top:20px;">
-          <button class="btn btnPrimary btnStrong" id="applyProtect">Encrypt PDF</button>
-        </div>
-
-        <p class="miniNote">
-          Tip: Use at least 10 characters with letters and numbers.
+        <div class="plainKicker">Security</div>
+        <h2 class="plainH2">Password protect PDFs before sharing</h2>
+        <p class="plainLead" style="margin-top:14px;">
+          Protect sensitive PDFs with a password before sending them by email or uploading to portals.
+          Ideal for contracts, HR documents, tax files, invoices, and client packs.
         </p>
 
+        <div class="featureGrid" aria-label="What you can do">
+          <div>
+            <div class="featIcon" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                <path class="icoStroke" d="M7 11V8a5 5 0 0 1 10 0v3" stroke-width="2" stroke-linecap="round"/>
+                <path class="icoStroke" d="M6 11h12v10H6V11Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3 class="featTitle">Add password protection</h3>
+            <p class="featText">Restrict access so only the right people can open your document.</p>
+          </div>
+
+          <div>
+            <div class="featIcon" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                <path class="icoStroke" d="M12 2a7 7 0 0 0-7 7v4a7 7 0 1 0 14 0V9a7 7 0 0 0-7-7Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path class="icoStroke" d="M9 10h6" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <h3 class="featTitle">Strong workflow safety</h3>
+            <p class="featText">Use protection for client handoffs, internal docs, and financial PDFs.</p>
+          </div>
+
+          <div>
+            <div class="featIcon" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                <path class="icoStroke" d="M7 3h7l3 3v15a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path class="icoStroke" d="M14 3v4a2 2 0 0 0 2 2h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3 class="featTitle">Business-ready output</h3>
+            <p class="featText">Download a protected PDF that’s ready for portals, email, and storage.</p>
+          </div>
+
+          <div>
+            <div class="featIcon" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                <path class="icoStroke" d="M12 2v20" stroke-width="2" stroke-linecap="round"/>
+                <path class="icoStroke" d="M7 7h10" stroke-width="2" stroke-linecap="round"/>
+                <path class="icoStroke" d="M7 17h10" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <h3 class="featTitle">Simple steps</h3>
+            <p class="featText">Select a PDF, set a password, encrypt, then upload and continue.</p>
+          </div>
+
+          <div>
+            <div class="featIcon" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                <path class="icoStroke" d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path class="icoStroke" d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3 class="featTitle">Preview before you lock</h3>
+            <p class="featText">Check you selected the right file before applying protection.</p>
+          </div>
+
+          <div>
+            <div class="featIcon" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                <path class="icoStroke" d="M8 7h12M8 12h12M8 17h12" stroke-width="2" stroke-linecap="round"/>
+                <path class="icoStroke" d="M4 6v2M4 11v2M4 16v2" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <h3 class="featTitle">More tools available</h3>
+            <p class="featText">Sign, watermark, edit, compress, merge, split and convert with the same clean flow.</p>
+          </div>
+        </div>
+
+        <div class="plainDivider"></div>
+
+        <div class="plainBottomGrid" id="faq">
+          <div>
+            <div class="plainKicker">FAQ</div>
+            <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.03em; font-weight:1000;">Common questions</h3>
+
+            <div class="faqListPlain">
+              <div class="faqItemPlain">
+                <div class="faqQ">How do I password protect a PDF?</div>
+                <p class="faqA">Select or drop a PDF, set and confirm a password, click <strong>Encrypt PDF</strong>, then upload and continue.</p>
+              </div>
+
+              <div class="faqItemPlain">
+                <div class="faqQ">Can you recover my password if I forget it?</div>
+                <p class="faqA">No — protected PDFs can’t be unlocked without the correct password. Store it safely.</p>
+              </div>
+
+              <div class="faqItemPlain">
+                <div class="faqQ">Will protection change the PDF content?</div>
+                <p class="faqA">Password protection restricts access but should not change layout or readability of your document.</p>
+              </div>
+
+              <div class="faqItemPlain">
+                <div class="faqQ">Is my PDF secure?</div>
+                <p class="faqA">Files are processed to generate your protected output. See Privacy for retention and deletion details.</p>
+              </div>
+            </div>
+
+            <div class="plainNote">
+              Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
+            </div>
+          </div>
+
+          <div>
+            <div class="plainKicker">Tools</div>
+            <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.03em; font-weight:1000;">Try other PDF tools</h3>
+            <p class="plainLead" style="font-size:15px; margin-top:0; max-width:56ch;">
+              Need signatures, watermarks, edits, or a smaller file size? Jump straight into another tool.
+            </p>
+
+            <div class="relatedLinks" aria-label="PDF tools">
+              <a href="/sign-pdf">Sign PDF</a>
+              <a href="/watermark-pdf">Watermark PDF</a>
+              <a href="/edit-pdf">Edit PDF</a>
+              <a href="/">Compress PDF</a>
+            </div>
+
+            <div class="plainNote">
+              Tip: If you’re sending a protected PDF by email, share the password via a separate channel.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footerInner">
+      <div>
+        <strong>PDFOperations</strong>
+        <div>Professional PDF tools for real workflows.</div>
+      </div>
+
+      <div class="footerLinks">
+        <a href="/pricing">Pricing</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
       </div>
     </div>
+  </footer>
 
-  </div>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script defer src="/app.js?v=17.7"></script>
 
-  <div class="workBottom">
-    <div class="workActions">
-      <button class="btnSoft" id="upload" disabled>Upload PDF</button>
-      <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
-    </div>
-  </div>
+  <script>
+  (async function(){
 
-</div>
+    const filesInput=document.getElementById("files");
+    const dropzone=document.getElementById("dropzone");
+    const workPanel=document.getElementById("workPanel");
+    const pass1=document.getElementById("password1");
+    const pass2=document.getElementById("password2");
+    const applyBtn=document.getElementById("applyProtect");
+    const strengthEl=document.getElementById("strength");
+    const pageCanvas=document.getElementById("pageCanvas");
+    const ctx=pageCanvas.getContext("2d");
 
-</div>
-</div>
-</section>
+    function setStatus(t,h){
+      document.getElementById("status").textContent=t;
+      document.getElementById("statusHint").textContent=h||"";
+    }
 
-<!-- SEO SECTION -->
-<section class="plainSection">
-<div class="container heroWide">
+    function checkStrength(p){
+      if(p.length<6) return "Weak";
+      if(p.match(/[A-Z]/)&&p.match(/[0-9]/)&&p.length>9) return "Strong";
+      return "Medium";
+    }
 
-<div class="plainKicker">Security</div>
-<h2 class="plainH2">Encrypt PDFs before sending</h2>
-<p class="plainLead">
-Add password protection to invoices, contracts and confidential documents before sharing them by email or portal.
-</p>
+    pass1.addEventListener("input",()=>{ strengthEl.textContent=checkStrength(pass1.value); });
 
-<div class="featureGrid">
-  <div>
-    <h3 class="featTitle">Client-side encryption</h3>
-    <p class="featText">Protection is applied locally before upload.</p>
-  </div>
-  <div>
-    <h3 class="featTitle">No account required</h3>
-    <p class="featText">Encrypt and download without signing up.</p>
-  </div>
-  <div>
-    <h3 class="featTitle">Business-ready output</h3>
-    <p class="featText">Ideal for contracts, legal documents and financial files.</p>
-  </div>
-</div>
+    filesInput.addEventListener("change",async()=>{
+      const f=filesInput.files[0];
+      if(!f)return;
 
-</div>
-</section>
+      window.__PDFOPS_SELECTED__=[f];
+      window.dispatchEvent(new Event("pdfops:selected"));
 
-</main>
+      dropzone.hidden=true;
+      workPanel.hidden=false;
 
-<footer class="footer">
-  <div class="container footerInner">
-    <div>
-      <strong>PDFOperations</strong>
-      <div>Professional PDF tools for real workflows.</div>
-    </div>
+      const lib=window.pdfjsLib || await window.__pdfjsReady;
+      const pdf=await lib.getDocument({data:await f.arrayBuffer()}).promise;
+      const page=await pdf.getPage(1);
+      const vp=page.getViewport({scale:1});
+      pageCanvas.width=vp.width;
+      pageCanvas.height=vp.height;
+      await page.render({canvasContext:ctx,viewport:vp}).promise;
 
-    <div class="footerLinks">
-      <a href="/pricing">Pricing</a>
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
-    </div>
-  </div>
-</footer>
+      setStatus("Ready","Set password and encrypt.");
+    });
 
-<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-<script src="/app.js?v=17.7" defer></script>
+    applyBtn.addEventListener("click",async()=>{
 
-<script>
-(async function(){
+      const file=window.__PDFOPS_SELECTED__?.[0];
+      if(!file){ setStatus("Error","Select a PDF first."); return; }
+      if(pass1.value!==pass2.value){ setStatus("Error","Passwords do not match."); return; }
 
-const filesInput=document.getElementById("files");
-const dropzone=document.getElementById("dropzone");
-const workPanel=document.getElementById("workPanel");
-const pass1=document.getElementById("password1");
-const pass2=document.getElementById("password2");
-const applyBtn=document.getElementById("applyProtect");
-const strengthEl=document.getElementById("strength");
-const pageCanvas=document.getElementById("pageCanvas");
-const ctx=pageCanvas.getContext("2d");
+      setStatus("Processing…","Encrypting PDF locally…");
 
-function setStatus(t,h){
-  document.getElementById("status").textContent=t;
-  document.getElementById("statusHint").textContent=h||"";
-}
+      const bytes=await file.arrayBuffer();
+      const pdfDoc=await PDFLib.PDFDocument.load(bytes);
 
-function checkStrength(p){
-  if(p.length<6) return "Weak";
-  if(p.match(/[A-Z]/)&&p.match(/[0-9]/)&&p.length>9) return "Strong";
-  return "Medium";
-}
+      const out=await pdfDoc.save({
+        userPassword:pass1.value,
+        ownerPassword:pass1.value
+      });
 
-pass1.addEventListener("input",()=>{ strengthEl.textContent=checkStrength(pass1.value); });
+      const newFile=new File([out],file.name.replace(/\.pdf$/i,"")+" (protected).pdf",{type:"application/pdf"});
 
-filesInput.addEventListener("change",async()=>{
-  const f=filesInput.files[0];
-  if(!f)return;
+      window.__PDFOPS_SELECTED__=[newFile];
+      window.dispatchEvent(new Event("pdfops:selected"));
 
-  window.__PDFOPS_SELECTED__=[f];
-  window.dispatchEvent(new Event("pdfops:selected"));
+      document.getElementById("upload").disabled=false;
+      document.getElementById("continue").disabled=false;
 
-  dropzone.hidden=true;
-  workPanel.hidden=false;
+      setStatus("Ready","Encrypted. Upload and continue.");
+    });
 
-  const lib=window.pdfjsLib || await window.__pdfjsReady;
-  const pdf=await lib.getDocument({data:await f.arrayBuffer()}).promise;
-  const page=await pdf.getPage(1);
-  const vp=page.getViewport({scale:1});
-  pageCanvas.width=vp.width;
-  pageCanvas.height=vp.height;
-  await page.render({canvasContext:ctx,viewport:vp}).promise;
+    /* Make dropzone clickable via existing button (no logic changes) */
+    const chooseBtn=document.getElementById("chooseBtn");
+    if(chooseBtn && filesInput){
+      chooseBtn.addEventListener("click",()=>filesInput.click());
+    }
 
-  setStatus("Ready","Set password and encrypt.");
-});
-
-applyBtn.addEventListener("click",async()=>{
-
-  const file=window.__PDFOPS_SELECTED__?.[0];
-  if(!file){ setStatus("Error","Select a PDF first."); return; }
-  if(pass1.value!==pass2.value){ setStatus("Error","Passwords do not match."); return; }
-
-  setStatus("Processing…","Encrypting PDF locally…");
-
-  const bytes=await file.arrayBuffer();
-  const pdfDoc=await PDFLib.PDFDocument.load(bytes);
-
-  const out=await pdfDoc.save({
-    userPassword:pass1.value,
-    ownerPassword:pass1.value
-  });
-
-  const newFile=new File([out],file.name.replace(/\.pdf$/i,"")+" (protected).pdf",{type:"application/pdf"});
-
-  window.__PDFOPS_SELECTED__=[newFile];
-  window.dispatchEvent(new Event("pdfops:selected"));
-
-  document.getElementById("upload").disabled=false;
-  document.getElementById("continue").disabled=false;
-
-  setStatus("Ready","Encrypted. Upload and continue.");
-});
-
-})();
-</script>
+  })();
+  </script>
 
 </body>
 </html>
