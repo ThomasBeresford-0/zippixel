@@ -1,0 +1,275 @@
+<!-- public/protect-pdf.html — PDFOperations (v3 FULL AUTHORITY SECURITY TOOL) -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>Password Protect PDF Online — Encrypt PDF Securely | PDFOperations</title>
+<meta name="description" content="Encrypt a PDF with password protection before sending contracts, legal or financial documents. Secure browser-based processing. No signup required." />
+<link rel="canonical" href="https://pdfoperations.com/protect-pdf" />
+<meta name="robots" content="index,follow" />
+<meta name="theme-color" content="#0b1220" />
+
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css?v=36" />
+
+<!-- PDF.js loader -->
+<script type="module">
+window.__pdfjsReady = import("/vendor/pdfjs/pdf.min.mjs")
+.then((mod)=>{
+  const lib = mod?.default || mod;
+  window.pdfjsLib = lib;
+  try{ lib.GlobalWorkerOptions.workerSrc="/vendor/pdfjs/pdf.worker.min.mjs"; }catch(_){}
+  return lib;
+})
+.catch(()=>null);
+</script>
+</head>
+
+<body class="page pageProtectPdf">
+<div class="bg"></div>
+
+<header class="nav">
+  <div class="container navInner">
+    <a class="brand" href="/">
+      <img src="/favicon.svg" class="brandLogo" alt="PDFOperations"/>
+      <span class="brandText">
+        <span class="top">PDFOperations</span>
+        <span class="sub">Compress • Merge • Split • Protect • Sign •</span>
+      </span>
+    </a>
+    <nav class="navLinks" aria-label="Primary navigation">
+      <a href="/">Compress</a>
+      <a href="/merge-pdf" aria-current="page">Merge</a>
+      <a href="/split-pdf">Split</a>
+      <a href="/convert">Convert</a>
+      <a href="/rotate-pdf">Rotate</a>
+      <a href="/protect-pdf">Protect</a>
+      <a href="/sign-pdf">Sign</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="hero heroPremium heroToolFirst">
+<div class="container heroWide">
+
+<div id="tool" class="tool toolPremium toolMega">
+
+<div class="toolHead toolHeadMinimal">
+  <h1 class="toolTitle">Password Protect PDF</h1>
+  <p class="toolSub">
+    Encrypt sensitive documents before sending contracts, tax forms or legal files.
+  </p>
+</div>
+
+<div class="statusWrap">
+  <div class="statusLeft">
+    <div class="status" id="status">Ready</div>
+    <div class="spinner" id="spinner"></div>
+  </div>
+  <div class="statusHint" id="statusHint">Drop a PDF to begin.</div>
+</div>
+
+<input type="hidden" id="mode" value="protect_pdf" />
+
+<!-- DROPZONE -->
+<div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
+  <div class="dzCenter">
+    <div class="dzTitle">Drop a PDF here</div>
+    <div class="dzSub">PDF only • 1 file</div>
+    <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
+    <input id="files" type="file" accept="application/pdf" hidden />
+    <div class="dzFine">Encrypted locally before upload</div>
+  </div>
+</div>
+
+<!-- WORK PANEL -->
+<div class="workPanel" hidden id="workPanel">
+
+  <div class="workStage">
+
+    <!-- LEFT: PDF PREVIEW -->
+    <div class="pageStageWrap">
+      <div class="pageStageTop">
+        <div class="miniTitle">Preview</div>
+      </div>
+      <div class="pageStage">
+        <canvas id="pageCanvas" class="pageCanvas"></canvas>
+      </div>
+    </div>
+
+    <!-- RIGHT: SECURITY PANEL -->
+    <div class="sigPanelWrap">
+      <div class="panelHead">
+        <h2 class="panelTitle">Set password</h2>
+        <p class="panelSub">Choose a strong password to encrypt this PDF.</p>
+      </div>
+
+      <div class="sigPanel">
+
+        <label class="field">
+          <span class="label">Password</span>
+          <input type="password" id="password1" class="input" placeholder="Enter password"/>
+        </label>
+
+        <label class="field">
+          <span class="label">Confirm password</span>
+          <input type="password" id="password2" class="input" placeholder="Re-enter password"/>
+        </label>
+
+        <div style="margin-top:8px; font-size:13px;">
+          Strength: <span id="strength">–</span>
+        </div>
+
+        <div style="margin-top:20px;">
+          <button class="btn btnPrimary btnStrong" id="applyProtect">Encrypt PDF</button>
+        </div>
+
+        <p class="miniNote">
+          Tip: Use at least 10 characters with letters and numbers.
+        </p>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="workBottom">
+    <div class="workActions">
+      <button class="btnSoft" id="upload" disabled>Upload PDF</button>
+      <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
+    </div>
+  </div>
+
+</div>
+
+</div>
+</div>
+</section>
+
+<!-- SEO SECTION -->
+<section class="plainSection">
+<div class="container heroWide">
+
+<div class="plainKicker">Security</div>
+<h2 class="plainH2">Encrypt PDFs before sending</h2>
+<p class="plainLead">
+Add password protection to invoices, contracts and confidential documents before sharing them by email or portal.
+</p>
+
+<div class="featureGrid">
+  <div>
+    <h3 class="featTitle">Client-side encryption</h3>
+    <p class="featText">Protection is applied locally before upload.</p>
+  </div>
+  <div>
+    <h3 class="featTitle">No account required</h3>
+    <p class="featText">Encrypt and download without signing up.</p>
+  </div>
+  <div>
+    <h3 class="featTitle">Business-ready output</h3>
+    <p class="featText">Ideal for contracts, legal documents and financial files.</p>
+  </div>
+</div>
+
+</div>
+</section>
+
+</main>
+
+<footer class="footer">
+<div class="container footerInner">
+<strong>PDFOperations</strong>
+<div>Professional PDF tools for real workflows.</div>
+</div>
+</footer>
+
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="/app.js?v=17.7" defer></script>
+
+<script>
+(async function(){
+
+const filesInput=document.getElementById("files");
+const dropzone=document.getElementById("dropzone");
+const workPanel=document.getElementById("workPanel");
+const pass1=document.getElementById("password1");
+const pass2=document.getElementById("password2");
+const applyBtn=document.getElementById("applyProtect");
+const strengthEl=document.getElementById("strength");
+const pageCanvas=document.getElementById("pageCanvas");
+const ctx=pageCanvas.getContext("2d");
+
+function setStatus(t,h){
+  document.getElementById("status").textContent=t;
+  document.getElementById("statusHint").textContent=h||"";
+}
+
+function checkStrength(p){
+  if(p.length<6) return "Weak";
+  if(p.match(/[A-Z]/)&&p.match(/[0-9]/)&&p.length>9) return "Strong";
+  return "Medium";
+}
+
+pass1.addEventListener("input",()=>{ strengthEl.textContent=checkStrength(pass1.value); });
+
+filesInput.addEventListener("change",async()=>{
+  const f=filesInput.files[0];
+  if(!f)return;
+
+  window.__PDFOPS_SELECTED__=[f];
+  window.dispatchEvent(new Event("pdfops:selected"));
+
+  dropzone.hidden=true;
+  workPanel.hidden=false;
+
+  const lib=window.pdfjsLib || await window.__pdfjsReady;
+  const pdf=await lib.getDocument({data:await f.arrayBuffer()}).promise;
+  const page=await pdf.getPage(1);
+  const vp=page.getViewport({scale:1});
+  pageCanvas.width=vp.width;
+  pageCanvas.height=vp.height;
+  await page.render({canvasContext:ctx,viewport:vp}).promise;
+
+  setStatus("Ready","Set password and encrypt.");
+});
+
+applyBtn.addEventListener("click",async()=>{
+
+  const file=window.__PDFOPS_SELECTED__?.[0];
+  if(!file){ setStatus("Error","Select a PDF first."); return; }
+  if(pass1.value!==pass2.value){ setStatus("Error","Passwords do not match."); return; }
+
+  setStatus("Processing…","Encrypting PDF locally…");
+
+  const bytes=await file.arrayBuffer();
+  const pdfDoc=await PDFLib.PDFDocument.load(bytes);
+
+  const out=await pdfDoc.save({
+    userPassword:pass1.value,
+    ownerPassword:pass1.value
+  });
+
+  const newFile=new File([out],file.name.replace(/\.pdf$/i,"")+" (protected).pdf",{type:"application/pdf"});
+
+  window.__PDFOPS_SELECTED__=[newFile];
+  window.dispatchEvent(new Event("pdfops:selected"));
+
+  document.getElementById("upload").disabled=false;
+  document.getElementById("continue").disabled=false;
+
+  setStatus("Ready","Encrypted. Upload and continue.");
+});
+
+})();
+</script>
+
+</body>
+</html>
