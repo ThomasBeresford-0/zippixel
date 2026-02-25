@@ -1,9 +1,9 @@
-<!-- public/convert.html — PDFOperations (v5 - MATCHES SPLIT SEO BLOCK + MAX SEO; NO FUNCTION CHANGES)
+<!-- public/convert.html — PDFOperations (v6 - SPLIT-PDF BOTTOM BLOCK MATCH + MAX SEO; NO FUNCTION CHANGES)
      ✅ NO functional changes / all app.js IDs preserved
      ✅ style.css?v=36 + app.js?v=17.7
-     ✅ Keeps clean tool-first UX
-     ✅ Upgrades below-fold section to MATCH split-pdf “contentSection” layout + hard/clean FAQ + plain related links
-     ✅ Adds extra schema: Organization + SoftwareApplication (convert) + Breadcrumb + FAQ (kept)
+     ✅ Tool-first UX unchanged
+     ✅ Bottom section now uses the EXACT same “plainSection / featureGrid / faqListPlain / relatedLinks” structure + styling as split-pdf
+     ✅ Schema: Organization + WebPage + SoftwareApplication + Breadcrumb + FAQ
 -->
 <!doctype html>
 <html lang="en">
@@ -47,7 +47,7 @@
        SCHEMA (SEO)
   ========================== -->
 
-  <!-- Organization (shared) -->
+  <!-- Organization -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -225,151 +225,93 @@
     #convertFrom, #convertTarget{ width:100%; max-width:100%; }
 
     /* =========================
-       BELOW-FOLD SEO — MATCH split-pdf “contentSection”
+       BOTTOM SEO SECTION — EXACT MATCH TO split-pdf “plainSection” LOOK
     ========================== */
-    .contentSection{
-      padding: 56px 0 64px;
-      background: #fff;
-      border-top: 1px solid rgba(15,23,42,.08);
+    .plainSection{ padding:56px 0 38px; }
+    .plainKicker{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      opacity:.70;
     }
-    .contentWrap{
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 0 20px;
+    .plainH2{
+      margin:12px 0 8px;
+      font-size:44px;
+      line-height:1.05;
+      letter-spacing:-.03em;
+      font-weight:950;
+      color:rgba(11,18,32,.96);
     }
-
-    .contentHead h2{
+    @media (max-width: 720px){ .plainH2{ font-size:34px; } }
+    .plainLead{
       margin:0;
-      font-size: 44px;
-      line-height: 1.05;
-      letter-spacing: -.03em;
-      font-weight: 950;
-      color: rgba(11,18,32,.98);
-    }
-    .contentHead p{
-      margin:10px 0 0;
-      font-size: 16px;
-      line-height: 1.55;
-      color: rgba(11,18,32,.72);
+      font-size:16px;
+      line-height:1.65;
       max-width: 78ch;
-    }
-
-    .contentGrid{
-      display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap: 42px;
-      margin-top: 36px;
-      align-items:start;
-    }
-    @media (max-width: 960px){
-      .contentHead h2{ font-size: 36px; }
-      .contentGrid{ grid-template-columns: 1fr; gap: 28px; }
+      opacity:.78;
     }
 
     .featureGrid{
+      margin-top:34px;
       display:grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 22px 26px;
-      margin-top: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:42px 44px;
     }
-    @media (max-width: 560px){
-      .featureGrid{ grid-template-columns: 1fr; }
+    @media (max-width: 980px){
+      .featureGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap:32px 28px; }
     }
-
-    .feature{
-      display:flex;
-      gap: 14px;
-      align-items:flex-start;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      box-shadow: none;
-    }
-    .featureIcon{
-      width: 34px;
-      height: 34px;
-      flex: 0 0 auto;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .featureIcon svg{ width: 28px; height: 28px; }
-    .featureTitle{
-      font-weight: 950;
-      letter-spacing: -.02em;
-      margin: 0;
-      font-size: 18px;
-      color: rgba(11,18,32,.96);
-    }
-    .featureText{
-      margin: 6px 0 0;
-      font-size: 14px;
-      line-height: 1.55;
-      color: rgba(11,18,32,.70);
+    @media (max-width: 640px){
+      .featureGrid{ grid-template-columns: 1fr; gap:26px; }
     }
 
-    .sideBlock h3{
-      margin:0 0 10px;
-      font-size: 18px;
-      font-weight: 950;
-      letter-spacing: -.02em;
-      color: rgba(11,18,32,.96);
-    }
+    .featIcon{ width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center; margin-bottom:12px; }
+    .featTitle{ margin:0 0 10px; font-size:18px; letter-spacing:-.01em; font-weight:950; }
+    .featText{ margin:0; font-size:15px; line-height:1.65; opacity:.78; }
 
-    /* Clean FAQ: no bubbles */
-    .faqList{
-      border-top: 1px solid rgba(15,23,42,.12);
-      margin-top: 10px;
-    }
-    details.faq{
-      border:0 !important;
-      background:transparent !important;
-      border-radius:0 !important;
-      padding: 14px 0 !important;
-      margin:0 !important;
-      border-bottom: 1px solid rgba(15,23,42,.12) !important;
-    }
-    details.faq summary{
-      cursor:pointer;
-      font-weight: 950;
-      letter-spacing: -.01em;
-      list-style:none;
-      color: rgba(11,18,32,.96);
-    }
-    details.faq summary::-webkit-details-marker{ display:none; }
-    .faqBody{
-      margin-top: 8px;
-      color: rgba(11,18,32,.72);
-      font-size: 14px;
-      line-height: 1.6;
-    }
+    .plainDivider{ margin:52px 0 0; border-top:1px solid rgba(15,23,42,.10); }
 
-    /* Related tools: plain links */
-    .relTools{
+    .plainBottomGrid{
+      margin-top:34px;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:44px;
+      align-items:start;
+    }
+    @media (max-width: 980px){ .plainBottomGrid{ grid-template-columns: 1fr; gap:32px; } }
+
+    .faqListPlain{ margin-top:10px; display:grid; gap:18px; }
+    .faqItemPlain{ padding-top:16px; border-top:1px solid rgba(15,23,42,.10); }
+    .faqItemPlain:first-child{ border-top:0; padding-top:0; }
+    .faqQ{ margin:0 0 8px; font-weight:950; letter-spacing:-.01em; font-size:16px; }
+    .faqA{ margin:0; opacity:.78; line-height:1.65; font-size:15px; max-width: 68ch; }
+
+    .relatedLinks{
+      margin-top:12px;
       display:flex;
       flex-wrap:wrap;
-      gap: 10px 14px;
-      margin-top: 16px;
+      gap:14px 18px;
+      font-size:15px;
     }
-    .relTools a{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
+    .relatedLinks a{
       text-decoration:none;
-      font-weight: 900;
-      font-size: 14px;
-      color: rgba(11,18,32,.92);
-      border-bottom: 1px solid rgba(11,18,32,.18);
-      padding-bottom: 2px;
+      font-weight:900;
+      color:rgba(11,18,32,.92);
+      border-bottom:1px solid rgba(11,18,32,.20);
     }
-    .relTools a:hover{ border-bottom-color: rgba(11,18,32,.40); }
+    .relatedLinks a:hover{ border-bottom-color: rgba(11,18,32,.55); }
 
-    .legalNote{
-      margin-top: 14px;
-      font-size: 12px;
-      color: rgba(11,18,32,.62);
+    .plainNote{
+      margin-top:14px;
+      font-size:13px;
+      opacity:.70;
+      line-height:1.55;
+      max-width: 80ch;
     }
-    .legalNote a{ color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+    /* Minimal inline SVG styling (match split) */
+    .icoStroke{ stroke: rgba(11,18,32,.92); }
+    .icoFill{ fill: rgba(11,18,32,.92); }
   </style>
 </head>
 
@@ -541,122 +483,137 @@
   </div>
 </section>
 
-<!-- =========================
-     SEO / INFO SECTION — MATCHES split-pdf.html
-========================== -->
-<section class="contentSection" id="about">
-  <div class="contentWrap">
+<!-- CLEAN SUPPORT SECTION (EXACT LOOK + STRUCTURE AS split-pdf; CONVERT COPY) -->
+<section class="plainSection" id="about">
+  <div class="container heroWide">
 
-    <div class="contentHead">
-      <h2>Convert PDF, JPG, PNG and WebP online</h2>
-      <p>
-        Convert documents and images directly in your browser. Add one file or run a batch conversion,
-        choose an output format, then download your converted file(s). If you generate multiple outputs,
-        we bundle everything into one ZIP for clean delivery.
-      </p>
+    <div class="plainKicker">About</div>
+    <h2 class="plainH2">Convert PDF, JPG, PNG and WebP online</h2>
+    <p class="plainLead">
+      Convert documents and images directly in your browser. Upload one file or run a batch conversion, choose an output
+      format, then download your converted file(s). If a job produces multiple outputs, everything is bundled into one ZIP
+      for clean delivery.
+    </p>
+
+    <div class="featureGrid" aria-label="What you can do">
+      <div>
+        <div class="featIcon" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+            <path class="icoStroke" d="M7 3h7l3 3v15a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="icoStroke" d="M14 3v4a2 2 0 0 0 2 2h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="featTitle">Batch conversions</h3>
+        <p class="featText">Upload multiple files and convert them in one session.</p>
+      </div>
+
+      <div>
+        <div class="featIcon" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+            <path class="icoStroke" d="M8 7h12M8 12h12M8 17h12" stroke-width="2" stroke-linecap="round"/>
+            <path class="icoStroke" d="M4 6v2M4 11v2M4 16v2" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="featTitle">Choose your output</h3>
+        <p class="featText">Pick PDF, JPG, PNG or WebP — convert in either direction depending on input.</p>
+      </div>
+
+      <div>
+        <div class="featIcon" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+            <path class="icoStroke" d="M3 7h18" stroke-width="2" stroke-linecap="round"/>
+            <path class="icoStroke" d="M3 12h18" stroke-width="2" stroke-linecap="round"/>
+            <path class="icoStroke" d="M3 17h18" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="featTitle">ZIP when needed</h3>
+        <p class="featText">If your conversion produces multiple outputs, they’re delivered in one ZIP.</p>
+      </div>
+
+      <div>
+        <div class="featIcon" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+            <path class="icoStroke" d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="icoStroke" d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="featTitle">Clean delivery workflow</h3>
+        <p class="featText">Made for portals, emails and uploads — convert, then download immediately.</p>
+      </div>
+
+      <div>
+        <div class="featIcon" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+            <path class="icoStroke" d="M12 2a7 7 0 0 0-7 7v4a7 7 0 1 0 14 0V9a7 7 0 0 0-7-7Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="icoStroke" d="M9 10h6" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="featTitle">No account</h3>
+        <p class="featText">No signup. Upload, continue, then download when your output is ready.</p>
+      </div>
+
+      <div>
+        <div class="featIcon" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+            <path class="icoStroke" d="M7 11V8a5 5 0 0 1 10 0v3" stroke-width="2" stroke-linecap="round"/>
+            <path class="icoStroke" d="M6 11h12v10H6V11Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="featTitle">Secure processing</h3>
+        <p class="featText">Files are processed to generate your output. See Privacy for retention details.</p>
+      </div>
     </div>
 
-    <div class="contentGrid">
+    <div class="plainDivider"></div>
+
+    <div class="plainBottomGrid" id="faq">
       <div>
-        <div class="featureGrid" aria-label="Convert features">
-          <div class="feature">
-            <div class="featureIcon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <path d="M7 3h7l3 3v15a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/>
-                <path d="M14 3v4a1 1 0 0 0 1 1h4"/>
-              </svg>
-            </div>
-            <div>
-              <div class="featureTitle">Batch conversions</div>
-              <p class="featureText">Upload multiple files and convert them in one session.</p>
-            </div>
+        <div class="plainKicker">FAQ</div>
+        <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.02em; font-weight:950;">Common questions</h3>
+
+        <div class="faqListPlain">
+          <div class="faqItemPlain">
+            <div class="faqQ">Can I convert multiple files at once?</div>
+            <p class="faqA">Yes — add multiple files and convert them in one session. If your job creates multiple outputs, you’ll get a ZIP bundle.</p>
           </div>
 
-          <div class="feature">
-            <div class="featureIcon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <path d="M12 3v6"/>
-                <path d="M9 6h6"/>
-                <path d="M5 11h14v10H5z"/>
-              </svg>
-            </div>
-            <div>
-              <div class="featureTitle">PDF ↔ image formats</div>
-              <p class="featureText">Convert between PDF, JPG, PNG and WebP—common formats, fast output.</p>
-            </div>
+          <div class="faqItemPlain">
+            <div class="faqQ">What formats are supported?</div>
+            <p class="faqA">You can convert between PDF, JPG, PNG and WebP.</p>
           </div>
 
-          <div class="feature">
-            <div class="featureIcon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <path d="M4 7h16"/>
-                <path d="M4 12h16"/>
-                <path d="M4 17h16"/>
-              </svg>
-            </div>
-            <div>
-              <div class="featureTitle">ZIP when needed</div>
-              <p class="featureText">Multiple outputs are bundled into a single ZIP for easy download.</p>
-            </div>
+          <div class="faqItemPlain">
+            <div class="faqQ">Do I need an account?</div>
+            <p class="faqA">No signup required. Upload, continue, then download.</p>
           </div>
 
-          <div class="feature">
-            <div class="featureIcon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <path d="M12 22s8-4 8-10V7l-8-4-8 4v5c0 6 8 10 8 10z"/>
-              </svg>
-            </div>
-            <div>
-              <div class="featureTitle">Built for delivery</div>
-              <p class="featureText">Prep files for portals, emails, uploads and client handoff.</p>
-            </div>
+          <div class="faqItemPlain">
+            <div class="faqQ">What will I download?</div>
+            <p class="faqA">You’ll download the converted file(s). If multiple outputs are produced, they’re delivered as one ZIP bundle.</p>
           </div>
         </div>
 
-        <div class="sideBlock" style="margin-top:24px;">
-          <h3>Related tools</h3>
-          <div class="relTools" aria-label="Related PDF tools">
-            <a href="/">Compress PDF Online</a>
-            <a href="/merge-pdf">Merge PDF files</a>
-            <a href="/split-pdf">Split PDF pages</a>
-            <a href="/rotate-pdf">Rotate PDF pages</a>
-          </div>
-          <div class="legalNote">
-            Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
-          </div>
+        <div class="plainNote">
+          Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
         </div>
       </div>
 
-      <div class="sideBlock">
-        <h3>FAQs</h3>
-        <div class="faqList" id="faq">
-          <details class="faq">
-            <summary>Can I convert multiple files at once?</summary>
-            <div class="faqBody">
-              Yes. Add multiple files and convert them in one session. If you get multiple outputs, they’re bundled into a ZIP.
-            </div>
-          </details>
+      <div>
+        <div class="plainKicker">Related tools</div>
+        <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.02em; font-weight:950;">More PDF tools</h3>
+        <p class="plainLead" style="font-size:15px; margin-top:0; max-width:56ch;">
+          Need something else? Use the same workflow across tools — upload, process, download.
+        </p>
 
-          <details class="faq">
-            <summary>What formats are supported?</summary>
-            <div class="faqBody">
-              You can convert between PDF, JPG, PNG and WebP.
-            </div>
-          </details>
+        <div class="relatedLinks" aria-label="Related PDF tools">
+          <a href="/">Compress PDF</a>
+          <a href="/merge-pdf">Merge PDF</a>
+          <a href="/split-pdf">Split PDF</a>
+          <a href="/rotate-pdf">Rotate PDF</a>
+        </div>
 
-          <details class="faq">
-            <summary>Do I need an account?</summary>
-            <div class="faqBody">
-              No signup required. Upload, continue, then download.
-            </div>
-          </details>
-
-          <details class="faq">
-            <summary>What will I download?</summary>
-            <div class="faqBody">
-              You’ll download the converted file(s). Multiple outputs are delivered as one ZIP.
-            </div>
-          </details>
+        <div class="plainNote">
+          Tip: For bigger batches, convert multiple files at once — you’ll receive one ZIP if needed.
         </div>
       </div>
     </div>
