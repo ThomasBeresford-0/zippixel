@@ -553,18 +553,19 @@ app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
 });
 
 // ====== SEO TOOL PAGES ======
-const TOOL_PAGES = [
-  "compress-pdf",
-  "merge-pdf",
-  "split-pdf",
-  "pdf-to-jpg",
-  "jpg-to-pdf",
-  "rotate-pdf",
-  "reduce-pdf-size",
-  "compress-pdf-to-5mb",
-  "convert",
-  "sign-pdf",
-];
+  const TOOL_PAGES = [
+    "compress-pdf",
+    "merge-pdf",
+    "split-pdf",
+    "pdf-to-jpg",
+    "jpg-to-pdf",
+    "rotate-pdf",
+    "reduce-pdf-size",
+    "compress-pdf-to-5mb",
+    "convert",
+    "sign-pdf",
+    "compress-pdf-under-5mb" 
+  ];
 
 TOOL_PAGES.forEach((slug) => {
   app.get(`/${slug}`, (_, res) => {

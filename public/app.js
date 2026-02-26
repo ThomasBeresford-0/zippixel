@@ -16,6 +16,8 @@
     merge_pdf: 2.99,
     split_pdf: 2.99,
     rotate_pdf: 2.99,
+    new_tool_name: 3.99,
+
 
     protect_pdf: 3.99,
     watermark_pdf: 3.99,
