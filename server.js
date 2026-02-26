@@ -872,6 +872,8 @@ app.post("/api/checkout", async (req, res) => {
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
+      adaptive_pricing: { enabled: true },
+
       line_items: [
         {
           price_data: {
