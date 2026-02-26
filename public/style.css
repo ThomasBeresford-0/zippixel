@@ -198,9 +198,9 @@ body.premium > main{ flex: 1; }
 
 .navCta{ display:flex; gap: 10px; align-items:center; }
 
-@media (max-width: 860px){
+/* @media (max-width: 860px){
   .navLinks{ display:none; }
-}
+} */
 
 /* =========================
    BUTTONS (AUTHORITY)
@@ -1423,45 +1423,56 @@ select:focus, .select:focus{
   .modalSummaryMain{ max-width: 100%; }
 }
 
-/* === MOBILE NAV: ALWAYS VISIBLE (fix "no nav on mobile") === */
-@media (max-width: 860px) {
-  /* Ensure header row doesn't clip */
-  .headerInner,
-  .topbarInner,
-  .navRow,
-  .siteHeaderInner {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-width: 0;
+/* =========================
+   MOBILE NAV — ALWAYS VISIBLE (index.html uses .navInner + .brandLogoFull)
+========================= */
+@media (max-width: 860px){
+
+  /* Header row: stop "desktop" layout */
+  .navInner{
+    height: auto !important;        /* remove 78px clamp */
+    padding: 10px 0 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-start !important; /* IMPORTANT */
+    gap: 10px !important;
+    min-width: 0 !important;
   }
 
-  /* Force nav to show */
-  .navLinks {
-    display: flex !important;
-    align-items: center;
-    gap: 8px;
-    flex: 1;
-    min-width: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
+  /* Brand/logo: keep compact so links have room */
+  .brand{
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+  }
+  .brandLogoFull{
+    height: 28px !important;
+    width: auto !important;
+    display:block !important;
+  }
+
+  /* Nav links: visible + horizontally scrollable */
+  .navLinks{
+    display:flex !important;
+    align-items:center !important;
+    gap: 8px !important;
+
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+
+    padding: 2px 0 !important;
     scrollbar-width: none; /* Firefox */
   }
-  .navLinks::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+  .navLinks::-webkit-scrollbar{ display:none; }
 
-  .navLinks a {
-    white-space: nowrap;
-    flex: 0 0 auto;
-    padding: 10px 12px;
-    font-size: 14px;
-  }
-
-  /* If you had a burger/hamburger placeholder, hide it */
-  .navToggle,
-  .burger,
-  .menuBtn {
-    display: none !important;
+  .navLinks a{
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+    padding: 10px 10px !important;
+    font-size: 13px !important;
   }
 }
 
@@ -1545,8 +1556,11 @@ select:focus, .select:focus{
   .signGrid{ grid-template-columns: 1fr; }
 }
 
-.brandLogoFull {
-  height: 42px; /* adjust if needed */
+.brandLogoFull{
+  height: 42px;
   width: auto;
   display: block;
+}
+@media (max-width: 860px){
+  .brandLogoFull{ height: 28px; }
 }
