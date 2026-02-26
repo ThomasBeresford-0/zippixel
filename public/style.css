@@ -1423,6 +1423,48 @@ select:focus, .select:focus{
   .modalSummaryMain{ max-width: 100%; }
 }
 
+/* === MOBILE NAV: ALWAYS VISIBLE (fix "no nav on mobile") === */
+@media (max-width: 860px) {
+  /* Ensure header row doesn't clip */
+  .headerInner,
+  .topbarInner,
+  .navRow,
+  .siteHeaderInner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  /* Force nav to show */
+  .navLinks {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+  }
+  .navLinks::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+  .navLinks a {
+    white-space: nowrap;
+    flex: 0 0 auto;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  /* If you had a burger/hamburger placeholder, hide it */
+  .navToggle,
+  .burger,
+  .menuBtn {
+    display: none !important;
+  }
+}
+
 /* ===== Sign PDF (v1) ===== */
 .signing{ margin-top: 18px; }
 .signGrid{
