@@ -562,6 +562,8 @@ const TOOL_PAGES = [
   "reduce-pdf-size",
   "compress-pdf-to-5mb",
   "compress-pdf-under-5mb",
+  "compress-pdf-under-2mb",
+  "compress-pdf-under-10mb",
 
   "convert",
   "sign-pdf",
