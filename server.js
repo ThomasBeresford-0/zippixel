@@ -552,20 +552,24 @@ app.use(express.static(PUBLIC_DIR));
   });
 });
 
-// ====== SEO TOOL PAGES ======
-  const TOOL_PAGES = [
-    "compress-pdf",
-    "merge-pdf",
-    "split-pdf",
-    "pdf-to-jpg",
-    "jpg-to-pdf",
-    "rotate-pdf",
-    "reduce-pdf-size",
-    "compress-pdf-to-5mb",
-    "convert",
-    "sign-pdf",
-    "compress-pdf-under-5mb" 
-  ];
+const TOOL_PAGES = [
+  "compress-pdf",
+  "merge-pdf",
+  "split-pdf",
+  "pdf-to-jpg",
+  "jpg-to-pdf",
+  "rotate-pdf",
+  "reduce-pdf-size",
+  "compress-pdf-to-5mb",
+  "compress-pdf-under-5mb",
+
+  "convert",
+  "sign-pdf",
+
+  "protect-pdf",
+  "edit-pdf",
+  "watermark-pdf"
+];
 
 TOOL_PAGES.forEach((slug) => {
   app.get(`/${slug}`, (_, res) => {
