@@ -1989,6 +1989,14 @@
   });
 
   continueBtn.addEventListener("click", async () => {
+
+    // 🔥 Google Analytics event
+    if (typeof gtag === "function") {
+      gtag("event", "continue_click", {
+        page: window.location.pathname
+      });
+    }
+
     if (!jobId) return;
 
     if (!uploadedMeta.length) {
@@ -1997,7 +2005,6 @@
       return;
     }
 
-    // 🔒 HARD SYNC MODE BEFORE CHECKOUT (prevents stale order)
     try {
       await setBackendMode();
     } catch {}
