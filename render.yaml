@@ -1,7 +1,7 @@
 services:
   - type: web
-    name: zippixel
+    name: pdfoperations
     runtime: node
     plan: starter
     buildCommand: npm install
-    startCommand: npm run dev
+    startCommand: npm start
