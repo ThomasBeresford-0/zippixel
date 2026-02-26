@@ -536,7 +536,7 @@ app.get("/health", (_, res) => {
 });
 
 // ====== STATIC ======
-app.use(express.static(PUBLIC_DIR, { extensions: ["html"] }));
+app.use(express.static(PUBLIC_DIR));
 
 // Core pages
 [
@@ -571,6 +571,11 @@ TOOL_PAGES.forEach((slug) => {
   app.get(`/${slug}`, (_, res) => {
     res.sendFile(path.join(PUBLIC_DIR, `${slug}.html`));
   });
+});
+
+// Fallback: send home for unknown routes (prevents weird “stuck page” behavior)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, "index.html"));
 });
 
 // ====== API ======
