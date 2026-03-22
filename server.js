@@ -606,7 +606,6 @@ const TOOL_PAGES = [
   "convert",
   "sign-pdf",
 
-  "protect-pdf",
   "edit-pdf",
   "watermark-pdf"
 ];
