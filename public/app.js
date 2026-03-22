@@ -577,6 +577,14 @@
     const meetsMin = modeMinFilesSatisfied();
 
     const canUpload = hasFiles && meetsMin && hasJob && !uploading;
+    const pathname = window.location.pathname || "/";
+    const isHomepageCompress = pathname === "/" && mode === "compress_pdf";
+
+    if (isHomepageCompress) {
+      uploadBtn.style.display = "none";
+    } else {
+      uploadBtn.style.display = "";
+    }
     const canContinue = !!uploadedMeta.length && !uploading;
 
     uploadBtn.disabled = !canUpload;
@@ -1521,9 +1529,10 @@
         return;
       }
 
-      selected = [incomingValid[0]];
-      resetProgress();
-      renderSelected();
+    selected = [incomingValid[0]];
+    uploadedMeta = [];
+    resetProgress();
+    renderSelected();
 
       try {
         await ensureJob();
@@ -1586,6 +1595,9 @@
     if (!filesEl.files || filesEl.files.length === 0) return;
     await addFiles(filesEl.files);
     filesEl.value = "";
+
+    // 🔥 AUTO UPLOAD
+    await autoUploadIfReady();
   });
 
   // ====== DRAG & DROP ======
@@ -1639,7 +1651,8 @@
       setHint("Try dragging files from Finder.");
       return;
     }
-    await addFiles(files);
+  await addFiles(files);
+  await autoUploadIfReady();
   });
 
   clearBtn?.addEventListener("click", () => {
@@ -1761,6 +1774,26 @@
   };
 
 
+  // AUTO UPLOAD (trigger after file select)
+  const autoUploadIfReady = async () => {
+    if (uploading) return;
+    if (!selected.length) return;
+    if (!modeMinFilesSatisfied()) return;
+
+    try {
+      await ensureJob();
+    } catch {
+      setStatus("Couldn’t start");
+      setHint("Refresh and try again.");
+      return;
+    }
+
+    // Already uploaded? do nothing
+    if (uploadedMeta.length) return;
+
+    uploadBtn.click();
+  };
+
   uploadBtn.addEventListener("click", async () => {
     if (uploading) return;
     if (selected.length === 0) return;
@@ -1865,19 +1898,20 @@
       if (progressPct) progressPct.textContent = "100%";
 
       setPrimaryStates();
-    } catch (e) {
-      setStatus("Upload failed");
-      setHint(escapeHtml(e?.message || "Please try again."));
-      if (progressLabel) progressLabel.textContent = "Upload failed";
-      uploadedMeta = [];
-      disarmPricingUI();
-      setPrimaryStates();
-    } finally {
-      uploading = false;
-      setBusy(false);
-      setPrimaryStates();
-    }
-  });
+      } catch (e) {
+        setStatus("Upload failed");
+        setHint("Please try again.");
+
+        uploadedMeta = [];
+        resetProgress();
+
+        setPrimaryStates();
+      } finally {
+        uploading = false;
+        setBusy(false);
+        setPrimaryStates();
+      }
+    });
 
   // ====== MODAL ======
   let shareListenerAttached = false;
