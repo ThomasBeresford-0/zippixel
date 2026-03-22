@@ -6,8 +6,8 @@
 // ✅ merge_pdf mode — PAID download returns a single merged PDF (supports cross-PDF order)
 // ✅ split_pdf mode — PAID download returns ZIP of per-page PDFs
 //    - NEW: supports reorder + delete via splitOrder: [1,3,2,...] (1-based original pages)
-// ✅ compress_pdf mode — PAID download returns a single compressed PDF (raster-based; level: light/balanced/max)
-// ✅ rotate_pdf mode — PAID download returns a single rotated PDF (degrees: 90/180/270)
+// ✅ compress_pdf mode — PAID download currently returns a single compressed JPG (raster-based best-effort target sizing)
+// // ✅ rotate_pdf mode — PAID download returns a single rotated PDF (degrees: 90/180/270)
 
 require("dotenv").config();
 
@@ -244,6 +244,18 @@ function normalizeRotateDegrees(deg) {
   return 90;
 }
 
+function normalizeTargetBytes(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return null;
+
+  const min = 50 * 1024;        // 50KB floor
+  const max = 25 * 1024 * 1024; // 25MB ceiling
+
+  if (n < min) return min;
+  if (n > max) return max;
+  return Math.round(n);
+}
+
 function normalizeRotateMap(map) {
   // Expected: array where index = page number (1-based). map[0] ignored.
   // Values: 0 | 90 | 180 | 270
@@ -355,6 +367,7 @@ function validateJobFilesForMode(job) {
     const nonPdf = files.find((f) => !isPdfMeta(f));
     if (nonPdf) throw new Error("Compress PDF only accepts a PDF file.");
     job.pdfCompressLevel = normalizePdfLevel(job.pdfCompressLevel);
+    job.targetBytes = normalizeTargetBytes(job.targetBytes);
   }
 
   if (job.mode === "rotate_pdf") {
@@ -572,6 +585,7 @@ const TOOL_PAGES = [
   "compress-pdf-to-5mb",
   "compress-pdf-under-5mb",
   "compress-pdf-under-2mb",
+  "compress-pdf-under-1mb",
   "compress-pdf-under-10mb",
   "reduce-pdf-size-for-email",
   "pdf-too-large-to-upload",
@@ -621,8 +635,9 @@ app.post("/api/jobs", (_, res) => {
     // ✅ split options (NEW)
     splitOrder: null,      // [1,3,2,...] (1-based original pages) OR null
 
-    // compress_pdf options
+
     pdfCompressLevel: "balanced",
+    targetBytes: null,
 
     // rotate_pdf options
     // rotate_pdf options
@@ -721,11 +736,10 @@ app.post("/api/jobs/:jobId/register", (req, res) => {
   }
 });
 
-// Set job mode (compress | compress_pdf | convert | merge_pdf | split_pdf | rotate_pdf)
 app.post("/api/jobs/:jobId/mode", (req, res) => {
   try {
     const job = getJob(req.params.jobId);
-    const { mode, target, order, splitOrder, level, degrees, angle, rotateMap } = req.body || {};
+    const { mode, target, order, splitOrder, level, degrees, angle, rotateMap, targetBytes } = req.body || {};
 
     const m = String(mode || "").toLowerCase().trim();
     if (!VALID_MODES.has(m)) throw new Error("Invalid mode");
@@ -744,31 +758,36 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
       job.splitOrder = null;
 
       job.pdfCompressLevel = "balanced";
+      job.targetBytes = null;
       job.rotateDegrees = 90;
       job.rotateMap = null;
+
     } else if (m === "merge_pdf") {
       job.convertTarget = null;
-      job.pdfCompressLevel = "balanced";
-      job.rotateDegrees = 90;
-      job.rotateMap = null;
 
       const norm = normalizeMergeOrder(order);
       job.pageOrderType = norm.type;
       job.pageOrder = norm.order;
 
       job.splitOrder = null;
+
+      job.pdfCompressLevel = "balanced";
+      job.targetBytes = null;
+      job.rotateDegrees = 90;
+      job.rotateMap = null;
+
     } else if (m === "split_pdf") {
       job.convertTarget = null;
 
       job.pageOrder = null;
       job.pageOrderType = "none";
-
-      // ✅ NEW: store split order
       job.splitOrder = normalizeSplitOrder(splitOrder);
 
       job.pdfCompressLevel = "balanced";
+      job.targetBytes = null;
       job.rotateDegrees = 90;
       job.rotateMap = null;
+
     } else if (m === "compress_pdf") {
       job.convertTarget = null;
 
@@ -777,8 +796,10 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
       job.splitOrder = null;
 
       job.pdfCompressLevel = normalizePdfLevel(level);
+      job.targetBytes = normalizeTargetBytes(targetBytes);
       job.rotateDegrees = 90;
       job.rotateMap = null;
+
     } else if (m === "rotate_pdf") {
       job.convertTarget = null;
 
@@ -787,15 +808,13 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
       job.splitOrder = null;
 
       job.pdfCompressLevel = "balanced";
+      job.targetBytes = null;
 
-      // Per-page rotate (preferred)
       const rm = normalizeRotateMap(rotateMap);
       job.rotateMap = rm;
-
-      // Fallback legacy whole-doc rotate
       job.rotateDegrees = normalizeRotateDegrees(degrees != null ? degrees : angle);
-          } else if (m === "sign_pdf") {
-      // Client-side signing — server just returns uploaded signed PDF
+
+    } else if (m === "sign_pdf") {
       job.convertTarget = null;
 
       job.pageOrder = null;
@@ -803,8 +822,10 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
       job.splitOrder = null;
 
       job.pdfCompressLevel = "balanced";
+      job.targetBytes = null;
       job.rotateDegrees = 90;
       job.rotateMap = null;
+
     } else {
       job.convertTarget = null;
 
@@ -813,11 +834,17 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
       job.splitOrder = null;
 
       job.pdfCompressLevel = "balanced";
+      job.targetBytes = null;
       job.rotateDegrees = 90;
       job.rotateMap = null;
     }
 
-    res.json({ ok: true, pageOrderType: job.pageOrderType, splitOrderLen: job.splitOrder ? job.splitOrder.length : 0 });
+    res.json({
+      ok: true,
+      pageOrderType: job.pageOrderType,
+      splitOrderLen: job.splitOrder ? job.splitOrder.length : 0,
+      targetBytes: job.targetBytes || null,
+    });
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
@@ -943,6 +970,61 @@ app.get("/api/status/:jobId", async (req, res) => {
     res.status(400).json({ error: e.message });
   }
 });
+
+async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
+  if (!sharp) throw new Error("PDF compression is unavailable (sharp not installed).");
+
+  const lvl = normalizePdfLevel(level);
+
+  const densityMap = {
+    light: [144, 132, 120],
+    balanced: [132, 118, 104, 92],
+    max: [118, 104, 92, 82, 72],
+  };
+
+  const qualityMap = {
+    light: [82, 76, 70],
+    balanced: [72, 66, 60, 54],
+    max: [62, 56, 50, 44, 38],
+  };
+
+  const densities = densityMap[lvl];
+  const qualities = qualityMap[lvl];
+
+  let best = null;
+
+  for (const density of densities) {
+    for (const quality of qualities) {
+      try {
+        const out = await sharp(inputBuffer, { density, pages: -1 })
+          .jpeg({ quality, mozjpeg: true })
+          .toBuffer();
+
+        if (!best || out.length < best.length) best = out;
+
+        if (targetBytes && out.length <= targetBytes) {
+          return {
+            buffer: out,
+            hitTarget: true,
+            density,
+            quality,
+          };
+        }
+      } catch (_) {
+        // keep trying
+      }
+    }
+  }
+
+  if (best) {
+    return {
+      buffer: best,
+      hitTarget: !targetBytes || best.length <= targetBytes,
+    };
+  }
+
+  throw new Error("Could not compress this PDF.");
+}
 
 // Download (paid)
 app.get("/api/download/:jobId", async (req, res) => {
@@ -1136,6 +1218,40 @@ app.get("/api/download/:jobId", async (req, res) => {
 
       await archive.finalize();
       return;
+    }
+
+        // ====== COMPRESS PDF MODE ======
+      if (job.mode === "compress_pdf") {
+      if (!sharp) throw new Error("PDF compression is unavailable (sharp not installed).");
+
+      const only = job.files[0];
+      const obj = await r2.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: only.key }));
+      const buf = await streamToBuffer(obj.Body);
+
+      const targetBytes = normalizeTargetBytes(job.targetBytes);
+      const result = await compressPdfBufferToTarget(
+        buf,
+        normalizePdfLevel(job.pdfCompressLevel),
+        targetBytes
+      );
+
+      if (targetBytes && result.buffer.length > targetBytes) {
+        throw new Error(
+          `This PDF could not be reduced below ${(targetBytes / (1024 * 1024)).toFixed(1)}MB automatically. Try splitting it or removing image-heavy pages.`
+        );
+      }
+
+      const base = sanitizeName(
+        String(only.originalname || "document").replace(/\.pdf$/i, "")
+      );
+
+      res.setHeader("Content-Type", "image/jpeg");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${base}_compressed.jpg"`
+      );
+
+      return res.send(result.buffer);
     }
 
         // ====== ROTATE PDF MODE (PER-PAGE SUPPORT) ======

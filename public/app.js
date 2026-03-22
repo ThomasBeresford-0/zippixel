@@ -149,6 +149,14 @@
 
   // Page tool hint (optional)
   const pageTool = (document.body?.dataset?.tool || "").trim(); // e.g. "compress_pdf"
+  
+
+    const pageTargetBytesRaw = document.body?.dataset?.targetBytes || "";
+  const pageTargetBytes = Number(pageTargetBytesRaw);
+  const targetBytes =
+    Number.isFinite(pageTargetBytes) && pageTargetBytes > 0
+      ? pageTargetBytes
+      : null;
 
   // If this page doesn’t have the tool, bail quietly
   if (!dropzone || !filesEl || !chooseBtn || !uploadBtn || !continueBtn) return;
@@ -431,8 +439,18 @@
     }
 
     if (mode === "compress_pdf") {
-      dzTitleEl.textContent = "Drop a PDF here";
-      dzSubEl.textContent = "PDF only • 1 file • Reduce file size";
+      dzTitleEl.textContent =
+        targetBytes === 1048576
+          ? "Drop a PDF to get under 1MB"
+          : "Drop a PDF here";
+
+      dzSubEl.textContent =
+        targetBytes === 1048576
+          ? "PDF only • 1 file • Strict 1MB limit"
+          : targetBytes
+            ? `PDF only • 1 file • Target under ${(targetBytes / (1024 * 1024)).toFixed(1)}MB`
+            : "PDF only • 1 file • Reduce file size";
+
       if (dzAfterEl) dzAfterEl.textContent = "";
       return;
     }
@@ -1326,7 +1344,13 @@
     } else if (mode === "compress_pdf") {
       convertTargetValue = null;
       const lvl = pdfCompressLevelValue === "max" ? "Maximum" : pdfCompressLevelValue === "light" ? "Light" : "Balanced";
-      setHint(`Upload <b>1</b> PDF to compress. Level: <b>${lvl}</b>.`);
+      const targetLabel =
+        targetBytes === 1048576
+          ? " Target: <b>under 1MB</b>."
+          : targetBytes
+            ? ` Target: <b>under ${(targetBytes / (1024 * 1024)).toFixed(targetBytes % (1024 * 1024) === 0 ? 0 : 1)}MB</b>.`
+            : "";
+      setHint(`Upload <b>1</b> PDF to compress. Level: <b>${lvl}</b>.${targetLabel}`);
     } else if (mode === "rotate_pdf") {
       convertTargetValue = null;
       setHint(`Upload <b>1</b> PDF to rotate. Click pages to rotate them.`);
@@ -1745,8 +1769,11 @@
         }
       }
 
-      if (mode === "compress_pdf") payload.level = pdfCompressLevelValue || "balanced";
-      if (mode === "rotate_pdf") {
+      if (mode === "compress_pdf") {
+        payload.level = pdfCompressLevelValue || "balanced";
+        if (targetBytes) payload.targetBytes = targetBytes;
+      }
+        if (mode === "rotate_pdf") {
         const rotateMap = getRotateMap();
         if (rotateMap) {
           payload.rotateMap = rotateMap;
