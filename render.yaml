@@ -1,5 +1,7 @@
 services:
   - type: web
     name: pdfoperations
-    runtime: docker
+    runtime: node
     plan: starter
+    buildCommand: npm install
+    startCommand: npm start
