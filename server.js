@@ -536,6 +536,7 @@ app.get("/health", (_, res) => {
 });
 
 // ====== STATIC ======
+// ====== STATIC ======
 app.use(express.static(PUBLIC_DIR));
 
 // Core pages
@@ -550,6 +551,15 @@ app.use(express.static(PUBLIC_DIR));
   app.get(route, (_, res) => {
     res.sendFile(path.join(PUBLIC_DIR, file));
   });
+});
+
+// Legacy compress route -> homepage
+app.get("/compress-pdf", (_, res) => {
+  res.redirect(301, "/");
+});
+
+app.get("/compress-pdf.html", (_, res) => {
+  res.redirect(301, "/");
 });
 
 const TOOL_PAGES = [
