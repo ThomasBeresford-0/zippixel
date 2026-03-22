@@ -79,6 +79,31 @@
       padding-bottom:20px;
     }
 
+    .relatedLinksGrid{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:12px 18px;
+  align-items:start;
+}
+
+.relatedLinksGrid a{
+  display:inline-block;
+  padding:0 0 6px 0;
+  line-height:1.4;
+}
+
+@media (max-width:980px){
+  .relatedLinksGrid{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width:640px){
+  .relatedLinksGrid{
+    grid-template-columns:1fr;
+  }
+}
+
     .tool.toolPremium.toolMega{
       border-radius:14px;
       border:1px solid rgba(15,23,42,.14);
@@ -787,15 +812,6 @@
             <div class="stepItem"><span class="stepNum">3</span>Get a smaller PDF</div>
           </div>
 
-          <div class="relatedLinks" aria-label="Popular compression links" style="margin-top:18px;">
-            <a href="/file-too-large-to-upload-pdf">Fix file too large PDF errors</a>
-            <a href="/compress-pdf-under-1mb">Compress PDF to 1MB</a>
-            <a href="/compress-pdf-under-2mb">Compress PDF to 2MB</a>
-            <a href="/pdf-too-large-to-upload">PDF too large to upload</a>
-            <a href="/compress-pdf-for-job-application">Compress PDF for job applications</a>
-            <a href="/reduce-pdf-size-for-email">Reduce PDF for email</a>
-          </div>
-
           <div class="progressWrap" id="progressWrap" hidden>
             <div class="progressTop">
               <div id="progressLabel">Uploading…</div>
@@ -899,21 +915,19 @@
           Use a dedicated page for the file limit or use case you are dealing with, whether that is a job portal, government form, university upload or email attachment.
         </p>
 
-        <div class="relatedLinks" aria-label="Common PDF fixes" style="margin-top:20px;">
+        <div class="relatedLinks relatedLinksGrid" aria-label="Common PDF fixes" style="margin-top:20px;">
+          <a href="/file-too-large-to-upload-pdf">Fix file too large PDF errors</a>
+          <a href="/pdf-too-large-to-upload">PDF too large to upload</a>
           <a href="/compress-pdf-under-1mb">Compress PDF to 1MB</a>
           <a href="/compress-pdf-under-2mb">Compress PDF to 2MB</a>
           <a href="/compress-pdf-under-5mb">Compress PDF to 5MB</a>
           <a href="/compress-pdf-under-10mb">Compress PDF to 10MB</a>
-
-          <a href="/pdf-too-large-to-upload">PDF too large to upload</a>
-
           <a href="/compress-pdf-for-job-application">Job application PDFs</a>
           <a href="/compress-pdf-for-university-upload">University uploads</a>
           <a href="/compress-pdf-for-government-portal">Government portals</a>
           <a href="/compress-pdf-for-indeed">Indeed uploads</a>
           <a href="/compress-pdf-for-gmail">Gmail attachments</a>
           <a href="/compress-pdf-for-visa-application">Visa applications</a>
-
           <a href="/reduce-pdf-size-for-email">Reduce PDF size for email</a>
         </div>
 
