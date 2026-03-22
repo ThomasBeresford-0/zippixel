@@ -1,9 +1,9 @@
-<!-- public/cancel.html — PDFOperations (v24 FULL RAMBO - CLEAN RECOVERY + NO PRICING PUSH)
-     ✅ Matches style.css?v=36 (premium, light, enterprise)
-     ✅ Removes “View pricing” CTA (you don’t want pricing until upload)
-     ✅ Strong recovery UX: return to tool + helpful links (privacy/faq)
-     ✅ Cleaner nav (no Pricing link) + consistent brand
-     ✅ No messy stacked blocks / no random styles
+<!-- public/cancel.html — PDFOperations (v25 - MONEY MODE RECOVERY + CLEAN REASSURANCE + TOOL ROUTING)
+     ✅ Matches style.css?v=36
+     ✅ No pricing push before upload
+     ✅ Stronger recovery UX and reassurance
+     ✅ Adds helpful “what to do next” routes
+     ✅ Keeps premium light enterprise look
 -->
 <!doctype html>
 <html lang="en">
@@ -12,18 +12,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Checkout cancelled — PDFOperations</title>
-  <meta name="description" content="Checkout cancelled. Nothing was charged. Return to PDFOperations to continue." />
+  <meta name="description" content="Checkout cancelled. Nothing was charged. Return to PDFOperations to continue your PDF workflow." />
   <link rel="canonical" href="https://pdfoperations.com/cancel" />
 
   <meta name="robots" content="noindex,follow" />
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light">
 
+  <meta property="og:title" content="Checkout cancelled — PDFOperations" />
+  <meta property="og:description" content="Nothing was charged. Return to PDFOperations to continue your PDF workflow." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pdfoperations.com/cancel" />
+  <meta property="og:image" content="https://pdfoperations.com/og.png" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Checkout cancelled — PDFOperations" />
+  <meta name="twitter:description" content="Nothing was charged. Return to PDFOperations to continue your PDF workflow." />
+  <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
+
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <!-- Premium fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -31,15 +41,20 @@
   <link rel="stylesheet" href="/style.css?v=36" />
 
   <style>
-    /* Page-owned polish to avoid “template” look */
     body.premium{
-      background: radial-gradient(900px 420px at 20% -10%, rgba(11,18,32,.06), transparent 60%),
-                  radial-gradient(900px 420px at 80% -10%, rgba(11,18,32,.04), transparent 60%),
-                  #f5f7fb;
+      background:
+        radial-gradient(900px 420px at 20% -10%, rgba(11,18,32,.06), transparent 60%),
+        radial-gradient(900px 420px at 80% -10%, rgba(11,18,32,.04), transparent 60%),
+        #f5f7fb;
     }
 
     .cancelWrap{
       padding:72px 0 80px;
+    }
+
+    .cancelInner{
+      max-width:920px;
+      margin:0 auto;
     }
 
     .cancelCard{
@@ -56,7 +71,7 @@
       align-items:flex-start;
       justify-content:space-between;
       gap:18px;
-      margin-bottom:16px;
+      margin-bottom:12px;
     }
 
     .badge{
@@ -74,7 +89,9 @@
     }
 
     .badgeDot{
-      width:8px;height:8px;border-radius:999px;
+      width:8px;
+      height:8px;
+      border-radius:999px;
       background:rgba(245,158,11,.95);
       box-shadow:0 0 0 4px rgba(245,158,11,.18);
       flex:0 0 auto;
@@ -82,21 +99,44 @@
 
     .cancelTitle{
       margin:0;
-      font-size:34px;
-      letter-spacing:-.02em;
-      line-height:1.1;
+      font-size:clamp(32px, 5vw, 48px);
+      line-height:1.04;
+      letter-spacing:-.04em;
+      color:#0b1220;
+      font-weight:800;
     }
 
     .cancelLead{
-      margin:10px 0 0 0;
+      margin:12px 0 0 0;
       color:rgba(11,18,32,.72);
-      font-size:14px;
-      line-height:1.6;
-      max-width:56ch;
+      font-size:15px;
+      line-height:1.7;
+      max-width:62ch;
+    }
+
+    .trustRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .trustPill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      border:1px solid rgba(15,23,42,.10);
+      background:#fff;
+      color:rgba(11,18,32,.82);
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:-.01em;
     }
 
     .recoveryBox{
-      margin-top:18px;
+      margin-top:20px;
       border:1px solid rgba(15,23,42,.10);
       background:rgba(11,18,32,.02);
       border-radius:18px;
@@ -107,7 +147,8 @@
     }
 
     .recoveryIcon{
-      width:40px;height:40px;
+      width:42px;
+      height:42px;
       border-radius:14px;
       display:flex;
       align-items:center;
@@ -118,20 +159,23 @@
       flex:0 0 auto;
       font-weight:900;
       color:rgba(11,18,32,.86);
+      font-size:18px;
     }
 
     .recoveryTitle{
       font-weight:950;
       margin:0;
-      font-size:14px;
+      font-size:15px;
       letter-spacing:-.01em;
+      color:#0b1220;
     }
 
     .recoveryDesc{
       margin:6px 0 0 0;
       color:rgba(11,18,32,.72);
       font-size:13px;
-      line-height:1.55;
+      line-height:1.6;
+      max-width:64ch;
     }
 
     .ctaRow{
@@ -143,11 +187,65 @@
 
     .ctaRow a{
       text-align:center;
-      flex:1 1 180px;
+      flex:1 1 200px;
+    }
+
+    .nextSection{
+      margin-top:22px;
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:12px;
+    }
+
+    .nextCard{
+      border:1px solid rgba(15,23,42,.10);
+      background:#fff;
+      border-radius:18px;
+      padding:16px;
+      box-shadow:0 12px 36px rgba(2,6,23,.05);
+      display:flex;
+      flex-direction:column;
+      min-height:180px;
+    }
+
+    .nextCardKicker{
+      font-size:11px;
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:rgba(11,18,32,.58);
+    }
+
+    .nextCard h3{
+      margin:10px 0 8px;
+      font-size:20px;
+      line-height:1.08;
+      letter-spacing:-.03em;
+      font-weight:800;
+      color:#0b1220;
+    }
+
+    .nextCard p{
+      margin:0;
+      font-size:14px;
+      line-height:1.65;
+      color:rgba(11,18,32,.72);
+      flex:1 1 auto;
+    }
+
+    .nextCardActions{
+      margin-top:14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .nextCardActions a{
+      text-decoration:none;
     }
 
     .divider{
-      margin-top:18px;
+      margin-top:20px;
       border-top:1px solid rgba(15,23,42,.10);
       padding-top:14px;
       display:flex;
@@ -172,15 +270,18 @@
       border-bottom:1px solid rgba(11,18,32,.25);
       padding-bottom:2px;
     }
+
     .helpLinks a:hover{
-      border-bottom-color: rgba(11,18,32,.65);
+      border-bottom-color:rgba(11,18,32,.65);
     }
 
     .fineprint{
       margin:0;
       font-size:12px;
       color:rgba(11,18,32,.58);
+      line-height:1.6;
     }
+
     .fineprint a{
       color:rgba(11,18,32,.82);
       font-weight:900;
@@ -188,12 +289,36 @@
       border-bottom:1px solid rgba(11,18,32,.25);
       padding-bottom:2px;
     }
+
     .fineprint a:hover{
-      border-bottom-color: rgba(11,18,32,.65);
+      border-bottom-color:rgba(11,18,32,.65);
     }
 
-    /* Tighten nav brand icon alignment */
-    .brand img{ display:block; }
+    .brand img{
+      display:block;
+    }
+
+    @media (max-width: 900px){
+      .nextSection{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width: 640px){
+      .cancelWrap{
+        padding:40px 0 56px;
+      }
+
+      .cancelCard{
+        padding:18px;
+        border-radius:18px;
+      }
+
+      .cancelTop{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+    }
   </style>
 </head>
 
@@ -217,44 +342,97 @@
 
 <main>
   <section class="cancelWrap">
-    <div class="container" style="max-width:760px;">
-      <div class="cancelCard">
+    <div class="container">
+      <div class="cancelInner">
+        <div class="cancelCard">
 
-        <div class="cancelTop">
-          <div>
-            <h1 class="cancelTitle">Checkout cancelled.</h1>
-            <p class="cancelLead">
-              Nothing was charged. If you closed the tab or clicked back, that’s fine — you can continue when you’re ready.
+          <div class="cancelTop">
+            <div>
+              <div class="badge">
+                <span class="badgeDot" aria-hidden="true"></span>
+                Checkout cancelled
+              </div>
+
+              <h1 class="cancelTitle">No problem — nothing was charged.</h1>
+              <p class="cancelLead">
+                If you closed the checkout, changed your mind, or just wanted to double-check first, that’s completely fine.
+                Your payment did not go through, and you can return to the tool whenever you’re ready.
+              </p>
+
+              <div class="trustRow" aria-label="Reassurance">
+                <div class="trustPill">No charge made</div>
+                <div class="trustPill">No subscription created</div>
+                <div class="trustPill">Return whenever ready</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="recoveryBox" aria-live="polite">
+            <div class="recoveryIcon" aria-hidden="true">↩</div>
+            <div style="min-width:0;">
+              <p class="recoveryTitle">Pick up where you left off</p>
+              <p class="recoveryDesc">
+                Head back to PDFOperations, upload your file again, and continue only when you’re comfortable.
+                The workflow stays simple: upload, process, pay once, download.
+              </p>
+            </div>
+          </div>
+
+          <div class="ctaRow">
+            <a class="btnPrimary btnLarge" href="/">Return to tool</a>
+            <a class="btnSoft btnLarge" href="/#faq">Read FAQ</a>
+          </div>
+
+          <section class="nextSection" aria-label="Helpful next routes">
+            <article class="nextCard">
+              <div class="nextCardKicker">Most common route</div>
+              <h3>Try compress again</h3>
+              <p>
+                Useful if you were making a file smaller for upload limits, job applications, email or form submissions.
+              </p>
+              <div class="nextCardActions">
+                <a class="btnPrimary btnBlock" href="/">Compress PDF</a>
+              </div>
+            </article>
+
+            <article class="nextCard">
+              <div class="nextCardKicker">If compression wasn’t the real job</div>
+              <h3>Use a different tool</h3>
+              <p>
+                Sometimes the actual task is merging files, splitting pages, rotating scans or converting documents.
+              </p>
+              <div class="nextCardActions">
+                <a class="btnSoft btnBlock" href="/merge-pdf">Merge PDF</a>
+                <a class="btnSoft btnBlock" href="/split-pdf">Split PDF</a>
+              </div>
+            </article>
+
+            <article class="nextCard">
+              <div class="nextCardKicker">Need reassurance first</div>
+              <h3>Check policies</h3>
+              <p>
+                Review privacy and terms before returning to the tool if you want to confirm how the workflow works.
+              </p>
+              <div class="nextCardActions">
+                <a class="btnSoft btnBlock" href="/privacy">Privacy</a>
+                <a class="btnSoft btnBlock" href="/terms">Terms</a>
+              </div>
+            </article>
+          </section>
+
+          <div class="divider">
+            <div class="helpLinks" aria-label="Helpful links">
+              <a href="/privacy">Privacy</a>
+              <a href="/terms">Terms</a>
+              <a href="/#faq">FAQ</a>
+            </div>
+
+            <p class="fineprint">
+              Need help? Email <a href="mailto:support@pdfoperations.com">support@pdfoperations.com</a>.
             </p>
           </div>
+
         </div>
-
-        <div class="recoveryBox" aria-live="polite">
-          <div class="recoveryIcon" aria-hidden="true">↩</div>
-          <div style="min-width:0;">
-            <p class="recoveryTitle">Return to the tool</p>
-            <p class="recoveryDesc">
-              Upload your PDF again and continue to secure checkout when your file is ready.
-            </p>
-          </div>
-        </div>
-
-        <div class="ctaRow">
-          <a class="btnPrimary btnLarge" href="/">Return to tool</a>
-          <a class="btnSoft btnLarge" href="/#faq">Read FAQ</a>
-        </div>
-
-        <div class="divider">
-          <div class="helpLinks" aria-label="Helpful links">
-            <a href="/privacy">Privacy</a>
-            <a href="/terms">Terms</a>
-          </div>
-
-          <p class="fineprint">
-            Need help? Email <a href="mailto:support@pdfoperations.com">support@pdfoperations.com</a>.
-          </p>
-        </div>
-
       </div>
     </div>
   </section>

@@ -1,8 +1,10 @@
-<!-- public/success.html — PDFOperations (v24 - AUTO DOWNLOAD + iOS SAFE + PREMIUM STATUS + CORRECT MODE HANDLING)
+<!-- public/success.html — PDFOperations (v25 - MONEY MODE SUCCESS + AUTO DOWNLOAD + MODE UPSELLS + PREMIUM NEXT STEPS)
      ✅ Uses /api/status/:jobId (webhook + fallback)
      ✅ Mode-aware copy + correct download label (ZIP vs PDF)
      ✅ Auto-download once paid (best effort), with iOS-safe fallback button
+     ✅ Adds success-state upsells + next-step workflow cards
      ✅ Uses style.css?v=36 (matches your current platform styling)
+     ✅ No backend changes required
 -->
 <!doctype html>
 <html lang="en">
@@ -11,11 +13,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Success — PDFOperations</title>
-  <meta name="description" content="Payment confirmed. Your download will be ready shortly." />
+  <meta name="description" content="Payment confirmed. Your download is being prepared." />
   <link rel="canonical" href="https://pdfoperations.com/success" />
 
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light">
+
+  <meta property="og:title" content="Success — PDFOperations" />
+  <meta property="og:description" content="Payment confirmed. Your file is being prepared." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pdfoperations.com/success" />
+  <meta property="og:image" content="https://pdfoperations.com/og.png" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Success — PDFOperations" />
+  <meta name="twitter:description" content="Payment confirmed. Your file is being prepared." />
+  <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -25,6 +38,372 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/style.css?v=36" />
+
+  <style>
+    .pageShell{
+      padding:44px 0 72px;
+    }
+
+    .pageInner{
+      max-width:920px;
+      margin:0 auto;
+    }
+
+    .pageTitle{
+      margin:0;
+      font-size:clamp(34px, 5vw, 56px);
+      line-height:1.02;
+      letter-spacing:-.04em;
+      font-weight:800;
+      color:#0b1220;
+    }
+
+    .pageLead{
+      margin:14px 0 0;
+      font-size:18px;
+      line-height:1.65;
+      color:rgba(11,18,32,.78);
+      max-width:72ch;
+    }
+
+    .statusCard{
+      margin-top:18px;
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:20px;
+      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,1));
+      box-shadow:0 24px 80px rgba(2,6,23,.08);
+      overflow:hidden;
+    }
+
+    .statusTop{
+      padding:22px 22px 18px;
+      border-bottom:1px solid rgba(15,23,42,.08);
+    }
+
+    .successBox{
+      display:flex;
+      align-items:flex-start;
+      gap:16px;
+    }
+
+    .successIcon{
+      width:52px;
+      height:52px;
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:24px;
+      font-weight:800;
+      color:#0b1220;
+      background:linear-gradient(180deg, rgba(16,185,129,.18), rgba(16,185,129,.10));
+      border:1px solid rgba(16,185,129,.22);
+      flex:0 0 auto;
+    }
+
+    .successTitle{
+      font-size:22px;
+      line-height:1.15;
+      letter-spacing:-.03em;
+      font-weight:800;
+      color:#0b1220;
+    }
+
+    .successDesc{
+      margin-top:8px;
+      font-size:15px;
+      line-height:1.65;
+      color:rgba(11,18,32,.74);
+      max-width:70ch;
+    }
+
+    .trustRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:16px;
+    }
+
+    .trustPill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      border:1px solid rgba(15,23,42,.10);
+      background:#fff;
+      color:rgba(11,18,32,.82);
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:-.01em;
+    }
+
+    .actionsWrap{
+      padding:18px 22px 22px;
+    }
+
+    .successActions{
+      display:grid;
+      gap:12px;
+    }
+
+    .btnRow{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:12px;
+    }
+
+    .btnBlock{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:48px;
+      border-radius:14px;
+      font-weight:800;
+      letter-spacing:-.01em;
+      text-decoration:none;
+      padding:0 18px;
+      text-align:center;
+    }
+
+    .btnPrimary{
+      background:#0b1220;
+      color:#fff;
+      border:1px solid #0b1220;
+    }
+
+    .btnPrimary:hover{
+      filter:brightness(.97);
+    }
+
+    .btnSoft{
+      background:#eef2f7;
+      color:#0b1220;
+      border:1px solid rgba(15,23,42,.10);
+    }
+
+    .btnSoft:hover{
+      background:#e7edf5;
+    }
+
+    .btnGhost{
+      background:#fff;
+      color:#0b1220;
+      border:1px solid rgba(15,23,42,.12);
+    }
+
+    .btnGhost:hover{
+      background:#f8fafc;
+    }
+
+    .fineprint{
+      margin:14px 0 0;
+      font-size:13px;
+      line-height:1.6;
+      color:rgba(11,18,32,.66);
+    }
+
+    .shareBox{
+      margin-top:8px;
+      padding:16px;
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:16px;
+      background:#f8fafc;
+    }
+
+    .shareLabel{
+      font-size:12px;
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      color:rgba(11,18,32,.62);
+    }
+
+    .shareRow{
+      display:flex;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .shareInput{
+      flex:1 1 auto;
+      min-width:0;
+      height:46px;
+      border-radius:12px;
+      border:1px solid rgba(15,23,42,.14);
+      background:#fff;
+      color:#0b1220;
+      padding:0 14px;
+      font:inherit;
+    }
+
+    .btnSm{
+      min-height:46px;
+      padding:0 16px;
+      border-radius:12px;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .shareHint{
+      margin-top:10px;
+      font-size:13px;
+      line-height:1.55;
+      color:rgba(11,18,32,.66);
+    }
+
+    .nextSection{
+      margin-top:26px;
+      display:none;
+    }
+
+    .nextSection.isVisible{
+      display:block;
+    }
+
+    .sectionKicker{
+      font-size:12px;
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:rgba(11,18,32,.60);
+    }
+
+    .sectionTitle{
+      margin:10px 0 0;
+      font-size:28px;
+      line-height:1.08;
+      letter-spacing:-.03em;
+      font-weight:800;
+      color:#0b1220;
+    }
+
+    .sectionLead{
+      margin:10px 0 0;
+      font-size:15px;
+      line-height:1.7;
+      color:rgba(11,18,32,.74);
+      max-width:72ch;
+    }
+
+    .nextGrid{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:14px;
+    }
+
+    .nextCard{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:18px;
+      background:#fff;
+      padding:18px;
+      box-shadow:0 16px 44px rgba(2,6,23,.05);
+      display:flex;
+      flex-direction:column;
+      min-height:220px;
+    }
+
+    .nextBadge{
+      display:inline-flex;
+      align-items:center;
+      width:max-content;
+      padding:8px 10px;
+      border-radius:999px;
+      background:#f8fafc;
+      border:1px solid rgba(15,23,42,.10);
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.02em;
+      color:rgba(11,18,32,.72);
+      text-transform:uppercase;
+    }
+
+    .nextCard h3{
+      margin:14px 0 8px;
+      font-size:20px;
+      line-height:1.1;
+      letter-spacing:-.03em;
+      font-weight:800;
+      color:#0b1220;
+    }
+
+    .nextCard p{
+      margin:0;
+      font-size:14px;
+      line-height:1.65;
+      color:rgba(11,18,32,.72);
+      flex:1 1 auto;
+    }
+
+    .nextCardActions{
+      margin-top:16px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .nextCardActions a{
+      text-decoration:none;
+    }
+
+    .utilitySection{
+      margin-top:18px;
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:18px;
+      background:#fff;
+      padding:18px;
+      box-shadow:0 16px 44px rgba(2,6,23,.05);
+    }
+
+    .utilityLinks{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px 18px;
+      margin-top:12px;
+    }
+
+    .utilityLinks a{
+      color:#0b1220;
+      font-weight:800;
+      text-decoration:none;
+      border-bottom:1px solid rgba(11,18,32,.22);
+    }
+
+    .utilityLinks a:hover{
+      border-bottom-color:rgba(11,18,32,.56);
+    }
+
+    .footerPremium{
+      margin-top:24px;
+    }
+
+    @media (max-width: 920px){
+      .nextGrid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width: 640px){
+      .pageShell{
+        padding:28px 0 56px;
+      }
+
+      .statusTop,
+      .actionsWrap{
+        padding-left:16px;
+        padding-right:16px;
+      }
+
+      .btnRow{
+        grid-template-columns:1fr;
+      }
+
+      .shareRow{
+        flex-direction:column;
+      }
+    }
+  </style>
 </head>
 
 <body class="premium">
@@ -38,7 +417,7 @@
 
     <nav class="navLinks" aria-label="Site">
       <a href="/">Tool</a>
-      <a href="/#faq">FAQ</a>
+      <a href="/pricing">Pricing</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
     </nav>
@@ -52,23 +431,62 @@
         <h1 class="pageTitle">Payment received.</h1>
         <p class="pageLead" id="sub">Finalising your download…</p>
 
-        <div class="tool" style="margin-top:18px;">
-          <div class="successBox" aria-live="polite">
-            <div class="successIcon" aria-hidden="true">✓</div>
-            <div style="min-width:0;">
-              <div class="successTitle" id="titleLine">Preparing your download</div>
-              <div class="successDesc" id="desc">
-                We’re confirming payment and preparing your download. This usually takes a few seconds.
+        <div class="statusCard">
+          <div class="statusTop">
+            <div class="successBox" aria-live="polite">
+              <div class="successIcon" aria-hidden="true">✓</div>
+              <div style="min-width:0;">
+                <div class="successTitle" id="titleLine">Preparing your download</div>
+                <div class="successDesc" id="desc">
+                  We’re confirming payment and preparing your download. This usually takes a few seconds.
+                </div>
+
+                <div class="trustRow" id="trustRow">
+                  <div class="trustPill">Secure processing</div>
+                  <div class="trustPill">No signup required</div>
+                  <div class="trustPill">Professional PDF workflow</div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="successActions" id="actions" aria-live="polite"></div>
+          <div class="actionsWrap">
+            <div class="successActions" id="actions" aria-live="polite"></div>
 
-          <p class="fineprint" id="hint" style="margin-top:12px;">
-            Please keep this tab open. Large files can take a little longer — use “Check again” if needed.
-          </p>
+            <p class="fineprint" id="hint">
+              Please keep this tab open. Large files can take a little longer — use “Check again” if needed.
+            </p>
+          </div>
         </div>
+
+        <section class="nextSection" id="nextSection">
+          <div class="sectionKicker">Next step</div>
+          <h2 class="sectionTitle">Need to do more with this document?</h2>
+          <p class="sectionLead" id="nextLead">
+            PDFOperations can help you finish the job after download, whether that means merging files, signing, converting or protecting the result.
+          </p>
+
+          <div class="nextGrid" id="nextGrid"></div>
+
+          <div class="utilitySection">
+            <div class="sectionKicker">Popular routes</div>
+            <h3 class="sectionTitle" style="font-size:22px; margin-top:8px;">Keep your workflow moving</h3>
+            <p class="sectionLead" style="font-size:14px;">
+              These are the most common next actions after compressing or preparing a PDF.
+            </p>
+
+            <div class="utilityLinks">
+              <a href="/">Compress another PDF</a>
+              <a href="/merge-pdf">Merge PDFs</a>
+              <a href="/split-pdf">Split PDF pages</a>
+              <a href="/rotate-pdf">Rotate PDF pages</a>
+              <a href="/convert">Convert PDF</a>
+              <a href="/sign-pdf">Sign PDF</a>
+              <a href="/edit-pdf">Edit PDF</a>
+              <a href="/watermark-pdf">Watermark PDF</a>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </section>
@@ -95,10 +513,12 @@
   const desc = document.getElementById("desc");
   const hint = document.getElementById("hint");
   const titleLine = document.getElementById("titleLine");
+  const nextSection = document.getElementById("nextSection");
+  const nextGrid = document.getElementById("nextGrid");
+  const nextLead = document.getElementById("nextLead");
 
   const setActions = (html) => { actions.innerHTML = html; };
 
-  // 🔧 Update this to your real support address if different
   const supportHtml = `Support: <a href="mailto:support@pdfoperations.com">support@pdfoperations.com</a>`;
 
   const downloadUrl = jobId ? `/api/download/${encodeURIComponent(jobId)}` : "#";
@@ -126,7 +546,6 @@
     }
   };
 
-  // ---- mode-aware helpers (matches server modes)
   const normalizeMode = (m) => {
     const v = String(m || "").toLowerCase().trim();
     if (v === "merge_pdf") return "merge_pdf";
@@ -138,11 +557,9 @@
   };
 
   const downloadKind = (mode) => {
-    // PDF outputs:
     if (mode === "merge_pdf") return "PDF";
     if (mode === "compress_pdf") return "PDF";
     if (mode === "rotate_pdf") return "PDF";
-    // ZIP outputs:
     return "ZIP";
   };
 
@@ -155,10 +572,232 @@
       const t = String(convertTarget || "").toUpperCase().trim();
       return t ? `Converted files (${t})` : "Converted files";
     }
-    return "ZIP";
+    return "Download";
   };
 
-  // ---- edge case: missing jobId
+  const getNextCards = (mode) => {
+    if (mode === "compress_pdf" || mode === "compress") {
+      return [
+        {
+          badge: "Most common next step",
+          title: "Merge with supporting documents",
+          text: "Turn multiple PDFs into one final file before sending or uploading.",
+          primaryHref: "/merge-pdf",
+          primaryLabel: "Merge PDFs",
+          secondaryHref: "/sign-pdf",
+          secondaryLabel: "Sign after merging"
+        },
+        {
+          badge: "Submission ready",
+          title: "Sign before sending",
+          text: "Add a signature if the file needs approval, acceptance or formal submission.",
+          primaryHref: "/sign-pdf",
+          primaryLabel: "Sign PDF",
+          secondaryHref: "/edit-pdf",
+          secondaryLabel: "Edit PDF"
+        },
+        {
+          badge: "Protect your file",
+          title: "Add a watermark or edit next",
+          text: "Prepare the final version for clients, applications or document sharing.",
+          primaryHref: "/watermark-pdf",
+          primaryLabel: "Watermark PDF",
+          secondaryHref: "/edit-pdf",
+          secondaryLabel: "Edit PDF"
+        }
+      ];
+    }
+
+    if (mode === "merge_pdf") {
+      return [
+        {
+          badge: "Common next step",
+          title: "Compress the merged file",
+          text: "Large merged PDFs often need compressing before email or portal upload.",
+          primaryHref: "/",
+          primaryLabel: "Compress PDF",
+          secondaryHref: "/sign-pdf",
+          secondaryLabel: "Sign merged PDF"
+        },
+        {
+          badge: "Submission ready",
+          title: "Sign before sending",
+          text: "Perfect if the merged document needs approval, signature or submission.",
+          primaryHref: "/sign-pdf",
+          primaryLabel: "Sign PDF",
+          secondaryHref: "/watermark-pdf",
+          secondaryLabel: "Watermark PDF"
+        },
+        {
+          badge: "Workflow helper",
+          title: "Convert or split next",
+          text: "Break the file apart again or convert it into a different format if needed.",
+          primaryHref: "/split-pdf",
+          primaryLabel: "Split PDF",
+          secondaryHref: "/convert",
+          secondaryLabel: "Convert PDF"
+        }
+      ];
+    }
+
+    if (mode === "split_pdf") {
+      return [
+        {
+          badge: "Common next step",
+          title: "Compress extracted files",
+          text: "Reduce file size on the split documents before sending or uploading them.",
+          primaryHref: "/",
+          primaryLabel: "Compress PDF",
+          secondaryHref: "/merge-pdf",
+          secondaryLabel: "Merge PDFs"
+        },
+        {
+          badge: "Prepare the final file",
+          title: "Sign a single extracted document",
+          text: "Useful when you split out the exact page or document that needs signing.",
+          primaryHref: "/sign-pdf",
+          primaryLabel: "Sign PDF",
+          secondaryHref: "/edit-pdf",
+          secondaryLabel: "Edit PDF"
+        },
+        {
+          badge: "Protect your documents",
+          title: "Watermark before sharing",
+          text: "Add branding or a draft mark before sending split documents to someone else.",
+          primaryHref: "/watermark-pdf",
+          primaryLabel: "Watermark PDF",
+          secondaryHref: "/convert",
+          secondaryLabel: "Convert PDF"
+        }
+      ];
+    }
+
+    if (mode === "rotate_pdf") {
+      return [
+        {
+          badge: "Common next step",
+          title: "Compress the corrected PDF",
+          text: "After rotating pages, reduce the file size for upload forms and email.",
+          primaryHref: "/",
+          primaryLabel: "Compress PDF",
+          secondaryHref: "/merge-pdf",
+          secondaryLabel: "Merge PDFs"
+        },
+        {
+          badge: "Submission ready",
+          title: "Sign or edit next",
+          text: "Once pages are the right way around, finish the file for sending or upload.",
+          primaryHref: "/sign-pdf",
+          primaryLabel: "Sign PDF",
+          secondaryHref: "/edit-pdf",
+          secondaryLabel: "Edit PDF"
+        },
+        {
+          badge: "Workflow helper",
+          title: "Convert for easier sharing",
+          text: "Turn the corrected PDF into JPG or PNG if image output is easier to use.",
+          primaryHref: "/convert",
+          primaryLabel: "Convert PDF",
+          secondaryHref: "/watermark-pdf",
+          secondaryLabel: "Watermark PDF"
+        }
+      ];
+    }
+
+    if (mode === "convert") {
+      return [
+        {
+          badge: "Most common next step",
+          title: "Compress the original PDF",
+          text: "If you still need the source file smaller for upload, compress it next.",
+          primaryHref: "/",
+          primaryLabel: "Compress PDF",
+          secondaryHref: "/merge-pdf",
+          secondaryLabel: "Merge PDFs"
+        },
+        {
+          badge: "Prepare a final document",
+          title: "Sign or watermark next",
+          text: "Great if you’re moving from a working file into a final client-ready version.",
+          primaryHref: "/sign-pdf",
+          primaryLabel: "Sign PDF",
+          secondaryHref: "/watermark-pdf",
+          secondaryLabel: "Watermark PDF"
+        },
+        {
+          badge: "Workflow helper",
+          title: "Split or rotate before sharing",
+          text: "Tidy up pages further before sending the result onward.",
+          primaryHref: "/split-pdf",
+          primaryLabel: "Split PDF",
+          secondaryHref: "/rotate-pdf",
+          secondaryLabel: "Rotate PDF"
+        }
+      ];
+    }
+
+    return [
+      {
+        badge: "Popular next step",
+        title: "Compress another PDF",
+        text: "Get another file ready for upload, email or document submission.",
+        primaryHref: "/",
+        primaryLabel: "Compress PDF",
+        secondaryHref: "/merge-pdf",
+        secondaryLabel: "Merge PDFs"
+      },
+      {
+        badge: "Workflow helper",
+        title: "Sign or edit next",
+        text: "Move the file into a final-ready state for sharing or submission.",
+        primaryHref: "/sign-pdf",
+        primaryLabel: "Sign PDF",
+        secondaryHref: "/edit-pdf",
+        secondaryLabel: "Edit PDF"
+      },
+      {
+        badge: "Protect your file",
+        title: "Watermark before sending",
+        text: "Useful for drafts, branded documents or controlled sharing.",
+        primaryHref: "/watermark-pdf",
+        primaryLabel: "Watermark PDF",
+        secondaryHref: "/convert",
+        secondaryLabel: "Convert PDF"
+      }
+    ];
+  };
+
+  const renderNextCards = (mode) => {
+    const cards = getNextCards(mode);
+    nextGrid.innerHTML = cards.map((card) => `
+      <article class="nextCard">
+        <div class="nextBadge">${card.badge}</div>
+        <h3>${card.title}</h3>
+        <p>${card.text}</p>
+        <div class="nextCardActions">
+          <a class="btnPrimary btnBlock" href="${card.primaryHref}">${card.primaryLabel}</a>
+          <a class="btnSoft btnBlock" href="${card.secondaryHref}">${card.secondaryLabel}</a>
+        </div>
+      </article>
+    `).join("");
+
+    if (mode === "compress_pdf" || mode === "compress") {
+      nextLead.textContent = "Your file is ready. The most common next steps after compression are merging supporting documents, signing the final version, or adding a watermark before sending.";
+    } else if (mode === "merge_pdf") {
+      nextLead.textContent = "Your merged file is ready. Many people compress it next for upload, sign it before sending, or split it again into separate files.";
+    } else if (mode === "split_pdf") {
+      nextLead.textContent = "Your split files are ready. The most common next steps are compressing extracted files, signing one document, or watermarking before sharing.";
+    } else if (mode === "rotate_pdf") {
+      nextLead.textContent = "Your rotated file is ready. Many people compress it next, sign it before sending, or convert it for easier sharing.";
+    } else if (mode === "convert") {
+      nextLead.textContent = "Your converted files are ready. Depending on your workflow, you may want to compress the original PDF, sign a final version, or split pages further.";
+    } else {
+      nextLead.textContent = "Your file is ready. PDFOperations can help you finish the job after download, whether that means merging files, signing, converting or protecting the result.";
+    }
+
+    nextSection.classList.add("isVisible");
+  };
+
   if (!jobId) {
     sub.textContent = "We couldn’t find your download reference.";
     titleLine.textContent = "Missing download reference";
@@ -166,23 +805,21 @@
     hint.innerHTML = supportHtml;
 
     setActions(`
-      <a class="btnPrimary btnBlock" href="/">Go to PDFOperations</a>
-      <a class="btnSoft btnBlock" href="/terms">Terms</a>
+      <div class="btnRow">
+        <a class="btnPrimary btnBlock" href="/">Go to PDFOperations</a>
+        <a class="btnGhost btnBlock" href="/pricing">Pricing</a>
+      </div>
     `);
   } else {
-    // More realistic: cold start + big PDFs
     const maxMs = 45000;
     const start = Date.now();
     let attempt = 0;
 
-    // waiting | notPaid | ready | slow | failed
     let viewState = "waiting";
 
-    // Mode snapshot
     let currentMode = "compress";
     let currentConvertTarget = null;
 
-    // Auto-download: best effort (avoid infinite loops)
     let autoDownloadAttempted = false;
 
     const renderWaiting = (msg) => {
@@ -195,8 +832,10 @@
       hint.textContent = "Please keep this tab open. Large files can take a little longer — use “Check again” if needed.";
 
       setActions(`
-        <button class="btnPrimary btnBlock" id="retryBtn" type="button">Check again</button>
-        <a class="btnGhost btnBlock" href="/">Back to PDFOperations</a>
+        <div class="btnRow">
+          <button class="btnPrimary btnBlock" id="retryBtn" type="button">Check again</button>
+          <a class="btnGhost btnBlock" href="/">Back to PDFOperations</a>
+        </div>
       `);
 
       const b = document.getElementById("retryBtn");
@@ -211,8 +850,10 @@
       hint.innerHTML = supportHtml;
 
       setActions(`
-        <a class="btnPrimary btnBlock" href="/">Back to PDFOperations</a>
-        <button class="btnGhost btnBlock" id="retryBtn3" type="button">Check again</button>
+        <div class="btnRow">
+          <a class="btnPrimary btnBlock" href="/">Back to PDFOperations</a>
+          <button class="btnGhost btnBlock" id="retryBtn3" type="button">Check again</button>
+        </div>
       `);
 
       const b = document.getElementById("retryBtn3");
@@ -225,13 +866,18 @@
 
       sub.textContent = "Still working…";
       titleLine.textContent = `Preparing your ${kind}`;
-      desc.textContent = "This can take a bit longer for larger files or during high load. You can keep this tab open and check again.";
+      desc.textContent = "This can take longer for larger files or during high load. You can keep this tab open and check again.";
       hint.innerHTML = supportHtml;
 
       setActions(`
-        <button class="btnPrimary btnBlock" id="retryBtn4" type="button">Check again</button>
-        <a class="btnSoft btnBlock" href="${downloadUrl}" target="_blank" rel="noopener">Try opening download</a>
-        <a class="btnGhost btnBlock" href="/">Back to PDFOperations</a>
+        <div class="btnRow">
+          <button class="btnPrimary btnBlock" id="retryBtn4" type="button">Check again</button>
+          <a class="btnSoft btnBlock" href="${downloadUrl}" target="_blank" rel="noopener">Try opening download</a>
+        </div>
+        <div class="btnRow">
+          <a class="btnGhost btnBlock" href="/">Back to PDFOperations</a>
+          <a class="btnGhost btnBlock" href="/pricing">View pricing</a>
+        </div>
       `);
 
       const b = document.getElementById("retryBtn4");
@@ -247,9 +893,14 @@
       hint.innerHTML = supportHtml;
 
       setActions(`
-        <a class="btnPrimary btnBlock" href="${downloadUrl}" target="_blank" rel="noopener">Try download</a>
-        <button class="btnSoft btnBlock" id="retryBtn2" type="button">Check again</button>
-        <a class="btnGhost btnBlock" href="/">Back to PDFOperations</a>
+        <div class="btnRow">
+          <a class="btnPrimary btnBlock" href="${downloadUrl}" target="_blank" rel="noopener">Try download</a>
+          <button class="btnSoft btnBlock" id="retryBtn2" type="button">Check again</button>
+        </div>
+        <div class="btnRow">
+          <a class="btnGhost btnBlock" href="/">Back to PDFOperations</a>
+          <a class="btnGhost btnBlock" href="/terms">Terms</a>
+        </div>
       `);
 
       const b = document.getElementById("retryBtn2");
@@ -257,7 +908,6 @@
     };
 
     const tryAutoDownload = () => {
-      // Best-effort: only once, only when paid.
       if (autoDownloadAttempted) return;
       autoDownloadAttempted = true;
 
@@ -282,8 +932,7 @@
         ? `Download the ${kind}, or copy a share link to send it to someone.`
         : `Download your ${kind} below.`;
 
-      const downloadBtnLabel =
-        kind === "PDF" ? "Download PDF" : "Download ZIP";
+      const downloadBtnLabel = kind === "PDF" ? "Download PDF" : "Download ZIP";
 
       let shareHtml = "";
       if (shareToken) {
@@ -303,10 +952,15 @@
       }
 
       setActions(`
-        <a class="btnPrimary btnBlock" id="downloadBtn" href="${downloadUrl}">${downloadBtnLabel}</a>
-        <a class="btnSoft btnBlock" href="${downloadUrl}" target="_blank" rel="noopener">Open download in new tab</a>
+        <div class="btnRow">
+          <a class="btnPrimary btnBlock" id="downloadBtn" href="${downloadUrl}">${downloadBtnLabel}</a>
+          <a class="btnSoft btnBlock" href="${downloadUrl}" target="_blank" rel="noopener">Open download in new tab</a>
+        </div>
         ${shareHtml}
-        <a class="btnGhost btnBlock" href="/">Back to PDFOperations</a>
+        <div class="btnRow">
+          <a class="btnGhost btnBlock" href="/">Compress another PDF</a>
+          <a class="btnGhost btnBlock" href="/pricing">See all options</a>
+        </div>
       `);
 
       tryAutoDownload();
@@ -324,8 +978,10 @@
 
       hint.textContent =
         kind === "PDF"
-          ? "Tip: download promptly and store the PDF somewhere safe."
-          : "Tip: download promptly and store the ZIP somewhere safe.";
+          ? "Tip: download promptly and store the PDF somewhere safe. If you need to keep working on it, use one of the tools below."
+          : "Tip: download promptly and store the ZIP somewhere safe. If you need to keep working on the files, use one of the tools below.";
+
+      renderNextCards(currentMode);
     };
 
     const checkStatus = async () => {
@@ -365,8 +1021,10 @@
       hint.innerHTML = supportHtml;
 
       setActions(`
-        <a class="btnPrimary btnBlock" href="/">Back to PDFOperations</a>
-        <a class="btnSoft btnBlock" href="/terms">Terms</a>
+        <div class="btnRow">
+          <a class="btnPrimary btnBlock" href="/">Back to PDFOperations</a>
+          <a class="btnSoft btnBlock" href="/terms">Terms</a>
+        </div>
       `);
     };
 
@@ -381,14 +1039,12 @@
       if (st?.notFound) return renderExpired();
       if (st.paid) return renderReady(st.shareToken);
 
-      // After a few seconds, show "not yet confirmed"
       if (waited > 7000) {
         if (viewState !== "notPaid") renderNotPaid();
       } else {
         if (viewState !== "waiting") renderWaiting("Checking your payment…");
       }
 
-      // Soft slow-state before "failed"
       if (waited >= 25000 && viewState !== "slow") renderSlow();
 
       if (waited >= maxMs) return renderFailed();
@@ -396,7 +1052,7 @@
       const delay = Math.min(3000, 850 + attempt * 350);
 
       if (viewState === "waiting") {
-        renderWaiting(`Not ready yet. Retrying in ${(delay/1000).toFixed(1)}s…`);
+        renderWaiting(`Not ready yet. Retrying in ${(delay / 1000).toFixed(1)}s…`);
       }
 
       await sleep(delay);

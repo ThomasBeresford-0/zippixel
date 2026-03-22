@@ -1,10 +1,10 @@
-<!-- public/pricing.html — PDFOperations (v27 - MONEY-MODE PRICING; PRO PUSH + CALCULATOR + OBJECTION KILLER; NO APP/BE CHANGES)
+<!-- public/pricing.html — PDFOperations (v28 - MONEY MODE PRICING + CLEAN SEO + CALCULATOR + VALUE LADDER; NO APP/BE CHANGES)
      ✅ Same pricing logic: £2.99 (≤10 files) / £9.99 (11–50) + optional share link (+£2.49)
-     ✅ No backend/app.js changes (this page is informational)
-     ✅ Adds interactive tier calculator (JS-only) to push Pro + reduce hesitation
-     ✅ Adds “Why pay” + real-world use-cases (paid positioning, not “free tool” vibes)
-     ✅ Hard “instrument panel” aesthetic (no bubbles, less rounding, crisp dividers)
-     ✅ Strong SEO JSON-LD: Organization + WebSite + WebPage + Breadcrumb + FAQ + Service/OfferCatalog (adds priceValidUntil)
+     ✅ No backend/app.js changes (this page is informational only)
+     ✅ Adds interactive tier calculator (JS-only)
+     ✅ Pushes Pro as the batch/value tier
+     ✅ Stronger “why pay” + real-world use-cases
+     ✅ Clean SEO JSON-LD: Organization + WebSite + WebPage + Breadcrumb + FAQ + Service/OfferCatalog
 -->
 <!doctype html>
 <html lang="en">
@@ -12,26 +12,24 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Pricing — PDFOperations</title>
-  <meta name="description" content="Pay once when your download is ready. £2.99 (up to 10 files) or £9.99 (up to 50). Optional share link +£2.49. No subscriptions." />
+  <title>Pricing — PDFOperations | One-Time PDF Tool Pricing</title>
+  <meta name="description" content="Pay once when your PDF is ready. £2.99 for up to 10 files, £9.99 for up to 50 files, plus optional share link +£2.49. No subscriptions." />
   <link rel="canonical" href="https://pdfoperations.com/pricing" />
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light" />
 
-  <!-- Open Graph -->
   <meta property="og:title" content="Pricing — PDFOperations" />
-  <meta property="og:description" content="Pay once when your download is ready. £2.99 (up to 10 files) or £9.99 (up to 50). Optional share link +£2.49. No subscriptions." />
+  <meta property="og:description" content="Pay once when your PDF is ready. £2.99 for up to 10 files, £9.99 for up to 50 files, plus optional share link +£2.49. No subscriptions." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/pricing" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
   <meta property="og:image:alt" content="PDFOperations pricing" />
 
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Pricing — PDFOperations" />
-  <meta name="twitter:description" content="Pay once when your download is ready. £2.99 (up to 10 files) or £9.99 (up to 50). Optional share link +£2.49. No subscriptions." />
+  <meta name="twitter:description" content="Pay once when your PDF is ready. £2.99 for up to 10 files, £9.99 for up to 50 files, plus optional share link +£2.49. No subscriptions." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -40,18 +38,13 @@
 
   <link rel="stylesheet" href="/style.css?v=36" />
 
-  <!-- =========================
-       JSON-LD (MAX SEO)
-       Notes:
-       - priceValidUntil is commonly recommended for Offer markup consistency. :contentReference[oaicite:0]{index=0}
-  ========================== -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
     "@type":"Organization",
     "name":"PDFOperations",
     "url":"https://pdfoperations.com/",
-    "logo":"https://pdfoperations.com/favicon.svg",
+    "logo":"https://pdfoperations.com/logo.png",
     "acceptedPaymentMethod":[
       "https://schema.org/CreditCard",
       "https://schema.org/DebitCard"
@@ -74,7 +67,7 @@
     "@type":"WebPage",
     "name":"Pricing — PDFOperations",
     "url":"https://pdfoperations.com/pricing",
-    "description":"Pay once when your download is ready. £2.99 (up to 10 files) or £9.99 (up to 50). Optional share link +£2.49. No subscriptions.",
+    "description":"Pay once when your PDF is ready. £2.99 for up to 10 files, £9.99 for up to 50 files, plus optional share link +£2.49. No subscriptions.",
     "isPartOf":{
       "@type":"WebSite",
       "name":"PDFOperations",
@@ -94,12 +87,11 @@
   }
   </script>
 
-  <!-- Optional: Service/Offer catalog for richer results -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
     "@type":"Service",
-    "name":"PDFOperations One-time PDF Tools",
+    "name":"PDFOperations One-Time PDF Tools",
     "provider":{"@type":"Organization","name":"PDFOperations","url":"https://pdfoperations.com/"},
     "areaServed":"Worldwide",
     "serviceType":"Online PDF utilities",
@@ -139,7 +131,6 @@
   }
   </script>
 
-  <!-- JSON-LD: FAQ (kept, tightened, more human) -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -157,67 +148,81 @@
       },
       {
         "@type":"Question",
-        "name":"What is the Share link add-on?",
-        "acceptedAnswer":{"@type":"Answer","text":"Share link (+£2.49) creates a download link so you can send one link instead of attachments."}
+        "name":"What is the share link add-on?",
+        "acceptedAnswer":{"@type":"Answer","text":"Share link adds +£2.49 and creates a download link so you can send one link instead of large attachments."}
       },
       {
         "@type":"Question",
         "name":"What do I download?",
-        "acceptedAnswer":{"@type":"Answer","text":"Outputs depend on the tool: merge/rotate/compress produce a single PDF. Split and some conversions may produce a ZIP bundle."}
+        "acceptedAnswer":{"@type":"Answer","text":"Outputs depend on the tool. Compress, merge and rotate usually produce a PDF. Split and some conversions may produce a ZIP bundle."}
       },
       {
         "@type":"Question",
         "name":"When am I charged?",
-        "acceptedAnswer":{"@type":"Answer","text":"You’re charged at checkout, right before you download. Stripe shows the full total before you confirm payment."}
+        "acceptedAnswer":{"@type":"Answer","text":"You’re charged at checkout, right before download. Stripe shows the full total before you confirm payment."}
       }
     ]
   }
   </script>
 
   <style>
-    /* =========================
-       PRICING — HARD, EDITORIAL, MONEY-MODE (v27)
-    ========================== */
     :root{
       --hard-border: rgba(15,23,42,.14);
       --soft-border: rgba(15,23,42,.10);
       --ink: rgba(11,18,32,.92);
       --muted: rgba(11,18,32,.74);
       --bgwash: rgba(245,247,251,.86);
+      --panel-bg: rgba(255,255,255,.96);
     }
 
-    /* Nav matches tool pages */
     .nav{
-      border-bottom: 1px solid rgba(15,23,42,.10);
-      background: var(--bgwash);
-      backdrop-filter: blur(10px);
+      border-bottom:1px solid rgba(15,23,42,.10);
+      background:var(--bgwash);
+      backdrop-filter:blur(10px);
     }
-    .navLinks a{ font-weight: 900; letter-spacing:-.01em; opacity:.86; }
-    .navLinks a[aria-current="page"]{ opacity:1; border-bottom:1px solid rgba(11,18,32,.35); }
 
-    .pricingHero{ padding: 28px 0 16px; }
+    .navLinks a{
+      font-weight:900;
+      letter-spacing:-.01em;
+      opacity:.86;
+    }
+
+    .navLinks a[aria-current="page"]{
+      opacity:1;
+      border-bottom:1px solid rgba(11,18,32,.35);
+    }
+
+    .pricingHero{
+      padding:28px 0 16px;
+    }
+
     .kicker{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 12px;
-      letter-spacing: .10em;
-      text-transform: uppercase;
-      opacity: .72;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      opacity:.72;
     }
+
     .heroTitle{
-      margin: 8px 0 10px;
-      letter-spacing: -.04em;
-      font-weight: 1000;
-      line-height: 1.03;
-      font-size: 46px;
-      color: rgba(11,18,32,.98);
+      margin:8px 0 10px;
+      letter-spacing:-.04em;
+      font-weight:1000;
+      line-height:1.03;
+      font-size:46px;
+      color:rgba(11,18,32,.98);
     }
-    @media (max-width: 720px){ .heroTitle{ font-size: 36px; } }
+
+    @media (max-width: 720px){
+      .heroTitle{ font-size:36px; }
+    }
+
     .heroLead{
-      margin: 0;
-      max-width: 78ch;
-      opacity: .84;
-      line-height: 1.65;
-      font-size: 16px;
+      margin:0;
+      max-width:78ch;
+      opacity:.84;
+      line-height:1.65;
+      font-size:16px;
     }
 
     .heroCallout{
@@ -227,323 +232,422 @@
       font-size:14px;
       line-height:1.6;
       opacity:.88;
-      max-width: 78ch;
+      max-width:78ch;
     }
-    .heroCallout strong{ font-weight: 1000; }
+
+    .heroCallout strong{
+      font-weight:1000;
+    }
 
     .heroBar{
-      margin-top: 14px;
+      margin-top:14px;
       display:flex;
       flex-wrap:wrap;
-      gap: 10px 16px;
-      padding-top: 12px;
-      border-top: 1px solid rgba(15,23,42,.10);
-      color: rgba(11,18,32,.72);
-      font-size: 13px;
+      gap:10px 16px;
+      padding-top:12px;
+      border-top:1px solid rgba(15,23,42,.10);
+      color:rgba(11,18,32,.72);
+      font-size:13px;
     }
+
     .heroBarItem{
-      font-weight: 900;
+      font-weight:900;
       display:flex;
       align-items:center;
-      gap: 8px;
+      gap:8px;
     }
-    .heroBarItem::before{ content:"•"; opacity:.55; }
-    .heroBar .heroBarItem:first-child::before{ content:""; }
+
+    .heroBarItem::before{
+      content:"•";
+      opacity:.55;
+    }
+
+    .heroBar .heroBarItem:first-child::before{
+      content:"";
+    }
 
     .pricingGrid{
       display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap: 16px;
+      grid-template-columns:1.1fr .9fr;
+      gap:16px;
       align-items:start;
-      margin-top: 16px;
+      margin-top:16px;
     }
-    @media (max-width: 920px){ .pricingGrid{ grid-template-columns: 1fr; } }
 
-    /* Hard panels */
+    @media (max-width: 920px){
+      .pricingGrid{ grid-template-columns:1fr; }
+    }
+
     .panel{
-      background: rgba(255,255,255,.96);
-      border: 1px solid var(--hard-border);
-      border-radius: 14px;
-      box-shadow: 0 26px 80px rgba(2,6,23,.08);
+      background:var(--panel-bg);
+      border:1px solid var(--hard-border);
+      border-radius:14px;
+      box-shadow:0 26px 80px rgba(2,6,23,.08);
       overflow:hidden;
     }
+
     .panelHead{
       display:flex;
       align-items:flex-end;
       justify-content:space-between;
-      gap: 14px;
-      padding: 16px 16px 12px;
-      border-bottom: 1px solid rgba(15,23,42,.10);
-      background: linear-gradient(180deg, rgba(11,18,32,.03), transparent);
+      gap:14px;
+      padding:16px 16px 12px;
+      border-bottom:1px solid rgba(15,23,42,.10);
+      background:linear-gradient(180deg, rgba(11,18,32,.03), transparent);
     }
+
     .panelTitle{
       margin:0;
       letter-spacing:-.03em;
-      font-weight: 1000;
-      font-size: 18px;
-      color: rgba(11,18,32,.96);
+      font-weight:1000;
+      font-size:18px;
+      color:rgba(11,18,32,.96);
     }
-    .panelMeta{
-      font-size: 12px;
-      opacity: .72;
-      white-space: nowrap;
-      font-weight: 850;
-    }
-    .panelPad{ padding: 16px; }
 
-    /* “Invoice” table */
-    .priceTable{
-      margin-top: 10px;
-      border: 1px solid rgba(15,23,42,.12);
-      border-radius: 12px;
-      overflow:hidden;
-      background: #fff;
+    .panelMeta{
+      font-size:12px;
+      opacity:.72;
+      white-space:nowrap;
+      font-weight:850;
     }
+
+    .panelPad{
+      padding:16px;
+    }
+
+    .priceTable{
+      margin-top:10px;
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:12px;
+      overflow:hidden;
+      background:#fff;
+    }
+
     .priceLine{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
-      gap: 14px;
-      padding: 12px 12px;
-      border-top: 1px solid rgba(15,23,42,.10);
+      gap:14px;
+      padding:12px;
+      border-top:1px solid rgba(15,23,42,.10);
     }
-    .priceLine:first-child{ border-top:0; }
+
+    .priceLine:first-child{
+      border-top:0;
+    }
 
     .priceLine.isPrimary{
-      background: linear-gradient(180deg, rgba(11,18,32,.02), #fff);
+      background:linear-gradient(180deg, rgba(11,18,32,.02), #fff);
     }
 
-    /* MONEY-MODE: make Pro feel like the “best value” choice */
     .priceLine.isBest{
-      background: linear-gradient(180deg, rgba(11,18,32,.04), rgba(11,18,32,.01));
+      background:linear-gradient(180deg, rgba(11,18,32,.04), rgba(11,18,32,.01));
       position:relative;
     }
+
     .bestTag{
       display:inline-flex;
       align-items:center;
       gap:8px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 11px;
-      letter-spacing: .10em;
-      text-transform: uppercase;
-      font-weight: 900;
-      opacity: .78;
-      margin-top: 6px;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:11px;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      font-weight:900;
+      opacity:.78;
+      margin-top:6px;
     }
-    .bestTag::before{ content:"BEST VALUE"; }
+
+    .bestTag::before{
+      content:"Best value";
+    }
 
     .priceName{
-      font-weight: 1000;
-      letter-spacing: -.02em;
-      color: rgba(11,18,32,.96);
-    }
-    .priceDesc{
-      margin-top: 2px;
-      font-size: 13px;
-      opacity: .82;
-      line-height: 1.35;
-    }
-    .priceAmt{
-      font-weight: 1100;
-      letter-spacing: -.02em;
-      font-size: 18px;
-      white-space: nowrap;
-      color: rgba(11,18,32,.96);
+      font-weight:1000;
+      letter-spacing:-.02em;
+      color:rgba(11,18,32,.96);
     }
 
-    /* Comparison strip */
+    .priceDesc{
+      margin-top:2px;
+      font-size:13px;
+      opacity:.82;
+      line-height:1.4;
+    }
+
+    .priceAmt{
+      font-weight:1100;
+      letter-spacing:-.02em;
+      font-size:18px;
+      white-space:nowrap;
+      color:rgba(11,18,32,.96);
+    }
+
     .compareRow{
-      margin-top: 12px;
-      border: 1px solid rgba(15,23,42,.12);
-      border-radius: 12px;
+      margin-top:12px;
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:12px;
       overflow:hidden;
       background:#fff;
     }
-    .compareHead, .compareItem{
+
+    .compareHead,
+    .compareItem{
       display:grid;
-      grid-template-columns: 1.3fr .35fr .35fr;
-      gap: 10px;
-      padding: 10px 12px;
+      grid-template-columns:1.3fr .35fr .35fr;
+      gap:10px;
+      padding:10px 12px;
       align-items:center;
     }
+
     .compareHead{
       font-size:12px;
       font-weight:900;
       letter-spacing:.02em;
       text-transform:uppercase;
       opacity:.78;
-      border-bottom: 1px solid rgba(15,23,42,.10);
+      border-bottom:1px solid rgba(15,23,42,.10);
     }
+
     .compareItem{
-      border-top: 1px solid rgba(15,23,42,.08);
-      font-size: 14px;
+      border-top:1px solid rgba(15,23,42,.08);
+      font-size:14px;
     }
-    .compareItem:first-of-type{ border-top:0; }
-    .cmpLeft{ font-weight: 900; opacity: .90; }
+
+    .compareItem:first-of-type{
+      border-top:0;
+    }
+
+    .cmpLeft{
+      font-weight:900;
+      opacity:.90;
+    }
+
     .cmpCell{
       text-align:right;
-      font-weight: 950;
-      color: rgba(11,18,32,.92);
+      font-weight:950;
+      color:rgba(11,18,32,.92);
     }
-    .cmpCell.muted{ opacity:.55; font-weight:900; }
 
-    .ctaStack{ display:grid; gap: 10px; margin-top: 12px; }
-    .ctaStack a{ text-align:center; }
+    .cmpCell.muted{
+      opacity:.55;
+      font-weight:900;
+    }
+
+    .ctaStack{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .ctaStack a{
+      text-align:center;
+    }
 
     .fine{
-      margin-top: 10px;
-      font-size: 12px;
-      opacity: .76;
-      line-height: 1.55;
+      margin-top:10px;
+      font-size:12px;
+      opacity:.76;
+      line-height:1.55;
     }
 
-    /* Right column: tool links (nav rows, not chips) */
     .toolLinks{
-      margin-top: 10px;
-      border: 1px solid rgba(15,23,42,.12);
-      border-radius: 12px;
+      margin-top:10px;
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:12px;
       overflow:hidden;
-      background: #fff;
+      background:#fff;
     }
+
     .toolLinks a{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap: 12px;
-      padding: 11px 12px;
-      border-top: 1px solid rgba(15,23,42,.10);
+      gap:12px;
+      padding:11px 12px;
+      border-top:1px solid rgba(15,23,42,.10);
       text-decoration:none;
-      font-weight: 1000;
-      font-size: 14px;
-      color: rgba(11,18,32,.94);
+      font-weight:1000;
+      font-size:14px;
+      color:rgba(11,18,32,.94);
     }
-    .toolLinks a:first-child{ border-top:0; }
-    .toolLinks a:hover{ background: rgba(11,18,32,.02); }
-    .toolLinks .arrow{ font-weight:1100; opacity:.55; }
+
+    .toolLinks a:first-child{
+      border-top:0;
+    }
+
+    .toolLinks a:hover{
+      background:rgba(11,18,32,.02);
+    }
+
+    .toolLinks .arrow{
+      font-weight:1100;
+      opacity:.55;
+    }
 
     .noteBox{
-      margin-top: 12px;
-      border: 1px solid rgba(15,23,42,.12);
-      border-radius: 12px;
-      background: #fff;
-      padding: 12px;
+      margin-top:12px;
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:12px;
+      background:#fff;
+      padding:12px;
     }
-    .noteTitle{ font-weight: 1000; letter-spacing:-.02em; margin:0 0 6px; }
-    .noteText{ margin:0; opacity:.82; line-height:1.6; }
 
-    /* Calculator (JS-only) */
+    .noteTitle{
+      font-weight:1000;
+      letter-spacing:-.02em;
+      margin:0 0 6px;
+    }
+
+    .noteText{
+      margin:0;
+      opacity:.82;
+      line-height:1.6;
+    }
+
     .calcWrap{
-      margin-top: 12px;
-      border: 1px solid rgba(15,23,42,.12);
-      border-radius: 12px;
+      margin-top:12px;
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:12px;
       overflow:hidden;
       background:#fff;
     }
+
     .calcHead{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      padding: 12px;
-      border-bottom: 1px solid rgba(15,23,42,.10);
-      background: linear-gradient(180deg, rgba(11,18,32,.02), #fff);
+      padding:12px;
+      border-bottom:1px solid rgba(15,23,42,.10);
+      background:linear-gradient(180deg, rgba(11,18,32,.02), #fff);
     }
+
     .calcTitle{
       margin:0;
-      font-weight: 1000;
+      font-weight:1000;
       letter-spacing:-.02em;
-      font-size: 14px;
+      font-size:14px;
     }
-    .calcBody{ padding: 12px; }
+
+    .calcBody{
+      padding:12px;
+    }
+
     .calcRow{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap: 12px;
+      gap:12px;
       flex-wrap:wrap;
     }
+
     .calcRow label{
-      font-weight: 900;
+      font-weight:900;
       opacity:.88;
-      font-size: 13px;
+      font-size:13px;
     }
+
     .calcInput{
       display:flex;
       align-items:center;
       gap:10px;
-      flex: 1 1 320px;
+      flex:1 1 320px;
       justify-content:flex-end;
     }
-    .calcInput input[type="range"]{ width: 220px; }
-    .calcNum{
-      min-width: 44px;
-      text-align:right;
-      font-weight: 1000;
-      letter-spacing:-.02em;
-      font-size: 14px;
+
+    .calcInput input[type="range"]{
+      width:220px;
     }
+
+    .calcNum{
+      min-width:44px;
+      text-align:right;
+      font-weight:1000;
+      letter-spacing:-.02em;
+      font-size:14px;
+    }
+
     .calcOut{
-      margin-top: 10px;
-      border-top: 1px solid rgba(15,23,42,.10);
-      padding-top: 10px;
+      margin-top:10px;
+      border-top:1px solid rgba(15,23,42,.10);
+      padding-top:10px;
       display:grid;
-      gap: 6px;
-      font-size: 13px;
+      gap:6px;
+      font-size:13px;
       opacity:.90;
     }
-    .calcOut strong{ font-weight: 1000; }
-    .calcHint{
-      margin-top: 10px;
-      font-size: 12px;
-      opacity: .76;
-      line-height: 1.55;
+
+    .calcOut strong{
+      font-weight:1000;
     }
 
-    /* Use cases / why pay */
-    .sectionBlock{
-      margin-top: 16px;
-      border: 1px solid rgba(15,23,42,.12);
-      border-radius: 12px;
-      background:#fff;
-      padding: 12px;
+    .calcHint{
+      margin-top:10px;
+      font-size:12px;
+      opacity:.76;
+      line-height:1.55;
     }
+
+    .sectionBlock{
+      margin-top:12px;
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:12px;
+      background:#fff;
+      padding:12px;
+    }
+
     .secTitle{
       margin:0 0 8px;
-      font-weight: 1000;
+      font-weight:1000;
       letter-spacing:-.02em;
-      font-size: 14px;
+      font-size:14px;
     }
+
     .listTight{
       margin:0;
-      padding-left: 18px;
+      padding-left:18px;
       opacity:.86;
       line-height:1.6;
-      font-size: 13px;
+      font-size:13px;
     }
-    .listTight li{ margin: 4px 0; }
 
-    /* FAQ: hard details blocks */
-    .faqWrap{ margin-top: 16px; }
-    .faqList{ display:grid; gap: 10px; margin-top: 12px; }
-    details.faq{
-      border: 1px solid rgba(15,23,42,.12);
-      background: rgba(255,255,255,.98);
-      border-radius: 12px;
-      padding: 10px 12px;
+    .listTight li{
+      margin:4px 0;
     }
+
+    .faqWrap{
+      margin-top:16px;
+    }
+
+    .faqList{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    details.faq{
+      border:1px solid rgba(15,23,42,.12);
+      background:rgba(255,255,255,.98);
+      border-radius:12px;
+      padding:10px 12px;
+    }
+
     details.faq summary{
       cursor:pointer;
-      font-weight: 1000;
-      letter-spacing: -.02em;
+      font-weight:1000;
+      letter-spacing:-.02em;
       list-style:none;
-      color: rgba(11,18,32,.96);
+      color:rgba(11,18,32,.96);
     }
-    details.faq summary::-webkit-details-marker{ display:none; }
 
-    /* Subtle “human” separators */
+    details.faq summary::-webkit-details-marker{
+      display:none;
+    }
+
     .hr{
-      margin: 14px 0 0;
-      border-top: 1px solid rgba(15,23,42,.10);
+      margin:14px 0 0;
+      border-top:1px solid rgba(15,23,42,.10);
     }
   </style>
 </head>
@@ -553,7 +657,6 @@
 
 <header class="nav">
   <div class="container navInner">
-
     <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/logo.png" alt="PDFOperations" class="brandLogo" />
       <span class="brandText">
@@ -571,7 +674,6 @@
       <a href="/sign-pdf">Sign</a>
       <a href="/pricing" aria-current="page">Pricing</a>
     </nav>
-
   </div>
 </header>
 
@@ -580,26 +682,25 @@
     <div class="container heroWide">
 
       <div class="kicker">Pricing</div>
-      <h1 class="heroTitle">Pay once, when it’s ready.</h1>
+      <h1 class="heroTitle">Pay once. Download when it’s ready.</h1>
       <p class="heroLead">
-        PDFOperations is built for quick jobs: upload → process → download.
-        Pricing is per job, not per month. You’ll see the total in Stripe before you pay.
+        PDFOperations is designed for real jobs: upload, process, download, done.
+        There is no subscription and no account requirement. You only pay when your file is ready.
       </p>
 
       <div class="heroCallout">
-        <strong>Upload is free.</strong> You pay only when your download is ready. <strong>No subscriptions.</strong>
+        <strong>Upload is free.</strong> You only pay at checkout, right before download. <strong>No recurring billing.</strong>
       </div>
 
       <div class="heroBar" aria-label="Highlights">
         <div class="heroBarItem">No subscriptions</div>
         <div class="heroBarItem">No account required</div>
         <div class="heroBarItem">Secure Stripe Checkout</div>
-        <div class="heroBarItem">Instant download</div>
+        <div class="heroBarItem">Instant delivery flow</div>
       </div>
 
       <div class="pricingGrid">
 
-        <!-- LEFT: Pricing -->
         <section class="panel" aria-label="Pricing tiers">
           <div class="panelHead">
             <h2 class="panelTitle">One-time pricing</h2>
@@ -612,7 +713,7 @@
               <div class="priceLine isPrimary" role="row">
                 <div role="cell">
                   <div class="priceName">Standard</div>
-                  <div class="priceDesc">Best for single jobs. Up to <strong>10 files</strong> in one run.</div>
+                  <div class="priceDesc">Best for one-off jobs. Up to <strong>10 files</strong> in one run.</div>
                 </div>
                 <div class="priceAmt" role="cell">£2.99</div>
               </div>
@@ -620,7 +721,7 @@
               <div class="priceLine isBest" role="row">
                 <div role="cell">
                   <div class="priceName">Pro</div>
-                  <div class="priceDesc">Best for batches. Up to <strong>50 files</strong> — admin days, multiple submissions, client handoffs.</div>
+                  <div class="priceDesc">Best for batches. Up to <strong>50 files</strong> for admin days, submissions, handoffs and larger jobs.</div>
                   <div class="bestTag" aria-hidden="true"></div>
                 </div>
                 <div class="priceAmt" role="cell">£9.99</div>
@@ -628,18 +729,17 @@
 
               <div class="priceLine" role="row">
                 <div role="cell">
-                  <div class="priceName">Share link (optional)</div>
-                  <div class="priceDesc"><strong>Avoid email limits.</strong> Send one link instead of attachments.</div>
+                  <div class="priceName">Share link add-on</div>
+                  <div class="priceDesc"><strong>Avoid email limits.</strong> Send one link instead of large attachments.</div>
                 </div>
                 <div class="priceAmt" role="cell">+£2.49</div>
               </div>
             </div>
 
-            <!-- MONEY-MODE: calculator that pushes Pro -->
             <div class="calcWrap" aria-label="Tier calculator">
               <div class="calcHead">
                 <h3 class="calcTitle">Quick calculator</h3>
-                <div class="panelMeta" style="margin:0;">Pick your file count</div>
+                <div class="panelMeta" style="margin:0;">Choose file count</div>
               </div>
               <div class="calcBody">
                 <div class="calcRow">
@@ -657,8 +757,7 @@
                 </div>
 
                 <div class="calcHint">
-                  The tool selects the tier automatically. Stripe shows the final total before you confirm payment.
-                  (No recurring billing.)
+                  PDFOperations selects the tier automatically based on file count. Stripe shows the final total before payment.
                 </div>
               </div>
             </div>
@@ -669,21 +768,25 @@
                 <div style="text-align:right;">Standard</div>
                 <div style="text-align:right;">Pro</div>
               </div>
+
               <div class="compareItem">
-                <div class="cmpLeft">All tools (Compress, Merge, Split, Rotate, Convert)</div>
+                <div class="cmpLeft">Access to all current tools</div>
                 <div class="cmpCell">Yes</div>
                 <div class="cmpCell">Yes</div>
               </div>
+
               <div class="compareItem">
                 <div class="cmpLeft">File limit per job</div>
                 <div class="cmpCell">10</div>
                 <div class="cmpCell">50</div>
               </div>
+
               <div class="compareItem">
                 <div class="cmpLeft">Share link add-on</div>
                 <div class="cmpCell muted">Optional</div>
                 <div class="cmpCell muted">Optional</div>
               </div>
+
               <div class="compareItem">
                 <div class="cmpLeft">Subscriptions</div>
                 <div class="cmpCell">Never</div>
@@ -697,58 +800,56 @@
             </div>
 
             <div class="fine">
-              Practical limits: max <strong>50 files</strong> per job • max <strong>25MB</strong> per file.
-              Output depends on the tool (single PDF or ZIP bundle). Taxes are shown by Stripe if applicable.
+              Limits: max <strong>50 files</strong> per job • max <strong>25MB</strong> per file.
+              Output depends on the tool and may be a PDF or ZIP bundle. Any taxes are shown by Stripe if applicable.
             </div>
           </div>
         </section>
 
-        <!-- RIGHT: How it works + links + WHY PAY -->
         <aside class="panel" aria-label="How billing works">
           <div class="panelHead">
             <h2 class="panelTitle">How billing works</h2>
-            <div class="panelMeta">Simple, predictable</div>
+            <div class="panelMeta">Simple and predictable</div>
           </div>
 
           <div class="panelPad">
             <p style="margin:0; opacity:.84; line-height:1.65;">
-              Pricing is based on file count. Upload and process first, then confirm the total at checkout and download instantly.
+              Upload and process first. Confirm the total in Stripe. Download immediately once payment is complete.
             </p>
 
             <div class="noteBox">
-              <p class="noteTitle">What counts as a “file”?</p>
+              <p class="noteTitle">What counts as a file?</p>
               <p class="noteText">
-                One file is one item you upload (one PDF or one image). Some tools output one PDF; others output a ZIP when there are multiple results.
+                One file means one uploaded item, such as one PDF or one image. Some tools return a single PDF and others return a ZIP when multiple outputs are generated.
               </p>
             </div>
 
             <div class="noteBox">
               <p class="noteTitle">When do I pay?</p>
               <p class="noteText">
-                Only when your download is ready and you choose to proceed. Stripe shows the full total before you confirm payment.
+                Only when your download is ready and you choose to continue through checkout. You see the full total before confirming payment.
               </p>
             </div>
 
-            <!-- MONEY-MODE: “Why pay” positioning (kills the free-tool comparison) -->
             <div class="sectionBlock" aria-label="Why people pay">
               <p class="secTitle">Why people pay for PDFOperations</p>
               <ul class="listTight">
-                <li><strong>No subscriptions</strong> — pay once, done.</li>
-                <li><strong>No accounts</strong> — zero setup friction.</li>
-                <li><strong>Clean workflow</strong> — built for urgent “I need this uploaded now” moments.</li>
-                <li><strong>Real constraints</strong> — email limits, job portals, university forms, client uploads.</li>
-                <li><strong>No ad-maze</strong> — professional UX, not a pop-up factory.</li>
+                <li><strong>No subscriptions</strong> — pay once and move on.</li>
+                <li><strong>No account setup</strong> — no friction when you’re in a rush.</li>
+                <li><strong>Built for real constraints</strong> — upload limits, email caps, applications and submissions.</li>
+                <li><strong>Clear workflow</strong> — upload, process, pay, download.</li>
+                <li><strong>Professional UX</strong> — not an ad maze or bloated dashboard.</li>
               </ul>
             </div>
 
             <div class="sectionBlock" aria-label="Typical use cases">
               <p class="secTitle">Typical use cases</p>
               <ul class="listTight">
-                <li>Compress a PDF to fit an upload limit (2MB / 5MB / 10MB).</li>
-                <li>Merge multiple PDFs into one document for submission.</li>
-                <li>Split a PDF into pages for portals that require separate files.</li>
-                <li>Rotate scanned documents so they print correctly.</li>
-                <li>Convert PDFs for quick sharing and previews.</li>
+                <li>Compress a PDF to fit 2MB, 5MB or 10MB upload limits.</li>
+                <li>Merge supporting files into one document for submission.</li>
+                <li>Split a PDF into separate upload-ready files.</li>
+                <li>Rotate scanned documents so they read correctly.</li>
+                <li>Convert PDFs for quick previews and sharing.</li>
               </ul>
             </div>
 
@@ -760,7 +861,7 @@
               <a href="/merge-pdf"><span>Merge PDF</span><span class="arrow">→</span></a>
               <a href="/split-pdf"><span>Split PDF</span><span class="arrow">→</span></a>
               <a href="/rotate-pdf"><span>Rotate PDF</span><span class="arrow">→</span></a>
-              <a href="/convert"><span>Convert</span><span class="arrow">→</span></a>
+              <a href="/convert"><span>Convert PDF</span><span class="arrow">→</span></a>
             </div>
 
             <div class="fine">
@@ -772,7 +873,6 @@
 
       </div>
 
-      <!-- FAQ -->
       <section class="faqWrap" aria-label="Pricing FAQs">
         <div class="panel">
           <div class="panelHead">
@@ -782,10 +882,11 @@
 
           <div class="panelPad">
             <div class="faqList" id="faq">
+
               <details class="faq" open>
                 <summary>Do you charge a subscription?</summary>
                 <div style="margin-top:8px; opacity:.86; line-height:1.65;">
-                  No. It’s pay-once per job. You only pay when your output is ready to download.
+                  No. PDFOperations is pay-once per job. You only pay when the output is ready.
                 </div>
               </details>
 
@@ -794,41 +895,41 @@
                 <div style="margin-top:8px; opacity:.86; line-height:1.65;">
                   <strong>Standard</strong> is £2.99 for up to <strong>10 files</strong>.
                   <strong>Pro</strong> is £9.99 for up to <strong>50 files</strong>.
-                  The tool selects the tier automatically and Stripe shows the total before you confirm payment.
+                  The correct tier is selected automatically before Stripe Checkout.
                 </div>
               </details>
 
               <details class="faq">
-                <summary>What is the Share link add-on?</summary>
+                <summary>What is the share link add-on?</summary>
                 <div style="margin-top:8px; opacity:.86; line-height:1.65;">
-                  Share link adds <strong>+£2.49</strong> and creates a download link — ideal when email attachment limits get in the way.
+                  Share link adds <strong>+£2.49</strong> and creates a download link you can send instead of a large attachment.
                 </div>
               </details>
 
               <details class="faq">
                 <summary>What do I download?</summary>
                 <div style="margin-top:8px; opacity:.86; line-height:1.65;">
-                  It depends on the tool:
-                  <strong>Compress / Merge / Rotate</strong> produce a single updated PDF.
-                  <strong>Split</strong> produces a ZIP of per-page PDFs.
-                  <strong>Convert</strong> outputs one file per input (bundled into a ZIP when needed).
+                  It depends on the tool.
+                  <strong>Compress, Merge and Rotate</strong> usually produce a single PDF.
+                  <strong>Split</strong> produces a ZIP of individual PDFs.
+                  <strong>Convert</strong> may produce one or more output files, bundled when needed.
                 </div>
               </details>
 
               <details class="faq">
                 <summary>Do you store my files?</summary>
                 <div style="margin-top:8px; opacity:.86; line-height:1.65;">
-                  Files are stored temporarily to process your request and deliver the download.
-                  See <a href="/privacy">Privacy</a> for retention and handling details.
+                  Files are stored temporarily to process your job and deliver your output. See <a href="/privacy">Privacy</a> for retention details.
                 </div>
               </details>
 
               <details class="faq">
-                <summary>What happens next after I pay?</summary>
+                <summary>What happens after I pay?</summary>
                 <div style="margin-top:8px; opacity:.86; line-height:1.65;">
-                  After checkout you can download instantly. (People convert better when the next step is explicit.) :contentReference[oaicite:1]{index=1}
+                  After payment, your success page confirms the job and provides your download immediately once ready.
                 </div>
               </details>
+
             </div>
           </div>
         </div>
@@ -855,7 +956,6 @@
 
 <script>
 (() => {
-  // ===== Calculator (JS-only, informational) =====
   const files = document.getElementById("calcFiles");
   const filesNum = document.getElementById("calcFilesNum");
   const tierEl = document.getElementById("calcTier");
@@ -865,10 +965,11 @@
 
   if (!files || !filesNum || !tierEl || !totalEl || !perFileEl || !nudgeEl) return;
 
-  const fmt = (n) => "£" + n.toFixed(2);
   const STANDARD_MAX = 10;
   const PRICE_STANDARD = 2.99;
   const PRICE_PRO = 9.99;
+
+  const fmt = (n) => "£" + n.toFixed(2);
 
   function render(){
     const n = Math.max(1, Math.min(50, parseInt(files.value || "1", 10)));
@@ -876,19 +977,18 @@
 
     const isPro = n > STANDARD_MAX;
     const price = isPro ? PRICE_PRO : PRICE_STANDARD;
+    const perFile = price / n;
 
     tierEl.textContent = isPro ? "Pro" : "Standard";
     totalEl.textContent = fmt(price);
-
-    const perFile = price / n;
     perFileEl.textContent = fmt(perFile);
 
-    if (isPro){
-      nudgeEl.textContent = "Pro is selected automatically for batches (11–50 files).";
+    if (isPro) {
+      nudgeEl.textContent = "Pro is selected automatically for larger batches between 11 and 50 files.";
     } else if (n >= 8) {
-      nudgeEl.textContent = "If you’re doing more than 10 files, Pro becomes best value fast.";
+      nudgeEl.textContent = "Getting close to 10 files. If you go over, the tool automatically switches to Pro.";
     } else {
-      nudgeEl.textContent = "Standard is ideal for one-off jobs and portal submissions.";
+      nudgeEl.textContent = "Standard is ideal for one-off uploads, applications and small document jobs.";
     }
   }
 
