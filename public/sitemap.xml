@@ -38,7 +38,7 @@
     <priority>0.9</priority>
   </url>
 
-  <!-- SECONDARY TOOLS (ONLY IF LIVE + WORKING) -->
+  <!-- SECONDARY TOOLS -->
   <url>
     <loc>https://pdfoperations.com/edit-pdf</loc>
     <lastmod>2026-02-25</lastmod>
@@ -68,6 +68,14 @@
     <priority>0.6</priority>
   </url>
 
+  <!-- INTENT: SIZE -->
+  <url>
+    <loc>https://pdfoperations.com/compress-pdf-under-1mb</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <url>
     <loc>https://pdfoperations.com/compress-pdf-under-2mb</loc>
     <lastmod>2026-03-22</lastmod>
@@ -89,6 +97,14 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- INTENT: USE CASE -->
+  <url>
+    <loc>https://pdfoperations.com/pdf-too-large-to-upload</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <url>
     <loc>https://pdfoperations.com/compress-pdf-for-job-application</loc>
     <lastmod>2026-03-11</lastmod>
@@ -97,14 +113,14 @@
   </url>
 
   <url>
-    <loc>https://pdfoperations.com/reduce-pdf-size-for-email</loc>
-    <lastmod>2026-02-26</lastmod>
+    <loc>https://pdfoperations.com/compress-pdf-for-university-upload</loc>
+    <lastmod>2026-03-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://pdfoperations.com/pdf-too-large-to-upload</loc>
+    <loc>https://pdfoperations.com/compress-pdf-for-government-portal</loc>
     <lastmod>2026-03-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -118,13 +134,6 @@
   </url>
 
   <url>
-    <loc>https://pdfoperations.com/compress-pdf-for-university-upload</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://pdfoperations.com/compress-pdf-for-visa-application</loc>
     <lastmod>2026-03-22</lastmod>
     <changefreq>weekly</changefreq>
@@ -132,12 +141,13 @@
   </url>
 
   <url>
-    <loc>https://pdfoperations.com/compress-pdf-for-government-portal</loc>
-    <lastmod>2026-03-22</lastmod>
+    <loc>https://pdfoperations.com/reduce-pdf-size-for-email</loc>
+    <lastmod>2026-02-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
+  <!-- LEGAL -->
   <url>
     <loc>https://pdfoperations.com/privacy</loc>
     <lastmod>2026-02-25</lastmod>
