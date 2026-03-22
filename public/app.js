@@ -594,7 +594,7 @@
       uploadBtn.textContent = uploading ? "Uploading…" : uploadedMeta.length ? "Re-upload" : "Upload files";
     }
 
-    continueBtn.textContent = "Continue →";
+    continueBtn.textContent = "Review & Continue →";
 
     setUploaderEnabled(!(uploading || creatingJob));
 
@@ -1989,8 +1989,6 @@
   });
 
   continueBtn.addEventListener("click", async () => {
-
-    // 🔥 Google Analytics event
     if (typeof gtag === "function") {
       gtag("event", "continue_click", {
         page: window.location.pathname
@@ -2009,6 +2007,16 @@
       await setBackendMode();
     } catch {}
 
+    const ok = window.confirm(
+      "Your file is uploaded and ready.\n\n" +
+      "• No signup required\n" +
+      "• Secure checkout\n" +
+      "• Instant download after payment\n\n" +
+      "Continue to checkout?"
+    );
+
+    if (!ok) return;
+
     const opened = openPriceModal();
     if (!opened) {
       await startCheckout();
@@ -2016,7 +2024,7 @@
   });
 
   // ====== INIT ======
-  continueBtn.textContent = "Continue →";
+  continueBtn.textContent = "Review & Continue →";
   continueBtn.style.display = "";
 
   pdfCompressLevelValue = normalizePdfLevel(pdfCompressLevel?.value || safeLocalGet(LS.lastPdfLevel) || "balanced");
