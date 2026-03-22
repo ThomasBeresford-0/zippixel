@@ -1,4 +1,4 @@
-<!-- public/compress-pdf-under-5mb.html — PDFOperations (v2 - 5MB TARGET MODE / MAX FORCED; DROP-IN)
+<!-- public/compress-pdf-for-job-application.html — PDFOperations (v2 - 5MB TARGET MODE / MAX FORCED; DROP-IN)
      ✅ Keeps SAME app.js v17.7 IDs/hooks (NO break)
      ✅ Keeps SAME PDF.js .mjs loader pattern
      ✅ Same upload → continue flow
@@ -23,7 +23,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/compress-pdf-for-job-application" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
-  <meta property="og:image:alt" content="PDFOperations — Compress PDF under 5MB" />
+  <meta property="og:image:alt" content="PDFOperations — Compress PDF for Job Applications" />
 
   <!-- Google Analytics (PDFOperations) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQ3QKV7KHG"></script>
@@ -35,7 +35,7 @@
   </script>
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Compress PDF to Under 5MB — PDFOperations" />
+  <meta name="twitter:title" content="Compress PDF for Job Applications — PDFOperations" />
   <meta name="twitter:description" content="Fix “file too large” uploads fast. Maximum compression applied automatically." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
@@ -411,30 +411,30 @@
     "@context":"https://schema.org",
     "@type":"FAQPage",
     "mainEntity":[
-      {
-        "@type":"Question",
-        "name":"Does this guarantee my PDF will be under 5MB?",
-        "acceptedAnswer":{
-          "@type":"Answer",
-          "text":"We apply maximum compression automatically on this page to target 5MB limits. Most text-heavy PDFs compress well. Some scanned or image-heavy PDFs may not reach 5MB without reducing readability."
-        }
-      },
-      {
-        "@type":"Question",
-        "name":"How do I compress a PDF to under 5MB?",
-        "acceptedAnswer":{
-          "@type":"Answer",
-          "text":"Select or drop your PDF, click Upload, then Continue to download the compressed file. If you still exceed 5MB, export your PDF at a lower image resolution (often 150–200 DPI)."
-        }
-      },
-      {
-        "@type":"Question",
-        "name":"Why do portals require under 5MB?",
-        "acceptedAnswer":{
-          "@type":"Answer",
-          "text":"Many portals limit uploads to reduce bandwidth and storage. Under 5MB is a common cap for forms, applications and submissions."
-        }
+    {
+      "@type":"Question",
+      "name":"Can I compress a PDF for a job application?",
+      "acceptedAnswer":{
+        "@type":"Answer",
+        "text":"Yes. This page is designed for CVs, cover letters and supporting documents that are too large for job application portals. Maximum compression is applied automatically."
       }
+    },
+    {
+      "@type":"Question",
+      "name":"How do I compress a CV or PDF before applying for a job?",
+      "acceptedAnswer":{
+        "@type":"Answer",
+        "text":"Select or drop your PDF, click Upload, then Continue to download the compressed file. You can then upload the smaller PDF to the job application portal."
+      }
+    },
+    {
+      "@type":"Question",
+      "name":"Why is my CV PDF too large to upload?",
+      "acceptedAnswer":{
+        "@type":"Answer",
+        "text":"Many job application portals have strict file size limits, often between 2MB and 5MB. Compressing your PDF helps you meet those upload requirements."
+      }
+    }
     ]
   }
   </script>
@@ -524,7 +524,7 @@
             <div class="status" id="status">Ready</div>
             <div class="spinner" id="spinner"></div>
           </div>
-          <div class="statusHint" id="statusHint">Drop a PDF to begin. We’ll target <strong>under 5MB</strong>.</div>
+        <div class="statusHint" id="statusHint">Drop your CV or application PDF to begin. Maximum compression is applied automatically.</div>
         </div>
 
         <!-- Hidden mode controls -->
@@ -558,7 +558,7 @@
         <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
           <div class="dzCenter">
             <div class="dzTitle" id="dzTitle">Drop a PDF here</div>
-            <div class="dzSub" id="dzSub">PDF only • 1 file • target under 5MB</div>
+            <div class="dzSub" id="dzSub">PDF only • 1 file • ideal for CVs and application documents</div>
 
             <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
             <input id="files" type="file" accept="application/pdf" />
@@ -584,7 +584,7 @@
               <div class="thumbName" id="thumbName">PDF</div>
               <div class="thumbClose" id="thumbClose" aria-label="Remove">×</div>
               <div class="thumbHint" id="thumbHint">
-                <strong id="sizeLine">Target: under 5MB</strong>
+              <strong id="sizeLine">Optimised for job application uploads</strong>
                 <span id="sizeSub">Upload to continue</span>
               </div>
             </div>
@@ -633,12 +633,12 @@
   <section class="plainSection" id="about">
     <div class="container heroWide">
 
-      <div class="plainKicker">Upload Fix</div>
-      <h2 class="plainH2">Reduce a PDF to under 5MB</h2>
-      <p class="plainLead" style="margin-top:14px;">
-        If an upload form says “file too large”, “max 5MB”, or refuses your PDF, this page is built for that exact problem.
-        We apply maximum compression automatically to target strict 5MB limits.
-      </p>
+    <div class="plainKicker">Job application upload fix</div>
+    <h2 class="plainH2">Reduce CV and application PDF file size</h2>
+    <p class="plainLead" style="margin-top:14px;">
+      If a job application portal says your CV or supporting PDF is too large to upload, this page is built for that exact problem.
+      Maximum compression is applied automatically to help you submit your documents successfully.
+    </p>
 
       <div class="plainDivider"></div>
 
@@ -683,7 +683,7 @@
         </div>
 
           <div class="plainNote">
-            Tip: For strict portals, export “print” PDFs at 150–200 DPI instead of 300+ DPI.
+          Tip: If your CV is still too large after compression, export it from Word or Canva using lower image quality before uploading again.
           </div>
         </div>
       </div>
@@ -768,7 +768,7 @@
     if (real) real.click();
     try{ filesInput.value = ""; }catch(_){}
     nameEl.textContent = "PDF";
-    hintLine.textContent = "Target: under 5MB";
+    hintLine.textContent = "Optimised for job application uploads";
     hintSub.textContent = "Upload to continue";
     setRendered(false);
     paintBlank();
@@ -868,13 +868,15 @@
     }
 
     const mb = file.size / (1024*1024);
-    hintLine.textContent = `Original: ${fmtMB(file.size)} • Target: under 5MB`;
-    if (mb <= 5) {
-      hintSub.textContent = "Already under 5MB — you may not need compression.";
+    hintLine.textContent = `Original: ${fmtMB(file.size)} • Optimised for job application uploads`;
+    if (mb <= 2) {
+      hintSub.textContent = "Already small enough for many job portals.";
+    } else if (mb <= 5) {
+      hintSub.textContent = "Within common upload limits, but you can still compress further if needed.";
     } else if (mb <= 12) {
-      hintSub.textContent = "Good chance to hit 5MB. Upload to continue (max compression).";
+      hintSub.textContent = "Good candidate for compression. Upload to continue.";
     } else {
-      hintSub.textContent = "Large/scanned PDFs may not reach 5MB without quality loss. Upload to try.";
+      hintSub.textContent = "Large or scanned PDFs may need stronger reduction. Upload to try.";
     }
 
     await renderPdfThumb(file);
