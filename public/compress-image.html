@@ -1,9 +1,8 @@
-<!-- public/convert.html — PDFOperations (v6 - SPLIT-PDF BOTTOM BLOCK MATCH + MAX SEO; NO FUNCTION CHANGES)
-     ✅ NO functional changes / all app.js IDs preserved
-     ✅ style.css?v=36 + app.js?v=17.7
-     ✅ Tool-first UX unchanged
-     ✅ Bottom section now uses the EXACT same “plainSection / featureGrid / faqListPlain / relatedLinks” structure + styling as split-pdf
-     ✅ Schema: Organization + WebPage + SoftwareApplication + Breadcrumb + FAQ
+<!-- public/compress-image.html — PDFOperations (v1 - IMAGE COMPRESSOR PAGE; TOOL-FIRST; NO MOCK DATA)
+     ✅ Matches style.css?v=36 + app.js?v=17.7 structure
+     ✅ Uses existing upload / progress / continue flow IDs
+     ✅ Customer-facing copy only
+     ✅ Built for JPG / PNG / WebP compression
 -->
 <!doctype html>
 <html lang="en">
@@ -11,9 +10,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Convert Files Online — PDF, JPG, PNG & WebP | PDFOperations</title>
-  <meta name="description" content="Convert PDF, JPG, PNG and WebP files online. Upload files, choose a format, and download instantly. Secure processing. No signup required." />
-  <link rel="canonical" href="https://pdfoperations.com/convert" />
+  <title>Compress Image Online — Reduce JPG, PNG & WebP File Size | PDFOperations</title>
+  <meta name="description" content="Compress images online to reduce JPG, PNG and WebP file size for upload limits, email attachments, forms and websites. No signup required." />
+  <link rel="canonical" href="https://pdfoperations.com/compress-image" />
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
@@ -29,17 +28,17 @@
   </script>
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Convert Files Online — PDF, JPG, PNG & WebP" />
-  <meta property="og:description" content="Upload files, choose a format, and download instantly. Multiple files supported." />
+  <meta property="og:title" content="Compress Image Online — Reduce JPG, PNG & WebP File Size | PDFOperations" />
+  <meta property="og:description" content="Reduce image file size for uploads, email attachments, forms and websites. Compress JPG, PNG and WebP online." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://pdfoperations.com/convert" />
+  <meta property="og:url" content="https://pdfoperations.com/compress-image" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
-  <meta property="og:image:alt" content="PDFOperations — Convert Files" />
+  <meta property="og:image:alt" content="PDFOperations — Compress Image" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Convert Files Online — PDF, JPG, PNG & WebP" />
-  <meta name="twitter:description" content="Upload files, choose a format, and download instantly. Multiple files supported." />
+  <meta name="twitter:title" content="Compress Image Online — Reduce JPG, PNG & WebP File Size | PDFOperations" />
+  <meta name="twitter:description" content="Reduce image file size for uploads, email attachments, forms and websites. Compress JPG, PNG and WebP online." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
   <!-- Favicon -->
@@ -55,11 +54,7 @@
 
   <link rel="stylesheet" href="/style.css?v=36" />
 
-  <!-- =========================
-       SCHEMA (SEO)
-  ========================== -->
-
-  <!-- Organization -->
+  <!-- Schema -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -70,14 +65,13 @@
   }
   </script>
 
-  <!-- WebPage -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
     "@type":"WebPage",
-    "name":"Convert Files Online — PDFOperations",
-    "url":"https://pdfoperations.com/convert",
-    "description":"Convert PDF, JPG, PNG and WebP files online. Upload files, choose a format, and download instantly.",
+    "name":"Compress Image Online — PDFOperations",
+    "url":"https://pdfoperations.com/compress-image",
+    "description":"Compress JPG, PNG and WebP images online to reduce file size for upload limits, email attachments, forms and websites.",
     "isPartOf":{
       "@type":"WebSite",
       "name":"PDFOperations",
@@ -86,40 +80,38 @@
   }
   </script>
 
-  <!-- SoftwareApplication -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
     "@type":"SoftwareApplication",
-    "name":"PDFOperations - Convert Files",
-    "applicationCategory": "BusinessApplication",
-    "applicationSubCategory":"File Conversion",
+    "name":"PDFOperations - Compress Image",
+    "applicationCategory":"BusinessApplication",
+    "applicationSubCategory":"Image Compression",
     "operatingSystem":"Web",
     "browserRequirements":"Requires JavaScript. Works in modern browsers.",
-    "url":"https://pdfoperations.com/convert",
-    "description":"Online file conversion tool to convert between PDF, JPG, PNG and WebP formats.",
+    "url":"https://pdfoperations.com/compress-image",
+    "description":"Online image compression for reducing JPG, PNG and WebP file size.",
     "featureList":[
-      "Convert PDF to JPG, PNG, WebP",
-      "Convert JPG/PNG/WebP to PDF",
-      "Batch convert multiple files",
-      "ZIP download when multiple outputs"
+      "Compress JPG images",
+      "Compress PNG images",
+      "Compress WebP images",
+      "Reduce image size for uploads",
+      "Reduce image size for email"
     ]
   }
   </script>
 
-  <!-- Breadcrumb -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
     "@type":"BreadcrumbList",
     "itemListElement":[
       {"@type":"ListItem","position":1,"name":"PDFOperations","item":"https://pdfoperations.com/"},
-      {"@type":"ListItem","position":2,"name":"Convert","item":"https://pdfoperations.com/convert"}
+      {"@type":"ListItem","position":2,"name":"Compress Image","item":"https://pdfoperations.com/compress-image"}
     ]
   }
   </script>
 
-  <!-- FAQ -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -127,34 +119,34 @@
     "mainEntity":[
       {
         "@type":"Question",
-        "name":"Can I convert multiple files at once?",
+        "name":"How do I compress an image online?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"Yes. Add multiple files and they’ll be converted in one session. Multiple outputs are bundled into a ZIP."
+          "text":"Upload your JPG, PNG or WebP image, prepare it, then continue to download a smaller version."
         }
       },
       {
         "@type":"Question",
-        "name":"What formats can I convert?",
+        "name":"Can I reduce image size for email attachments?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"You can convert between PDF, JPG, PNG and WebP."
+          "text":"Yes. Compressing an image can make it easier to send through email and pass attachment size limits."
         }
       },
       {
         "@type":"Question",
-        "name":"Do I need an account to convert files?",
+        "name":"Can I compress images for website uploads?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"No signup required. Upload, continue, then download."
+          "text":"Yes. Smaller image files are easier to upload to websites, forms and content systems."
         }
       },
       {
         "@type":"Question",
-        "name":"What will I download after converting?",
+        "name":"Do I need an account?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"You’ll download the converted file(s). If your job produces multiple outputs, you’ll receive a ZIP bundle."
+          "text":"No signup is required."
         }
       }
     ]
@@ -162,15 +154,12 @@
   </script>
 
   <style>
-    /* Keep brand logo stable across pages */
     .brandLogo{ height:34px; width:auto; display:block; }
 
-    /* Protect [hidden] from flashing */
     #progressWrap[hidden],
     #fileMeta[hidden]{ display:none !important; }
     [hidden]{ display:none !important; }
 
-    /* ---- No “bubble” look: trust clean inline ---- */
     .proKicker{
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
       font-size:12px;
@@ -190,6 +179,7 @@
       color:rgba(11,18,32,.72);
       font-size:13px;
     }
+
     .trustPill{
       padding:0 !important;
       border:0 !important;
@@ -205,40 +195,79 @@
     .trustPill::before{ content:"•"; opacity:.55; }
     .trustBar .trustPill:first-child::before{ content:""; }
 
-    /* Tool layout: tighten + align */
-    .toolHeadMinimal .toolSub{ max-width: 66ch; }
+    .toolHeadMinimal .toolSub{ max-width:66ch; }
 
-    .convertRowFull{
-      margin-top:12px;
-      display:flex;
-      flex-wrap:wrap;
-      align-items:flex-end;
+    .useGrid{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
       gap:12px;
     }
-    .convertGroup{ display:flex; flex-direction:column; gap:6px; min-width:220px; }
-    .convertLabel{ font-size:12px; font-weight:800; opacity:.74; letter-spacing:-.01em; }
-    .convertArrow{ font-weight:950; opacity:.55; padding:0 6px 8px; }
-    .convertHint{
-      flex:1;
-      min-width:240px;
-      padding-bottom:10px;
-      font-size:13px;
-      opacity:.75;
-      line-height:1.35;
+
+    .useCard{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,250,252,.95));
+      padding:14px;
     }
 
-    /* Dropzone polish */
+    .useCard h3{
+      margin:0 0 8px;
+      font-size:15px;
+      font-weight:900;
+      letter-spacing:-.02em;
+      color:rgba(11,18,32,.96);
+    }
+
+    .useCard p{
+      margin:0;
+      font-size:13px;
+      line-height:1.55;
+      color:rgba(11,18,32,.74);
+    }
+
+    @media (max-width: 980px){
+      .useGrid{ grid-template-columns:1fr; }
+    }
+
     .dropzoneMega{ margin-top:14px; }
     .dzTitle{ font-weight:950; letter-spacing:-.02em; }
     .dzSub{ opacity:.78; }
     .dzFine{ opacity:.74; }
 
-    /* Ensure convert selects feel consistent even if global CSS is opinionated */
-    #convertFrom, #convertTarget{ width:100%; max-width:100%; }
+    #files{ display:none; }
 
-    /* =========================
-       BOTTOM SEO SECTION — EXACT MATCH TO split-pdf “plainSection” LOOK
-    ========================== */
+    .allowedTypes{
+      margin-top:12px;
+      font-size:12px;
+      opacity:.70;
+      text-align:center;
+    }
+
+    .actionRowWide{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .actionRowWide .btnSoft,
+    .actionRowWide .btnPrimary{
+      min-width:220px;
+    }
+
+    @media (max-width: 640px){
+      .actionRowWide{
+        flex-direction:column;
+      }
+      .actionRowWide .btnSoft,
+      .actionRowWide .btnPrimary{
+        width:100%;
+        min-width:unset;
+      }
+    }
+
     .plainSection{ padding:56px 0 38px; }
     .plainKicker{
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -260,7 +289,7 @@
       margin:0;
       font-size:16px;
       line-height:1.65;
-      max-width: 78ch;
+      max-width:78ch;
       opacity:.78;
     }
 
@@ -296,7 +325,7 @@
     .faqItemPlain{ padding-top:16px; border-top:1px solid rgba(15,23,42,.10); }
     .faqItemPlain:first-child{ border-top:0; padding-top:0; }
     .faqQ{ margin:0 0 8px; font-weight:950; letter-spacing:-.01em; font-size:16px; }
-    .faqA{ margin:0; opacity:.78; line-height:1.65; font-size:15px; max-width: 68ch; }
+    .faqA{ margin:0; opacity:.78; line-height:1.65; font-size:15px; max-width:68ch; }
 
     .relatedLinks{
       margin-top:12px;
@@ -318,27 +347,24 @@
       font-size:13px;
       opacity:.70;
       line-height:1.55;
-      max-width: 80ch;
+      max-width:80ch;
     }
 
-    /* Minimal inline SVG styling (match split) */
     .icoStroke{ stroke: rgba(11,18,32,.92); }
-    .icoFill{ fill: rgba(11,18,32,.92); }
   </style>
 </head>
 
-<body class="premium" data-tool="convert">
+<body class="premium" data-tool="image_compress">
 <a href="#tool" class="srOnly">Skip to the tool</a>
 
 <header class="nav">
   <div class="container navInner">
-
     <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/logo.png" alt="PDFOperations" class="brandLogoFull" />
     </a>
 
     <nav class="navLinks" aria-label="Primary tools">
-      <a href="/" data-nav="compress">Compress</a>
+      <a href="/" data-nav="compress">Compress PDF</a>
       <a href="/compress-image" data-nav="compress-image" aria-current="page">Compress Image</a>
       <a href="/merge-pdf" data-nav="merge">Merge</a>
       <a href="/split-pdf" data-nav="split">Split</a>
@@ -348,7 +374,6 @@
       <a href="/edit-pdf" data-nav="edit">Edit</a>
       <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
     </nav>
-
   </div>
 </header>
 
@@ -360,18 +385,33 @@
     <div id="tool" class="tool toolPremium toolMega">
 
       <div class="toolHead toolHeadMinimal">
-        <div class="proKicker">PDF Tool</div>
-        <h1 class="toolTitle">Convert files</h1>
+        <div class="proKicker">Image compression</div>
+        <h1 class="toolTitle">Reduce image size instantly</h1>
         <p class="toolSub">
-          Convert between <strong>PDF, JPG, PNG and WebP</strong>.
-          Upload your files, choose a format, and download the result.
+          Make your image smaller for uploads, email attachments, online forms and websites.
+          Compress <strong>JPG, PNG and WebP</strong> files without the usual hassle.
         </p>
 
         <div class="trustBar" aria-label="Trust indicators">
           <div class="trustPill">No signup</div>
-          <div class="trustPill">Secure processing</div>
-          <div class="trustPill">Multiple files</div>
-          <div class="trustPill">ZIP when needed</div>
+          <div class="trustPill">Fast workflow</div>
+          <div class="trustPill">Built for upload limits</div>
+          <div class="trustPill">JPG, PNG, WebP</div>
+        </div>
+
+        <div class="useGrid" aria-label="Common uses">
+          <div class="useCard">
+            <h3>For uploads</h3>
+            <p>Reduce image file size for forms, portals, job applications and website upload limits.</p>
+          </div>
+          <div class="useCard">
+            <h3>For email</h3>
+            <p>Make attachments smaller so they are easier to send through Gmail, Outlook and work email.</p>
+          </div>
+          <div class="useCard">
+            <h3>For websites</h3>
+            <p>Prepare lighter images for pages, product listings, blog posts and content systems.</p>
+          </div>
         </div>
       </div>
 
@@ -380,26 +420,30 @@
           <div class="status" id="status">Ready</div>
           <div class="spinner" id="spinner"></div>
         </div>
-        <div class="statusHint" id="statusHint">Choose a target format and add your files.</div>
+        <div class="statusHint" id="statusHint">Choose your images to begin.</div>
       </div>
 
-      <!-- REQUIRED MODE INPUTS (app.js compatibility) -->
+      <!-- REQUIRED MODE INPUTS -->
       <fieldset class="modeRow" style="display:none;">
         <input type="radio" name="mode" id="modeCompress">
         <input type="radio" name="mode" id="modeCompressPdf">
-        <input type="radio" name="mode" id="modeConvert" checked>
+        <input type="radio" name="mode" id="modeConvert">
         <input type="radio" name="mode" id="modeMergePdf">
         <input type="radio" name="mode" id="modeSplitPdf">
         <input type="radio" name="mode" id="modeRotatePdf">
       </fieldset>
 
-      <!-- Hidden controls expected by app.js in other flows -->
+      <!-- Hidden controls expected by app.js -->
       <div id="pdfCompressRow" style="display:none;">
         <select id="pdfCompressLevel">
           <option value="balanced" selected>Balanced</option>
           <option value="light">Light</option>
           <option value="max">Maximum</option>
         </select>
+      </div>
+      <div id="convertRow" style="display:none;">
+        <select id="convertFrom"><option value="auto" selected>Auto detect</option></select>
+        <select id="convertTarget"><option value="jpg" selected>JPG</option></select>
       </div>
       <div style="display:none;">
         <select id="rotateDegrees">
@@ -409,51 +453,19 @@
         </select>
       </div>
 
-      <!-- CONVERT CONTROLS (IDs preserved) -->
-      <div class="convertRow convertRowFull" aria-label="Conversion options">
-
-        <div class="convertGroup">
-          <div class="convertLabel">From</div>
-          <select id="convertFrom">
-            <option value="auto" selected>Auto detect</option>
-            <option value="pdf">PDF</option>
-            <option value="jpg">JPG</option>
-            <option value="png">PNG</option>
-            <option value="webp">WebP</option>
-          </select>
-        </div>
-
-        <span class="convertArrow" aria-hidden="true">→</span>
-
-        <div class="convertGroup">
-          <div class="convertLabel">To</div>
-          <select id="convertTarget">
-            <option value="pdf">PDF</option>
-            <option value="jpg">JPG</option>
-            <option value="png">PNG</option>
-            <option value="webp">WebP</option>
-          </select>
-        </div>
-
-        <div class="convertHint">
-          Tip: converting multiple files may produce multiple outputs — they’ll be bundled into a ZIP.
-        </div>
-
-      </div>
-
-      <!-- DROPZONE (IDs preserved) -->
       <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
         <div class="dzCenter">
           <div class="dzIcon"><span class="dzArrow">↑</span></div>
-          <div class="dzTitle" id="dzTitle">Drop files here</div>
-          <div class="dzSub" id="dzSub">Drag & drop or select your files</div>
+          <div class="dzTitle" id="dzTitle">Drop your images here</div>
+          <div class="dzSub" id="dzSub">Reduce image size for uploads, email and websites</div>
 
           <div class="filePick">
-            <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select files</button>
-            <input id="files" type="file" multiple />
+            <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select images</button>
+            <input id="files" type="file" accept="image/jpeg,image/png,image/webp" multiple />
           </div>
 
-          <div class="dzFine">No signup. Secure processing.</div>
+          <div class="dzFine">Fast workflow. No signup required.</div>
+          <div class="allowedTypes">JPG, PNG and WebP supported</div>
         </div>
 
         <div class="fileMeta" id="fileMeta" hidden>
@@ -465,7 +477,6 @@
         </div>
       </div>
 
-      <!-- PROGRESS (IDs preserved) -->
       <div class="progressWrap" id="progressWrap" hidden>
         <div class="progressTop">
           <div id="progressLabel">Uploading…</div>
@@ -477,41 +488,39 @@
         <div id="progressMeta"></div>
       </div>
 
-      <!-- ACTIONS (IDs preserved) -->
       <div class="actionRow actionRowWide">
-        <button class="btnSoft" id="upload" disabled>Upload files</button>
-        <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
+        <button class="btnSoft" id="upload" disabled>Prepare images</button>
+        <button class="btnPrimary btnStrong" id="continue" disabled>Download smaller images →</button>
       </div>
 
-      <div class="fineprint">Convert, then download when ready.</div>
+      <div class="fineprint">Compress your images, then download when ready.</div>
 
     </div>
 
   </div>
 </section>
 
-<!-- CLEAN SUPPORT SECTION (EXACT LOOK + STRUCTURE AS split-pdf; CONVERT COPY) -->
 <section class="plainSection" id="about">
   <div class="container heroWide">
 
     <div class="plainKicker">About</div>
-    <h2 class="plainH2">Convert PDF, JPG, PNG and WebP online</h2>
+    <h2 class="plainH2">Compress JPG, PNG and WebP images online</h2>
     <p class="plainLead">
-      Convert documents and images directly in your browser. Upload one file or run a batch conversion, choose an output
-      format, then download your converted file(s). If a job produces multiple outputs, everything is bundled into one ZIP
-      for clean delivery.
+      Use PDFOperations to reduce image file size when a file is too large to upload, too heavy to email,
+      or unnecessarily big for a website or content system. Upload your images, prepare them, then continue to download smaller versions.
     </p>
 
     <div class="featureGrid" aria-label="What you can do">
       <div>
         <div class="featIcon" aria-hidden="true">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-            <path class="icoStroke" d="M7 3h7l3 3v15a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path class="icoStroke" d="M14 3v4a2 2 0 0 0 2 2h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="icoStroke" d="M4 6h16v12H4z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="icoStroke" d="M8 14l2-2 3 3 3-4 2 3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle class="icoStroke" cx="9" cy="9" r="1.5" stroke-width="2"/>
           </svg>
         </div>
-        <h3 class="featTitle">Batch conversions</h3>
-        <p class="featText">Upload multiple files and convert them in one session.</p>
+        <h3 class="featTitle">Reduce image size</h3>
+        <p class="featText">Make image files smaller so they are easier to upload, send and manage.</p>
       </div>
 
       <div>
@@ -521,8 +530,8 @@
             <path class="icoStroke" d="M4 6v2M4 11v2M4 16v2" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </div>
-        <h3 class="featTitle">Choose your output</h3>
-        <p class="featText">Pick PDF, JPG, PNG or WebP — convert in either direction depending on input.</p>
+        <h3 class="featTitle">Works with multiple files</h3>
+        <p class="featText">Upload several images in one session and download the results together.</p>
       </div>
 
       <div>
@@ -533,8 +542,8 @@
             <path class="icoStroke" d="M3 17h18" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </div>
-        <h3 class="featTitle">ZIP when needed</h3>
-        <p class="featText">If your conversion produces multiple outputs, they’re delivered in one ZIP.</p>
+        <h3 class="featTitle">Built for real limits</h3>
+        <p class="featText">Useful for upload caps, email attachment limits, forms and content platforms.</p>
       </div>
 
       <div>
@@ -544,8 +553,8 @@
             <path class="icoStroke" d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3 class="featTitle">Clean delivery workflow</h3>
-        <p class="featText">Made for portals, emails and uploads — convert, then download immediately.</p>
+        <h3 class="featTitle">Simple workflow</h3>
+        <p class="featText">Select images, prepare them, then continue to download smaller versions.</p>
       </div>
 
       <div>
@@ -555,8 +564,8 @@
             <path class="icoStroke" d="M9 10h6" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </div>
-        <h3 class="featTitle">No account</h3>
-        <p class="featText">No signup. Upload, continue, then download when your output is ready.</p>
+        <h3 class="featTitle">No signup</h3>
+        <p class="featText">No account required. Just upload, continue and download when ready.</p>
       </div>
 
       <div>
@@ -580,23 +589,23 @@
 
         <div class="faqListPlain">
           <div class="faqItemPlain">
-            <div class="faqQ">Can I convert multiple files at once?</div>
-            <p class="faqA">Yes — add multiple files and convert them in one session. If your job creates multiple outputs, you’ll get a ZIP bundle.</p>
+            <div class="faqQ">How do I compress an image online?</div>
+            <p class="faqA">Upload your JPG, PNG or WebP image, prepare it, then continue to download a smaller version.</p>
           </div>
 
           <div class="faqItemPlain">
-            <div class="faqQ">What formats are supported?</div>
-            <p class="faqA">You can convert between PDF, JPG, PNG and WebP.</p>
+            <div class="faqQ">Can I reduce image size for email attachments?</div>
+            <p class="faqA">Yes. Smaller image files are easier to send and less likely to hit attachment limits.</p>
+          </div>
+
+          <div class="faqItemPlain">
+            <div class="faqQ">Can I compress images for website uploads?</div>
+            <p class="faqA">Yes. Smaller images are easier to upload to websites, forms and content systems.</p>
           </div>
 
           <div class="faqItemPlain">
             <div class="faqQ">Do I need an account?</div>
-            <p class="faqA">No signup required. Upload, continue, then download.</p>
-          </div>
-
-          <div class="faqItemPlain">
-            <div class="faqQ">What will I download?</div>
-            <p class="faqA">You’ll download the converted file(s). If multiple outputs are produced, they’re delivered as one ZIP bundle.</p>
+            <p class="faqA">No signup is required.</p>
           </div>
         </div>
 
@@ -607,20 +616,21 @@
 
       <div>
         <div class="plainKicker">Related tools</div>
-        <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.02em; font-weight:950;">More PDF tools</h3>
+        <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.02em; font-weight:950;">More file tools</h3>
         <p class="plainLead" style="font-size:15px; margin-top:0; max-width:56ch;">
-          Need something else? Use the same workflow across tools — upload, process, download.
+          Need something else? Use the same simple upload → process → download workflow across the rest of the tool set.
         </p>
 
-        <div class="relatedLinks" aria-label="Related PDF tools">
+        <div class="relatedLinks" aria-label="Related tools">
           <a href="/">Compress PDF</a>
+          <a href="/convert">Convert files</a>
           <a href="/merge-pdf">Merge PDF</a>
           <a href="/split-pdf">Split PDF</a>
           <a href="/rotate-pdf">Rotate PDF</a>
         </div>
 
         <div class="plainNote">
-          Tip: For bigger batches, convert multiple files at once — you’ll receive one ZIP if needed.
+          Tip: If an upload form rejects your image, reducing file size is often the quickest fix.
         </div>
       </div>
     </div>

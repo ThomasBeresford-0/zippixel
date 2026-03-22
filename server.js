@@ -75,6 +75,7 @@ const SHARE_LINK_UPSELL_PENCE = Number(process.env.SHARE_LINK_UPSELL_PENCE || 24
 // ====== TOOL-BASED PRICING (OVERRIDES TIER BASE) ======
 const TOOL_BASE_PRICE = {
   compress: 299,
+  image_compress: 299,
   compress_pdf: 299,
   convert: 299,
   merge_pdf: 299,
@@ -215,6 +216,7 @@ function computeTotalPence(job) {
 
   const VALID_MODES = new Set([
     "compress",
+    "image_compress",
     "compress_pdf",
     "convert",
     "merge_pdf",
@@ -356,6 +358,19 @@ function validateJobFilesForMode(job) {
     if (files.length < 2) throw new Error("Merge PDFs requires at least 2 PDFs.");
     const nonPdf = files.find((f) => !isPdfMeta(f));
     if (nonPdf) throw new Error("Merge PDFs only accepts PDF files.");
+  }
+
+  if (job.mode === "image_compress") {
+  if (!sharp) throw new Error("Image compression unavailable.");
+
+  if (!job.files.length) throw new Error("No files provided.");
+
+  const invalid = job.files.find(f => {
+    const mime = String(f.mimetype || "");
+    return !mime.startsWith("image/");
+  });
+
+  if (invalid) throw new Error("Only image files are supported.");
   }
 
   if (job.mode === "split_pdf") {
@@ -596,6 +611,7 @@ const TOOL_PAGES = [
   "compress-pdf-to-5mb",
   "compress-pdf-under-5mb",
   "compress-pdf-under-2mb",
+  "compress-image",
   "compress-pdf-under-1mb",
   "compress-pdf-under-10mb",
   "reduce-pdf-size-for-email",
@@ -781,6 +797,18 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
       job.pageOrderType = norm.type;
       job.pageOrder = norm.order;
 
+      job.splitOrder = null;
+
+      job.pdfCompressLevel = "balanced";
+      job.targetBytes = null;
+      job.rotateDegrees = 90;
+      job.rotateMap = null;
+
+    } else if (m === "image_compress") {
+      job.convertTarget = null;
+
+      job.pageOrder = null;
+      job.pageOrderType = "none";
       job.splitOrder = null;
 
       job.pdfCompressLevel = "balanced";
@@ -1439,6 +1467,77 @@ app.get("/api/download/:jobId", async (req, res) => {
 
   res.setHeader("Content-Type", "application/pdf");
   return res.send(Buffer.from(bytes));
+  }
+
+  // ====== IMAGE COMPRESS MODE ======
+if (job.mode === "image_compress") {
+  if (!sharp) throw new Error("Image compression unavailable.");
+
+  res.setHeader("Content-Type", "application/zip");
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="pdfoperations_images_${job.jobId}.zip"`
+  );
+
+  const archive = archiver("zip", { zlib: { level: 9 } });
+  archive.on("error", (err) => {
+    try { res.status(500).send(err.message); } catch {}
+  });
+  archive.pipe(res);
+
+  const used = new Set();
+
+  for (const f of job.files) {
+    const obj = await r2.send(
+      new GetObjectCommand({ Bucket: R2_BUCKET, Key: f.key })
+    );
+
+    let buffer;
+    try {
+      buffer = await streamToBuffer(obj.Body);
+    } catch {
+      continue;
+    }
+
+    const mime = String(f.mimetype || "");
+    let output;
+    let ext = "";
+
+    try {
+      const image = sharp(buffer);
+
+      if (mime.includes("jpeg") || mime.includes("jpg")) {
+        output = await image.jpeg({ quality: 82, mozjpeg: true }).toBuffer();
+        ext = ".jpg";
+      } else if (mime.includes("png")) {
+        output = await image.png({ compressionLevel: 9 }).toBuffer();
+        ext = ".png";
+      } else if (mime.includes("webp")) {
+        output = await image.webp({ quality: 82 }).toBuffer();
+        ext = ".webp";
+      } else {
+        // fallback
+        archive.append(buffer, {
+          name: makeUniqueName(sanitizeName(f.originalname), used),
+        });
+        continue;
+      }
+
+      const base = String(f.originalname || "image").replace(/\.[^/.]+$/, "");
+
+      archive.append(output, {
+        name: makeUniqueName(sanitizeName(base + ext), used),
+      });
+
+    } catch {
+      archive.append(buffer, {
+        name: makeUniqueName(sanitizeName(f.originalname), used),
+      });
+    }
+  }
+
+  await archive.finalize();
+  return;
   }
 
     // ====== ZIP MODES ======

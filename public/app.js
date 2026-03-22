@@ -21,6 +21,7 @@
     };
 
   const TOOL_PRICING = {
+    image_compress: 2.99,
     compress_pdf: 2.99,
     merge_pdf: 2.99,
     split_pdf: 2.99,
@@ -472,30 +473,42 @@
       return;
     }
 
-    if (mode === "convert") {
-      dzTitleEl.textContent = "Drop files here";
-      dzSubEl.textContent = "Up to 50 files • Drag & drop or select";
-      if (dzAfterEl) dzAfterEl.textContent = "";
-      return;
-    }
+  if (mode === "image_compress") {
+    dzTitleEl.textContent = "Drop your images here";
+    dzSubEl.textContent = "JPG, PNG, WebP • Reduce file size fast";
+    if (dzAfterEl) dzAfterEl.textContent = "";
+    return;
+  }
 
+  if (mode === "convert") {
     dzTitleEl.textContent = "Drop files here";
     dzSubEl.textContent = "Up to 50 files • Drag & drop or select";
     if (dzAfterEl) dzAfterEl.textContent = "";
-  };
+    return;
+  }
+
+  dzTitleEl.textContent = "Drop files here";
+  dzSubEl.textContent = "Up to 50 files • Drag & drop or select";
+  if (dzAfterEl) dzAfterEl.textContent = "";
+  }
 
   const setFileInputAccept = () => {
     if (!filesEl) return;
+
+    if (mode === "image_compress") {
+      filesEl.setAttribute("accept", "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp");
+      return;
+    }
+
     if (
-    mode === "merge_pdf" ||
-    mode === "split_pdf" ||
-    mode === "compress_pdf" ||
-    mode === "rotate_pdf" ||
-    mode === "watermark_pdf" ||
-    mode === "sign_pdf" ||
-    mode === "edit_pdf"
-  ) 
-  {
+      mode === "merge_pdf" ||
+      mode === "split_pdf" ||
+      mode === "compress_pdf" ||
+      mode === "rotate_pdf" ||
+      mode === "watermark_pdf" ||
+      mode === "sign_pdf" ||
+      mode === "edit_pdf"
+    ) {
       filesEl.setAttribute("accept", "application/pdf,.pdf");
     } else {
       filesEl.removeAttribute("accept");
@@ -524,6 +537,10 @@
   const validateFileForMode = (f) => {
     const baseErr = validateFileBase(f);
     if (baseErr) return baseErr;
+
+    if (mode === "image_compress" && !isImageFile(f)) {
+      return `“${f.name}” isn’t an image. Compress Image only accepts JPG, PNG or WebP files.`;
+    }
 
     const pdfOnly =
       mode === "merge_pdf" ||
@@ -622,12 +639,16 @@
       uploadBtn.textContent = uploading ? "Uploading…" : uploadedMeta.length ? "Re-upload PDF" : "Upload PDF";
     } else if (mode === "rotate_pdf") {
       uploadBtn.textContent = uploading ? "Uploading…" : uploadedMeta.length ? "Re-upload PDF" : "Upload PDF";
+    } else if (mode === "image_compress") {
+      uploadBtn.textContent = uploading ? "Uploading…" : uploadedMeta.length ? "Re-upload images" : "Upload images";
     } else {
       uploadBtn.textContent = uploading ? "Uploading…" : uploadedMeta.length ? "Re-upload" : "Upload files";
     }
 
-    continueBtn.textContent = "Review & Continue →";
-
+  continueBtn.textContent =
+    mode === "image_compress"
+      ? "Download smaller images →"
+      : "Review & Continue →";
     setUploaderEnabled(!(uploading || creatingJob));
 
     if (!hasFiles) {
@@ -643,7 +664,9 @@
                 ? "Add <b>1</b> PDF to begin."
                 : mode === "convert"
                   ? "Choose a target format, then add files."
-                  : "Add up to <b>50</b> files to begin."
+                  : mode === "image_compress"
+                    ? "Add JPG, PNG or WebP images to begin."
+                    : "Add up to <b>50</b> files to begin."
       );
       return;
     }
@@ -696,7 +719,9 @@
               ? "Upload your PDF to continue."
               : mode === "convert"
                 ? "Upload files to continue."
-                : "Upload your files to continue."
+                : mode === "image_compress"
+                  ? "Upload your images to continue."
+                  : "Upload your files to continue."
     );
   };
 
@@ -1351,7 +1376,8 @@
     const isRotate = !!modeRotatePdf?.checked;
 
     mode =
-      isRotate ? "rotate_pdf"
+      pageTool === "image_compress" ? "image_compress"
+      : isRotate ? "rotate_pdf"
       : isMerge ? "merge_pdf"
       : isSplit ? "split_pdf"
       : isCompressPdf ? "compress_pdf"
