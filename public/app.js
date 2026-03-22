@@ -1746,8 +1746,9 @@
       };
 
       // ✅ NEW TOOLS — send extra config to backend
-      if (mode === "protect_pdf") payload.protect = true;
-
+      if (mode === "protect_pdf") {
+        payload.password = window.__PDFOPS_PROTECT_PASSWORD__ || "";
+      }
       if (mode === "watermark_pdf") {
         payload.watermarkConfig = window.__PDFOPS_WATERMARK_CONFIG__ || null;
       }
@@ -1807,7 +1808,7 @@
     if (!selected.length) return;
 
     // Do NOT auto-upload on tools that need user edits first
-    if (mode === "edit_pdf" || mode === "watermark_pdf") return;
+    if (mode === "edit_pdf" || mode === "watermark_pdf" || mode === "protect_pdf") return;
 
     if (!modeMinFilesSatisfied()) return;
 
