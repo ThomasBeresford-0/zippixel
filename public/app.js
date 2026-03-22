@@ -2015,16 +2015,6 @@
       await setBackendMode();
     } catch {}
 
-    const ok = window.confirm(
-      "Your file is uploaded and ready.\n\n" +
-      "• No signup required\n" +
-      "• Secure checkout\n" +
-      "• Instant download after payment\n\n" +
-      "Continue to checkout?"
-    );
-
-    if (!ok) return;
-
     const opened = openPriceModal();
     if (!opened) {
       await startCheckout();
