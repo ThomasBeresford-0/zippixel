@@ -740,7 +740,6 @@
     </div>
   </footer>
 
-  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script defer src="/app.js?v=17.7"></script>
 
   <script>
@@ -790,32 +789,30 @@
       setStatus("Ready","Set password and encrypt.");
     });
 
-    applyBtn.addEventListener("click",async()=>{
+    applyBtn.addEventListener("click", async () => {
+  const file = window.__PDFOPS_SELECTED__?.[0];
+  if (!file) {
+    setStatus("Error", "Select a PDF first.");
+    return;
+  }
 
-      const file=window.__PDFOPS_SELECTED__?.[0];
-      if(!file){ setStatus("Error","Select a PDF first."); return; }
-      if(pass1.value!==pass2.value){ setStatus("Error","Passwords do not match."); return; }
+  if (!pass1.value || !pass2.value) {
+    setStatus("Error", "Enter and confirm a password.");
+    return;
+  }
 
-      setStatus("Processing…","Encrypting PDF locally…");
+  if (pass1.value !== pass2.value) {
+    setStatus("Error", "Passwords do not match.");
+    return;
+  }
 
-      const bytes=await file.arrayBuffer();
-      const pdfDoc=await PDFLib.PDFDocument.load(bytes);
+  window.__PDFOPS_PROTECT_PASSWORD__ = pass1.value;
 
-      const out=await pdfDoc.save({
-        userPassword:pass1.value,
-        ownerPassword:pass1.value
-      });
+  document.getElementById("upload").disabled = false;
+  document.getElementById("continue").disabled = false;
 
-      const newFile=new File([out],file.name.replace(/\.pdf$/i,"")+" (protected).pdf",{type:"application/pdf"});
-
-      window.__PDFOPS_SELECTED__=[newFile];
-      window.dispatchEvent(new Event("pdfops:selected"));
-
-      document.getElementById("upload").disabled=false;
-      document.getElementById("continue").disabled=false;
-
-      setStatus("Ready","Encrypted. Upload and continue.");
-    });
+  setStatus("Ready", "Password set. Upload and continue.");
+});
 
     /* Make dropzone clickable via existing button (no logic changes) */
     const chooseBtn=document.getElementById("chooseBtn");
