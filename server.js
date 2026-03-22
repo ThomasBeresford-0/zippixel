@@ -81,7 +81,6 @@ const TOOL_BASE_PRICE = {
   split_pdf: 299,
   rotate_pdf: 299,
 
-  protect_pdf: 399,
   watermark_pdf: 399,
 
   sign_pdf: 499,
@@ -222,7 +221,6 @@ function computeTotalPence(job) {
     "split_pdf",
     "rotate_pdf",
     "sign_pdf",
-    "protect_pdf",
     "watermark_pdf",
     "edit_pdf",
   ]);
@@ -401,12 +399,12 @@ function validateJobFilesForMode(job) {
     const nonPdf = files.find((f) => !isPdfMeta(f));
     if (nonPdf) throw new Error("Sign PDF only accepts a PDF file.");
   }
-  if (job.mode === "watermark_pdf" || job.mode === "protect_pdf" || job.mode === "edit_pdf") {
+if (job.mode === "watermark_pdf" || job.mode === "edit_pdf") {
   if (!PDFDocumentLib) throw new Error("PDF tools unavailable (pdf-lib not installed).");
   if (files.length !== 1) throw new Error("This tool requires exactly 1 PDF.");
   const nonPdf = files.find((f) => !isPdfMeta(f));
   if (nonPdf) throw new Error("Only PDF files are supported.");
-  }
+}
   }
 
 // ====== R2 CLEANUP HELPERS ======
@@ -638,8 +636,6 @@ app.post("/api/jobs", (_, res) => {
     watermarkOpacity: 0.2,
     watermarkFontSize: 48,
 
-    protectPassword: null,
-
     editText: null,
 
     mode: "compress", // compress | compress_pdf | convert | merge_pdf | split_pdf | rotate_pdf
@@ -756,8 +752,7 @@ app.post("/api/jobs/:jobId/register", (req, res) => {
 app.post("/api/jobs/:jobId/mode", (req, res) => {
   try {
     const job = getJob(req.params.jobId);
-    const { mode, target, order, splitOrder, level, degrees, angle, rotateMap, targetBytes, text, password } = req.body || {};
-
+    const { mode, target, order, splitOrder, level, degrees, angle, rotateMap, targetBytes, text } = req.body || {};
     const m = String(mode || "").toLowerCase().trim();
     if (!VALID_MODES.has(m)) throw new Error("Invalid mode");
 
@@ -856,18 +851,6 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
       job.watermarkText = String(text || "PDFOperations");
     }
 
-    else if (m === "protect_pdf") {
-      job.convertTarget = null;
-      job.pageOrder = null;
-      job.pageOrderType = "none";
-      job.splitOrder = null;
-      job.pdfCompressLevel = "balanced";
-      job.targetBytes = null;
-      job.rotateDegrees = 90;
-      job.rotateMap = null;
-      job.protectPassword = String(password || "1234");
-    }
-
     else if (m === "edit_pdf") {
       job.convertTarget = null;
       job.pageOrder = null;
@@ -958,8 +941,6 @@ app.post("/api/checkout", async (req, res) => {
                   ? "Sign PDF"
                   : job.mode === "watermark_pdf"
                     ? "Watermark PDF"
-                    : job.mode === "protect_pdf"
-                      ? "Protect PDF"
                       : job.mode === "edit_pdf"
                         ? "Edit PDF"
                         : "ZIP download";
@@ -1434,44 +1415,6 @@ app.get("/api/download/:jobId", async (req, res) => {
 
   res.setHeader("Content-Type", "application/pdf");
   return res.send(Buffer.from(bytes));
-}
-
-if (job.mode === "protect_pdf") {
-  const only = job.files[0];
-  const obj = await r2.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: only.key }));
-  const buf = await streamToBuffer(obj.Body);
-
-  const fs = require("fs");
-  const { execFile } = require("child_process");
-  const util = require("util");
-  const execFileAsync = util.promisify(execFile);
-
-  const inputPath = `/tmp/${job.jobId}_input.pdf`;
-  const outputPath = `/tmp/${job.jobId}_output.pdf`;
-
-  fs.writeFileSync(inputPath, buf);
-
-  const password = job.protectPassword || "1234";
-
-  await execFileAsync("qpdf", [
-    "--encrypt",
-    password,
-    password,
-    "256",
-    "--",
-    inputPath,
-    outputPath,
-  ]);
-
-  const outBuf = fs.readFileSync(outputPath);
-
-  res.setHeader("Content-Type", "application/pdf");
-  res.setHeader(
-    "Content-Disposition",
-    `attachment; filename="protected_${job.jobId}.pdf"`
-  );
-
-  return res.send(outBuf);
 }
 
     if (job.mode === "edit_pdf") {

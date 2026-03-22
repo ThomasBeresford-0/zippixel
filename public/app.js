@@ -19,7 +19,6 @@
     new_tool_name: 3.99,
 
 
-    protect_pdf: 3.99,
     watermark_pdf: 3.99,
 
     sign_pdf: 4.99,
@@ -103,7 +102,6 @@
 
   // NEW (optional) rotate mode radio — safe if missing
   const modeRotatePdf = document.getElementById("modeRotatePdf");
-  const modeProtectPdf = document.getElementById("modeProtectPdf");
   const modeWatermarkPdf = document.getElementById("modeWatermarkPdf");
   const modeSignPdf = document.getElementById("modeSignPdf");
   const modeEditPdf = document.getElementById("modeEditPdf");
@@ -481,7 +479,6 @@
     mode === "split_pdf" ||
     mode === "compress_pdf" ||
     mode === "rotate_pdf" ||
-    mode === "protect_pdf" ||
     mode === "watermark_pdf" ||
     mode === "sign_pdf" ||
     mode === "edit_pdf"
@@ -498,7 +495,6 @@
     if (mode === "split_pdf") return selected.length === 1;
     if (mode === "compress_pdf") return selected.length === 1;
     if (mode === "rotate_pdf") return selected.length === 1;
-    if (mode === "protect_pdf") return selected.length === 1;
     if (mode === "watermark_pdf") return selected.length === 1;
     if (mode === "sign_pdf") return selected.length === 1;
     if (mode === "edit_pdf") return selected.length === 1;
@@ -522,7 +518,6 @@
       mode === "split_pdf" ||
       mode === "compress_pdf" ||
       mode === "rotate_pdf" ||
-      mode === "protect_pdf" ||
       mode === "watermark_pdf" ||
       mode === "sign_pdf" ||
       mode === "edit_pdf";
@@ -533,7 +528,6 @@
       : mode === "split_pdf" ? "Split PDF"
       : mode === "compress_pdf" ? "Compress PDF"
       : mode === "rotate_pdf" ? "Rotate PDF"
-      : mode === "protect_pdf" ? "Protect PDF"
       : mode === "watermark_pdf" ? "Watermark PDF"
       : mode === "sign_pdf" ? "Sign PDF"
       : mode === "edit_pdf" ? "Edit PDF"
@@ -1321,11 +1315,10 @@
       : isSplit ? "split_pdf"
       : isCompressPdf ? "compress_pdf"
       : isConvert ? "convert"
-      : (modeProtectPdf?.checked ? "protect_pdf"
       : modeWatermarkPdf?.checked ? "watermark_pdf"
       : modeSignPdf?.checked ? "sign_pdf"
       : modeEditPdf?.checked ? "edit_pdf"
-      : "compress");
+      : "compress";
         safeLocalSet(LS.lastMode, mode);
 
     if (convertRow) convertRow.style.display = mode === "convert" ? "flex" : "none";
@@ -1543,7 +1536,6 @@
       mode === "split_pdf" ||
       mode === "compress_pdf" ||
       mode === "rotate_pdf" ||
-      mode === "protect_pdf" ||
       mode === "watermark_pdf" ||
       mode === "sign_pdf" ||
       mode === "edit_pdf"
@@ -1745,10 +1737,6 @@
         from: convertFrom?.value || "auto",
       };
 
-      // ✅ NEW TOOLS — send extra config to backend
-      if (mode === "protect_pdf") {
-        payload.password = window.__PDFOPS_PROTECT_PASSWORD__ || "";
-      }
       if (mode === "watermark_pdf") {
         payload.watermarkConfig = window.__PDFOPS_WATERMARK_CONFIG__ || null;
       }
@@ -1808,7 +1796,7 @@
     if (!selected.length) return;
 
     // Do NOT auto-upload on tools that need user edits first
-    if (mode === "edit_pdf" || mode === "watermark_pdf" || mode === "protect_pdf") return;
+    if (mode === "edit_pdf" || mode === "watermark_pdf") return;
 
     if (!modeMinFilesSatisfied()) return;
 
