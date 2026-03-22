@@ -1413,9 +1413,17 @@
     rotateDegreesValue = normalizeRotateDeg(savedRotateDeg || rotateDegreesValue || 90);
     setRotateActive(rotateDegreesValue);
 
-    const onTabbedIndex = !!(modeCompress && modeCompressPdf && modeConvert && modeMergePdf && modeSplitPdf) && !pageTool;
+    const pathname = window.location.pathname || "/";
+    const isHomepage = pathname === "/";
 
-    if (onTabbedIndex && savedMode) {
+    const onTabbedIndex =
+      !!(modeCompress && modeCompressPdf && modeConvert && modeMergePdf && modeSplitPdf) &&
+      !pageTool &&
+      !isHomepage;
+
+    if (isHomepage && modeCompressPdf) {
+      modeCompressPdf.checked = true;
+    } else if (onTabbedIndex && savedMode) {
       if (savedMode === "merge_pdf" && modeMergePdf) modeMergePdf.checked = true;
       else if (savedMode === "split_pdf" && modeSplitPdf) modeSplitPdf.checked = true;
       else if (savedMode === "compress_pdf" && modeCompressPdf) modeCompressPdf.checked = true;
