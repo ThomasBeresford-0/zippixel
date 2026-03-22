@@ -529,7 +529,7 @@
 
 </head>
 
-<body class="page pageWatermarkPdf">
+<body class="page pageWatermarkPdf" data-tool="watermark_pdf">
   <div class="bg" aria-hidden="true"></div>
 
   <a href="#tool" class="srOnly">Skip to tool</a>
@@ -574,7 +574,18 @@
             <div class="statusHint" id="statusHint">Drop a PDF to begin.</div>
           </div>
 
-          <input type="hidden" id="mode" value="watermark_pdf"/>
+        <fieldset style="display:none;">
+          <input type="radio" name="mode" id="modeCompress">
+          <input type="radio" name="mode" id="modeCompressPdf">
+          <input type="radio" name="mode" id="modeConvert">
+          <input type="radio" name="mode" id="modeMergePdf">
+          <input type="radio" name="mode" id="modeSplitPdf">
+          <input type="radio" name="mode" id="modeRotatePdf">
+          <input type="radio" name="mode" id="modeProtectPdf">
+          <input type="radio" name="mode" id="modeWatermarkPdf" checked>
+          <input type="radio" name="mode" id="modeSignPdf">
+          <input type="radio" name="mode" id="modeEditPdf">
+        </fieldset>
 
           <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
             <div class="dzCenter">
@@ -832,7 +843,7 @@
   </footer>
 
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <script defer src="/app.js?v=17.7"></script>
+  <script defer src="/app.js?v=17.8"></script>
 
   <script>
   (async function(){
@@ -902,8 +913,10 @@
       const f=filesInput.files[0];
       if(!f)return;
 
-      window.__PDFOPS_SELECTED__=[f];
-      window.dispatchEvent(new Event("pdfops:selected"));
+    window.__PDFOPS_SELECTED__ = [f];
+    document.dispatchEvent(new CustomEvent("pdfops:selected", {
+      detail: { files: [f] }
+    }));
 
       dropzone.hidden=true;
       workPanel.hidden=false;
@@ -976,11 +989,23 @@
       const out=await pdfDoc.save();
       const newFile=new File([out],file.name.replace(/\.pdf$/i,"")+" (watermarked).pdf",{type:"application/pdf"});
 
-      window.__PDFOPS_SELECTED__=[newFile];
-      window.dispatchEvent(new Event("pdfops:selected"));
+    window.__PDFOPS_SELECTED__ = [newFile];
+    document.dispatchEvent(new CustomEvent("pdfops:selected", {
+      detail: { files: [newFile] }
+    }));
 
-      document.getElementById("upload").disabled=false;
-      document.getElementById("continue").disabled=false;
+    // Re-render preview from the newly watermarked PDF
+    const lib2 = window.pdfjsLib || await window.__pdfjsReady;
+    const pdf2 = await lib2.getDocument({ data: out }).promise;
+    const page2 = await pdf2.getPage(1);
+    const vp2 = page2.getViewport({ scale: 1 });
+
+    pageCanvas.width = vp2.width;
+    pageCanvas.height = vp2.height;
+    await page2.render({ canvasContext: ctx, viewport: vp2 }).promise;
+
+    document.getElementById("upload").disabled=false;
+    document.getElementById("continue").disabled=false;
     });
 
   })();
