@@ -1,10 +1,8 @@
-<!-- public/index.html — PDFOperations (v71 - FULL RAMBO AUTHORITY UI; NO FUNCTION CHANGES)
+<!-- public/index.html — PDFOperations (v72 - INTERNAL LINKING + SEO SUPPORT BOOST; NO FUNCTION CHANGES)
      ✅ Keeps ALL app.js v17.7 IDs preserved (NO hook breaks)
      ✅ Keeps preview + PDF.js .mjs loader untouched
-     ✅ Rebuilds visual layer to “hard premium utility” (no bubbles, no rounded hero vibes)
-     ✅ Keeps SEO JSON-LD blocks (WebSite + WebPage + Breadcrumb + FAQ + SoftwareApplication)
-     ✅ NAV FIX: Adds Pricing to main header + adds subNav for Sign/Protect/Edit/Watermark
-     ✅ FIX: app.js loaded ONCE (was twice)
+     ✅ Adds internal links to high-intent compression pages
+     ✅ Keeps premium light utility UI and all existing tool behavior
 -->
 <!doctype html>
 <html lang="en">
@@ -12,15 +10,15 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Compress PDF Online — Reduce PDF File Size Instantly | PDFOperations</title>
-  <meta name="description" content="Compress PDF online to reduce file size for email attachments, university submissions, government portals and client uploads. Secure browser-based PDF compression." />
+  <title>PDF Too Large to Upload? Compress PDF Online | PDFOperations</title>
+  <meta name="description" content="Compress PDF online to reduce file size for upload limits, email attachments, job applications and document portals. No signup required." />
   <link rel="canonical" href="https://pdfoperations.com/" />
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light">
 
-  <meta property="og:title" content="Compress PDF Online — Reduce PDF File Size | PDFOperations" />
-  <meta property="og:description" content="Compress PDF files online. Reduce PDF file size quickly for email and upload limits. Secure processing. No signup required." />
+  <meta property="og:title" content="PDF Too Large to Upload? Compress PDF Online | PDFOperations" />
+  <meta property="og:description" content="Compress PDF files online for upload limits, email attachments, job applications and document portals. Secure processing. No signup required." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
@@ -36,8 +34,8 @@
   </script>
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Compress PDF Online — Reduce PDF File Size | PDFOperations" />
-  <meta name="twitter:description" content="Compress PDF files online. Reduce PDF file size quickly for email and upload limits. Secure processing. No signup required." />
+  <meta name="twitter:title" content="PDF Too Large to Upload? Compress PDF Online | PDFOperations" />
+  <meta name="twitter:description" content="Compress PDF files online for upload limits, email attachments, job applications and document portals. Secure processing. No signup required." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -52,7 +50,6 @@
        HARD OVERRIDES (NO FUNCTION CHANGES)
     ========================== */
 
-    /* Force-hide compression dropdown */
     #pdfCompressRow,
     #pdfCompressLevel{
       display:none !important;
@@ -65,7 +62,6 @@
       overflow:hidden !important;
     }
 
-    /* Hide native file input */
     #files{ display:none !important; }
 
     .brandLogo{ height:32px; width:auto; display:block; flex:0 0 auto; }
@@ -78,60 +74,52 @@
 
     [hidden]{ display:none !important; }
 
-    /* =========================
-       FULL RAMBO AUTHORITY LAYER (NO BUBBLES / NO ROUNDED HERO FEEL)
-    ========================== */
-
-    /* Flatten the “hero” feel into a clean stage */
     .hero.heroPremium.heroToolFirst{
-      padding-top: 22px;
-      padding-bottom: 20px;
+      padding-top:22px;
+      padding-bottom:20px;
     }
 
-    /* Make tool container feel like an instrument panel (not a cardy bubble) */
     .tool.toolPremium.toolMega{
-      border-radius: 14px;
+      border-radius:14px;
       border:1px solid rgba(15,23,42,.14);
-      box-shadow: 0 26px 80px rgba(2,6,23,.10);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,1));
+      box-shadow:0 26px 80px rgba(2,6,23,.10);
+      background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,1));
     }
 
-    /* Tool head: harder type */
     .toolHeadMinimal{
       border-bottom:1px solid rgba(15,23,42,.10);
-      padding-bottom: 14px;
-      margin-bottom: 14px;
+      padding-bottom:14px;
+      margin-bottom:14px;
     }
 
-    
     .toolTitle{
       letter-spacing:-.03em;
-      font-weight: 1000;
+      font-weight:1000;
     }
+
     .toolSub{
       opacity:.78;
     }
 
-    /* Nav: more utilitarian (less “friendly”) */
     .nav{
-      border-bottom: 1px solid rgba(15,23,42,.10);
-      background: rgba(245,247,251,.86);
-      backdrop-filter: blur(10px);
+      border-bottom:1px solid rgba(15,23,42,.10);
+      background:rgba(245,247,251,.86);
+      backdrop-filter:blur(10px);
     }
+
     .brandText .sub{ opacity:.70; }
 
     .navLinks a{
-      font-weight: 850;
+      font-weight:850;
       letter-spacing:-.01em;
       opacity:.86;
     }
+
     .navLinks a[aria-current="page"]{
       opacity:1;
       border-bottom:1px solid rgba(11,18,32,.35);
     }
 
-    /* Steps (pre-select only) */
     .stepsLine{
       display:flex;
       flex-wrap:wrap;
@@ -142,17 +130,22 @@
       font-size:13px;
       color:rgba(11,18,32,.78);
     }
+
     .stepItem{ display:flex; align-items:center; gap:8px; }
+
     .stepNum{
-      width:22px;height:22px;
+      width:22px;
+      height:22px;
       border-radius:8px;
       border:1px solid rgba(15,23,42,.16);
-      display:flex;align-items:center;justify-content:center;
-      font-weight:900;font-size:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      font-size:12px;
       background:#fff;
     }
 
-    /* ===== Reference-style post-select panel ===== */
     body.hasFile #dropzone{ display:none !important; }
     body.hasFile .stepsLine{ display:none !important; }
     body:not(.hasFile) .workPanel{ display:none !important; }
@@ -175,6 +168,7 @@
       border-bottom:1px solid rgba(15,23,42,.10);
       background:linear-gradient(180deg, rgba(11,18,32,.03), transparent);
     }
+
     .workTop .btnPrimary,
     .workTop .btnGhost{
       min-width:150px;
@@ -192,15 +186,13 @@
       background:#fff;
     }
 
-    /* ✅ Card preview (portrait) — sharpened */
     .thumbCard{
       position:relative;
       width:240px;
       height:320px;
       border-radius:14px;
       overflow:hidden;
-      background:
-        linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+      background:linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
       border:1px solid rgba(15,23,42,.14);
       box-shadow:0 28px 80px rgba(2,6,23,.14);
       display:flex;
@@ -237,13 +229,14 @@
       pointer-events:none;
       text-shadow:0 1px 0 rgba(255,255,255,.9);
     }
+
     .thumbCard.isRendered .thumbType{ display:none; }
 
     .thumbName{
       position:absolute;
       top:10px;
       left:10px;
-      max-width: calc(100% - 56px);
+      max-width:calc(100% - 56px);
       padding:8px 10px;
       border-radius:12px;
       background:rgba(255,255,255,.94);
@@ -275,7 +268,8 @@
       font-weight:950;
       user-select:none;
     }
-    .thumbClose:hover{ transform: translateY(-1px); }
+
+    .thumbClose:hover{ transform:translateY(-1px); }
 
     .thumbHint{
       position:absolute;
@@ -299,12 +293,14 @@
       border-top:1px solid rgba(15,23,42,.10);
       background:linear-gradient(180deg, transparent, rgba(11,18,32,.02));
     }
+
     .workActions{
       display:flex;
       gap:12px;
       align-items:center;
       justify-content:center;
     }
+
     .workActions .btnSoft,
     .workActions .btnPrimary{
       height:46px;
@@ -314,7 +310,7 @@
       min-width:240px;
     }
 
-    @media(max-width: 620px){
+    @media(max-width:620px){
       .workActions{ flex-direction:column; }
       .workActions .btnSoft,
       .workActions .btnPrimary{ width:100%; min-width:unset; }
@@ -325,7 +321,6 @@
       .thumbType{ font-size:58px; }
     }
 
-    /* Hide app.js mini list UI completely (keep DOM hooks) */
     #fileMeta{
       margin:0 !important;
       padding:0 !important;
@@ -340,10 +335,8 @@
       top:auto !important;
     }
 
-    /* =========================
-       “WE COMPRESS” SUPPORT LAYER — HARD EDITORIAL (NO BUBBLES)
-    ========================== */
     .plainSection{ padding:64px 0 40px; }
+
     .plainKicker{
       font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       font-size:12px;
@@ -351,6 +344,7 @@
       text-transform:uppercase;
       opacity:.72;
     }
+
     .plainH2{
       margin:14px 0 10px;
       font-size:44px;
@@ -359,48 +353,114 @@
       font-weight:1000;
       color:rgba(11,18,32,.96);
     }
-    @media (max-width: 720px){ .plainH2{ font-size:34px; } }
+
+    @media (max-width:720px){
+      .plainH2{ font-size:34px; }
+    }
+
     .plainLead{
       margin:0;
       font-size:16px;
       line-height:1.65;
-      max-width: 78ch;
+      max-width:78ch;
       opacity:.80;
     }
 
     .featureGrid{
       margin-top:34px;
       display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns:repeat(3, minmax(0, 1fr));
       gap:40px 44px;
     }
-    @media (max-width: 980px){
-      .featureGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap:30px 28px; }
-    }
-    @media (max-width: 640px){
-      .featureGrid{ grid-template-columns: 1fr; gap:24px; }
+
+    @media (max-width:980px){
+      .featureGrid{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+        gap:30px 28px;
+      }
     }
 
-    .featIcon{ width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center; margin-bottom:12px; opacity:.95; }
-    .featTitle{ margin:0 0 10px; font-size:18px; letter-spacing:-.02em; font-weight:1000; }
-    .featText{ margin:0; font-size:15px; line-height:1.65; opacity:.80; }
+    @media (max-width:640px){
+      .featureGrid{
+        grid-template-columns:1fr;
+        gap:24px;
+      }
+    }
 
-    .plainDivider{ margin:56px 0 0; border-top:1px solid rgba(15,23,42,.12); }
+    .featIcon{
+      width:40px;
+      height:40px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:12px;
+      opacity:.95;
+    }
+
+    .featTitle{
+      margin:0 0 10px;
+      font-size:18px;
+      letter-spacing:-.02em;
+      font-weight:1000;
+    }
+
+    .featText{
+      margin:0;
+      font-size:15px;
+      line-height:1.65;
+      opacity:.80;
+    }
+
+    .plainDivider{
+      margin:56px 0 0;
+      border-top:1px solid rgba(15,23,42,.12);
+    }
 
     .plainBottomGrid{
       margin-top:36px;
       display:grid;
-      grid-template-columns: 1.1fr .9fr;
+      grid-template-columns:1.1fr .9fr;
       gap:44px;
       align-items:start;
     }
-    @media (max-width: 980px){ .plainBottomGrid{ grid-template-columns: 1fr; gap:32px; } }
 
-    .faqListPlain{ margin-top:10px; display:grid; gap:18px; }
-    .faqItemPlain{ padding-top:16px; border-top:1px solid rgba(15,23,42,.12); }
-    .faqItemPlain:first-child{ border-top:0; padding-top:0; }
-    .faqQ{ margin:0 0 8px; font-weight:1000; letter-spacing:-.02em; font-size:16px; }
-    .faqA{ margin:0; opacity:.80; line-height:1.65; font-size:15px; max-width: 68ch; }
+    @media (max-width:980px){
+      .plainBottomGrid{
+        grid-template-columns:1fr;
+        gap:32px;
+      }
+    }
+
+    .faqListPlain{
+      margin-top:10px;
+      display:grid;
+      gap:18px;
+    }
+
+    .faqItemPlain{
+      padding-top:16px;
+      border-top:1px solid rgba(15,23,42,.12);
+    }
+
+    .faqItemPlain:first-child{
+      border-top:0;
+      padding-top:0;
+    }
+
+    .faqQ{
+      margin:0 0 8px;
+      font-weight:1000;
+      letter-spacing:-.02em;
+      font-size:16px;
+    }
+
+    .faqA{
+      margin:0;
+      opacity:.80;
+      line-height:1.65;
+      font-size:15px;
+      max-width:68ch;
+    }
 
     .relatedLinks{
       margin-top:12px;
@@ -409,23 +469,27 @@
       gap:14px 18px;
       font-size:15px;
     }
+
     .relatedLinks a{
       text-decoration:none;
       font-weight:1000;
       color:rgba(11,18,32,.92);
       border-bottom:1px solid rgba(11,18,32,.24);
     }
-    .relatedLinks a:hover{ border-bottom-color: rgba(11,18,32,.60); }
+
+    .relatedLinks a:hover{
+      border-bottom-color:rgba(11,18,32,.60);
+    }
 
     .plainNote{
       margin-top:14px;
       font-size:13px;
       opacity:.72;
       line-height:1.55;
-      max-width: 80ch;
+      max-width:80ch;
     }
 
-    .icoStroke{ stroke: rgba(11,18,32,.92); }
+    .icoStroke{ stroke:rgba(11,18,32,.92); }
   </style>
 
   <script type="application/ld+json">
@@ -438,14 +502,13 @@
   }
   </script>
 
-  <!-- JSON-LD: WebPage + Breadcrumb + FAQ -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
     "@type":"WebPage",
     "name":"Compress PDF Online — PDFOperations",
     "url":"https://pdfoperations.com/",
-    "description":"Compress PDF files online. Reduce PDF file size quickly for email and upload limits. Secure processing. No signup required.",
+    "description":"Compress PDF files online for upload limits, email attachments, job applications and document portals. No signup required.",
     "isPartOf":{
       "@type":"WebSite",
       "name":"PDFOperations",
@@ -511,7 +574,7 @@
     "@context":"https://schema.org",
     "@type":"SoftwareApplication",
     "name":"PDFOperations",
-    "applicationCategory": "BusinessApplication",
+    "applicationCategory":"BusinessApplication",
     "applicationSubCategory":"PDF Utilities",
     "operatingSystem":"Web",
     "browserRequirements":"Requires JavaScript. Works in modern browsers.",
@@ -527,7 +590,6 @@
   }
   </script>
 
-  <!-- ✅ PDF.js module load (THIS fixes import.meta error) -->
   <script type="module">
     window.__pdfjsReady = import("/vendor/pdfjs/pdf.min.mjs")
       .then((mod) => {
@@ -543,7 +605,6 @@
       });
   </script>
 
-  <!-- ✅ app.js ONCE -->
   <script defer src="/app.js?v=17.7"></script>
 </head>
 
@@ -554,7 +615,6 @@
 
 <header class="nav">
   <div class="container navInner">
-
     <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/logo.png" alt="PDFOperations" class="brandLogoFull" />
     </a>
@@ -570,132 +630,123 @@
       <a href="/edit-pdf" data-nav="edit">Edit</a>
       <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
     </nav>
-
   </div>
 </header>
 
 <main>
   <section class="hero heroPremium heroToolFirst">
     <div class="container heroWide">
-
       <div id="tool" class="tool toolPremium toolMega">
 
         <div class="toolHead toolHeadMinimal">
-        <h1 class="toolTitle">Fix PDF Upload Limits Instantly</h1>
-        <p class="toolSub">
-        Make your PDF smaller for email, job applications, university portals and client uploads.
-        No signup. Secure processing.
-        </p>
+          <h1 class="toolTitle">Fix PDF Upload Limits Instantly</h1>
+          <p class="toolSub">
+            Make your PDF smaller for email attachments, job applications, university portals and file upload limits.
+            No signup. Secure processing.
+          </p>
 
-        <div class="statusWrap">
-          <div class="statusLeft">
-            <div class="status" id="status">Ready</div>
-            <div class="spinner" id="spinner"></div>
-          </div>
-          <div class="statusHint" id="statusHint">Drop a PDF to begin.</div>
-        </div>
-
-        <!-- Hidden mode controls -->
-        <fieldset style="display:none;">
-          <input type="radio" name="mode" id="modeCompress">
-          <input type="radio" name="mode" id="modeCompressPdf" checked>
-          <input type="radio" name="mode" id="modeConvert">
-          <input type="radio" name="mode" id="modeMergePdf">
-          <input type="radio" name="mode" id="modeSplitPdf">
-          <input type="radio" name="mode" id="modeRotatePdf">
-        </fieldset>
-
-        <div class="controls" id="pdfCompressRow">
-          <select class="select" id="pdfCompressLevel">
-            <option value="light">Light</option>
-            <option value="balanced" selected>Balanced</option>
-            <option value="max">Maximum</option>
-          </select>
-        </div>
-
-        <div id="convertRow" style="display:none;">
-          <select id="convertFrom"><option value="auto" selected>Auto detect</option></select>
-          <select id="convertTarget"><option value="jpg" selected>JPG</option><option value="png">PNG</option></select>
-        </div>
-
-        <div style="display:none;">
-          <select id="rotateDegrees"><option value="90" selected>90°</option><option value="180">180°</option><option value="270">270°</option></select>
-        </div>
-
-        <!-- DROPZONE -->
-        <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
-          <div class="dzCenter">
-            <div class="dzTitle" id="dzTitle">Drop your PDF to fix upload limits</div>
-            <div class="dzSub" id="dzSub">PDF only • Make it smaller in seconds</div>
-
-            <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
-            <input id="files" type="file" accept="application/pdf" />
-
-            <div class="dzFine">Tip: drag a PDF onto this area.</div>
-          </div>
-        </div>
-
-        <!-- POST-SELECT PANEL -->
-        <div class="workPanel" aria-label="Selected file">
-          <div class="workTop">
-            <button class="btnPrimary" type="button"
-              onclick="document.getElementById('chooseBtn') && document.getElementById('chooseBtn').click()">
-              Select PDF
-            </button>
-            <button class="btnGhost" type="button" id="clearTopBtn">Clear</button>
+          <div class="statusWrap">
+            <div class="statusLeft">
+              <div class="status" id="status">Ready</div>
+              <div class="spinner" id="spinner"></div>
+            </div>
+            <div class="statusHint" id="statusHint">Drop a PDF to begin.</div>
           </div>
 
-          <div class="workStage">
-            <div class="thumbCard" id="thumbCard" aria-label="Preview">
-              <canvas class="thumbCanvas" id="thumbCanvas"></canvas>
-              <div class="thumbType" id="thumbType">PDF</div>
-              <div class="thumbName" id="thumbName">PDF</div>
-              <div class="thumbClose" id="thumbClose" aria-label="Remove">×</div>
-              <div class="thumbHint" id="thumbHint">Upload to continue</div>
+          <fieldset style="display:none;">
+            <input type="radio" name="mode" id="modeCompress">
+            <input type="radio" name="mode" id="modeCompressPdf" checked>
+            <input type="radio" name="mode" id="modeConvert">
+            <input type="radio" name="mode" id="modeMergePdf">
+            <input type="radio" name="mode" id="modeSplitPdf">
+            <input type="radio" name="mode" id="modeRotatePdf">
+          </fieldset>
+
+          <div class="controls" id="pdfCompressRow">
+            <select class="select" id="pdfCompressLevel">
+              <option value="light">Light</option>
+              <option value="balanced" selected>Balanced</option>
+              <option value="max">Maximum</option>
+            </select>
+          </div>
+
+          <div id="convertRow" style="display:none;">
+            <select id="convertFrom"><option value="auto" selected>Auto detect</option></select>
+            <select id="convertTarget"><option value="jpg" selected>JPG</option><option value="png">PNG</option></select>
+          </div>
+
+          <div style="display:none;">
+            <select id="rotateDegrees"><option value="90" selected>90°</option><option value="180">180°</option><option value="270">270°</option></select>
+          </div>
+
+          <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
+            <div class="dzCenter">
+              <div class="dzTitle" id="dzTitle">Drop your PDF to fix upload limits</div>
+              <div class="dzSub" id="dzSub">PDF only • Make it smaller in seconds</div>
+
+              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
+              <input id="files" type="file" accept="application/pdf" />
+
+              <div class="dzFine">Tip: drag a PDF onto this area.</div>
+            </div>
+          </div>
+
+          <div class="workPanel" aria-label="Selected file">
+            <div class="workTop">
+              <button class="btnPrimary" type="button"
+                onclick="document.getElementById('chooseBtn') && document.getElementById('chooseBtn').click()">
+                Select PDF
+              </button>
+              <button class="btnGhost" type="button" id="clearTopBtn">Clear</button>
             </div>
 
-            <!-- Keep app.js hooks -->
-            <div class="fileMeta" id="fileMeta" hidden>
-              <div class="fileMetaTop">
-                <div class="fileSummary" id="fileSummary"></div>
-                <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+            <div class="workStage">
+              <div class="thumbCard" id="thumbCard" aria-label="Preview">
+                <canvas class="thumbCanvas" id="thumbCanvas"></canvas>
+                <div class="thumbType" id="thumbType">PDF</div>
+                <div class="thumbName" id="thumbName">PDF</div>
+                <div class="thumbClose" id="thumbClose" aria-label="Remove">×</div>
+                <div class="thumbHint" id="thumbHint">Upload to continue</div>
               </div>
-              <ul class="fileList" id="fileList"></ul>
+
+              <div class="fileMeta" id="fileMeta" hidden>
+                <div class="fileMetaTop">
+                  <div class="fileSummary" id="fileSummary"></div>
+                  <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+                </div>
+                <ul class="fileList" id="fileList"></ul>
+              </div>
+            </div>
+
+            <div class="workBottom">
+              <div class="workActions">
+                <button class="btnSoft" id="upload" disabled>Upload &amp; Prepare</button>
+                <button class="btnPrimary btnStrong" id="continue" disabled>Reduce File Size →</button>
+              </div>
             </div>
           </div>
 
-          <div class="workBottom">
-            <div class="workActions">
-              <button class="btnSoft" id="upload" disabled>Upload & Prepare</button>
-              <button class="btnPrimary btnStrong" id="continue" disabled>Reduce File Size →</button>
+          <div class="stepsLine">
+            <div class="stepItem"><span class="stepNum">1</span>Select / Drop a PDF</div>
+            <div class="stepItem"><span class="stepNum">2</span>Click <strong>Upload</strong></div>
+            <div class="stepItem"><span class="stepNum">3</span>Continue → Download</div>
+          </div>
+
+          <div class="progressWrap" id="progressWrap" hidden>
+            <div class="progressTop">
+              <div id="progressLabel">Uploading…</div>
+              <div id="progressPct">0%</div>
             </div>
-          </div>
-        </div>
-
-        <!-- STEPS (pre-select only) -->
-        <div class="stepsLine">
-          <div class="stepItem"><span class="stepNum">1</span>Select / Drop a PDF</div>
-          <div class="stepItem"><span class="stepNum">2</span>Click <strong>Upload</strong></div>
-          <div class="stepItem"><span class="stepNum">3</span>Continue → Download</div>
-        </div>
-
-        <!-- PROGRESS -->
-        <div class="progressWrap" id="progressWrap" hidden>
-          <div class="progressTop">
-            <div id="progressLabel">Uploading…</div>
-            <div id="progressPct">0%</div>
-          </div>
-          <div class="progressBar">
-            <div class="progressFill" id="progressFill"></div>
+            <div class="progressBar">
+              <div class="progressFill" id="progressFill"></div>
+            </div>
           </div>
         </div>
 
       </div>
-
     </div>
   </section>
 
-  <!-- CLEAN LANDING SUPPORT SECTION (SEO-friendly, visible text) -->
   <section class="plainSection" id="about">
     <div class="container heroWide">
 
@@ -777,6 +828,29 @@
 
       <div class="plainDivider"></div>
 
+      <section class="plainSection" id="common-fixes">
+        <div class="plainKicker">Popular fixes</div>
+        <h2 class="plainH2">Solve common PDF upload problems</h2>
+        <p class="plainLead" style="margin-top:14px;">
+          Jump straight to the right page if your PDF is too large for an upload form, email attachment, job application or online portal.
+        </p>
+
+        <div class="relatedLinks" aria-label="Common PDF fixes" style="margin-top:20px;">
+          <a href="/compress-pdf-under-2mb">Compress PDF to 2MB</a>
+          <a href="/compress-pdf-under-5mb">Compress PDF to 5MB</a>
+          <a href="/compress-pdf-under-10mb">Compress PDF to 10MB</a>
+          <a href="/compress-pdf-for-job-application">Compress PDF for job applications</a>
+          <a href="/reduce-pdf-size-for-email">Reduce PDF size for email</a>
+          <a href="/pdf-too-large-to-upload">PDF too large to upload</a>
+        </div>
+
+        <div class="plainNote">
+          These pages help you choose the right compression route based on the limit you need to hit.
+        </div>
+      </section>
+
+      <div class="plainDivider"></div>
+
       <div class="plainBottomGrid" id="faq">
         <div>
           <div class="plainKicker">FAQ</div>
@@ -831,7 +905,6 @@
 
     </div>
   </section>
-
 </main>
 
 <footer class="footer">
