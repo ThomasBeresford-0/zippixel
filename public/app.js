@@ -1778,6 +1778,10 @@
   const autoUploadIfReady = async () => {
     if (uploading) return;
     if (!selected.length) return;
+
+    // Do NOT auto-upload on tools that need user edits first
+    if (mode === "edit_pdf" || mode === "watermark_pdf") return;
+
     if (!modeMinFilesSatisfied()) return;
 
     try {
