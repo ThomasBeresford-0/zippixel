@@ -6,8 +6,8 @@
 // ✅ merge_pdf mode — PAID download returns a single merged PDF (supports cross-PDF order)
 // ✅ split_pdf mode — PAID download returns ZIP of per-page PDFs
 //    - NEW: supports reorder + delete via splitOrder: [1,3,2,...] (1-based original pages)
-// ✅ compress_pdf mode — PAID download currently returns a single compressed JPG (raster-based best-effort target sizing)
-// // ✅ rotate_pdf mode — PAID download returns a single rotated PDF (degrees: 90/180/270)
+// ✅ compress_pdf mode — PAID download returns a compressed PDF (raster-based best-effort target sizing)
+// ✅ rotate_pdf mode — PAID download returns a single rotated PDF (degrees: 90/180/270)
 
 require("dotenv").config();
 
@@ -30,16 +30,19 @@ try {
 }
 
 // pdf-lib is required for merge_pdf + split_pdf + rotate_pdf (but we fail gracefully if missing)
-let PDFDocumentLib = null; // PDFDocument
-let PDFDegrees = null; // degrees()
+let PDFDocumentLib = null;
+let PDFDegrees = null;
+let rgb = null;
+let StandardFonts = null;
+
 try {
   const pdfLib = require("pdf-lib");
   PDFDocumentLib = pdfLib.PDFDocument;
   PDFDegrees = pdfLib.degrees;
+  rgb = pdfLib.rgb;
+  StandardFonts = pdfLib.StandardFonts;
 } catch (e) {
-  console.warn(
-    "⚠️ pdf-lib failed to load. merge_pdf/split_pdf/rotate_pdf modes will error until you install `pdf-lib`."
-  );
+  console.warn("⚠️ pdf-lib failed to load.");
 }
 
 // R2 (S3-compatible)
@@ -219,6 +222,9 @@ function computeTotalPence(job) {
     "split_pdf",
     "rotate_pdf",
     "sign_pdf",
+    "protect_pdf",
+    "watermark_pdf",
+    "edit_pdf",
   ]);
 
 const VALID_CONVERT_TARGETS = new Set(["jpg", "jpeg", "png", "webp", "pdf"]);
@@ -363,6 +369,7 @@ function validateJobFilesForMode(job) {
 
   if (job.mode === "compress_pdf") {
     if (!sharp) throw new Error("PDF compression is unavailable (sharp not installed).");
+    if (!PDFDocumentLib) throw new Error("PDF compression is unavailable (pdf-lib not installed).");
     if (files.length !== 1) throw new Error("Compress PDF requires exactly 1 PDF.");
     const nonPdf = files.find((f) => !isPdfMeta(f));
     if (nonPdf) throw new Error("Compress PDF only accepts a PDF file.");
@@ -393,6 +400,12 @@ function validateJobFilesForMode(job) {
     if (files.length !== 1) throw new Error("Sign PDF requires exactly 1 PDF.");
     const nonPdf = files.find((f) => !isPdfMeta(f));
     if (nonPdf) throw new Error("Sign PDF only accepts a PDF file.");
+  }
+  if (job.mode === "watermark_pdf" || job.mode === "protect_pdf" || job.mode === "edit_pdf") {
+  if (!PDFDocumentLib) throw new Error("PDF tools unavailable (pdf-lib not installed).");
+  if (files.length !== 1) throw new Error("This tool requires exactly 1 PDF.");
+  const nonPdf = files.find((f) => !isPdfMeta(f));
+  if (nonPdf) throw new Error("Only PDF files are supported.");
   }
   }
 
@@ -604,10 +617,7 @@ TOOL_PAGES.forEach((slug) => {
   });
 });
 
-// Fallback: send home for unknown routes (prevents weird “stuck page” behavior)
-app.get("*", (req, res) => {
-  res.sendFile(path.join(PUBLIC_DIR, "index.html"));
-});
+// Fallback: send home for unknown routes (prevents weird “stuck page” behavior
 
 // ====== API ======
 
@@ -624,6 +634,14 @@ app.post("/api/jobs", (_, res) => {
     files: [],
 
     options: { shareLink: false },
+
+    watermarkText: null,
+    watermarkOpacity: 0.2,
+    watermarkFontSize: 48,
+
+    protectPassword: null,
+
+    editText: null,
 
     mode: "compress", // compress | compress_pdf | convert | merge_pdf | split_pdf | rotate_pdf
     convertTarget: null,
@@ -739,7 +757,7 @@ app.post("/api/jobs/:jobId/register", (req, res) => {
 app.post("/api/jobs/:jobId/mode", (req, res) => {
   try {
     const job = getJob(req.params.jobId);
-    const { mode, target, order, splitOrder, level, degrees, angle, rotateMap, targetBytes } = req.body || {};
+    const { mode, target, order, splitOrder, level, degrees, angle, rotateMap, targetBytes, text, password } = req.body || {};
 
     const m = String(mode || "").toLowerCase().trim();
     if (!VALID_MODES.has(m)) throw new Error("Invalid mode");
@@ -826,7 +844,44 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
       job.rotateDegrees = 90;
       job.rotateMap = null;
 
-    } else {
+    }
+    else if (m === "watermark_pdf") {
+      job.convertTarget = null;
+      job.pageOrder = null;
+      job.pageOrderType = "none";
+      job.splitOrder = null;
+      job.pdfCompressLevel = "balanced";
+      job.targetBytes = null;
+      job.rotateDegrees = 90;
+      job.rotateMap = null;
+      job.watermarkText = String(text || "PDFOperations");
+    }
+
+    else if (m === "protect_pdf") {
+      job.convertTarget = null;
+      job.pageOrder = null;
+      job.pageOrderType = "none";
+      job.splitOrder = null;
+      job.pdfCompressLevel = "balanced";
+      job.targetBytes = null;
+      job.rotateDegrees = 90;
+      job.rotateMap = null;
+      job.protectPassword = String(password || "1234");
+    }
+
+    else if (m === "edit_pdf") {
+      job.convertTarget = null;
+      job.pageOrder = null;
+      job.pageOrderType = "none";
+      job.splitOrder = null;
+      job.pdfCompressLevel = "balanced";
+      job.targetBytes = null;
+      job.rotateDegrees = 90;
+      job.rotateMap = null;
+      job.editText = String(text || "Edited with PDFOperations");
+    }
+
+    else {
       job.convertTarget = null;
 
       job.pageOrder = null;
@@ -893,16 +948,22 @@ app.post("/api/checkout", async (req, res) => {
       job.mode === "merge_pdf"
         ? "Merge PDFs"
         : job.mode === "split_pdf"
-            ? "Split PDF"
-            : job.mode === "compress_pdf"
-                ? `Compress PDF (${levelLabel})`
-                : job.mode === "rotate_pdf"
-                    ? `Rotate PDF (${rotateLabel})`
-                    : job.mode === "convert"
-                        ? `Convert to ${String(job.convertTarget || "").toUpperCase() || "format"}`
-                        : job.mode === "sign_pdf"
-                            ? "Sign PDF"
-                            : "ZIP download";
+          ? "Split PDF"
+          : job.mode === "compress_pdf"
+            ? `Compress PDF (${levelLabel})`
+            : job.mode === "rotate_pdf"
+              ? `Rotate PDF (${rotateLabel})`
+              : job.mode === "convert"
+                ? `Convert to ${String(job.convertTarget || "").toUpperCase() || "format"}`
+                : job.mode === "sign_pdf"
+                  ? "Sign PDF"
+                  : job.mode === "watermark_pdf"
+                    ? "Watermark PDF"
+                    : job.mode === "protect_pdf"
+                      ? "Protect PDF"
+                      : job.mode === "edit_pdf"
+                        ? "Edit PDF"
+                        : "ZIP download";
 
     const productName = `${productNameBase} — ${modeLabel}`;
 
@@ -973,7 +1034,10 @@ app.get("/api/status/:jobId", async (req, res) => {
 
 async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
   if (!sharp) throw new Error("PDF compression is unavailable (sharp not installed).");
+  if (!PDFDocumentLib) throw new Error("PDF compression is unavailable (pdf-lib not installed).");
 
+  const srcPdf = await PDFDocumentLib.load(inputBuffer);
+  const totalPages = srcPdf.getPageCount();
   const lvl = normalizePdfLevel(level);
 
   const densityMap = {
@@ -991,20 +1055,42 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
   const densities = densityMap[lvl];
   const qualities = qualityMap[lvl];
 
-  let best = null;
+  let bestPdfBytes = null;
 
   for (const density of densities) {
     for (const quality of qualities) {
       try {
-        const out = await sharp(inputBuffer, { density, pages: -1 })
-          .jpeg({ quality, mozjpeg: true })
-          .toBuffer();
+        const pdf = await PDFDocumentLib.create();
 
-        if (!best || out.length < best.length) best = out;
+        for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+          const jpgBuf = await sharp(inputBuffer, {
+            density,
+            page: pageIndex,
+          })
+            .jpeg({ quality, mozjpeg: true })
+            .toBuffer();
 
-        if (targetBytes && out.length <= targetBytes) {
+          const img = await pdf.embedJpg(jpgBuf);
+          const dims = img.scale(1);
+
+          const page = pdf.addPage([dims.width, dims.height]);
+          page.drawImage(img, {
+            x: 0,
+            y: 0,
+            width: dims.width,
+            height: dims.height,
+          });
+        }
+
+        const pdfBytes = await pdf.save({ useObjectStreams: false });
+
+        if (!bestPdfBytes || pdfBytes.length < bestPdfBytes.length) {
+          bestPdfBytes = pdfBytes;
+        }
+
+        if (targetBytes && pdfBytes.length <= targetBytes) {
           return {
-            buffer: out,
+            buffer: Buffer.from(pdfBytes),
             hitTarget: true,
             density,
             quality,
@@ -1016,10 +1102,10 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
     }
   }
 
-  if (best) {
+  if (bestPdfBytes) {
     return {
-      buffer: best,
-      hitTarget: !targetBytes || best.length <= targetBytes,
+      buffer: Buffer.from(bestPdfBytes),
+      hitTarget: !targetBytes || bestPdfBytes.length <= targetBytes,
     };
   }
 
@@ -1220,9 +1306,10 @@ app.get("/api/download/:jobId", async (req, res) => {
       return;
     }
 
-        // ====== COMPRESS PDF MODE ======
-      if (job.mode === "compress_pdf") {
+    // ====== COMPRESS PDF MODE ======
+    if (job.mode === "compress_pdf") {
       if (!sharp) throw new Error("PDF compression is unavailable (sharp not installed).");
+      if (!PDFDocumentLib) throw new Error("PDF compression is unavailable (pdf-lib not installed).");
 
       const only = job.files[0];
       const obj = await r2.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: only.key }));
@@ -1245,10 +1332,10 @@ app.get("/api/download/:jobId", async (req, res) => {
         String(only.originalname || "document").replace(/\.pdf$/i, "")
       );
 
-      res.setHeader("Content-Type", "image/jpeg");
+      res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="${base}_compressed.jpg"`
+        `attachment; filename="${base}_compressed.pdf"`
       );
 
       return res.send(result.buffer);
@@ -1321,6 +1408,96 @@ app.get("/api/download/:jobId", async (req, res) => {
 
       return obj.Body.pipe(res);
     }
+
+    if (job.mode === "watermark_pdf") {
+  const only = job.files[0];
+  const obj = await r2.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: only.key }));
+  const buf = await streamToBuffer(obj.Body);
+
+  const pdf = await PDFDocumentLib.load(buf);
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+
+  for (const page of pdf.getPages()) {
+    const { width, height } = page.getSize();
+
+    page.drawText(job.watermarkText || "PDFOperations", {
+      x: width / 4,
+      y: height / 2,
+      size: job.watermarkFontSize || 48,
+      font,
+      color: rgb(0.7, 0.7, 0.7),
+      opacity: job.watermarkOpacity || 0.2,
+      rotate: PDFDegrees(-45),
+    });
+  }
+
+  const bytes = await pdf.save();
+
+  res.setHeader("Content-Type", "application/pdf");
+  return res.send(Buffer.from(bytes));
+}
+
+if (job.mode === "protect_pdf") {
+  const only = job.files[0];
+  const obj = await r2.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: only.key }));
+  const buf = await streamToBuffer(obj.Body);
+
+  const fs = require("fs");
+  const { execFile } = require("child_process");
+  const util = require("util");
+  const execFileAsync = util.promisify(execFile);
+
+  const inputPath = `/tmp/${job.jobId}_input.pdf`;
+  const outputPath = `/tmp/${job.jobId}_output.pdf`;
+
+  fs.writeFileSync(inputPath, buf);
+
+  const password = job.protectPassword || "1234";
+
+  await execFileAsync("qpdf", [
+    "--encrypt",
+    password,
+    password,
+    "256",
+    "--",
+    inputPath,
+    outputPath,
+  ]);
+
+  const outBuf = fs.readFileSync(outputPath);
+
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="protected_${job.jobId}.pdf"`
+  );
+
+  return res.send(outBuf);
+}
+
+    if (job.mode === "edit_pdf") {
+  const only = job.files[0];
+  const obj = await r2.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: only.key }));
+  const buf = await streamToBuffer(obj.Body);
+
+  const pdf = await PDFDocumentLib.load(buf);
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+
+  for (const page of pdf.getPages()) {
+    page.drawText(job.editText || "Edited", {
+      x: 50,
+      y: 50,
+      size: 18,
+      font,
+      color: rgb(0, 0, 0),
+    });
+  }
+
+  const bytes = await pdf.save();
+
+  res.setHeader("Content-Type", "application/pdf");
+  return res.send(Buffer.from(bytes));
+  }
 
     // ====== ZIP MODES ======
     res.setHeader("Content-Type", "application/zip");
@@ -1470,6 +1647,10 @@ app.get("/api/share/:token/download", async (req, res) => {
   } catch (e) {
     res.status(400).send(e.message);
   }
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, "index.html"));
 });
 
 app.listen(PORT, () => {
