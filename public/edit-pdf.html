@@ -1,10 +1,10 @@
-<!-- public/edit-pdf.html — PDFOperations (v2 - FULL RAMBO AUTHORITY EDIT TOOL; SEO SUPPORT SECTION MATCHES INDEX v71)
-     ✅ NO app.js hook/ID changes
-     ✅ Keeps existing edit flow + IDs (dropzone/files/choose/upload/continue/pdfEditor/etc.)
-     ✅ Adds the SAME “plainSection” support layout as index v71 (but individualized for Edit)
-     ✅ Adds JSON-LD blocks (Organization + WebPage + Breadcrumb + FAQ + SoftwareApplication)
-     ✅ Keeps PDF.js ESM loader paths (/vendor/pdfjs/*.mjs)
-     ✅ app.js loaded ONCE
+<!-- public/edit-pdf.html — PDFOperations (v3 - ELITE EDITOR / REAL WORKFLOW / DROP-IN REPLACEMENT)
+     ✅ Keeps existing core IDs/hooks: dropzone/files/chooseBtn/upload/continue/pdfEditor/fileMeta/fileSummary/fileList/clearBtn
+     ✅ Keeps shared app.js compatibility via hidden mode radios + data-tool="edit_pdf"
+     ✅ Real editing workflow: select PDF → editor opens → click to add text → style / move / resize → upload edited result
+     ✅ Premium authority UI, clearer controls, better empty/editor states
+     ✅ JSON-LD preserved + upgraded
+     ✅ PDF.js self-hosted ESM loader preserved
 -->
 <!doctype html>
 <html lang="en">
@@ -13,13 +13,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Edit PDF Online — Add Text to PDF | PDFOperations</title>
-  <meta name="description" content="Edit PDF online. Add text anywhere, drag to reposition, resize and download securely. Business-ready PDF editing." />
+  <meta name="description" content="Edit PDF online. Add text anywhere, drag to reposition, style and resize text, then download securely. Business-ready PDF editing." />
   <link rel="canonical" href="https://pdfoperations.com/edit-pdf" />
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light" />
 
-  <!-- Google Analytics (PDFOperations) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQ3QKV7KHG"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -29,7 +28,7 @@
   </script>
 
   <meta property="og:title" content="Edit PDF Online — Add Text to PDF | PDFOperations" />
-  <meta property="og:description" content="Add text overlays to PDF pages online. Click to insert text, drag to move, resize, then download your edited PDF." />
+  <meta property="og:description" content="Add text overlays to PDF pages online. Click to insert text, drag to move, style and resize, then download your edited PDF." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/edit-pdf" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
@@ -40,32 +39,22 @@
   <meta name="twitter:description" content="Add text overlays to PDF pages online. Drag to reposition and download your edited file." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="icon" type="image/png" sizes="192x192" href="/web-app-manifest-192x192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/web-app-manifest-512x512.png">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
   <link rel="stylesheet" href="/style.css?v=36" />
 
   <style>
-    /* =========================
-       HARD AUTHORITY LAYER (NO FUNCTION CHANGES)
-       Aligns shell + “plainSection” look with index v71
-    ========================== */
-
     .brandLogo{ height:32px; width:auto; display:block; flex:0 0 auto; }
-
     .nav{
-      border-bottom: 1px solid rgba(15,23,42,.10);
-      background: rgba(245,247,251,.86);
-      backdrop-filter: blur(10px);
+      border-bottom:1px solid rgba(15,23,42,.10);
+      background:rgba(245,247,251,.86);
+      backdrop-filter:blur(10px);
     }
-    .brandText .sub{ opacity:.70; }
-
     .navLinks a{
-      font-weight: 850;
+      font-weight:850;
       letter-spacing:-.01em;
       opacity:.86;
     }
@@ -74,74 +63,390 @@
       border-bottom:1px solid rgba(11,18,32,.35);
     }
 
+    [hidden]{ display:none !important; }
+
+    .hero.heroPremium.heroToolFirst{
+      padding-top:22px;
+      padding-bottom:20px;
+    }
+
+    .tool.toolPremium.toolMega{
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.14);
+      box-shadow:0 26px 80px rgba(2,6,23,.10);
+      background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,1));
+    }
+
+    .toolHeadMinimal{
+      border-bottom:1px solid rgba(15,23,42,.10);
+      padding-bottom:14px;
+      margin-bottom:14px;
+    }
+    .toolTitle{
+      letter-spacing:-.03em;
+      font-weight:1000;
+    }
+    .toolSub{ opacity:.78; }
+
+    .dropzone.dropzonePremium.dropzoneMega{
+      min-height:220px;
+      border:1px dashed rgba(15,23,42,.22);
+      border-radius:18px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.95), rgba(247,249,252,.95));
+    }
     #dropzone.isDragOver{
       outline:2px solid rgba(11,18,32,.14);
       box-shadow:0 24px 70px rgba(2,6,23,.14);
       transform:translateY(-1px);
     }
 
-    [hidden]{ display:none !important; }
-
-    /* Flatten “hero” feel into clean stage */
-    .hero.heroPremium.heroToolFirst{
-      padding-top: 22px;
-      padding-bottom: 20px;
-    }
-
-    /* Instrument-panel tool container */
-    .tool.toolPremium.toolMega{
-      border-radius: 14px;
-      border:1px solid rgba(15,23,42,.14);
-      box-shadow: 0 26px 80px rgba(2,6,23,.10);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,1));
-    }
-
-    .toolHeadMinimal{
-      border-bottom:1px solid rgba(15,23,42,.10);
-      padding-bottom: 14px;
-      margin-bottom: 14px;
-    }
-    .toolTitle{
-      letter-spacing:-.03em;
-      font-weight: 1000;
-    }
-    .toolSub{ opacity:.78; }
-
-    /* Work panel look/spacing consistent with index */
     .workPanel{
       margin-top:12px;
       border:1px solid rgba(15,23,42,.14);
       background:#fff;
-      border-radius:14px;
+      border-radius:16px;
       box-shadow:0 26px 70px rgba(2,6,23,.10);
       overflow:hidden;
     }
+
     .workTop{
       display:flex;
       align-items:center;
-      justify-content:center;
+      justify-content:space-between;
       gap:12px;
       padding:12px 14px;
       border-bottom:1px solid rgba(15,23,42,.10);
       background:linear-gradient(180deg, rgba(11,18,32,.03), transparent);
+      flex-wrap:wrap;
+    }
+    .workTopLeft,
+    .workTopRight{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
     }
     .workTop .btnPrimary,
     .workTop .btnGhost{
-      min-width:150px;
+      min-width:136px;
       height:38px;
       border-radius:10px;
       font-weight:950;
       letter-spacing:-.01em;
     }
 
-    .workStage{
-      padding:18px 16px;
+    .editorShell{
+      display:grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap:0;
+      min-height:680px;
+    }
+    @media (max-width: 1080px){
+      .editorShell{
+        grid-template-columns:1fr;
+      }
+    }
+
+    .editorSidebar{
+      border-right:1px solid rgba(15,23,42,.10);
+      background:
+        linear-gradient(180deg, rgba(248,250,252,.92), rgba(255,255,255,.98));
+      padding:16px 16px 18px;
+    }
+    @media (max-width: 1080px){
+      .editorSidebar{
+        border-right:0;
+        border-bottom:1px solid rgba(15,23,42,.10);
+      }
+    }
+
+    .sideBlock + .sideBlock{
+      margin-top:16px;
+      padding-top:16px;
+      border-top:1px solid rgba(15,23,42,.10);
+    }
+    .sideTitle{
+      margin:0 0 6px;
+      font-size:15px;
+      font-weight:1000;
+      letter-spacing:-.02em;
+      color:rgba(11,18,32,.94);
+    }
+    .sideSub{
+      margin:0;
+      font-size:13px;
+      line-height:1.55;
+      color:rgba(11,18,32,.72);
+    }
+
+    .statsGrid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+    .statCard{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      padding:12px;
+      background:#fff;
+    }
+    .statLabel{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      opacity:.66;
+      font-weight:900;
+    }
+    .statValue{
+      margin-top:5px;
+      font-size:20px;
+      line-height:1;
+      font-weight:1000;
+      letter-spacing:-.03em;
+      color:rgba(11,18,32,.96);
+    }
+
+    .field{
+      display:block;
+      margin-top:12px;
+    }
+    .label{
+      display:block;
+      font-size:12px;
+      font-weight:950;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      opacity:.74;
+      margin-bottom:6px;
+    }
+    .input,
+    .select{
+      width:100%;
+      height:44px;
+      border-radius:12px;
+      border:1px solid rgba(15,23,42,.14);
+      background:#fff;
+      padding:0 12px;
+      font-weight:850;
+      letter-spacing:-.01em;
+      outline:none;
+    }
+    .input:focus,
+    .select:focus{
+      border-color:rgba(11,18,32,.34);
+      box-shadow:0 0 0 4px rgba(11,18,32,.06);
+    }
+    .inputColor{
+      width:100%;
+      height:44px;
+      border-radius:12px;
+      border:1px solid rgba(15,23,42,.14);
+      background:#fff;
+      padding:4px;
+      cursor:pointer;
+    }
+    .range{
+      width:100%;
+    }
+
+    .controlRow{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .miniActions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .hintCard{
+      margin-top:14px;
+      padding:14px;
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.10);
+      background:#fff;
+      font-size:13px;
+      line-height:1.6;
+      color:rgba(11,18,32,.76);
+    }
+
+    .editorMain{
+      background:
+        linear-gradient(180deg, rgba(246,248,251,.9), rgba(255,255,255,1));
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .editorToolbar{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      padding:12px 14px;
+      border-bottom:1px solid rgba(15,23,42,.10);
+      background:rgba(255,255,255,.72);
+    }
+    .editorToolbarLeft,
+    .editorToolbarRight{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:-.01em;
+      color:rgba(11,18,32,.82);
+    }
+
+    .editorCanvasWrap{
+      padding:18px;
+      min-height:560px;
+    }
+
+    .editorStage{
+      width:100%;
+      max-width:980px;
+      margin:0 auto;
+    }
+    #pdfEditor{
+      display:block;
+    }
+
+    .editorEmpty{
+      border:1px dashed rgba(15,23,42,.20);
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(248,250,252,.96));
+      min-height:440px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:24px;
+      color:rgba(11,18,32,.72);
+    }
+    .editorEmptyInner{
+      max-width:480px;
+    }
+    .editorEmptyTitle{
+      font-size:28px;
+      line-height:1.05;
+      font-weight:1000;
+      letter-spacing:-.03em;
+      color:rgba(11,18,32,.94);
+      margin:0 0 10px;
+    }
+    .editorEmptyText{
+      margin:0;
+      font-size:15px;
+      line-height:1.65;
+    }
+
+    .editPage{
+      position:relative;
+      margin:0 auto 54px;
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid rgba(15,23,42,.14);
+      box-shadow:0 22px 60px rgba(2,6,23,.10);
+      background:#fff;
+    }
+    .editPageHeader{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-bottom:1px solid rgba(15,23,42,.10);
+      background:linear-gradient(180deg, rgba(11,18,32,.03), transparent);
+    }
+    .editPageTitle{
+      font-size:13px;
+      font-weight:1000;
+      letter-spacing:-.01em;
+      color:rgba(11,18,32,.88);
+    }
+    .editPageMeta{
+      font-size:12px;
+      opacity:.68;
+      font-weight:800;
+    }
+
+    .editPage canvas{
+      display:block;
+      width:100%;
+      height:auto;
       background:#fff;
     }
 
+    .overlay{
+      position:absolute;
+      inset:44px 0 0 0;
+      overflow:hidden;
+    }
+
+    .textBlock{
+      position:absolute;
+      min-width:64px;
+      min-height:34px;
+      padding:8px 10px;
+      background:rgba(255,255,255,.96);
+      border:1px dashed rgba(11,18,32,.38);
+      border-radius:10px;
+      cursor:move;
+      font-weight:900;
+      letter-spacing:-.01em;
+      box-shadow:0 10px 28px rgba(2,6,23,.10);
+      user-select:none;
+      -webkit-user-select:none;
+      transform-origin:center;
+      line-height:1.2;
+      color:#0b1220;
+    }
+    .textBlock:focus{
+      outline:none;
+      border-color:rgba(11,18,32,.84);
+      box-shadow:0 14px 34px rgba(2,6,23,.16);
+    }
+    .textBlock.active{
+      border:2px solid rgba(11,18,32,.84);
+      box-shadow:0 14px 34px rgba(2,6,23,.16);
+    }
+    .textBlock.isDragging{
+      opacity:.92;
+    }
+
+    .textBlockHandle{
+      position:absolute;
+      right:-7px;
+      bottom:-7px;
+      width:14px;
+      height:14px;
+      border-radius:999px;
+      background:#0b1220;
+      border:2px solid #fff;
+      box-shadow:0 4px 14px rgba(2,6,23,.18);
+      cursor:nwse-resize;
+    }
+
     .workBottom{
-      padding:14px 16px 16px 16px;
+      padding:14px 16px 16px;
       border-top:1px solid rgba(15,23,42,.10);
       background:linear-gradient(180deg, transparent, rgba(11,18,32,.02));
     }
@@ -160,59 +465,7 @@
       letter-spacing:-.01em;
       min-width:240px;
     }
-    @media(max-width: 620px){
-      .workActions{ flex-direction:column; }
-      .workActions .btnSoft,
-      .workActions .btnPrimary{ width:100%; min-width:unset; }
-      .workTop{ flex-direction:column; }
-      .workTop .btnPrimary,
-      .workTop .btnGhost{ width:100%; min-width:unset; max-width:420px; }
-    }
 
-    /* =========================
-       EDITOR STAGE (authority UI, same vibe)
-    ========================== */
-    .editorStage{ width:100%; max-width:980px; margin:0 auto; }
-    #pdfEditor{ display:block; }
-    .editPage{
-      position:relative;
-      margin:0 auto 56px;
-      border-radius:14px;
-      overflow:hidden;
-      border:1px solid rgba(15,23,42,.14);
-      box-shadow:0 22px 60px rgba(2,6,23,.10);
-      background:#fff;
-    }
-    .editPage canvas{
-      display:block;
-      width:100%;
-      height:auto;
-      background:#fff;
-    }
-    .overlay{ position:absolute; inset:0; }
-
-    .textBlock{
-      position:absolute;
-      min-width:44px;
-      padding:6px 8px;
-      background:rgba(255,255,255,.96);
-      border:1px dashed rgba(11,18,32,.45);
-      border-radius:10px;
-      cursor:move;
-      font-weight:900;
-      letter-spacing:-.01em;
-      box-shadow:0 10px 28px rgba(2,6,23,.10);
-      user-select:none;
-    }
-    .textBlock:focus{ outline:none; }
-    .textBlock.active{
-      border:2px solid rgba(11,18,32,.85);
-      box-shadow:0 14px 34px rgba(2,6,23,.14);
-    }
-
-    /* =========================
-       “WE COMPRESS” SUPPORT LAYER — HARD EDITORIAL (MATCH INDEX v71)
-    ========================== */
     .plainSection{ padding:64px 0 40px; }
     .plainKicker{
       font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -229,28 +482,29 @@
       font-weight:1000;
       color:rgba(11,18,32,.96);
     }
-    @media (max-width: 720px){ .plainH2{ font-size:34px; } }
+    @media (max-width:720px){
+      .plainH2{ font-size:34px; }
+    }
     .plainLead{
       margin:0;
       font-size:16px;
       line-height:1.65;
-      max-width: 78ch;
+      max-width:78ch;
       opacity:.80;
     }
 
     .featureGrid{
       margin-top:34px;
       display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns:repeat(3, minmax(0, 1fr));
       gap:40px 44px;
     }
-    @media (max-width: 980px){
-      .featureGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap:30px 28px; }
+    @media (max-width:980px){
+      .featureGrid{ grid-template-columns:repeat(2, minmax(0, 1fr)); gap:30px 28px; }
     }
-    @media (max-width: 640px){
-      .featureGrid{ grid-template-columns: 1fr; gap:24px; }
+    @media (max-width:640px){
+      .featureGrid{ grid-template-columns:1fr; gap:24px; }
     }
-
     .featIcon{ width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center; margin-bottom:12px; opacity:.95; }
     .featTitle{ margin:0 0 10px; font-size:18px; letter-spacing:-.02em; font-weight:1000; }
     .featText{ margin:0; font-size:15px; line-height:1.65; opacity:.80; }
@@ -260,17 +514,19 @@
     .plainBottomGrid{
       margin-top:36px;
       display:grid;
-      grid-template-columns: 1.1fr .9fr;
+      grid-template-columns:1.1fr .9fr;
       gap:44px;
       align-items:start;
     }
-    @media (max-width: 980px){ .plainBottomGrid{ grid-template-columns: 1fr; gap:32px; } }
+    @media (max-width:980px){
+      .plainBottomGrid{ grid-template-columns:1fr; gap:32px; }
+    }
 
     .faqListPlain{ margin-top:10px; display:grid; gap:18px; }
     .faqItemPlain{ padding-top:16px; border-top:1px solid rgba(15,23,42,.12); }
     .faqItemPlain:first-child{ border-top:0; padding-top:0; }
     .faqQ{ margin:0 0 8px; font-weight:1000; letter-spacing:-.02em; font-size:16px; }
-    .faqA{ margin:0; opacity:.80; line-height:1.65; font-size:15px; max-width: 68ch; }
+    .faqA{ margin:0; opacity:.80; line-height:1.65; font-size:15px; max-width:68ch; }
 
     .relatedLinks{
       margin-top:12px;
@@ -285,20 +541,19 @@
       color:rgba(11,18,32,.92);
       border-bottom:1px solid rgba(11,18,32,.24);
     }
-    .relatedLinks a:hover{ border-bottom-color: rgba(11,18,32,.60); }
+    .relatedLinks a:hover{ border-bottom-color:rgba(11,18,32,.60); }
 
     .plainNote{
       margin-top:14px;
       font-size:13px;
       opacity:.72;
       line-height:1.55;
-      max-width: 80ch;
+      max-width:80ch;
     }
 
-    .icoStroke{ stroke: rgba(11,18,32,.92); }
+    .icoStroke{ stroke:rgba(11,18,32,.92); }
   </style>
 
-  <!-- JSON-LD: Organization -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -309,7 +564,6 @@
   }
   </script>
 
-  <!-- JSON-LD: WebPage -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -325,7 +579,6 @@
   }
   </script>
 
-  <!-- JSON-LD: Breadcrumb -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -337,7 +590,6 @@
   }
   </script>
 
-  <!-- JSON-LD: FAQ -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -379,7 +631,6 @@
   }
   </script>
 
-  <!-- JSON-LD: SoftwareApplication -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -400,7 +651,6 @@
   }
   </script>
 
-  <!-- ✅ PDF.js (ESM, self-hosted) -->
   <script type="module">
     window.__pdfjsReady = import("/vendor/pdfjs/pdf.min.mjs")
       .then((mod) => {
@@ -416,8 +666,7 @@
       });
   </script>
 
-  <!-- ✅ app.js ONCE -->
-<script defer src="/app.js?v=17.8"></script>
+  <script defer src="/app.js?v=17.8"></script>
 </head>
 
 <body class="page pageEditPdf premium" data-tool="edit_pdf">
@@ -427,7 +676,6 @@
 
   <header class="nav">
     <div class="container navInner">
-
       <a class="brand" href="/" aria-label="PDFOperations home">
         <img src="/logo.png" alt="PDFOperations" class="brandLogoFull" />
       </a>
@@ -438,25 +686,22 @@
         <a href="/split-pdf" data-nav="split">Split</a>
         <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
         <a href="/convert" data-nav="convert">Convert</a>
-
         <a href="/sign-pdf" data-nav="sign">Sign</a>
         <a href="/protect-pdf" data-nav="protect">Protect</a>
         <a href="/edit-pdf" data-nav="edit" aria-current="page">Edit</a>
         <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
       </nav>
-
     </div>
   </header>
 
   <main>
     <section class="hero heroPremium heroToolFirst">
       <div class="container heroWide">
-
         <div id="tool" class="tool toolPremium toolMega">
 
           <div class="toolHead toolHeadMinimal">
             <h1 class="toolTitle">Edit PDF</h1>
-            <p class="toolSub">Click anywhere to add text. Drag to reposition. Resize and download securely.</p>
+            <p class="toolSub">Click anywhere on the page to add text. Drag, resize, style and export a cleaner PDF.</p>
           </div>
 
           <div class="statusWrap">
@@ -464,10 +709,9 @@
               <div class="status" id="status">Ready</div>
               <div class="spinner" id="spinner"></div>
             </div>
-            <div class="statusHint" id="statusHint">Drop a PDF to begin.</div>
+            <div class="statusHint" id="statusHint">Drop a PDF to begin editing.</div>
           </div>
 
-          <!-- hidden mode (app.js compatibility) -->
           <fieldset style="display:none;">
             <input type="radio" name="mode" id="modeCompress">
             <input type="radio" name="mode" id="modeCompressPdf">
@@ -481,62 +725,157 @@
             <input type="radio" name="mode" id="modeEditPdf" checked>
           </fieldset>
 
-          <!-- DROPZONE (IDs preserved) -->
           <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
             <div class="dzCenter">
               <div class="dzTitle" id="dzTitle">Drop a PDF here</div>
-              <div class="dzSub" id="dzSub">PDF only • 1 file</div>
+              <div class="dzSub" id="dzSub">PDF only • 1 file • Visual editor</div>
               <button id="chooseBtn" class="btnPrimary btnLarge" type="button">Select PDF</button>
               <input id="files" type="file" accept="application/pdf,.pdf" hidden />
-              <div class="dzFine">Tip: click a page to add text, then drag to reposition.</div>
+              <div class="dzFine">Add text overlays, reposition them, then upload the edited result.</div>
             </div>
           </div>
 
-          <!-- FILE META (hidden but required by app.js) -->
           <div id="fileMeta" hidden>
             <div id="fileSummary"></div>
             <ul id="fileList"></ul>
           </div>
 
-          <!-- WORK PANEL -->
           <div class="workPanel" id="workPanel" aria-label="Selected file" hidden>
-
             <div class="workTop">
-              <button class="btnPrimary" type="button" onclick="document.getElementById('chooseBtn').click()">
-                Select PDF
-              </button>
-              <button class="btnGhost" type="button" id="clearBtn">Clear</button>
+              <div class="workTopLeft">
+                <button class="btnPrimary" type="button" onclick="document.getElementById('chooseBtn').click()">
+                  Replace PDF
+                </button>
+                <button class="btnGhost" type="button" id="clearBtn">Clear</button>
+              </div>
+
+              <div class="workTopRight">
+                <span class="pill"><span>Mode</span><strong>Text overlay editor</strong></span>
+                <span class="pill"><span id="editorPagesPill">0 pages</span></span>
+                <span class="pill"><span id="editorBlocksPill">0 text blocks</span></span>
+              </div>
             </div>
 
-            <div class="workStage">
-              <div class="editorStage">
-                <div id="pdfEditor"></div>
-              </div>
+            <div class="editorShell">
+              <aside class="editorSidebar">
+                <div class="sideBlock">
+                  <h2 class="sideTitle">Editing controls</h2>
+                  <p class="sideSub">Click on a page to create a text block. Then edit content, style it, drag it, or resize it using the bottom-right handle.</p>
+
+                  <div class="statsGrid">
+                    <div class="statCard">
+                      <div class="statLabel">Pages</div>
+                      <div class="statValue" id="statPages">0</div>
+                    </div>
+                    <div class="statCard">
+                      <div class="statLabel">Text blocks</div>
+                      <div class="statValue" id="statBlocks">0</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sideBlock">
+                  <h3 class="sideTitle">Selected text block</h3>
+                  <p class="sideSub" id="selectionState">No text block selected yet.</p>
+
+                  <label class="field">
+                    <span class="label">Text</span>
+                    <input id="blockTextInput" class="input" type="text" placeholder="Click a page to add text" />
+                  </label>
+
+                  <div class="controlRow">
+                    <label class="field" style="margin-top:0;">
+                      <span class="label">Font size</span>
+                      <input id="blockFontSize" class="input" type="number" min="8" max="144" step="1" value="24" />
+                    </label>
+
+                    <label class="field" style="margin-top:0;">
+                      <span class="label">Color</span>
+                      <input id="blockColor" class="inputColor" type="color" value="#0b1220" />
+                    </label>
+                  </div>
+
+                  <div class="controlRow">
+                    <label class="field" style="margin-top:0;">
+                      <span class="label">Weight</span>
+                      <select id="blockWeight" class="select">
+                        <option value="700">Bold</option>
+                        <option value="500">Medium</option>
+                        <option value="400">Regular</option>
+                      </select>
+                    </label>
+
+                    <label class="field" style="margin-top:0;">
+                      <span class="label">Opacity</span>
+                      <input id="blockOpacity" class="range" type="range" min="0.2" max="1" step="0.05" value="1" />
+                    </label>
+                  </div>
+
+                  <div class="miniActions">
+                    <button id="duplicateBlockBtn" class="btnGhost" type="button">Duplicate</button>
+                    <button id="deleteBlockBtn" class="btnGhost" type="button">Delete</button>
+                  </div>
+                </div>
+
+                <div class="sideBlock">
+                  <h3 class="sideTitle">Quick actions</h3>
+                  <div class="miniActions">
+                    <button id="addCenteredTextBtn" class="btnGhost" type="button">Add centered text</button>
+                    <button id="clearAllBlocksBtn" class="btnGhost" type="button">Clear all text</button>
+                  </div>
+
+                  <div class="hintCard">
+                    Tip: this editor adds new text overlays on top of the PDF. It does not rewrite existing embedded text inside the original document.
+                  </div>
+                </div>
+              </aside>
+
+              <section class="editorMain">
+                <div class="editorToolbar">
+                  <div class="editorToolbarLeft">
+                    <span class="pill">Click page to add text</span>
+                    <span class="pill">Drag to reposition</span>
+                    <span class="pill">Resize from corner</span>
+                  </div>
+                  <div class="editorToolbarRight">
+                    <span class="pill" id="selectedPagePill">No page selected</span>
+                  </div>
+                </div>
+
+                <div class="editorCanvasWrap">
+                  <div class="editorStage">
+                    <div class="editorEmpty" id="editorEmpty">
+                      <div class="editorEmptyInner">
+                        <h2 class="editorEmptyTitle">Visual PDF editing, not a dead upload box</h2>
+                        <p class="editorEmptyText">Select a PDF and the editor will open here. Then click anywhere on the page to add text, style it in the sidebar, drag it into position, and upload the edited result when you’re happy.</p>
+                      </div>
+                    </div>
+
+                    <div id="pdfEditor" hidden></div>
+                  </div>
+                </div>
+              </section>
             </div>
 
             <div class="workBottom">
               <div class="workActions">
-                <button id="upload" class="btnSoft" disabled>Upload PDF</button>
+                <button id="upload" class="btnSoft" disabled>Upload Edited PDF</button>
                 <button id="continue" class="btnPrimary btnStrong" disabled>Continue →</button>
               </div>
             </div>
-
           </div>
 
         </div>
       </div>
     </section>
 
-    <!-- CLEAN LANDING SUPPORT SECTION (SEO-friendly, visible text) -->
     <section class="plainSection" id="about">
       <div class="container heroWide">
 
         <div class="plainKicker">Edit</div>
         <h2 class="plainH2">Add text overlays to a PDF online</h2>
         <p class="plainLead" style="margin-top:14px;">
-          Use this visual PDF editor to add text on top of existing pages.
-          Click anywhere to insert a text block, type, drag to reposition, and adjust size before downloading.
-          Ideal for forms, contracts, onboarding documents, and quick business edits.
+          Use this visual PDF editor to place new text on top of existing PDF pages. It is ideal for forms, internal notes, labels, amendments, placeholders, customer instructions, and quick business edits where you need precise placement without opening heavier desktop software.
         </p>
 
         <div class="featureGrid" aria-label="What you can do">
@@ -550,7 +889,7 @@
               </svg>
             </div>
             <h3 class="featTitle">Click to add text</h3>
-            <p class="featText">Insert new text blocks anywhere on a page with a simple click.</p>
+            <p class="featText">Insert new text blocks anywhere on a page with a clean visual workflow.</p>
           </div>
 
           <div>
@@ -561,7 +900,7 @@
               </svg>
             </div>
             <h3 class="featTitle">Drag to reposition</h3>
-            <p class="featText">Move text precisely so it sits exactly where you need it.</p>
+            <p class="featText">Move text precisely so it lands exactly where your form or layout needs it.</p>
           </div>
 
           <div>
@@ -572,8 +911,8 @@
                 <path class="icoStroke" d="M14 7h3v3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h3 class="featTitle">Resize text blocks</h3>
-            <p class="featText">Adjust size to match headings, labels, and form fields.</p>
+            <h3 class="featTitle">Resize and style text</h3>
+            <p class="featText">Adjust font size, weight, color, and opacity for cleaner business-ready output.</p>
           </div>
 
           <div>
@@ -584,7 +923,7 @@
               </svg>
             </div>
             <h3 class="featTitle">Business-ready output</h3>
-            <p class="featText">Download an updated PDF you can send to clients or upload to portals.</p>
+            <p class="featText">Download an updated PDF you can share with clients or upload to portals.</p>
           </div>
 
           <div>
@@ -595,7 +934,7 @@
               </svg>
             </div>
             <h3 class="featTitle">Preview as you edit</h3>
-            <p class="featText">See each page and place text accurately before exporting.</p>
+            <p class="featText">See each page and place text accurately before exporting the result.</p>
           </div>
 
           <div>
@@ -625,7 +964,7 @@
 
               <div class="faqItemPlain">
                 <div class="faqQ">How do I add text to a PDF?</div>
-                <p class="faqA">Upload a PDF, click on a page to insert a text block, type your text, then drag to reposition.</p>
+                <p class="faqA">Upload a PDF, click a page to create a text block, type your text, then drag and resize it into place.</p>
               </div>
 
               <div class="faqItemPlain">
@@ -659,7 +998,7 @@
             </div>
 
             <div class="plainNote">
-              Tip: For forms, zoom in and place text carefully so it aligns with the field boxes.
+              Tip: for forms, zoom in mentally and place text carefully so it aligns with the original field boxes.
             </div>
           </div>
         </div>
@@ -682,22 +1021,319 @@
   <script>
   (function(){
     let active = null;
+    let lastSelectedPage = null;
+    let currentFile = null;
+    let currentPageCount = 0;
+    let globalBlockId = 1;
+
     window.__PDFOPS_EDIT_MAP__ = [];
 
     const editor = document.getElementById("pdfEditor");
+    const editorEmpty = document.getElementById("editorEmpty");
+    const dropzone = document.getElementById("dropzone");
+    const workPanel = document.getElementById("workPanel");
+    const uploadBtn = document.getElementById("upload");
+    const continueBtn = document.getElementById("continue");
+    const clearBtn = document.getElementById("clearBtn");
+
+    const statPages = document.getElementById("statPages");
+    const statBlocks = document.getElementById("statBlocks");
+    const editorPagesPill = document.getElementById("editorPagesPill");
+    const editorBlocksPill = document.getElementById("editorBlocksPill");
+    const selectedPagePill = document.getElementById("selectedPagePill");
+    const selectionState = document.getElementById("selectionState");
+
+    const blockTextInput = document.getElementById("blockTextInput");
+    const blockFontSize = document.getElementById("blockFontSize");
+    const blockColor = document.getElementById("blockColor");
+    const blockWeight = document.getElementById("blockWeight");
+    const blockOpacity = document.getElementById("blockOpacity");
+    const duplicateBlockBtn = document.getElementById("duplicateBlockBtn");
+    const deleteBlockBtn = document.getElementById("deleteBlockBtn");
+    const addCenteredTextBtn = document.getElementById("addCenteredTextBtn");
+    const clearAllBlocksBtn = document.getElementById("clearAllBlocksBtn");
+
+    function setDirty(){
+      if (uploadBtn) uploadBtn.disabled = false;
+      if (continueBtn) continueBtn.disabled = true;
+    }
+
+    function pageEntry(pageNumber){
+      return window.__PDFOPS_EDIT_MAP__[pageNumber - 1];
+    }
+
+    function updateStats(){
+      const blockCount = window.__PDFOPS_EDIT_MAP__.reduce((sum, p) => sum + (p.elements?.length || 0), 0);
+      statPages.textContent = String(currentPageCount || 0);
+      statBlocks.textContent = String(blockCount);
+      editorPagesPill.textContent = `${currentPageCount || 0} page${currentPageCount === 1 ? "" : "s"}`;
+      editorBlocksPill.textContent = `${blockCount} text block${blockCount === 1 ? "" : "s"}`;
+    }
+
+    function setSelectionState(text){
+      selectionState.textContent = text;
+    }
+
+    function syncSidebarFromActive(){
+      if (!active || !active.__pdfopsEntry) {
+        blockTextInput.value = "";
+        blockFontSize.value = 24;
+        blockColor.value = "#0b1220";
+        blockWeight.value = "700";
+        blockOpacity.value = "1";
+        selectedPagePill.textContent = "No page selected";
+        setSelectionState("No text block selected yet.");
+        return;
+      }
+
+      const entry = active.__pdfopsEntry;
+      blockTextInput.value = entry.text || "";
+      blockFontSize.value = String(Math.round(entry.size || 24));
+      blockColor.value = entry.color || "#0b1220";
+      blockWeight.value = String(entry.weight || 700);
+      blockOpacity.value = String(entry.opacity ?? 1);
+      selectedPagePill.textContent = `Page ${entry.page}`;
+      setSelectionState(`Selected text block on page ${entry.page}.`);
+    }
+
+    function applyEntryToBlock(block){
+      if (!block || !block.__pdfopsEntry) return;
+      const entry = block.__pdfopsEntry;
+
+      block.textContent = entry.text || "";
+      block.style.left = `${entry.x}px`;
+      block.style.top = `${entry.y}px`;
+      block.style.fontSize = `${entry.size}px`;
+      block.style.color = entry.color || "#0b1220";
+      block.style.fontWeight = String(entry.weight || 700);
+      block.style.opacity = String(entry.opacity ?? 1);
+
+      let handle = block.querySelector(".textBlockHandle");
+      if (!handle) {
+        handle = document.createElement("div");
+        handle.className = "textBlockHandle";
+        block.appendChild(handle);
+      }
+    }
+
+    function selectBlock(block){
+      document.querySelectorAll(".textBlock").forEach(b => b.classList.remove("active"));
+      active = block || null;
+      if (active) active.classList.add("active");
+      syncSidebarFromActive();
+    }
+
+    function removeBlock(block){
+      if (!block || !block.__pdfopsEntry) return;
+      const entry = block.__pdfopsEntry;
+      const pEntry = pageEntry(entry.page);
+      if (pEntry) {
+        pEntry.elements = pEntry.elements.filter(el => el.id !== entry.id);
+      }
+      block.remove();
+      if (active === block) active = null;
+      updateStats();
+      syncSidebarFromActive();
+      setDirty();
+    }
+
+    function makeEntry(page, x, y, text = "Text"){
+      return {
+        id: `block_${globalBlockId++}`,
+        type: "text",
+        page,
+        x,
+        y,
+        size: 24,
+        text,
+        color: "#0b1220",
+        weight: 700,
+        opacity: 1
+      };
+    }
+
+    function createBlock(page, x, y, presetText = "Text"){
+      const overlay = document.querySelectorAll(".overlay")[page - 1];
+      if (!overlay) return;
+
+      const entry = makeEntry(page, x, y, presetText);
+      const block = document.createElement("div");
+      block.className = "textBlock";
+      block.contentEditable = true;
+      block.spellcheck = false;
+      block.dataset.page = String(page);
+      block.__pdfopsEntry = entry;
+
+      applyEntryToBlock(block);
+
+      block.addEventListener("mousedown", startDrag);
+      block.addEventListener("click", (e) => {
+        e.stopPropagation();
+        selectBlock(block);
+      });
+      block.addEventListener("input", () => {
+        entry.text = block.textContent || "";
+        setDirty();
+        syncSidebarFromActive();
+      });
+      block.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          block.blur();
+          selectBlock(block);
+        }
+      });
+
+      overlay.appendChild(block);
+      pageEntry(page).elements.push(entry);
+
+      selectBlock(block);
+      block.focus();
+      updateStats();
+      setDirty();
+    }
+
+    function duplicateActiveBlock(){
+      if (!active || !active.__pdfopsEntry) return;
+      const src = active.__pdfopsEntry;
+      const entry = {
+        ...makeEntry(src.page, src.x + 18, src.y + 18, src.text || "Text"),
+        size: src.size,
+        color: src.color,
+        weight: src.weight,
+        opacity: src.opacity
+      };
+
+      const overlay = document.querySelectorAll(".overlay")[src.page - 1];
+      if (!overlay) return;
+
+      const block = document.createElement("div");
+      block.className = "textBlock";
+      block.contentEditable = true;
+      block.spellcheck = false;
+      block.dataset.page = String(src.page);
+      block.__pdfopsEntry = entry;
+
+      applyEntryToBlock(block);
+
+      block.addEventListener("mousedown", startDrag);
+      block.addEventListener("click", (e) => {
+        e.stopPropagation();
+        selectBlock(block);
+      });
+      block.addEventListener("input", () => {
+        entry.text = block.textContent || "";
+        setDirty();
+        syncSidebarFromActive();
+      });
+
+      overlay.appendChild(block);
+      pageEntry(src.page).elements.push(entry);
+
+      selectBlock(block);
+      updateStats();
+      setDirty();
+    }
+
+    function startDrag(e){
+      const resizeHandle = e.target.closest(".textBlockHandle");
+      const el = e.currentTarget;
+      selectBlock(el);
+
+      if (resizeHandle) {
+        e.preventDefault();
+        const entry = el.__pdfopsEntry;
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const startSize = entry.size || 24;
+
+        function move(ev){
+          const dx = ev.clientX - startX;
+          const dy = ev.clientY - startY;
+          const next = Math.max(8, Math.min(144, startSize + ((dx + dy) / 4)));
+          entry.size = Math.round(next);
+          applyEntryToBlock(el);
+          syncSidebarFromActive();
+          setDirty();
+        }
+
+        function stop(){
+          document.removeEventListener("mousemove", move);
+          document.removeEventListener("mouseup", stop);
+        }
+
+        document.addEventListener("mousemove", move);
+        document.addEventListener("mouseup", stop);
+        return;
+      }
+
+      if (e.target !== el) return;
+
+      e.preventDefault();
+      el.classList.add("isDragging");
+      const rect = el.getBoundingClientRect();
+      const parentRect = el.parentElement.getBoundingClientRect();
+      const offsetX = e.clientX - rect.left;
+      const offsetY = e.clientY - rect.top;
+
+      function move(ev){
+        const left = ev.clientX - parentRect.left - offsetX;
+        const top = ev.clientY - parentRect.top - offsetY;
+
+        el.style.left = `${left}px`;
+        el.style.top = `${top}px`;
+
+        if (el.__pdfopsEntry) {
+          el.__pdfopsEntry.x = left;
+          el.__pdfopsEntry.y = top;
+        }
+
+        setDirty();
+      }
+
+      function stop(){
+        el.classList.remove("isDragging");
+        document.removeEventListener("mousemove", move);
+        document.removeEventListener("mouseup", stop);
+      }
+
+      document.addEventListener("mousemove", move);
+      document.addEventListener("mouseup", stop);
+    }
+
+    function clearEditorUI(){
+      editor.innerHTML = "";
+      editor.hidden = true;
+      editorEmpty.hidden = false;
+      currentPageCount = 0;
+      currentFile = null;
+      lastSelectedPage = null;
+      active = null;
+      window.__PDFOPS_EDIT_MAP__ = [];
+      updateStats();
+      syncSidebarFromActive();
+      if (uploadBtn) uploadBtn.disabled = true;
+      if (continueBtn) continueBtn.disabled = true;
+    }
 
     document.addEventListener("pdfops:selected", async (e) => {
-      // ✅ ensure PDF.js is ready even if selection fires fast
       try { await (window.__pdfjsReady || Promise.resolve(null)); } catch {}
 
       const file = e?.detail?.files?.[0];
       if (!file || !window.pdfjsLib) return;
 
-      editor.innerHTML = "";
-      window.__PDFOPS_EDIT_MAP__ = [];
+      currentFile = file;
+      globalBlockId = 1;
+
+      if (dropzone) dropzone.hidden = true;
+      if (workPanel) workPanel.hidden = false;
+      clearEditorUI();
+      editor.hidden = false;
+      editorEmpty.hidden = true;
 
       const buffer = await file.arrayBuffer();
       const pdf = await window.pdfjsLib.getDocument({ data: buffer }).promise;
+      currentPageCount = pdf.numPages;
+      window.__PDFOPS_EDIT_MAP__ = [];
 
       for (let p = 1; p <= pdf.numPages; p++) {
         const page = await pdf.getPage(p);
@@ -706,6 +1342,13 @@
         const wrap = document.createElement("div");
         wrap.className = "editPage";
 
+        const header = document.createElement("div");
+        header.className = "editPageHeader";
+        header.innerHTML = `
+          <div class="editPageTitle">Page ${p}</div>
+          <div class="editPageMeta">${Math.round(viewport.width)} × ${Math.round(viewport.height)}</div>
+        `;
+
         const canvas = document.createElement("canvas");
         canvas.width = viewport.width;
         canvas.height = viewport.height;
@@ -713,65 +1356,95 @@
 
         const overlay = document.createElement("div");
         overlay.className = "overlay";
+        overlay.dataset.page = String(p);
         overlay.addEventListener("click", (ev) => {
           if (ev.target !== overlay) return;
-          createBlock(p, ev.offsetX, ev.offsetY);
+          lastSelectedPage = p;
+          const overlayRect = overlay.getBoundingClientRect();
+          const x = ev.clientX - overlayRect.left - 40;
+          const y = ev.clientY - overlayRect.top - 16;
+          createBlock(p, x, y, "Text");
         });
 
+        wrap.appendChild(header);
         wrap.appendChild(canvas);
         wrap.appendChild(overlay);
         editor.appendChild(wrap);
 
-        window.__PDFOPS_EDIT_MAP__.push({ page: p, elements: [] });
+        window.__PDFOPS_EDIT_MAP__.push({
+          page: p,
+          elements: [],
+          pageWidth: viewport.width,
+          pageHeight: viewport.height
+        });
       }
+
+      updateStats();
+      syncSidebarFromActive();
+      if (uploadBtn) uploadBtn.disabled = true;
+      if (continueBtn) continueBtn.disabled = true;
     });
 
-    function createBlock(page, x, y){
-      const block = document.createElement("div");
-      block.className = "textBlock";
-      block.contentEditable = true;
-      block.style.left = x + "px";
-      block.style.top = y + "px";
-      block.style.fontSize = "24px";
-      block.textContent = "Text";
+    blockTextInput.addEventListener("input", () => {
+      if (!active || !active.__pdfopsEntry) return;
+      active.__pdfopsEntry.text = blockTextInput.value;
+      active.textContent = blockTextInput.value;
+      applyEntryToBlock(active);
+      setDirty();
+    });
 
-      block.addEventListener("mousedown", startDrag);
-      block.addEventListener("click", () => selectBlock(block));
+    blockFontSize.addEventListener("input", () => {
+      if (!active || !active.__pdfopsEntry) return;
+      active.__pdfopsEntry.size = Math.max(8, Math.min(144, Number(blockFontSize.value || 24)));
+      applyEntryToBlock(active);
+      setDirty();
+    });
 
-      document.querySelectorAll(".overlay")[page - 1].appendChild(block);
+    blockColor.addEventListener("input", () => {
+      if (!active || !active.__pdfopsEntry) return;
+      active.__pdfopsEntry.color = blockColor.value || "#0b1220";
+      applyEntryToBlock(active);
+      setDirty();
+    });
 
-      window.__PDFOPS_EDIT_MAP__[page - 1].elements.push({
-        type: "text",
-        x, y,
-        size: 24,
-        text: "Text"
-      });
+    blockWeight.addEventListener("change", () => {
+      if (!active || !active.__pdfopsEntry) return;
+      active.__pdfopsEntry.weight = Number(blockWeight.value || 700);
+      applyEntryToBlock(active);
+      setDirty();
+    });
 
-      selectBlock(block);
-    }
+    blockOpacity.addEventListener("input", () => {
+      if (!active || !active.__pdfopsEntry) return;
+      active.__pdfopsEntry.opacity = Number(blockOpacity.value || 1);
+      applyEntryToBlock(active);
+      setDirty();
+    });
 
-    function selectBlock(el){
-      document.querySelectorAll(".textBlock").forEach(b => b.classList.remove("active"));
-      active = el;
-      el.classList.add("active");
-    }
+    duplicateBlockBtn.addEventListener("click", duplicateActiveBlock);
+    deleteBlockBtn.addEventListener("click", () => removeBlock(active));
 
-    function startDrag(e){
-      const el = e.currentTarget;
-      selectBlock(el);
-      let ox = e.offsetX, oy = e.offsetY;
+    addCenteredTextBtn.addEventListener("click", () => {
+      const page = lastSelectedPage || 1;
+      const pEntry = pageEntry(page);
+      if (!pEntry) return;
+      createBlock(page, Math.max(40, (pEntry.pageWidth / 2) - 90), Math.max(40, (pEntry.pageHeight / 2) - 20), "New text");
+    });
 
-      function move(ev){
-        el.style.left = (ev.pageX - el.parentElement.getBoundingClientRect().left - ox) + "px";
-        el.style.top  = (ev.pageY - el.parentElement.getBoundingClientRect().top  - oy) + "px";
-      }
-      function stop(){
-        document.removeEventListener("mousemove", move);
-        document.removeEventListener("mouseup", stop);
-      }
-      document.addEventListener("mousemove", move);
-      document.addEventListener("mouseup", stop);
-    }
+    clearAllBlocksBtn.addEventListener("click", () => {
+      document.querySelectorAll(".textBlock").forEach(el => el.remove());
+      window.__PDFOPS_EDIT_MAP__.forEach(p => p.elements = []);
+      active = null;
+      updateStats();
+      syncSidebarFromActive();
+      setDirty();
+    });
+
+    clearBtn?.addEventListener("click", () => {
+      clearEditorUI();
+      if (dropzone) dropzone.hidden = false;
+      if (workPanel) workPanel.hidden = true;
+    });
   })();
   </script>
 
