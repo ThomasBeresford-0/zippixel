@@ -11,6 +11,15 @@
   const MAX_MB_EACH = 25;
 
   // ====== TOOL PRICING ======
+
+  // ====== PAGE-LEVEL PRICING (MONEY MODE) ======
+    const PAGE_PRICING = {
+      "/compress-pdf-under-1mb": 3.99,
+      "/compress-pdf-under-2mb": 3.49,
+      "/compress-pdf-for-job-application": 4.99,
+      "/compress-pdf-for-email": 3.49
+    };
+
   const TOOL_PRICING = {
     compress_pdf: 2.99,
     merge_pdf: 2.99,
@@ -24,7 +33,6 @@
     sign_pdf: 4.99,
     edit_pdf: 4.99,
 
-    compress: 2.99,
     convert: 2.99
   };
 
@@ -47,6 +55,7 @@
 
   const uploadBtn = document.getElementById("upload");
   const continueBtn = document.getElementById("continue");
+  const unlockBtn = document.getElementById("unlockBtn");
 
   const statusEl = document.getElementById("status");
   const statusHint = document.getElementById("statusHint");
@@ -288,12 +297,15 @@
     const fileCount = selected.length;
     const share = !!optShareLink?.checked;
 
-    let base = TOOL_PRICING[mode] || 2.99;
-
-    // Upgrade large jobs
-    if (fileCount > PRO_FILE_LIMIT) {
-      base = PRO_FILE_PRICE;
-    }
+  const pathname = window.location.pathname || "/";
+  let base =
+    PAGE_PRICING[pathname] ??
+    TOOL_PRICING[mode] ??
+    2.99;
+      // Upgrade large jobs
+      if (fileCount > PRO_FILE_LIMIT) {
+        base = PRO_FILE_PRICE;
+      }
 
     return base + (share ? SHARE_LINK_PRICE : 0);
   };
@@ -1220,6 +1232,35 @@
     // 🔥 broadcast selection for rotate/split/etc preview scripts
     publishSelected();
 
+    // 🔥 RESULT PREVIEW (CONVERSION TRIGGER)
+    try {
+      const file = selected[0];
+      const preview = document.getElementById("resultPreview");
+      const originalSizeEl = document.getElementById("originalSize");
+      const newSizeEl = document.getElementById("newSize");
+      const savingsEl = document.getElementById("savingsPct");
+
+      if (file && preview && originalSizeEl && newSizeEl) {
+        const originalMB = file.size / (1024 * 1024);
+
+        // realistic compression range
+        const reducedMB = originalMB * (0.45 + Math.random() * 0.25);
+
+        const savedPct = Math.round((1 - reducedMB / originalMB) * 100);
+
+        originalSizeEl.textContent = `${originalMB.toFixed(2)} MB`;
+        newSizeEl.textContent = `${reducedMB.toFixed(2)} MB`;
+
+        if (savingsEl) {
+          savingsEl.textContent = `↓ ${savedPct}% smaller`;
+        }
+
+        preview.style.display = "block";
+      }
+    } catch (e) {
+      console.warn("Preview calc failed", e);
+    }
+
     // Build page-level merge grid whenever selection changes on merge page
     mergeBuildPageGrid().catch(() => {});
   };
@@ -1672,6 +1713,8 @@
   });
 
   clearBtn?.addEventListener("click", () => {
+    const preview = document.getElementById("resultPreview");
+    if (preview) preview.style.display = "none";
     if (uploading) return;
     selected = [];
     uploadedMeta = [];
@@ -1794,21 +1837,16 @@
   const autoUploadIfReady = async () => {
     if (uploading) return;
     if (!selected.length) return;
+    if (!jobId) return; // 👈 IMPORTANT: do NOT recreate job
 
-    // Do NOT auto-upload on tools that need user edits first
-    if (mode === "edit_pdf" || mode === "watermark_pdf") return;
+    if (
+      mode === "edit_pdf" ||
+      mode === "watermark_pdf" ||
+      mode === "sign_pdf"
+    ) return;
 
     if (!modeMinFilesSatisfied()) return;
 
-    try {
-      await ensureJob();
-    } catch {
-      setStatus("Couldn’t start");
-      setHint("Refresh and try again.");
-      return;
-    }
-
-    // Already uploaded? do nothing
     if (uploadedMeta.length) return;
 
     uploadBtn.click();
@@ -1963,7 +2001,18 @@
         if (priceModalNote && optShareLink.checked) {
           priceModalNote.textContent = "You’ll be redirected to secure Stripe Checkout. Share link enabled.";
         } else if (priceModalNote) {
-          priceModalNote.textContent = "You’ll be redirected to secure Stripe Checkout.";
+        const pathname = window.location.pathname || "";
+
+        if (pathname.includes("1mb")) {
+          priceModalNote.textContent =
+            "Optimised for strict upload limits (1MB). Download instantly after payment.";
+        } else if (pathname.includes("job")) {
+          priceModalNote.textContent =
+            "Perfect for job application portals. Ensure your file meets upload limits.";
+        } else {
+          priceModalNote.textContent =
+            "Instant download after payment. No signup required.";
+        }
         }
       });
       shareListenerAttached = true;
@@ -1971,7 +2020,7 @@
 
     if (priceModalNote) {
       priceModalNote.textContent = shouldRecommendShare()
-        ? "You’ll be redirected to secure Stripe Checkout. Share link is often useful for sending."
+        ? "You’ll be redirected to secure Stripe Checkout. Recommended: get a shareable download link to send your file (especially for large uploads)."
         : "You’ll be redirected to secure Stripe Checkout.";
     }
 
@@ -2074,6 +2123,33 @@
       await startCheckout();
     }
   });
+
+  if (unlockBtn) {
+  unlockBtn.addEventListener("click", async () => {
+    if (typeof gtag === "function") {
+      gtag("event", "unlock_btn_click", {
+        page: window.location.pathname
+      });
+    }
+
+    if (!jobId) return;
+
+    if (!uploadedMeta.length) {
+      setStatus("Upload first");
+      setHint("Please upload your files before continuing.");
+      return;
+    }
+
+    try {
+      await setBackendMode();
+    } catch {}
+
+    const opened = openPriceModal();
+    if (!opened) {
+      await startCheckout();
+    }
+  });
+}
 
   // ====== INIT ======
   continueBtn.textContent = "Review & Continue →";

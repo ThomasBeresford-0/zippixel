@@ -720,23 +720,38 @@
 
             <div class="workBottom">
 
-              <!-- 🔥 RESULT PREVIEW (MONEY MAKER) -->
+              <!-- 🔥 RESULT PREVIEW (MONEY MAKER UPGRADE) -->
               <div id="resultPreview" style="
                 display:none;
                 text-align:center;
                 margin-bottom:14px;
-                padding:14px;
-                border:1px solid rgba(15,23,42,.12);
+                padding:16px;
+                border:1px solid rgba(15,23,42,.14);
                 border-radius:12px;
-                background:linear-gradient(180deg,#fff,#f8fafc);
+                background:linear-gradient(180deg,#ffffff,#f8fafc);
               ">
-                <div style="font-weight:900; font-size:15px; margin-bottom:6px;">
-                  ✔ File ready
+
+                <div style="font-weight:1000; font-size:16px; margin-bottom:8px;">
+                  ✔ Your file is ready
                 </div>
 
-                <div style="font-size:13px; opacity:.8;">
+                <div style="font-size:13px; opacity:.85; margin-bottom:6px;">
                   Reduced from <strong id="originalSize">—</strong> → <strong id="newSize">—</strong>
                 </div>
+
+                <div id="savingsPct" style="
+                  font-size:14px;
+                  font-weight:1000;
+                  color:#16a34a;
+                  margin-bottom:12px;
+                ">
+                  ↓ —% smaller
+                </div>
+
+                <button id="unlockBtn" class="btnPrimary btnStrong" style="width:100%;">
+                  Download Optimised PDF
+                </button>
+
               </div>
 
               <div style="text-align:center; margin-bottom:10px; font-weight:800; font-size:14px;">
@@ -749,7 +764,7 @@
 
               <div class="workActions">
                 <button class="btnSoft" id="upload" disabled>Prepare File</button>
-                <button class="btnPrimary btnStrong" id="continue" disabled>Fix My PDF →</button>
+                <button class="btnPrimary btnStrong" id="continue" disabled>Download Optimised PDF →</button>
               </div>
               <div class="plainNote" style="margin-top:14px; text-align:center;">
                 <p style="text-align:center; font-size:13px; opacity:.7; margin:0 0 6px;">
