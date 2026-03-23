@@ -351,9 +351,9 @@
     const newSizeEl = document.getElementById("newSize");
     const savingsEl = document.getElementById("savingsPct");
 
-    if (originalSizeEl) originalSizeEl.textContent = "";
-    if (newSizeEl) newSizeEl.textContent = "";
-    if (savingsEl) savingsEl.textContent = "";
+    if (originalSizeEl) originalSizeEl.textContent = "—";
+    if (newSizeEl) newSizeEl.textContent = "—";
+    if (savingsEl) savingsEl.textContent = "↓ —% smaller";
 
     if (reason) {
       setStatus("Ready");
@@ -2197,10 +2197,6 @@
     try {
       await setBackendMode();
     } catch {}
-    if (mode === "compress_pdf") {
-      const preview = document.getElementById("resultPreview");
-      if (preview) preview.style.display = "block";
-    }
 
     const opened = openPriceModal();
     if (!opened) {
