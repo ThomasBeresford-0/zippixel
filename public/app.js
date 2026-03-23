@@ -352,8 +352,6 @@
     if (preview) preview.style.display = "none";
     if (continueBtn) continueBtn.style.display = "";
 
-    
-
     const originalSizeEl = document.getElementById("originalSize");
     const newSizeEl = document.getElementById("newSize");
     const savingsEl = document.getElementById("savingsPct");
@@ -362,12 +360,17 @@
     if (newSizeEl) newSizeEl.textContent = "—";
     if (savingsEl) savingsEl.textContent = "↓ —% smaller";
 
+    if (unlockBtn) {
+      unlockBtn.disabled = true;
+      unlockBtn.classList.add("isDisabled");
+      unlockBtn.textContent = "Unlock Download →";
+    }
+
     if (reason) {
       setStatus("Ready");
       setHint(reason);
     }
 
-    // also de-arm any pricing surface
     disarmPricingUI();
   };
 
@@ -657,9 +660,12 @@
     } else {
       uploadBtn.style.display = "";
     }
+
     const canContinue = !!uploadedMeta.length && !uploading;
 
     uploadBtn.disabled = !canUpload;
+    uploadBtn.classList.toggle("isDisabled", !canUpload);
+
     showContinue(canContinue);
 
     if (mode === "merge_pdf") {
@@ -676,13 +682,26 @@
       uploadBtn.textContent = uploading ? "Uploading…" : uploadedMeta.length ? "Re-upload" : "Upload files";
     }
 
-  continueBtn.textContent =
-    mode === "image_compress"
-      ? "Download smaller images →"
-      : mode === "compress_pdf"
-        ? "Unlock Download →"
-        : "Review & Continue →";
+    continueBtn.textContent =
+      mode === "image_compress"
+        ? "Download smaller images →"
+        : mode === "compress_pdf"
+          ? "Unlock Download →"
+          : "Review & Continue →";
+
     setUploaderEnabled(!(uploading || creatingJob));
+
+    // unlock button state
+    if (unlockBtn) {
+      const previewVisible =
+        mode === "compress_pdf" &&
+        compressPreviewState === "ready" &&
+        document.getElementById("resultPreview") &&
+        document.getElementById("resultPreview").style.display !== "none";
+
+      unlockBtn.disabled = !previewVisible;
+      unlockBtn.classList.toggle("isDisabled", !previewVisible);
+    }
 
     if (!hasFiles) {
       setStatus("Ready");
@@ -759,6 +778,7 @@
       setHint("Upload complete. Continue when ready.");
       return;
     }
+
     setStatus("Ready");
     setHint(
       mode === "merge_pdf"
@@ -1924,11 +1944,18 @@
 
     compressPreviewState = "loading";
     compressPreviewError = "";
+    setPrimaryStates();
 
     preview.style.display = "none";
     originalSizeEl.textContent = "—";
     newSizeEl.textContent = "—";
     if (savingsEl) savingsEl.textContent = "↓ —% smaller";
+
+    if (unlockBtnEl) {
+      unlockBtnEl.disabled = true;
+      unlockBtnEl.classList.add("isDisabled");
+      unlockBtnEl.textContent = "Unlock Download →";
+    }
 
     try {
       setStatus("Compressing");
@@ -1975,14 +2002,18 @@
       if (continueBtn) continueBtn.style.display = "none";
       preview.style.display = "block";
 
+      setPrimaryStates();
       setStatus("Your PDF is ready");
       setHint("Your file has been compressed. Unlock download to get it.");
     } catch (e) {
       compressPreviewState = "failed";
       compressPreviewError = e?.message || "Could not prepare preview.";
       console.error("[compress preview]", e);
+
       preview.style.display = "none";
       if (continueBtn) continueBtn.style.display = "";
+
+      setPrimaryStates();
       setStatus("Preview failed");
       setHint(`Preview failed: ${escapeHtml(compressPreviewError)}`);
     }
@@ -2330,5 +2361,12 @@
   setHint("Choose a mode and add files.");
   setDropzoneCopy();
   setFileInputAccept();
+
+  if (unlockBtn) {
+    unlockBtn.disabled = true;
+    unlockBtn.classList.add("isDisabled");
+    unlockBtn.textContent = "Unlock Download →";
+  }
+
   renderSelected();
 })();
