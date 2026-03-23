@@ -678,6 +678,10 @@ app.post("/api/jobs", (_, res) => {
     checkoutSessionId: null,
     paidAt: null,
 
+    previewResult: null,
+    previewFileKey: null,
+    previewReadyAt: null,
+
     downloadCount: 0,
   });
 
@@ -915,6 +919,29 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
   }
 });
 
+  app.post("/api/preview/:jobId", async (req, res) => {
+  try {
+    const job = getJob(req.params.jobId);
+
+    if (job.status !== "UPLOADED") throw new Error("Job is not ready for preview");
+    if (job.mode !== "compress_pdf") throw new Error("Preview not supported for this mode");
+
+    if (!job.previewResult || !job.previewFileKey) {
+      await buildCompressPreview(job);
+    }
+
+    res.json({
+      ok: true,
+      jobId: job.jobId,
+      mode: job.mode,
+      previewReady: true,
+      result: job.previewResult,
+    });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
 // Checkout
 app.post("/api/checkout", async (req, res) => {
   try {
@@ -1120,6 +1147,59 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
   throw new Error("Could not compress this PDF.");
 }
 
+async function buildCompressPreview(job) {
+  requireR2();
+
+  if (job.mode !== "compress_pdf") {
+    throw new Error("Preview is only available for compress_pdf");
+  }
+
+  validateJobFilesForMode(job);
+
+  const only = job.files[0];
+  const obj = await r2.send(
+    new GetObjectCommand({ Bucket: R2_BUCKET, Key: only.key })
+  );
+  const inputBuffer = await streamToBuffer(obj.Body);
+
+  const originalBytes = inputBuffer.length;
+  const targetBytes = normalizeTargetBytes(job.targetBytes);
+
+  const result = await compressPdfBufferToTarget(
+    inputBuffer,
+    normalizePdfLevel(job.pdfCompressLevel),
+    targetBytes
+  );
+
+  const compressedBytes = result.buffer.length;
+  const savedBytes = Math.max(0, originalBytes - compressedBytes);
+  const savedPercent =
+    originalBytes > 0 ? Math.max(0, Math.round((savedBytes / originalBytes) * 100)) : 0;
+
+  const previewFileKey = `${job.jobId}/preview_compressed.pdf`;
+
+  await r2.send(
+    new PutObjectCommand({
+      Bucket: R2_BUCKET,
+      Key: previewFileKey,
+      Body: result.buffer,
+      ContentType: "application/pdf",
+    })
+  );
+
+  job.previewFileKey = previewFileKey;
+  job.previewReadyAt = Date.now();
+  job.previewResult = {
+    originalBytes,
+    compressedBytes,
+    savedBytes,
+    savedPercent,
+    hitTarget: !!result.hitTarget,
+  };
+
+  return job.previewResult;
+}
+
 // Download (paid)
 app.get("/api/download/:jobId", async (req, res) => {
   try {
@@ -1316,25 +1396,15 @@ app.get("/api/download/:jobId", async (req, res) => {
 
     // ====== COMPRESS PDF MODE ======
     if (job.mode === "compress_pdf") {
-      if (!sharp) throw new Error("PDF compression is unavailable (sharp not installed).");
-      if (!PDFDocumentLib) throw new Error("PDF compression is unavailable (pdf-lib not installed).");
+      if (!job.previewFileKey || !job.previewResult) {
+        await buildCompressPreview(job);
+      }
 
       const only = job.files[0];
-      const obj = await r2.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: only.key }));
-      const buf = await streamToBuffer(obj.Body);
-
-      const targetBytes = normalizeTargetBytes(job.targetBytes);
-      const result = await compressPdfBufferToTarget(
-        buf,
-        normalizePdfLevel(job.pdfCompressLevel),
-        targetBytes
+      const obj = await r2.send(
+        new GetObjectCommand({ Bucket: R2_BUCKET, Key: job.previewFileKey })
       );
-
-      if (targetBytes && result.buffer.length > targetBytes) {
-        throw new Error(
-          `This PDF could not be reduced below ${(targetBytes / (1024 * 1024)).toFixed(1)}MB automatically. Try splitting it or removing image-heavy pages.`
-        );
-      }
+      const buffer = await streamToBuffer(obj.Body);
 
       const base = sanitizeName(
         String(only.originalname || "document").replace(/\.pdf$/i, "")
@@ -1346,7 +1416,7 @@ app.get("/api/download/:jobId", async (req, res) => {
         `attachment; filename="${base}_compressed.pdf"`
       );
 
-      return res.send(result.buffer);
+      return res.send(buffer);
     }
 
         // ====== ROTATE PDF MODE (PER-PAGE SUPPORT) ======

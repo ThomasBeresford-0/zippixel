@@ -223,6 +223,12 @@
   };
 
   const humanMB = (bytes) => (bytes / (1024 * 1024)).toFixed(1) + "MB";
+    const humanFileSize = (bytes) => {
+    const n = Number(bytes || 0);
+    if (!Number.isFinite(n) || n <= 0) return "0 MB";
+    if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
+    return `${(n / (1024 * 1024)).toFixed(2)} MB`;
+  };
   const escapeHtml = (str) =>
     String(str).replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[m]));
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
@@ -337,10 +343,23 @@
     creatingJob = false;
     uploadedMeta = [];
     resetProgress();
+
+    const preview = document.getElementById("resultPreview");
+    if (preview) preview.style.display = "none";
+
+    const originalSizeEl = document.getElementById("originalSize");
+    const newSizeEl = document.getElementById("newSize");
+    const savingsEl = document.getElementById("savingsPct");
+
+    if (originalSizeEl) originalSizeEl.textContent = "";
+    if (newSizeEl) newSizeEl.textContent = "";
+    if (savingsEl) savingsEl.textContent = "";
+
     if (reason) {
       setStatus("Ready");
       setHint(reason);
     }
+
     // also de-arm any pricing surface
     disarmPricingUI();
   };
@@ -648,7 +667,9 @@
   continueBtn.textContent =
     mode === "image_compress"
       ? "Download smaller images →"
-      : "Review & Continue →";
+      : mode === "compress_pdf"
+        ? "Unlock Download →"
+        : "Review & Continue →";
     setUploaderEnabled(!(uploading || creatingJob));
 
     if (!hasFiles) {
@@ -1257,33 +1278,10 @@
     // 🔥 broadcast selection for rotate/split/etc preview scripts
     publishSelected();
 
-    // 🔥 RESULT PREVIEW (CONVERSION TRIGGER)
-    try {
-      const file = selected[0];
-      const preview = document.getElementById("resultPreview");
-      const originalSizeEl = document.getElementById("originalSize");
-      const newSizeEl = document.getElementById("newSize");
-      const savingsEl = document.getElementById("savingsPct");
-
-      if (file && preview && originalSizeEl && newSizeEl) {
-        const originalMB = file.size / (1024 * 1024);
-
-        // realistic compression range
-        const reducedMB = originalMB * (0.45 + Math.random() * 0.25);
-
-        const savedPct = Math.round((1 - reducedMB / originalMB) * 100);
-
-        originalSizeEl.textContent = `${originalMB.toFixed(2)} MB`;
-        newSizeEl.textContent = `${reducedMB.toFixed(2)} MB`;
-
-        if (savingsEl) {
-          savingsEl.textContent = `↓ ${savedPct}% smaller`;
-        }
-
-        preview.style.display = "block";
-      }
-    } catch (e) {
-      console.warn("Preview calc failed", e);
+    // Real preview is loaded after upload via /api/preview/:jobId
+    const preview = document.getElementById("resultPreview");
+    if (preview && (!uploadedMeta.length || mode !== "compress_pdf")) {
+      preview.style.display = "none";
     }
 
     // Build page-level merge grid whenever selection changes on merge page
@@ -1796,7 +1794,7 @@
     };
   };
 
-  const setBackendMode = async () => {
+    const setBackendMode = async () => {
     if (!jobId) return;
 
     try {
@@ -1818,7 +1816,9 @@
         payload.editMap = window.__PDFOPS_EDIT_MAP__ || null;
       }
 
-      if (mode === "merge_pdf" && Array.isArray(pdfPageOrder) && pdfPageOrder.length) payload.order = pdfPageOrder;
+      if (mode === "merge_pdf" && Array.isArray(pdfPageOrder) && pdfPageOrder.length) {
+        payload.order = pdfPageOrder;
+      }
 
       if (mode === "split_pdf") {
         const splitOrder = getSplitPageOrder();
@@ -1831,17 +1831,17 @@
         payload.level = pdfCompressLevelValue || "balanced";
         if (targetBytes) payload.targetBytes = targetBytes;
       }
-        if (mode === "rotate_pdf") {
+
+      if (mode === "rotate_pdf") {
         const rotateMap = getRotateMap();
         if (rotateMap) {
           payload.rotateMap = rotateMap;
-          // keep a harmless fallback for older server code
           payload.degrees = 90;
         } else {
-          // legacy fallback
           payload.degrees = rotateDegreesValue || 90;
         }
       }
+
       const r = await fetch(`/api/jobs/${encodeURIComponent(jobId)}/mode`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1858,6 +1858,56 @@
     }
   };
 
+  const loadCompressPreview = async () => {
+    if (!jobId) return;
+    if (mode !== "compress_pdf") return;
+    if (!uploadedMeta.length) return;
+
+    const preview = document.getElementById("resultPreview");
+    const originalSizeEl = document.getElementById("originalSize");
+    const newSizeEl = document.getElementById("newSize");
+    const savingsEl = document.getElementById("savingsPct");
+    const unlockBtnEl = document.getElementById("unlockBtn");
+
+    if (!preview || !originalSizeEl || !newSizeEl) return;
+
+    try {
+      setStatus("Compressing");
+      setHint("Preparing your compressed PDF preview…");
+
+      const resp = await fetch(`/api/preview/${encodeURIComponent(jobId)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+
+      const data = await resp.json();
+      if (!resp.ok || data?.error) {
+        throw new Error(data?.error || "Could not prepare preview");
+      }
+
+      const result = data?.result || {};
+      originalSizeEl.textContent = humanFileSize(result.originalBytes);
+      newSizeEl.textContent = humanFileSize(result.compressedBytes);
+
+      if (savingsEl) {
+        savingsEl.textContent = `↓ ${Number(result.savedPercent || 0)}% smaller`;
+      }
+
+      if (unlockBtnEl) {
+        const total = calcTotal();
+        unlockBtnEl.textContent = `Unlock Download — £${total.toFixed(2)}`;
+      }
+
+      preview.style.display = "block";
+
+      setStatus("Your PDF is ready");
+      setHint("Your file has been compressed. Unlock download to get it.");
+    } catch (e) {
+      if (preview) preview.style.display = "none";
+      setStatus("Preview failed");
+      setHint(escapeHtml(e?.message || "Could not prepare preview."));
+    }
+  };
 
   // AUTO UPLOAD (trigger after file select)
   const autoUploadIfReady = async () => {
@@ -1980,6 +2030,10 @@
       if (progressLabel) progressLabel.textContent = "Uploaded";
       if (progressFill) progressFill.style.width = "100%";
       if (progressPct) progressPct.textContent = "100%";
+
+      if (mode === "compress_pdf") {
+        await loadCompressPreview();
+      }
 
       setPrimaryStates();
       } catch (e) {
@@ -2143,6 +2197,10 @@
     try {
       await setBackendMode();
     } catch {}
+    if (mode === "compress_pdf") {
+      const preview = document.getElementById("resultPreview");
+      if (preview) preview.style.display = "block";
+    }
 
     const opened = openPriceModal();
     if (!opened) {
@@ -2178,7 +2236,7 @@
 }
 
   // ====== INIT ======
-  continueBtn.textContent = "Review & Continue →";
+  continueBtn.textContent = mode === "compress_pdf" ? "Unlock Download →" : "Review & Continue →";
   continueBtn.style.display = "";
 
   pdfCompressLevelValue = normalizePdfLevel(pdfCompressLevel?.value || safeLocalGet(LS.lastPdfLevel) || "balanced");
