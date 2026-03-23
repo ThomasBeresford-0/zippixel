@@ -43,11 +43,11 @@
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
   <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="icon" type="image/png" sizes="192x192" href="/web-app-manifest-192x192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/web-app-manifest-512x512.png">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -339,11 +339,11 @@
 
     <nav class="navLinks" aria-label="Primary tools">
       <a href="/" data-nav="compress">Compress</a>
-      <a href="/compress-image" data-nav="compress-image" aria-current="page">Compress Image</a>
+      <a href="/compress-image" data-nav="compress-image">Compress Image</a>
       <a href="/merge-pdf" data-nav="merge">Merge</a>
       <a href="/split-pdf" data-nav="split">Split</a>
       <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
-      <a href="/convert" data-nav="convert">Convert</a>
+      <a href="/convert" data-nav="convert" aria-current="page">Convert</a>
       <a href="/sign-pdf" data-nav="sign">Sign</a>
       <a href="/edit-pdf" data-nav="edit">Edit</a>
       <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
@@ -648,5 +648,31 @@
 </footer>
 
 <script src="/app.js?v=17.7" defer></script>
+<script>
+(function(){
+  const path = window.location.pathname.replace(/\/$/, "");
+
+  const map = {
+    "": "compress",
+    "/": "compress",
+    "/merge-pdf": "merge",
+    "/split-pdf": "split",
+    "/rotate-pdf": "rotate",
+    "/convert": "convert",
+    "/sign-pdf": "sign",
+    "/edit-pdf": "edit",
+    "/watermark-pdf": "watermark"
+  };
+
+  const key = map[path];
+  if (!key) return;
+
+  document.querySelectorAll(`[data-nav]`)
+    .forEach(el => el.removeAttribute("aria-current"));
+
+  document.querySelectorAll(`[data-nav="${key}"]`)
+    .forEach(el => el.setAttribute("aria-current","page"));
+})();
+</script>
 </body>
 </html>
