@@ -177,6 +177,8 @@
   let selected = []; // Array<File>
   const thumbUrls = new Map(); // keyOf(file) -> objectURL (images only)
   let uploadedMeta = []; // [{ key, originalname, mimetype }]
+  let compressPreviewState = "idle"; // idle | loading | ready | failed
+  let compressPreviewError = "";
 
   // ====== EXPOSE SELECTION TO TOOL PAGES (rotate preview etc.) ======
   const publishSelected = () => {
@@ -342,6 +344,8 @@
     jobId = null;
     creatingJob = false;
     uploadedMeta = [];
+    compressPreviewState = "idle";
+    compressPreviewError = "";
     resetProgress();
 
     const preview = document.getElementById("resultPreview");
@@ -732,10 +736,21 @@
 
     if (uploadedMeta.length) {
       if (mode === "compress_pdf") {
-        const preview = document.getElementById("resultPreview");
-        if (preview && preview.style.display !== "none") {
+        if (compressPreviewState === "loading") {
+          setStatus("Compressing");
+          setHint("Preparing your compressed PDF preview…");
+          return;
+        }
+
+        if (compressPreviewState === "ready") {
           setStatus("Your PDF is ready");
           setHint("Your file has been compressed. Unlock download to get it.");
+          return;
+        }
+
+        if (compressPreviewState === "failed") {
+          setStatus("Preview failed");
+          setHint(`Preview failed: ${escapeHtml(compressPreviewError || "Could not prepare preview.")}`);
           return;
         }
       }
@@ -744,7 +759,6 @@
       setHint("Upload complete. Continue when ready.");
       return;
     }
-
     setStatus("Ready");
     setHint(
       mode === "merge_pdf"
@@ -1321,6 +1335,8 @@
     }
 
     uploadedMeta = [];
+    compressPreviewState = "idle";
+    compressPreviewError = "";
     resetProgress();
     disarmPricingUI();
     renderSelected();
@@ -1446,6 +1462,8 @@
       if (hasNonPdf) {
         selected = [];
         uploadedMeta = [];
+        compressPreviewState = "idle";
+        compressPreviewError = "";
         resetProgress();
         for (const url of thumbUrls.values()) URL.revokeObjectURL(url);
         thumbUrls.clear();
@@ -1460,6 +1478,8 @@
     if ((mode === "split_pdf" || mode === "compress_pdf" || mode === "rotate_pdf") && selected.length > 1) {
       selected = [selected[0]];
       uploadedMeta = [];
+      compressPreviewState = "idle";
+      compressPreviewError = "";
       resetProgress();
       setStatus("Only one PDF");
       setHint(`${mode === "split_pdf" ? "Split PDF" : mode === "compress_pdf" ? "Compress PDF" : "Rotate PDF"} accepts <b>1</b> PDF only.`);
@@ -1611,6 +1631,8 @@
 
     // Any new selection invalidates any prior upload + pricing
     uploadedMeta = [];
+    compressPreviewState = "idle";
+    compressPreviewError = "";
     disarmPricingUI();
 
     // Single-PDF tools: selecting another PDF REPLACES
@@ -1627,10 +1649,12 @@
         return;
       }
 
-    selected = [incomingValid[0]];
-    uploadedMeta = [];
-    resetProgress();
-    renderSelected();
+      selected = [incomingValid[0]];
+      uploadedMeta = [];
+      compressPreviewState = "idle";
+      compressPreviewError = "";
+      resetProgress();
+      renderSelected();
 
       try {
         await ensureJob();
@@ -1767,6 +1791,8 @@
     if (uploading) return;
     selected = [];
     uploadedMeta = [];
+    compressPreviewState = "idle";
+    compressPreviewError = "";
     disarmPricingUI();
     for (const url of thumbUrls.values()) URL.revokeObjectURL(url);
     thumbUrls.clear();
@@ -1896,7 +1922,9 @@
 
     if (!preview || !originalSizeEl || !newSizeEl) return;
 
-    // keep hidden until real values are ready
+    compressPreviewState = "loading";
+    compressPreviewError = "";
+
     preview.style.display = "none";
     originalSizeEl.textContent = "—";
     newSizeEl.textContent = "—";
@@ -1911,9 +1939,16 @@
         headers: { "Content-Type": "application/json" }
       });
 
-      const data = await resp.json();
+      const text = await resp.text();
+      let data = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        throw new Error(`Preview route returned non-JSON: ${text.slice(0, 160)}`);
+      }
+
       if (!resp.ok || data?.error) {
-        throw new Error(data?.error || "Could not prepare preview");
+        throw new Error(data?.error || `Preview failed (${resp.status})`);
       }
 
       const result = data?.result || {};
@@ -1927,15 +1962,15 @@
 
       originalSizeEl.textContent = humanFileSize(originalBytes);
       newSizeEl.textContent = humanFileSize(compressedBytes);
-
-      if (savingsEl) {
-        savingsEl.textContent = `↓ ${savedPercent}% smaller`;
-      }
+      if (savingsEl) savingsEl.textContent = `↓ ${savedPercent}% smaller`;
 
       if (unlockBtnEl) {
         const total = calcTotal();
         unlockBtnEl.textContent = `Unlock Download — £${total.toFixed(2)}`;
       }
+
+      compressPreviewState = "ready";
+      compressPreviewError = "";
 
       if (continueBtn) continueBtn.style.display = "none";
       preview.style.display = "block";
@@ -1943,9 +1978,13 @@
       setStatus("Your PDF is ready");
       setHint("Your file has been compressed. Unlock download to get it.");
     } catch (e) {
+      compressPreviewState = "failed";
+      compressPreviewError = e?.message || "Could not prepare preview.";
+      console.error("[compress preview]", e);
       preview.style.display = "none";
+      if (continueBtn) continueBtn.style.display = "";
       setStatus("Preview failed");
-      setHint(escapeHtml(e?.message || "Could not prepare preview."));
+      setHint(`Preview failed: ${escapeHtml(compressPreviewError)}`);
     }
   };
 
