@@ -346,6 +346,9 @@
 
     const preview = document.getElementById("resultPreview");
     if (preview) preview.style.display = "none";
+    if (continueBtn) continueBtn.style.display = "";
+
+    
 
     const originalSizeEl = document.getElementById("originalSize");
     const newSizeEl = document.getElementById("newSize");
@@ -626,7 +629,12 @@
 
   // ====== BUTTON STATES ======
   const showContinue = (enabled) => {
-    continueBtn.style.display = "";
+    const previewVisible =
+      mode === "compress_pdf" &&
+      document.getElementById("resultPreview") &&
+      document.getElementById("resultPreview").style.display !== "none";
+
+    continueBtn.style.display = previewVisible ? "none" : "";
     continueBtn.disabled = !enabled;
     continueBtn.classList.toggle("isDisabled", !enabled);
   };
@@ -723,6 +731,15 @@
     }
 
     if (uploadedMeta.length) {
+      if (mode === "compress_pdf") {
+        const preview = document.getElementById("resultPreview");
+        if (preview && preview.style.display !== "none") {
+          setStatus("Your PDF is ready");
+          setHint("Your file has been compressed. Unlock download to get it.");
+          return;
+        }
+      }
+
       setStatus("Uploaded");
       setHint("Upload complete. Continue when ready.");
       return;
@@ -1739,6 +1756,14 @@
   clearBtn?.addEventListener("click", () => {
     const preview = document.getElementById("resultPreview");
     if (preview) preview.style.display = "none";
+    if (continueBtn) continueBtn.style.display = "";
+    const originalSizeEl = document.getElementById("originalSize");
+    const newSizeEl = document.getElementById("newSize");
+    const savingsEl = document.getElementById("savingsPct");
+
+    if (originalSizeEl) originalSizeEl.textContent = "—";
+    if (newSizeEl) newSizeEl.textContent = "—";
+    if (savingsEl) savingsEl.textContent = "↓ —% smaller";
     if (uploading) return;
     selected = [];
     uploadedMeta = [];
@@ -1871,6 +1896,12 @@
 
     if (!preview || !originalSizeEl || !newSizeEl) return;
 
+    // keep hidden until real values are ready
+    preview.style.display = "none";
+    originalSizeEl.textContent = "—";
+    newSizeEl.textContent = "—";
+    if (savingsEl) savingsEl.textContent = "↓ —% smaller";
+
     try {
       setStatus("Compressing");
       setHint("Preparing your compressed PDF preview…");
@@ -1886,11 +1917,19 @@
       }
 
       const result = data?.result || {};
-      originalSizeEl.textContent = humanFileSize(result.originalBytes);
-      newSizeEl.textContent = humanFileSize(result.compressedBytes);
+      const originalBytes = Number(result.originalBytes || 0);
+      const compressedBytes = Number(result.compressedBytes || 0);
+      const savedPercent = Number(result.savedPercent || 0);
+
+      if (!originalBytes || !compressedBytes) {
+        throw new Error("Preview size data missing");
+      }
+
+      originalSizeEl.textContent = humanFileSize(originalBytes);
+      newSizeEl.textContent = humanFileSize(compressedBytes);
 
       if (savingsEl) {
-        savingsEl.textContent = `↓ ${Number(result.savedPercent || 0)}% smaller`;
+        savingsEl.textContent = `↓ ${savedPercent}% smaller`;
       }
 
       if (unlockBtnEl) {
@@ -1898,12 +1937,13 @@
         unlockBtnEl.textContent = `Unlock Download — £${total.toFixed(2)}`;
       }
 
+      if (continueBtn) continueBtn.style.display = "none";
       preview.style.display = "block";
 
       setStatus("Your PDF is ready");
       setHint("Your file has been compressed. Unlock download to get it.");
     } catch (e) {
-      if (preview) preview.style.display = "none";
+      preview.style.display = "none";
       setStatus("Preview failed");
       setHint(escapeHtml(e?.message || "Could not prepare preview."));
     }
@@ -2024,18 +2064,21 @@
       const reg = await regRes.json();
       if (reg?.error) throw new Error(reg.error);
 
-      setStatus("Uploaded");
-      setHint("Upload complete. Continue when ready.");
-
       if (progressLabel) progressLabel.textContent = "Uploaded";
       if (progressFill) progressFill.style.width = "100%";
       if (progressPct) progressPct.textContent = "100%";
 
       if (mode === "compress_pdf") {
+        setStatus("Compressing");
+        setHint("Preparing your compressed PDF preview…");
         await loadCompressPreview();
+      } else {
+        setStatus("Uploaded");
+        setHint("Upload complete. Continue when ready.");
       }
 
       setPrimaryStates();
+      
       } catch (e) {
         setStatus("Upload failed");
         setHint("Please try again.");
