@@ -506,17 +506,17 @@
       <img src="/logo.png" alt="PDFOperations" class="brandLogoFull" />
     </a>
 
-  <nav class="navLinks" aria-label="Primary tools">
-    <a href="/" data-nav="compress">Compress</a>
-    <a href="/compress-image" data-nav="compress-image" aria-current="page">Compress Image</a>
-    <a href="/merge-pdf" data-nav="merge">Merge</a>
-    <a href="/split-pdf" data-nav="split">Split</a>
-    <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
-    <a href="/convert" data-nav="convert">Convert</a>
-    <a href="/sign-pdf" data-nav="sign">Sign</a>
-    <a href="/edit-pdf" data-nav="edit">Edit</a>
-    <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
-  </nav>
+    <nav class="navLinks" aria-label="Primary tools">
+      <a href="/" data-nav="compress">Compress</a>
+      <a href="/compress-image" data-nav="compress-image">Compress Image</a>
+      <a href="/merge-pdf" data-nav="merge">Merge</a>
+      <a href="/split-pdf" data-nav="split">Split</a>
+      <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
+      <a href="/convert" data-nav="convert">Convert</a>
+      <a href="/sign-pdf" data-nav="sign">Sign</a>
+      <a href="/edit-pdf" data-nav="edit">Edit</a>
+      <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
+    </nav>
 
   </div>
 </header>
@@ -1180,12 +1180,12 @@
 
 <script src="/app.js?v=17.7" defer></script>
 <script>
-(function(){
-  const path = window.location.pathname.replace(/\/$/, "");
+(function () {
+  const path = window.location.pathname.replace(/\/+$/, "") || "/";
 
   const map = {
-    "": "compress",
     "/": "compress",
+    "/compress-image": "compress-image",
     "/merge-pdf": "merge",
     "/split-pdf": "split",
     "/rotate-pdf": "rotate",
@@ -1198,8 +1198,13 @@
   const key = map[path];
   if (!key) return;
 
-  document.querySelectorAll(`[data-nav="${key}"]`)
-    .forEach(el => el.setAttribute("aria-current","page"));
+  document.querySelectorAll(".navLinks a").forEach((el) => {
+    el.removeAttribute("aria-current");
+  });
+
+  document.querySelectorAll(`.navLinks a[data-nav="${key}"]`).forEach((el) => {
+    el.setAttribute("aria-current", "page");
+  });
 })();
 </script>
 </body>
