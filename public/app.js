@@ -2230,13 +2230,17 @@
 
         setStatus("Merged PDF ready");
         setHint("Your files are uploaded and your merged PDF is ready to continue.");
-      } else if (mode === "split_pdf") {
-        const splitReadyBox = document.getElementById("splitReadyBox");
-        if (splitReadyBox) splitReadyBox.style.display = "block";
+        } else if (mode === "split_pdf") {
+          const splitReadyBox = document.getElementById("splitReadyBox");
+          if (splitReadyBox) splitReadyBox.style.display = "block";
 
-        setStatus("Split PDF ready");
-        setHint("Your file is uploaded and your split output is ready to continue.");
-      } else {
+          if (continueBtn) {
+            continueBtn.style.display = "none";
+          }
+
+          setStatus("Split PDF ready");
+          setHint("Your file is uploaded and your split output is ready to continue.");
+        } else {
         setStatus("Uploaded");
         setHint("Upload complete. Continue when ready.");
       }
