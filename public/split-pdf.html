@@ -225,6 +225,14 @@
       --muted: rgba(11,18,32,.78);
     }
 
+    body.isProcessed #splitReadyBox{
+    display:block !important;
+    }
+
+    body.isProcessed .actionRow{
+      display:none !important;
+    }
+
     /* Nav alignment (matches merge page hard vibe) */
     .nav{
       border-bottom: 1px solid rgba(15,23,42,.10);
@@ -530,9 +538,9 @@
 
         <div class="toolHead toolHeadMinimal">
           <div class="proKicker">PDF Tool</div>
-          <h1 class="toolTitle">Split PDF Pages</h1>
+          <h1 class="toolTitle">Split a PDF Into Separate Files</h1>
           <p class="toolSub">
-            Upload one PDF, remove pages you do not need, reorder the output, and download a clean ZIP with one PDF per page.
+            Remove pages, reorder the output, and prepare a clean ZIP with one PDF per page. No signup. Pay once. Download instantly.
           </p>
 
         <div class="trustBar" aria-label="Trust indicators">
@@ -653,7 +661,7 @@
         <!-- ACTIONS -->
           <div class="actionRow actionRowWide">
             <button class="btnSoft" id="upload" disabled>Upload PDF</button>
-            <button class="btnPrimary btnStrong" id="continue" disabled>Download Split PDF →</button>
+            <button class="btnPrimary btnStrong" id="continue" disabled>Unlock Download</button>
           </div>
 
           <div id="splitReadyBox" style="
@@ -672,7 +680,7 @@
               Your page order and removals have been prepared for final download.
             </div>
             <button id="splitUnlockBtn" class="btnPrimary btnStrong" style="width:100%;" type="button">
-              Download Split PDF
+              Unlock Download
             </button>
           </div>
 
@@ -1182,18 +1190,19 @@
     }
   });
 
-  if (clearBtn) {
-    clearBtn.addEventListener("click", () => {
-      pdfDoc = null;
-      originalOrder = [];
-      order = [];
-      grid.innerHTML = "";
-      wrap.hidden = true;
-      window.__PDFOPS_PAGE_ORDER__ = null;
-      setNote("");
-      revokeUrl();
-    });
-  }
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        document.body.classList.remove("isProcessed");
+        pdfDoc = null;
+        originalOrder = [];
+        order = [];
+        grid.innerHTML = "";
+        wrap.hidden = true;
+        window.__PDFOPS_PAGE_ORDER__ = null;
+        setNote("");
+        revokeUrl();
+      });
+    }
 })();
 </script>
 
