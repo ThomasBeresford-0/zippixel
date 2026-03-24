@@ -681,6 +681,10 @@
       continueBtn.style.display = "none";
     }
 
+    if (mode === "split_pdf" && uploadedMeta.length) {
+      continueBtn.style.display = "none";
+    }
+
     if (mode === "merge_pdf") {
       uploadBtn.textContent = uploading ? "Uploading…" : uploadedMeta.length ? "Re-upload PDFs" : "Upload PDFs";
     } else if (mode === "split_pdf") {
