@@ -2003,7 +2003,7 @@
 
       if (unlockBtnEl) {
         const total = calcTotal();
-        unlockBtnEl.textContent = `Unlock Download — £${total.toFixed(2)}`;
+        unlockBtnEl.textContent = "Download File";
       }
 
       compressPreviewState = "ready";
