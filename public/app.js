@@ -350,6 +350,9 @@
 
     const preview = document.getElementById("resultPreview");
     if (preview) preview.style.display = "none";
+
+    const mergeReadyBox = document.getElementById("mergeReadyBox");
+    if (mergeReadyBox) mergeReadyBox.style.display = "none";
     if (continueBtn) {
       continueBtn.style.display = "";
       continueBtn.disabled = false;
@@ -1267,6 +1270,9 @@
 
       disarmPricingUI();
 
+      const mergeReadyBox = document.getElementById("mergeReadyBox");
+      if (mergeReadyBox) mergeReadyBox.style.display = "none";
+
       setStatus("Ready");
       setHint(
         mode === "merge_pdf"
@@ -1337,6 +1343,11 @@
     const preview = document.getElementById("resultPreview");
     if (preview && (!uploadedMeta.length || mode !== "compress_pdf")) {
       preview.style.display = "none";
+    }
+
+    const mergeReadyBox = document.getElementById("mergeReadyBox");
+    if (mergeReadyBox && (!uploadedMeta.length || mode !== "merge_pdf")) {
+      mergeReadyBox.style.display = "none";
     }
 
     // Build page-level merge grid whenever selection changes on merge page
@@ -1808,6 +1819,8 @@
   clearBtn?.addEventListener("click", () => {
     const preview = document.getElementById("resultPreview");
     if (preview) preview.style.display = "none";
+    const mergeReadyBox = document.getElementById("mergeReadyBox");
+    if (mergeReadyBox) mergeReadyBox.style.display = "none";
     if (continueBtn) {
       continueBtn.style.display = "";
       continueBtn.disabled = false;
@@ -2192,6 +2205,12 @@
         setStatus("Compressing");
         setHint("Preparing your compressed PDF preview…");
         await loadCompressPreview();
+      } else if (mode === "merge_pdf") {
+        const mergeReadyBox = document.getElementById("mergeReadyBox");
+        if (mergeReadyBox) mergeReadyBox.style.display = "block";
+
+        setStatus("Merged PDF ready");
+        setHint("Your files are uploaded and your merged PDF is ready to continue.");
       } else {
         setStatus("Uploaded");
         setHint("Upload complete. Continue when ready.");

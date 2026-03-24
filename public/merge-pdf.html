@@ -470,9 +470,9 @@
 
         <div class="toolHead toolHeadMinimal">
           <div class="proKicker">PDF Tool</div>
-          <h1 class="toolTitle">Merge PDF</h1>
+          <h1 class="toolTitle">Combine PDF Files Into One Clean Document</h1>
           <p class="toolSub">
-            Combine multiple PDF files into one. Upload PDFs, reorder pages, then download the merged PDF.
+            Merge multiple PDFs into one file, reorder pages, and prepare a clean final document for download.
           </p>
 
           <div class="trustBar" aria-label="Trust indicators">
@@ -589,9 +589,29 @@
           <div id="progressMeta"></div>
         </div>
 
+        <div id="mergeReadyBox" style="
+          display:none;
+          text-align:center;
+          margin-bottom:14px;
+          padding:16px;
+          border:1px solid rgba(15,23,42,.14);
+          border-radius:12px;
+          background:linear-gradient(180deg,#ffffff,#f8fafc);
+        ">
+          <div style="font-weight:1000; font-size:16px; margin-bottom:8px;">
+            ✔ Your merged PDF is ready
+          </div>
+          <div style="font-size:13px; opacity:.85; margin-bottom:12px;">
+            Files combined and page order prepared for final download.
+          </div>
+          <button id="mergeUnlockBtn" class="btnPrimary btnStrong" style="width:100%;">
+            Download Merged PDF
+          </button>
+        </div>
+
         <div class="actionRow actionRowWide">
-          <button class="btnSoft" id="upload" disabled>Upload PDFs</button>
-          <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
+          <button class="btnSoft" id="upload" disabled>Prepare Merge</button>
+          <button class="btnPrimary btnStrong" id="continue" disabled>Download Merged PDF →</button>
         </div>
 
         <div class="fineprint">
@@ -1133,5 +1153,17 @@
 </script>
 
 <script src="/app.js?v=18" defer></script>
+<script>
+(() => {
+  const mergeUnlockBtn = document.getElementById("mergeUnlockBtn");
+  const continueBtn = document.getElementById("continue");
+
+  if (mergeUnlockBtn && continueBtn) {
+    mergeUnlockBtn.addEventListener("click", () => {
+      continueBtn.click();
+    });
+  }
+})();
+</script>
 </body>
 </html>
