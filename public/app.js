@@ -353,6 +353,10 @@
 
     const mergeReadyBox = document.getElementById("mergeReadyBox");
     if (mergeReadyBox) mergeReadyBox.style.display = "none";
+
+    const splitReadyBox = document.getElementById("splitReadyBox");
+    if (splitReadyBox) splitReadyBox.style.display = "none";
+    
     if (continueBtn) {
       continueBtn.style.display = "";
       continueBtn.disabled = false;
@@ -696,7 +700,9 @@
         ? "Download smaller images →"
         : mode === "compress_pdf"
           ? "Unlock Download →"
-          : "Review & Continue →";
+          : mode === "split_pdf"
+            ? "Download Split PDF →"
+            : "Review & Continue →";
 
     setUploaderEnabled(!(uploading || creatingJob));
 
@@ -1273,6 +1279,9 @@
       const mergeReadyBox = document.getElementById("mergeReadyBox");
       if (mergeReadyBox) mergeReadyBox.style.display = "none";
 
+      const splitReadyBox = document.getElementById("splitReadyBox");
+      if (splitReadyBox) splitReadyBox.style.display = "none";
+
       setStatus("Ready");
       setHint(
         mode === "merge_pdf"
@@ -1348,6 +1357,11 @@
     const mergeReadyBox = document.getElementById("mergeReadyBox");
     if (mergeReadyBox && (!uploadedMeta.length || mode !== "merge_pdf")) {
       mergeReadyBox.style.display = "none";
+    }
+
+    const splitReadyBox = document.getElementById("splitReadyBox");
+    if (splitReadyBox && (!uploadedMeta.length || mode !== "split_pdf")) {
+      splitReadyBox.style.display = "none";
     }
 
     // Build page-level merge grid whenever selection changes on merge page
@@ -1816,12 +1830,17 @@
   await autoUploadIfReady();
   });
 
-  clearBtn?.addEventListener("click", () => {
-    const preview = document.getElementById("resultPreview");
-    if (preview) preview.style.display = "none";
-    const mergeReadyBox = document.getElementById("mergeReadyBox");
-    if (mergeReadyBox) mergeReadyBox.style.display = "none";
-    if (continueBtn) {
+    clearBtn?.addEventListener("click", () => {
+      const preview = document.getElementById("resultPreview");
+      if (preview) preview.style.display = "none";
+
+      const mergeReadyBox = document.getElementById("mergeReadyBox");
+      if (mergeReadyBox) mergeReadyBox.style.display = "none";
+
+      const splitReadyBox = document.getElementById("splitReadyBox");
+      if (splitReadyBox) splitReadyBox.style.display = "none";
+
+      if (continueBtn) {
       continueBtn.style.display = "";
       continueBtn.disabled = false;
       continueBtn.classList.remove("isDisabled");
@@ -2211,6 +2230,12 @@
 
         setStatus("Merged PDF ready");
         setHint("Your files are uploaded and your merged PDF is ready to continue.");
+      } else if (mode === "split_pdf") {
+        const splitReadyBox = document.getElementById("splitReadyBox");
+        if (splitReadyBox) splitReadyBox.style.display = "block";
+
+        setStatus("Split PDF ready");
+        setHint("Your file is uploaded and your split output is ready to continue.");
       } else {
         setStatus("Uploaded");
         setHint("Upload complete. Continue when ready.");
@@ -2413,8 +2438,13 @@
   });
 }
 
-  // ====== INIT ======
-  continueBtn.textContent = mode === "compress_pdf" ? "Unlock Download →" : "Review & Continue →";
+  continueBtn.textContent =
+    mode === "compress_pdf"
+      ? "Unlock Download →"
+      : mode === "split_pdf"
+        ? "Download Split PDF →"
+        : "Review & Continue →";
+
   continueBtn.style.display = "";
 
   pdfCompressLevelValue = normalizePdfLevel(pdfCompressLevel?.value || safeLocalGet(LS.lastPdfLevel) || "balanced");
