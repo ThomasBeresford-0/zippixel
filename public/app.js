@@ -2261,6 +2261,18 @@
 
         setStatus("Rotated PDF ready");
         setHint("Your file is uploaded and your rotated PDF is ready to continue.");
+      } else if (mode === "convert") {
+        document.body.classList.add("isProcessed");
+
+        const convertReadyBox = document.getElementById("convertReadyBox");
+        if (convertReadyBox) convertReadyBox.style.display = "block";
+
+        if (continueBtn) {
+          continueBtn.style.display = "none";
+        }
+
+        setStatus("Converted file ready");
+        setHint("Your file is uploaded and your conversion is ready to continue.");
       } else {
         setStatus("Uploaded");
         setHint("Upload complete. Continue when ready.");
@@ -2470,7 +2482,9 @@
         ? "Unlock Download"
         : mode === "rotate_pdf"
           ? "Unlock Download"
-          : "Review & Continue →";
+          : mode === "convert"
+            ? "Unlock Download"
+            : "Review & Continue →";
 
   continueBtn.style.display = "";
 

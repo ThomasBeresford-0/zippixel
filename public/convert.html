@@ -11,7 +11,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Convert Files Online — PDF, JPG, PNG & WebP | PDFOperations</title>
+  <title>Convert PDF, JPG, PNG & WebP Online | PDFOperations</title>
   <meta name="description" content="Convert PDF, JPG, PNG and WebP files online. Upload files, choose a format, and download instantly. Secure processing. No signup required." />
   <link rel="canonical" href="https://pdfoperations.com/convert" />
 
@@ -180,6 +180,14 @@
       margin-bottom:8px;
     }
 
+    body.isProcessed #convertReadyBox{
+    display:block !important;
+    }
+
+    body.isProcessed .actionRow{
+      display:none !important;
+    }
+
     .trustBar{
       display:flex;
       flex-wrap:wrap;
@@ -224,7 +232,8 @@
       padding-bottom:10px;
       font-size:13px;
       opacity:.75;
-      line-height:1.35;
+      line-height:1.45;
+      max-width:52ch;
     }
 
     /* Dropzone polish */
@@ -361,17 +370,16 @@
 
       <div class="toolHead toolHeadMinimal">
         <div class="proKicker">PDF Tool</div>
-        <h1 class="toolTitle">Convert files</h1>
+        <h1 class="toolTitle">Convert PDF, JPG, PNG and WebP in Seconds</h1>
         <p class="toolSub">
-          Convert between <strong>PDF, JPG, PNG and WebP</strong>.
-          Upload your files, choose a format, and download the result.
+          Change file formats fast for uploads, emails and document workflows. Upload your files, choose an output format, then unlock the converted result.
         </p>
 
         <div class="trustBar" aria-label="Trust indicators">
           <div class="trustPill">No signup</div>
-          <div class="trustPill">Secure processing</div>
-          <div class="trustPill">Multiple files</div>
-          <div class="trustPill">ZIP when needed</div>
+          <div class="trustPill">Batch convert</div>
+          <div class="trustPill">PDF, JPG, PNG, WebP</div>
+          <div class="trustPill">ZIP output when needed</div>
         </div>
       </div>
 
@@ -480,11 +488,30 @@
       <!-- ACTIONS (IDs preserved) -->
       <div class="actionRow actionRowWide">
         <button class="btnSoft" id="upload" disabled>Upload files</button>
-        <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
+        <button class="btnPrimary btnStrong" id="continue" disabled>Unlock Download</button>
+      </div>
+
+      <div id="convertReadyBox" style="
+        display:none;
+        text-align:center;
+        margin-bottom:14px;
+        padding:16px;
+        border:1px solid rgba(15,23,42,.14);
+        border-radius:12px;
+        background:linear-gradient(180deg,#ffffff,#f8fafc);
+      ">
+        <div style="font-weight:1000; font-size:16px; margin-bottom:8px;">
+          ✔ Your converted file is ready
+        </div>
+        <div style="font-size:13px; opacity:.85; margin-bottom:12px;">
+          Your conversion has been prepared for final download.
+        </div>
+        <button id="convertUnlockBtn" class="btnPrimary btnStrong" style="width:100%;" type="button">
+          Unlock Download
+        </button>
       </div>
 
       <div class="fineprint">Convert, then download when ready.</div>
-
     </div>
 
   </div>
@@ -495,7 +522,7 @@
   <div class="container heroWide">
 
     <div class="plainKicker">About</div>
-    <h2 class="plainH2">Convert PDF, JPG, PNG and WebP online</h2>
+    <h2 class="plainH2">Convert PDF, JPG, PNG and WebP files online</h2>
     <p class="plainLead">
       Convert documents and images directly in your browser. Upload one file or run a batch conversion, choose an output
       format, then download your converted file(s). If a job produces multiple outputs, everything is bundled into one ZIP
@@ -646,6 +673,19 @@
     </div>
   </div>
 </footer>
+
+<script>
+(() => {
+  const convertUnlockBtn = document.getElementById("convertUnlockBtn");
+  const continueBtn = document.getElementById("continue");
+
+  if (convertUnlockBtn && continueBtn) {
+    convertUnlockBtn.addEventListener("click", () => {
+      continueBtn.click();
+    });
+  }
+})();
+</script>
 
 <script src="/app.js?v=18" defer></script>
 <script>
