@@ -1358,6 +1358,7 @@
       thumbUrls.delete(k);
     }
 
+    jobId = null;
     uploadedMeta = [];
     compressPreviewState = "idle";
     compressPreviewError = "";
@@ -1674,6 +1675,9 @@
       }
 
       selected = [incomingValid[0]];
+
+      // 🔥 new file = new job
+      jobId = null;
       uploadedMeta = [];
       compressPreviewState = "idle";
       compressPreviewError = "";
@@ -1818,6 +1822,7 @@
     if (savingsEl) savingsEl.textContent = "↓ —% smaller";
     if (uploading) return;
     selected = [];
+    jobId = null;
     uploadedMeta = [];
     compressPreviewState = "idle";
     compressPreviewError = "";
@@ -1995,7 +2000,7 @@
 
       if (unlockBtnEl) {
         const total = calcTotal();
-        unlockBtnEl.textContent = "Download File";
+        unlockBtnEl.textContent = "Download Compressed PDF →";
       }
 
       compressPreviewState = "ready";
