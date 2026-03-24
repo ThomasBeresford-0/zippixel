@@ -636,10 +636,9 @@
 
   // ====== BUTTON STATES ======
   const showContinue = (enabled) => {
-    const previewVisible =
-      mode === "compress_pdf" &&
-      document.getElementById("resultPreview") &&
-      document.getElementById("resultPreview").style.display !== "none";
+  const previewVisible =
+    mode === "compress_pdf" &&
+    compressPreviewState === "ready";
 
     continueBtn.style.display = previewVisible ? "none" : "";
     continueBtn.disabled = !enabled;
@@ -667,6 +666,10 @@
     uploadBtn.classList.toggle("isDisabled", !canUpload);
 
     showContinue(canContinue);
+
+    if (mode === "compress_pdf") {
+      continueBtn.style.display = "none";
+    }
 
     if (mode === "merge_pdf") {
       uploadBtn.textContent = uploading ? "Uploading…" : uploadedMeta.length ? "Re-upload PDFs" : "Upload PDFs";
@@ -1998,6 +2001,12 @@
 
       compressPreviewState = "ready";
       compressPreviewError = "";
+
+      // 🔥 FORCE unlock button ON
+      if (unlockBtnEl) {
+        unlockBtnEl.disabled = false;
+        unlockBtnEl.classList.remove("isDisabled");
+      }
 
       if (continueBtn) continueBtn.style.display = "none";
       preview.style.display = "block";

@@ -1038,16 +1038,12 @@
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
-  const doClear = () => {
-    const real = document.getElementById("clearBtn");
-    if (real) real.click();
-    try{ filesInput.value = ""; }catch(_){}
-    nameEl.textContent = "PDF";
-    hintEl.textContent = "Upload to continue";
-    setRendered(false);
-    paintBlank();
-    setHasFile(false);
-  };
+    const doClear = () => {
+      const real = document.getElementById("clearBtn");
+      if (real) real.click(); // 🔥 THIS resets app.js state properly
+
+      // 🔥 DO NOT manually override UI state — app.js will handle it
+    };
 
   closeEl.addEventListener("click", doClear);
   clearTopBtn?.addEventListener("click", doClear);
