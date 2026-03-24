@@ -576,6 +576,48 @@
       max-width:80ch;
     }
 
+        .btnGhost.dangerAction{
+      border-color:rgba(185,28,28,.18);
+      color:#991b1b;
+      background:rgba(254,242,242,.92);
+    }
+    .btnGhost.dangerAction:hover{
+      border-color:rgba(185,28,28,.28);
+      background:rgba(254,226,226,1);
+    }
+
+    .btnGhost[disabled],
+    .btnPrimary[disabled],
+    .btnSoft[disabled]{
+      opacity:.5;
+      cursor:not-allowed;
+      box-shadow:none !important;
+      transform:none !important;
+    }
+
+    .selectionBadge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;
+      font-size:12px;
+      font-weight:950;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+      color:rgba(11,18,32,.72);
+    }
+
+    .selectionBadgeDot{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:rgba(11,18,32,.78);
+      flex:0 0 auto;
+    }
+
     .icoStroke{ stroke:rgba(11,18,32,.92); }
   </style>
 
@@ -725,7 +767,6 @@
         <div id="tool" class="tool toolPremium toolMega">
 
           <div class="toolHead toolHeadMinimal">
-          <div class="toolHead toolHeadMinimal">
             <h1 class="toolTitle">Edit PDF Online</h1>
             <p class="toolSub">Add text to a PDF, position it exactly, resize it, style it, and export a clean edited file.</p>
 
@@ -844,10 +885,10 @@
                     </label>
                   </div>
 
-                  <div class="miniActions">
-                    <button id="duplicateBlockBtn" class="btnGhost" type="button">Duplicate</button>
-                    <button id="deleteBlockBtn" class="btnGhost" type="button">Delete</button>
-                  </div>
+                <div class="miniActions">
+                  <button id="duplicateBlockBtn" class="btnGhost" type="button" disabled>Duplicate</button>
+                  <button id="deleteBlockBtn" class="btnGhost dangerAction" type="button" disabled>Delete</button>
+                </div>
                 </div>
 
                 <div class="sideBlock">
@@ -872,6 +913,10 @@
                   </div>
                   <div class="editorToolbarRight">
                     <span class="pill" id="selectedPagePill">No page selected</span>
+                    <span class="selectionBadge">
+                      <span class="selectionBadgeDot"></span>
+                      <span id="selectionBadgeText">Nothing selected</span>
+                    </span>
                   </div>
                 </div>
 
@@ -1074,6 +1119,7 @@
     const editorBlocksPill = document.getElementById("editorBlocksPill");
     const selectedPagePill = document.getElementById("selectedPagePill");
     const selectionState = document.getElementById("selectionState");
+    const selectionBadgeText = document.getElementById("selectionBadgeText");
 
     const blockTextInput = document.getElementById("blockTextInput");
     const blockFontSize = document.getElementById("blockFontSize");
@@ -1088,10 +1134,22 @@
     function setDirty(){
       if (uploadBtn) uploadBtn.disabled = false;
       if (continueBtn) continueBtn.disabled = true;
+      syncActionButtons();
     }
 
     function pageEntry(pageNumber){
       return window.__PDFOPS_EDIT_MAP__[pageNumber - 1];
+    }
+
+    function syncActionButtons(){
+      const hasActive = !!(active && active.__pdfopsEntry);
+
+      if (duplicateBlockBtn) duplicateBlockBtn.disabled = !hasActive;
+      if (deleteBlockBtn) deleteBlockBtn.disabled = !hasActive;
+
+      if (selectionBadgeText) {
+        selectionBadgeText.textContent = hasActive ? "Text selected" : "Nothing selected";
+      }
     }
 
     function updateStats(){
@@ -1115,6 +1173,7 @@
         blockOpacity.value = "1";
         selectedPagePill.textContent = "No page selected";
         setSelectionState("No text block selected yet.");
+        syncActionButtons();
         return;
       }
 
@@ -1126,6 +1185,7 @@
       blockOpacity.value = String(entry.opacity ?? 1);
       selectedPagePill.textContent = `Page ${entry.page}`;
       setSelectionState(`Selected text block on page ${entry.page}.`);
+      syncActionButtons();
     }
 
     function applyEntryToBlock(block){
@@ -1139,11 +1199,13 @@
       block.style.color = entry.color || "#0b1220";
       block.style.fontWeight = String(entry.weight || 700);
       block.style.opacity = String(entry.opacity ?? 1);
-
+      
       let handle = block.querySelector(".textBlockHandle");
       if (!handle) {
         handle = document.createElement("div");
         handle.className = "textBlockHandle";
+        handle.contentEditable = "false";
+        handle.setAttribute("tabindex", "-1");
         block.appendChild(handle);
       }
     }
@@ -1267,7 +1329,9 @@
     }
 
     function startDrag(e){
-      const resizeHandle = e.target.closest(".textBlockHandle");
+      const resizeHandle = e.target instanceof Element
+        ? e.target.closest(".textBlockHandle")
+        : null;
       const el = e.currentTarget;
       selectBlock(el);
 
@@ -1284,6 +1348,16 @@
           const next = Math.max(8, Math.min(144, startSize + ((dx + dy) / 4)));
           entry.size = Math.round(next);
           applyEntryToBlock(el);
+
+          const parentRect = el.parentElement.getBoundingClientRect();
+          const maxLeft = Math.max(0, parentRect.width - el.offsetWidth);
+          const maxTop = Math.max(0, parentRect.height - el.offsetHeight);
+
+          entry.x = Math.max(0, Math.min(entry.x, maxLeft));
+          entry.y = Math.max(0, Math.min(entry.y, maxTop));
+          el.style.left = `${entry.x}px`;
+          el.style.top = `${entry.y}px`;
+
           syncSidebarFromActive();
           setDirty();
         }
@@ -1308,8 +1382,14 @@
       const offsetY = e.clientY - rect.top;
 
       function move(ev){
-        const left = ev.clientX - parentRect.left - offsetX;
-        const top = ev.clientY - parentRect.top - offsetY;
+        const rawLeft = ev.clientX - parentRect.left - offsetX;
+        const rawTop = ev.clientY - parentRect.top - offsetY;
+
+        const maxLeft = Math.max(0, parentRect.width - el.offsetWidth);
+        const maxTop = Math.max(0, parentRect.height - el.offsetHeight);
+
+        const left = Math.max(0, Math.min(rawLeft, maxLeft));
+        const top = Math.max(0, Math.min(rawTop, maxTop));
 
         el.style.left = `${left}px`;
         el.style.top = `${top}px`;
@@ -1343,6 +1423,7 @@
       window.__PDFOPS_EDIT_MAP__ = [];
       updateStats();
       syncSidebarFromActive();
+      syncActionButtons();
       if (uploadBtn) uploadBtn.disabled = true;
       if (continueBtn) continueBtn.disabled = true;
     }
@@ -1353,12 +1434,13 @@
       const file = e?.detail?.files?.[0];
       if (!file || !window.pdfjsLib) return;
 
-      currentFile = file;
       globalBlockId = 1;
+
+      clearEditorUI();
+      currentFile = file;
 
       if (dropzone) dropzone.hidden = true;
       if (workPanel) workPanel.hidden = false;
-      clearEditorUI();
       editor.hidden = false;
       editorEmpty.hidden = true;
 
@@ -1393,8 +1475,10 @@
           if (ev.target !== overlay) return;
           lastSelectedPage = p;
           const overlayRect = overlay.getBoundingClientRect();
-          const x = ev.clientX - overlayRect.left - 40;
-          const y = ev.clientY - overlayRect.top - 16;
+          const rawX = ev.clientX - overlayRect.left - 40;
+          const rawY = ev.clientY - overlayRect.top - 16;
+          const x = Math.max(8, Math.min(rawX, overlayRect.width - 120));
+          const y = Math.max(8, Math.min(rawY, overlayRect.height - 48));
           createBlock(p, x, y, "Text");
         });
 
@@ -1454,8 +1538,10 @@
     });
 
     duplicateBlockBtn.addEventListener("click", duplicateActiveBlock);
-    deleteBlockBtn.addEventListener("click", () => removeBlock(active));
-
+    deleteBlockBtn.addEventListener("click", () => {
+      if (!active) return;
+      removeBlock(active);
+    });
     addCenteredTextBtn.addEventListener("click", () => {
       const page = lastSelectedPage || 1;
       const pEntry = pageEntry(page);
