@@ -2048,7 +2048,7 @@
 
         if (unlockBtnEl) {
           const total = calcTotal();
-          unlockBtnEl.textContent = `Unlock Download — £${total.toFixed(2)}`;
+          unlockBtnEl.textContent = "Download File";
           unlockBtnEl.disabled = false;
           unlockBtnEl.classList.remove("isDisabled");
         }
