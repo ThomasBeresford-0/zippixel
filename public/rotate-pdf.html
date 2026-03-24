@@ -207,6 +207,14 @@
       --muted: rgba(11,18,32,.78);
     }
 
+    body.isProcessed #rotateReadyBox{
+    display:block !important;
+    }
+
+    body.isProcessed .actionRow{
+      display:none !important;
+    }
+
     .nav{
       border-bottom:1px solid rgba(15,23,42,.10);
       background:rgba(245,247,251,.86);
@@ -492,13 +500,13 @@
         <div class="toolHead toolHeadMinimal">
           <div class="proKicker">PDF Tool</div>
           <h1 class="toolTitle">Rotate PDF</h1>
-          <p class="toolSub">Upload one PDF, preview pages, rotate them, then download the updated file.</p>
+          <p class="toolSub">Fix sideways or upside-down pages fast. Preview pages, rotate only the ones you need, then unlock the corrected PDF.</p>
 
           <div class="trustBar" aria-label="Trust indicators">
-            <div class="trustPill">No signup</div>
-            <div class="trustPill">PDF only</div>
-            <div class="trustPill">Rotate specific pages</div>
-            <div class="trustPill">Secure processing</div>
+          <div class="trustPill">No signup</div>
+          <div class="trustPill">Rotate selected pages</div>
+          <div class="trustPill">Fix sideways scans</div>
+          <div class="trustPill">Secure processing</div>
           </div>
         </div>
 
@@ -613,11 +621,30 @@
         <!-- ACTIONS -->
         <div class="actionRow actionRowWide">
           <button class="btnSoft" id="upload" disabled>Upload PDF</button>
-          <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
+          <button class="btnPrimary btnStrong" id="continue" disabled>Unlock Download</button>
+        </div>
+
+        <div id="rotateReadyBox" style="
+          display:none;
+          text-align:center;
+          margin-bottom:14px;
+          padding:16px;
+          border:1px solid rgba(15,23,42,.14);
+          border-radius:12px;
+          background:linear-gradient(180deg,#ffffff,#f8fafc);
+        ">
+          <div style="font-weight:1000; font-size:16px; margin-bottom:8px;">
+            ✔ Your rotated PDF is ready
+          </div>
+          <div style="font-size:13px; opacity:.85; margin-bottom:12px;">
+            Your page rotations have been prepared for final download.
+          </div>
+          <button id="rotateUnlockBtn" class="btnPrimary btnStrong" style="width:100%;" type="button">
+            Unlock Download
+          </button>
         </div>
 
         <div class="fineprint">Tip: rotate only the pages that need it — the rest stay unchanged.</div>
-
       </div>
     </div>
   </section>
@@ -814,17 +841,6 @@
 <script>
 (() => {
   const $ = (id) => document.getElementById(id);
-
-  // Keep Continue enabled once app.js initializes
-  window.addEventListener("load", () => {
-    const btn = $("continue");
-    if (!btn) return;
-    btn.disabled = false;
-    btn.removeAttribute("disabled");
-    new MutationObserver(() => {
-      if (btn.disabled) { btn.disabled = false; btn.removeAttribute("disabled"); }
-    }).observe(btn, { attributes: true, attributeFilter: ["disabled"] });
-  });
 
   let pdfDoc = null;
   let numPages = 0;
@@ -1086,42 +1102,19 @@
     await loadFromFile(f);
   });
 
-  // ======================================
-  // REAL PDF ROTATION (MODIFIES FILE) using pdf-lib
-  // ======================================
-  async function applyRealRotations(file, rotateMap) {
-    const { PDFDocument, degrees } = PDFLib;
-    const originalBytes = await file.arrayBuffer();
-    const pdf = await PDFDocument.load(originalBytes);
-    const pages = pdf.getPages();
+})();
+</script>
 
-    pages.forEach((page, idx) => {
-      const n = idx + 1;
-      const rot = rotateMap[n] || 0;
-      if (rot) page.setRotation(degrees(rot));
+<script>
+(() => {
+  const rotateUnlockBtn = document.getElementById("rotateUnlockBtn");
+  const continueBtn = document.getElementById("continue");
+
+  if (rotateUnlockBtn && continueBtn) {
+    rotateUnlockBtn.addEventListener("click", () => {
+      continueBtn.click();
     });
-
-    return await pdf.save();
   }
-
-  // Modify file before upload
-  $("continue")?.addEventListener("click", async () => {
-    const originalFile = window.__PDFOPS_SELECTED__?.[0] || ($("files")?.files?.[0]);
-    if (!originalFile) return;
-
-    const rotateMap = window.__PDFOPS_ROTATE_MAP__ || [];
-    const hasRotation = rotateMap.some(v => v && v !== 0);
-    if (!hasRotation) return;
-
-    try {
-      const rotatedBytes = await applyRealRotations(originalFile, rotateMap);
-      const rotatedFile = new File([rotatedBytes], originalFile.name, { type: "application/pdf" });
-      window.__PDFOPS_SELECTED__ = [rotatedFile];
-    } catch (err) {
-      console.error("Rotation failed:", err);
-    }
-  });
-
 })();
 </script>
 

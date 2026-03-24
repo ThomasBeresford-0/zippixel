@@ -2249,6 +2249,18 @@
 
         setStatus("Split PDF ready");
         setHint("Your file is uploaded and your split output is ready to continue.");
+      } else if (mode === "rotate_pdf") {
+        document.body.classList.add("isProcessed");
+
+        const rotateReadyBox = document.getElementById("rotateReadyBox");
+        if (rotateReadyBox) rotateReadyBox.style.display = "block";
+
+        if (continueBtn) {
+          continueBtn.style.display = "none";
+        }
+
+        setStatus("Rotated PDF ready");
+        setHint("Your file is uploaded and your rotated PDF is ready to continue.");
       } else {
         setStatus("Uploaded");
         setHint("Upload complete. Continue when ready.");
@@ -2453,10 +2465,12 @@
 
   continueBtn.textContent =
     mode === "compress_pdf"
-      ? "Unlock Download →"
+      ? "Unlock Download"
       : mode === "split_pdf"
-        ? "Download Split PDF →"
-        : "Review & Continue →";
+        ? "Unlock Download"
+        : mode === "rotate_pdf"
+          ? "Unlock Download"
+          : "Review & Continue →";
 
   continueBtn.style.display = "";
 
