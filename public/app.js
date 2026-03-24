@@ -2026,13 +2026,11 @@
       compressPreviewError = e?.message || "Could not prepare preview.";
       console.error("[compress preview]", e);
 
-      // 🔥 fallback "preview" (estimate instead of real)
       const file = selected?.[0];
 
       if (file) {
         const originalBytes = file.size;
 
-        // estimate compression (realistic ranges)
         const ratio =
           pdfCompressLevelValue === "max" ? 0.35 :
           pdfCompressLevelValue === "light" ? 0.75 :
@@ -2055,9 +2053,11 @@
           unlockBtnEl.classList.remove("isDisabled");
         }
 
+        compressPreviewState = "ready";
+
         preview.style.display = "block";
 
-        compressPreviewState = "ready"; // 👈 IMPORTANT
+        setPrimaryStates(); // 🔥 THIS IS THE KEY FIX
       }
 
       // show continue as fallback too
