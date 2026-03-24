@@ -686,6 +686,14 @@
       continueBtn.style.display = "none";
     }
 
+    if (mode === "rotate_pdf" && uploadedMeta.length) {
+      continueBtn.style.display = "none";
+    }
+
+    if (mode === "convert" && uploadedMeta.length) {
+      continueBtn.style.display = "none";
+    }
+
     if (mode === "merge_pdf") {
       uploadBtn.textContent = uploading ? "Uploading…" : uploadedMeta.length ? "Re-upload PDFs" : "Upload PDFs";
     } else if (mode === "split_pdf") {
@@ -704,10 +712,14 @@
       mode === "image_compress"
         ? "Download smaller images →"
         : mode === "compress_pdf"
-          ? "Unlock Download →"
+          ? "Unlock Download"
           : mode === "split_pdf"
-            ? "Download Split PDF →"
-            : "Review & Continue →";
+            ? "Unlock Download"
+            : mode === "rotate_pdf"
+              ? "Unlock Download"
+              : mode === "convert"
+                ? "Unlock Download"
+                : "Review & Continue →";
 
     setUploaderEnabled(!(uploading || creatingJob));
 
@@ -790,6 +802,24 @@
           setHint(`Preview failed: ${escapeHtml(compressPreviewError || "Could not prepare preview.")}`);
           return;
         }
+      }
+
+      if (mode === "split_pdf") {
+        setStatus("Split PDF ready");
+        setHint("Your file is uploaded and your split output is ready to continue.");
+        return;
+      }
+
+      if (mode === "rotate_pdf") {
+        setStatus("Rotated PDF ready");
+        setHint("Your file is uploaded and your rotated PDF is ready to continue.");
+        return;
+      }
+
+      if (mode === "convert") {
+        setStatus("Converted file ready");
+        setHint("Your file is uploaded and your conversion is ready to continue.");
+        return;
       }
 
       setStatus("Uploaded");
@@ -2261,6 +2291,7 @@
 
         setStatus("Rotated PDF ready");
         setHint("Your file is uploaded and your rotated PDF is ready to continue.");
+
       } else if (mode === "convert") {
         document.body.classList.add("isProcessed");
 

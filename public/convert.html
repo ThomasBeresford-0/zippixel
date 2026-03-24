@@ -1,5 +1,5 @@
-<!-- public/convert.html — PDFOperations (v6 - SPLIT-PDF BOTTOM BLOCK MATCH + MAX SEO; NO FUNCTION CHANGES)
-     ✅ NO functional changes / all app.js IDs preserved
+<!-- public/convert.html — PDFOperations (v7 - FULL RAMBO CONVERT UX + PRESET PATHS + READY STATE; NO FUNCTION CHANGES)
+    ✅ NO functional changes / all app.js IDs preserved
      ✅ style.css?v=36 + app.js?v=18
      ✅ Tool-first UX unchanged
      ✅ Bottom section now uses the EXACT same “plainSection / featureGrid / faqListPlain / relatedLinks” structure + styling as split-pdf
@@ -29,7 +29,7 @@
   </script>
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Convert Files Online — PDF, JPG, PNG & WebP" />
+  <meta property="og:title" content="Convert PDF, JPG, PNG & WebP Online | PDFOperations" />
   <meta property="og:description" content="Upload files, choose a format, and download instantly. Multiple files supported." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/convert" />
@@ -38,7 +38,7 @@
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Convert Files Online — PDF, JPG, PNG & WebP" />
+  <meta name="twitter:title" content="Convert PDF, JPG, PNG & WebP Online | PDFOperations" />
   <meta name="twitter:description" content="Upload files, choose a format, and download instantly. Multiple files supported." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
@@ -75,7 +75,7 @@
   {
     "@context":"https://schema.org",
     "@type":"WebPage",
-    "name":"Convert Files Online — PDFOperations",
+    "name":"Convert PDF, JPG, PNG & WebP Online — PDFOperations",
     "url":"https://pdfoperations.com/convert",
     "description":"Convert PDF, JPG, PNG and WebP files online. Upload files, choose a format, and download instantly.",
     "isPartOf":{
@@ -197,6 +197,27 @@
       border-top:1px solid rgba(15,23,42,.10);
       color:rgba(11,18,32,.72);
       font-size:13px;
+    }
+
+    .convertPresets{
+      width:100%;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:2px;
+    }
+
+    .convertPresetBtn{
+      min-height:42px;
+      padding:10px 14px;
+      border-radius:10px;
+      font-weight:900;
+      letter-spacing:-.01em;
+    }
+
+    .convertPresetBtn.isActive{
+      border-color:rgba(11,18,32,.28) !important;
+      background:rgba(11,18,32,.06) !important;
     }
     .trustPill{
       padding:0 !important;
@@ -443,9 +464,18 @@
           </select>
         </div>
 
-        <div class="convertHint">
-          Tip: converting multiple files may produce multiple outputs — they’ll be bundled into a ZIP.
-        </div>
+      <div class="convertHint">
+        Pick a conversion path fast, or use the dropdowns for a custom output format.
+      </div>
+
+      <div class="convertPresets" aria-label="Popular conversion presets">
+        <button type="button" class="btnSoft convertPresetBtn" data-convert-from="pdf" data-convert-to="jpg">PDF → JPG</button>
+        <button type="button" class="btnSoft convertPresetBtn" data-convert-from="pdf" data-convert-to="png">PDF → PNG</button>
+        <button type="button" class="btnSoft convertPresetBtn" data-convert-from="jpg" data-convert-to="pdf">JPG → PDF</button>
+        <button type="button" class="btnSoft convertPresetBtn" data-convert-from="png" data-convert-to="pdf">PNG → PDF</button>
+        <button type="button" class="btnSoft convertPresetBtn" data-convert-from="webp" data-convert-to="png">WebP → PNG</button>
+        <button type="button" class="btnSoft convertPresetBtn" data-convert-from="webp" data-convert-to="jpg">WebP → JPG</button>
+      </div>
 
       </div>
 
@@ -684,6 +714,50 @@
       continueBtn.click();
     });
   }
+})();
+</script>
+
+<script>
+(() => {
+  const fromEl = document.getElementById("convertFrom");
+  const toEl = document.getElementById("convertTarget");
+  const buttons = Array.from(document.querySelectorAll(".convertPresetBtn"));
+
+  if (!fromEl || !toEl || !buttons.length) return;
+
+  const syncActive = () => {
+    const from = (fromEl.value || "").toLowerCase();
+    const to = (toEl.value || "").toLowerCase();
+
+    buttons.forEach((btn) => {
+      const active =
+        btn.dataset.convertFrom === from &&
+        btn.dataset.convertTo === to;
+
+      btn.classList.toggle("isActive", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+  };
+
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const nextFrom = btn.dataset.convertFrom || "auto";
+      const nextTo = btn.dataset.convertTo || "pdf";
+
+      fromEl.value = nextFrom;
+      toEl.value = nextTo;
+
+      fromEl.dispatchEvent(new Event("change", { bubbles: true }));
+      toEl.dispatchEvent(new Event("change", { bubbles: true }));
+
+      syncActive();
+    });
+  });
+
+  fromEl.addEventListener("change", syncActive);
+  toEl.addEventListener("change", syncActive);
+
+  syncActive();
 })();
 </script>
 
