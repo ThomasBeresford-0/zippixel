@@ -79,6 +79,14 @@
       padding-bottom:20px;
     }
 
+    body.isProcessed #resultPreview{
+      display:block !important;
+    }
+
+    body.isProcessed .workActions{
+      display:none !important;
+    }
+
     .relatedLinksGrid{
   display:grid;
   grid-template-columns:repeat(3, minmax(0, 1fr));
@@ -773,7 +781,7 @@
                 </div>
 
                 <button id="unlockBtn" class="btnPrimary btnStrong" style="width:100%;">
-                  Download Optimised PDF
+                  Unlock Download
                 </button>
 
               </div>
@@ -781,7 +789,7 @@
 
               <div class="workActions">
                 <button class="btnSoft" id="upload" disabled>Prepare File</button>
-                <button class="btnPrimary btnStrong" id="continue" disabled>Download Optimised PDF →</button>
+                <button class="btnPrimary btnStrong" id="continue" disabled>Unlock Download</button>
               </div>
               
               <div class="plainNote" style="margin-top:14px; text-align:center;">
@@ -1040,10 +1048,9 @@
   }
 
     const doClear = () => {
+      document.body.classList.remove("isProcessed");
       const real = document.getElementById("clearBtn");
-      if (real) real.click(); // 🔥 THIS resets app.js state properly
-
-      // 🔥 DO NOT manually override UI state — app.js will handle it
+      if (real) real.click();
     };
 
   closeEl.addEventListener("click", doClear);
