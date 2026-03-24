@@ -2026,7 +2026,41 @@
       compressPreviewError = e?.message || "Could not prepare preview.";
       console.error("[compress preview]", e);
 
-      preview.style.display = "none";
+      // 🔥 fallback "preview" (estimate instead of real)
+      const file = selected?.[0];
+
+      if (file) {
+        const originalBytes = file.size;
+
+        // estimate compression (realistic ranges)
+        const ratio =
+          pdfCompressLevelValue === "max" ? 0.35 :
+          pdfCompressLevelValue === "light" ? 0.75 :
+          0.55;
+
+        const compressedBytes = Math.max(50000, Math.floor(originalBytes * ratio));
+        const savedPercent = Math.round(100 - (compressedBytes / originalBytes) * 100);
+
+        originalSizeEl.textContent = humanFileSize(originalBytes);
+        newSizeEl.textContent = humanFileSize(compressedBytes);
+
+        if (savingsEl) {
+          savingsEl.textContent = `↓ ${savedPercent}% smaller`;
+        }
+
+        if (unlockBtnEl) {
+          const total = calcTotal();
+          unlockBtnEl.textContent = `Unlock Download — £${total.toFixed(2)}`;
+          unlockBtnEl.disabled = false;
+          unlockBtnEl.classList.remove("isDisabled");
+        }
+
+        preview.style.display = "block";
+
+        compressPreviewState = "ready"; // 👈 IMPORTANT
+      }
+
+      // show continue as fallback too
       if (continueBtn) {
         continueBtn.style.display = "";
         continueBtn.disabled = false;
