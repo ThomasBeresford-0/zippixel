@@ -350,8 +350,11 @@
 
     const preview = document.getElementById("resultPreview");
     if (preview) preview.style.display = "none";
-    if (continueBtn) continueBtn.style.display = "";
-
+    if (continueBtn) {
+      continueBtn.style.display = "";
+      continueBtn.disabled = false;
+      continueBtn.classList.remove("isDisabled");
+    }
     const originalSizeEl = document.getElementById("originalSize");
     const newSizeEl = document.getElementById("newSize");
     const savingsEl = document.getElementById("savingsPct");
@@ -667,7 +670,7 @@
 
     showContinue(canContinue);
 
-    if (mode === "compress_pdf") {
+    if (mode === "compress_pdf" && compressPreviewState === "ready") {
       continueBtn.style.display = "none";
     }
 
@@ -696,11 +699,11 @@
 
     // unlock button state
     if (unlockBtn) {
-      const previewVisible =
-        mode === "compress_pdf" &&
-        compressPreviewState === "ready" &&
-        document.getElementById("resultPreview") &&
-        document.getElementById("resultPreview").style.display !== "none";
+    const previewVisible =
+      mode === "compress_pdf" &&
+      compressPreviewState === "ready" && // ✅ ONLY when actually successful
+      document.getElementById("resultPreview") &&
+      document.getElementById("resultPreview").style.display !== "none";
 
       unlockBtn.disabled = !previewVisible;
       unlockBtn.classList.toggle("isDisabled", !previewVisible);
@@ -1803,7 +1806,11 @@
   clearBtn?.addEventListener("click", () => {
     const preview = document.getElementById("resultPreview");
     if (preview) preview.style.display = "none";
-    if (continueBtn) continueBtn.style.display = "";
+    if (continueBtn) {
+      continueBtn.style.display = "";
+      continueBtn.disabled = false;
+      continueBtn.classList.remove("isDisabled");
+    }
     const originalSizeEl = document.getElementById("originalSize");
     const newSizeEl = document.getElementById("newSize");
     const savingsEl = document.getElementById("savingsPct");
@@ -2020,8 +2027,11 @@
       console.error("[compress preview]", e);
 
       preview.style.display = "none";
-      if (continueBtn) continueBtn.style.display = "";
-
+      if (continueBtn) {
+        continueBtn.style.display = "";
+        continueBtn.disabled = false;
+        continueBtn.classList.remove("isDisabled");
+      }
       setPrimaryStates();
       setStatus("Preview failed");
       setHint(`Preview failed: ${escapeHtml(compressPreviewError)}`);
