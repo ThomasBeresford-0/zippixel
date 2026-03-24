@@ -783,6 +783,7 @@
                 <button class="btnSoft" id="upload" disabled>Prepare File</button>
                 <button class="btnPrimary btnStrong" id="continue" disabled>Download Optimised PDF →</button>
               </div>
+              
               <div class="plainNote" style="margin-top:14px; text-align:center;">
               </div>
             </div>
@@ -1156,6 +1157,18 @@
     const file = filesInput.files && filesInput.files[0];
     if (!file) paintBlank();
   });
+})();
+</script>
+<script>
+(() => {
+  const unlockBtn = document.getElementById("unlockBtn");
+  const continueBtn = document.getElementById("continue");
+
+  if (unlockBtn && continueBtn) {
+    unlockBtn.addEventListener("click", () => {
+      continueBtn.click();
+    });
+  }
 })();
 </script>
 
