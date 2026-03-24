@@ -88,6 +88,31 @@
     }
     .toolSub{ opacity:.78; }
 
+    .trustBar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px 18px;
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid rgba(15,23,42,.10);
+  color:rgba(11,18,32,.72);
+  font-size:13px;
+}
+.trustPill{
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  white-space:nowrap;
+}
+.trustPill::before{ content:"•"; opacity:.55; }
+.trustBar .trustPill:first-child::before{ content:""; }
+
     .dropzone.dropzonePremium.dropzoneMega{
       min-height:220px;
       border:1px dashed rgba(15,23,42,.22);
@@ -95,8 +120,8 @@
       background:
         linear-gradient(180deg, rgba(255,255,255,.95), rgba(247,249,252,.95));
     }
-    #dropzone.isDragOver{
-      outline:2px solid rgba(11,18,32,.14);
+    #dropzone.isDrag{
+        outline:2px solid rgba(11,18,32,.14);
       box-shadow:0 24px 70px rgba(2,6,23,.14);
       transform:translateY(-1px);
     }
@@ -700,8 +725,16 @@
         <div id="tool" class="tool toolPremium toolMega">
 
           <div class="toolHead toolHeadMinimal">
-            <h1 class="toolTitle">Edit PDF</h1>
-            <p class="toolSub">Click anywhere on the page to add text. Drag, resize, style and export a cleaner PDF.</p>
+          <div class="toolHead toolHeadMinimal">
+            <h1 class="toolTitle">Edit PDF Online</h1>
+            <p class="toolSub">Add text to a PDF, position it exactly, resize it, style it, and export a clean edited file.</p>
+
+            <div class="trustBar" aria-label="Trust indicators">
+              <div class="trustPill">No signup</div>
+              <div class="trustPill">Add text overlays</div>
+              <div class="trustPill">Precise positioning</div>
+              <div class="trustPill">Secure processing</div>
+            </div>
           </div>
 
           <div class="statusWrap">
