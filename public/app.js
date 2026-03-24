@@ -699,14 +699,12 @@
 
     // unlock button state
     if (unlockBtn) {
-    const previewVisible =
+    const canUnlock =
       mode === "compress_pdf" &&
-      compressPreviewState === "ready" && // ✅ ONLY when actually successful
-      document.getElementById("resultPreview") &&
-      document.getElementById("resultPreview").style.display !== "none";
+      uploadedMeta.length > 0;
 
-      unlockBtn.disabled = !previewVisible;
-      unlockBtn.classList.toggle("isDisabled", !previewVisible);
+    unlockBtn.disabled = !canUnlock;
+    unlockBtn.classList.toggle("isDisabled", !canUnlock);
     }
 
     if (!hasFiles) {
@@ -1961,12 +1959,6 @@
     newSizeEl.textContent = "—";
     if (savingsEl) savingsEl.textContent = "↓ —% smaller";
 
-    if (unlockBtnEl) {
-      unlockBtnEl.disabled = true;
-      unlockBtnEl.classList.add("isDisabled");
-      unlockBtnEl.textContent = "Unlock Download →";
-    }
-
     try {
       setStatus("Compressing");
       setHint("Preparing your compressed PDF preview…");
@@ -2048,7 +2040,7 @@
 
         if (unlockBtnEl) {
           const total = calcTotal();
-          unlockBtnEl.textContent = "Download File";
+          unlockBtnEl.textContent = "Download Compressed PDF →";
           unlockBtnEl.disabled = false;
           unlockBtnEl.classList.remove("isDisabled");
         }
