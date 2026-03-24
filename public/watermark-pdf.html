@@ -70,7 +70,14 @@
       border-color:#0b1220;
     }
 
-    .pageStage{ position:relative; }
+        #applyWatermark{
+      width:100%;
+      min-height:46px;
+      border-radius:12px;
+      font-weight:950;
+      letter-spacing:-.01em;
+      margin-top:6px;
+    }
 
     .previewOverlay{
       position:absolute;
@@ -79,6 +86,8 @@
       align-items:center;
       justify-content:center;
       pointer-events:none;
+      padding:24px;
+      box-sizing:border-box;
     }
     .previewWatermark{
       font-weight:1000;
@@ -166,6 +175,31 @@
       font-weight: 1000;
     }
     .toolSub{ opacity:.78; }
+
+        .trustBar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 18px;
+      margin-top:14px;
+      padding-top:14px;
+      border-top:1px solid rgba(15,23,42,.10);
+      color:rgba(11,18,32,.72);
+      font-size:13px;
+    }
+    .trustPill{
+      padding:0 !important;
+      border:0 !important;
+      background:transparent !important;
+      box-shadow:none !important;
+      border-radius:0 !important;
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
+    }
+    .trustPill::before{ content:"•"; opacity:.55; }
+    .trustBar .trustPill:first-child::before{ content:""; }
 
     #workPanel{
       margin-top:12px;
@@ -550,7 +584,7 @@
         <a href="/convert" data-nav="convert">Convert</a>
         <a href="/sign-pdf" data-nav="sign">Sign</a>
         <a href="/edit-pdf" data-nav="edit">Edit</a>
-        <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
+        <a href="/watermark-pdf" data-nav="watermark" aria-current="page">Watermark</a>
       </nav>
 
     </div>
@@ -561,10 +595,17 @@
       <div class="container heroWide">
         <div id="tool" class="tool toolPremium toolMega">
 
-          <div class="toolHead toolHeadMinimal">
-            <h1 class="toolTitle">Add Watermark to PDF</h1>
-            <p class="toolSub">Text or logo watermark. Live preview. Apply to all pages.</p>
+        <div class="toolHead toolHeadMinimal">
+          <h1 class="toolTitle">Add Watermark to PDF</h1>
+          <p class="toolSub">Text or logo watermark. Live preview. Apply to all pages.</p>
+
+          <div class="trustBar" aria-label="Trust indicators">
+            <div class="trustPill">No signup</div>
+            <div class="trustPill">Text or logo watermark</div>
+            <div class="trustPill">Live preview</div>
+            <div class="trustPill">Secure processing</div>
           </div>
+        </div>
 
           <div class="statusWrap">
             <div class="statusLeft">
@@ -866,21 +907,58 @@
     const imagePanel=document.getElementById("imagePanel");
     const tabs=document.querySelectorAll(".tabBtn");
 
-    let imageBytes=null;
+    let imageBytes = null;
+    let activeWatermarkTab = "text";
 
     function updatePreview(){
-      previewWM.textContent=wmText.value||"";
-      previewWM.style.fontSize=wmSize.value+"px";
-      previewWM.style.color=wmColor.value;
-      previewWM.style.opacity=wmOpacity.value;
-      previewWM.style.transform="rotate("+wmRotation.value+"deg)";
+      previewWM.textContent = wmText.value || "";
+      previewWM.style.fontSize = wmSize.value + "px";
+      previewWM.style.color = wmColor.value;
+      previewWM.style.opacity = wmOpacity.value;
+      previewWM.style.transform = "rotate(" + wmRotation.value + "deg)";
 
-      if(wmPosition.value==="center"){
-        overlay.style.justifyContent="center";
-        overlay.style.alignItems="center";
-      }else{
-        overlay.style.justifyContent="flex-start";
-        overlay.style.alignItems="flex-start";
+      overlay.style.justifyContent = "center";
+      overlay.style.alignItems = "center";
+      overlay.style.backgroundImage = "none";
+      overlay.style.backgroundRepeat = "no-repeat";
+      overlay.style.backgroundSize = "auto";
+      previewWM.style.display = "block";
+
+      switch (wmPosition.value) {
+        case "center":
+          overlay.style.justifyContent = "center";
+          overlay.style.alignItems = "center";
+          break;
+        case "topleft":
+          overlay.style.justifyContent = "flex-start";
+          overlay.style.alignItems = "flex-start";
+          break;
+        case "topright":
+          overlay.style.justifyContent = "flex-end";
+          overlay.style.alignItems = "flex-start";
+          break;
+        case "bottomleft":
+          overlay.style.justifyContent = "flex-start";
+          overlay.style.alignItems = "flex-end";
+          break;
+        case "bottomright":
+          overlay.style.justifyContent = "flex-end";
+          overlay.style.alignItems = "flex-end";
+          break;
+        case "tile":
+          overlay.style.justifyContent = "center";
+          overlay.style.alignItems = "center";
+          previewWM.style.display = "none";
+          overlay.style.backgroundImage = `repeating-linear-gradient(
+            ${wmRotation.value}deg,
+            rgba(0,0,0,0) 0,
+            rgba(0,0,0,0) 120px,
+            rgba(11,18,32,${Math.max(0.08, Number(wmOpacity.value) * 0.45)}) 120px,
+            rgba(11,18,32,${Math.max(0.08, Number(wmOpacity.value) * 0.45)}) 122px,
+            rgba(0,0,0,0) 122px,
+            rgba(0,0,0,0) 240px
+          )`;
+          break;
       }
     }
 
@@ -892,12 +970,16 @@
       btn.addEventListener("click",()=>{
         tabs.forEach(b=>b.classList.remove("active"));
         btn.classList.add("active");
-        if(btn.dataset.tab==="text"){
-          textPanel.hidden=false;
-          imagePanel.hidden=true;
+        activeWatermarkTab = btn.dataset.tab || "text";
+
+        if(activeWatermarkTab === "text"){
+          textPanel.hidden = false;
+          imagePanel.hidden = true;
+          updatePreview();
         }else{
-          textPanel.hidden=true;
-          imagePanel.hidden=false;
+          textPanel.hidden = true;
+          imagePanel.hidden = false;
+          previewWM.textContent = "";
         }
       });
     });
@@ -938,48 +1020,88 @@
       const bytes=await file.arrayBuffer();
       const pdfDoc=await PDFLib.PDFDocument.load(bytes);
       const pages=pdfDoc.getPages();
-      let embeddedImage=null;
+      let embeddedImage = null;
 
-      if(imageBytes){
-        try{ embeddedImage=await pdfDoc.embedPng(imageBytes); }
-        catch{ embeddedImage=await pdfDoc.embedJpg(imageBytes); }
+      if (activeWatermarkTab === "image" && imageBytes) {
+        try { embeddedImage = await pdfDoc.embedPng(imageBytes); }
+        catch { embeddedImage = await pdfDoc.embedJpg(imageBytes); }
       }
 
       pages.forEach(page=>{
         const {width,height}=page.getSize();
 
-        if(wmPosition.value==="tile"){
-          for(let x=0;x<width;x+=300){
-            for(let y=0;y<height;y+=200){
-              draw(page,x,y,width,height);
+        if (wmPosition.value === "tile") {
+          for (let x = 40; x < width; x += 260) {
+            for (let y = 40; y < height; y += 180) {
+              draw(page, x, y, width, height, "tile");
             }
           }
-        }else{
-          draw(page,width/2,height/2,width,height,true);
+        } else {
+          draw(page, 0, 0, width, height, wmPosition.value);
         }
 
-        function draw(page,x,y,w,h,center=false){
-          const opts={opacity:parseFloat(wmOpacity.value),rotate:PDFLib.degrees(parseFloat(wmRotation.value))};
+        function draw(page, x, y, w, h, positionMode = "center"){
+          const opacity = parseFloat(wmOpacity.value);
+          const rotation = PDFLib.degrees(parseFloat(wmRotation.value));
+          const size = parseInt(wmSize.value, 10);
 
-          if(embeddedImage){
-            page.drawImage(embeddedImage,{
-              x:center? w/2-100 : x,
-              y:center? h/2-50 : y,
-              width:200,
-              height:100,
-              ...opts
+          const rgb = PDFLib.rgb(
+            parseInt(wmColor.value.substr(1,2),16) / 255,
+            parseInt(wmColor.value.substr(3,2),16) / 255,
+            parseInt(wmColor.value.substr(5,2),16) / 255
+          );
+
+          let drawX = x;
+          let drawY = y;
+
+          const margin = 36;
+          const imageWidth = 200;
+          const imageHeight = 100;
+          const estimatedTextWidth = Math.max(120, (wmText.value || "").length * size * 0.55);
+          const estimatedTextHeight = size;
+
+          if (positionMode !== "tile") {
+            switch (positionMode) {
+              case "center":
+                drawX = embeddedImage ? (w - imageWidth) / 2 : (w - estimatedTextWidth) / 2;
+                drawY = embeddedImage ? (h - imageHeight) / 2 : h / 2;
+                break;
+              case "topleft":
+                drawX = margin;
+                drawY = h - margin - (embeddedImage ? imageHeight : estimatedTextHeight);
+                break;
+              case "topright":
+                drawX = embeddedImage ? (w - imageWidth - margin) : (w - estimatedTextWidth - margin);
+                drawY = h - margin - (embeddedImage ? imageHeight : estimatedTextHeight);
+                break;
+              case "bottomleft":
+                drawX = margin;
+                drawY = margin;
+                break;
+              case "bottomright":
+                drawX = embeddedImage ? (w - imageWidth - margin) : (w - estimatedTextWidth - margin);
+                drawY = margin;
+                break;
+            }
+          }
+
+          if (embeddedImage) {
+            page.drawImage(embeddedImage, {
+              x: drawX,
+              y: drawY,
+              width: imageWidth,
+              height: imageHeight,
+              opacity,
+              rotate: rotation
             });
-          }else{
-            page.drawText(wmText.value,{
-              x:center? w/2-100 : x,
-              y:center? h/2 : y,
-              size:parseInt(wmSize.value),
-              color:PDFLib.rgb(
-                parseInt(wmColor.value.substr(1,2),16)/255,
-                parseInt(wmColor.value.substr(3,2),16)/255,
-                parseInt(wmColor.value.substr(5,2),16)/255
-              ),
-              ...opts
+          } else {
+            page.drawText(wmText.value || "", {
+              x: drawX,
+              y: drawY,
+              size,
+              color: rgb,
+              opacity,
+              rotate: rotation
             });
           }
         }
