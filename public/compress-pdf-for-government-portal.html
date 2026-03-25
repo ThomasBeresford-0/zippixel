@@ -127,6 +127,14 @@
       color:rgba(11,18,32,.78);
     }
 
+    body.isProcessed #resultPreview{
+    display:block !important;
+    }
+
+    body.isProcessed .workActions{
+      display:none !important;
+    }
+
     .stepItem{ display:flex; align-items:center; gap:8px; }
 
     .stepNum{
@@ -615,7 +623,8 @@
     </a>
 
     <nav class="navLinks" aria-label="Primary tools">
-      <a href="/" data-nav="compress">Compress</a>
+      <a href="/" data-nav="compress" aria-current="page">Compress</a>
+      <a href="/compress-image" data-nav="compress-image">Compress Image</a>
       <a href="/merge-pdf" data-nav="merge">Merge</a>
       <a href="/split-pdf" data-nav="split">Split</a>
       <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
@@ -632,12 +641,36 @@
     <div class="container heroWide">
       <div id="tool" class="tool toolPremium toolMega">
 
-        <div class="toolHead toolHeadMinimal">
-          <h1 class="toolTitle">Compress PDF for Government Portal Uploads</h1>
-          <p class="toolSub">
-            Reduce official forms, statements and supporting PDF documents so they are easier to upload to government portals.
-            No signup. Secure processing.
-          </p>
+      <div class="toolHead toolHeadMinimal">
+        <h1 class="toolTitle">Compress PDF for Government Portal Uploads</h1>
+        <p class="toolSub" style="text-align:center; max-width:760px; margin:10px auto 0;">
+          Reduce official forms, statements and supporting PDF documents so they are easier to upload to government portals. Upload your file, prepare a smaller version, and review the result before downloading.
+        </p>
+        <div style="text-align:center; margin-top:12px; font-size:14px; opacity:.86; font-weight:800;">
+          No signup • Secure processing • One-time payment • Preview before download
+        </div>
+
+        <div style="text-align:center; margin-top:10px; font-size:14px;">
+          Try:
+          <a href="/compress-pdf-under-2mb">2MB limit</a> •
+          <a href="/compress-pdf-under-5mb">5MB limit</a> •
+          <a href="/pdf-too-large-to-upload">General upload fix</a>
+        </div>
+
+        <div style="
+          margin:14px auto 0;
+          max-width:760px;
+          display:flex;
+          flex-wrap:wrap;
+          justify-content:center;
+          gap:10px;
+        ">
+          <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">No signup</span>
+          <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">Preview before download</span>
+          <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">One-time payment</span>
+          <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">Government portals</span>
+        </div>
+      </div>
 
           <div class="statusWrap">
             <div class="statusLeft">
@@ -675,13 +708,14 @@
 
           <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
             <div class="dzCenter">
-              <div class="dzTitle" id="dzTitle">Drop your official PDF</div>
-              <div class="dzSub" id="dzSub">PDF only • Reduce file size for government upload forms</div>
+              <div class="dzTitle" id="dzTitle">Upload your PDF for a government portal</div>
+              <div class="dzSub" id="dzSub">Best for official forms, statements and supporting documents that are too large to upload</div>
+
 
               <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
               <input id="files" type="file" accept="application/pdf" />
 
-              <div class="dzFine">Tip: drag a PDF onto this area.</div>
+            <div class="dzFine">Large scanned PDFs may need another pass.</div>
             </div>
           </div>
 
@@ -713,17 +747,68 @@
             </div>
 
             <div class="workBottom">
+
+              <div id="resultPreview" style="
+                display:none;
+                text-align:center;
+                margin-bottom:14px;
+                padding:16px;
+                border:1px solid rgba(15,23,42,.14);
+                border-radius:12px;
+                background:linear-gradient(180deg,#ffffff,#f8fafc);
+              ">
+                <div style="font-weight:1000; font-size:20px; margin-bottom:10px;">
+                  ✔ Your PDF is now smaller and ready for portal upload
+                </div>
+
+                <div style="font-size:14px; opacity:.9; margin-bottom:8px;">
+                  Original: <strong id="originalSize">—</strong>
+                </div>
+
+                <div style="font-size:16px; font-weight:1000; margin-bottom:6px;">
+                  New: <strong id="newSize">—</strong>
+                </div>
+
+                <div id="savingsPct" style="
+                  font-size:14px;
+                  font-weight:1000;
+                  color:#16a34a;
+                  margin-bottom:12px;
+                ">
+                  ↓ —% smaller — easier to upload to official portals
+                </div>
+
+                <div style="font-size:13px; opacity:.78; margin-bottom:14px;">
+                  Your smaller file is prepared. Review the result, then download it instantly.
+                </div>
+
+                <div style="font-size:13px; opacity:.75; margin-bottom:10px;">
+                  Need a different fix?
+                  <a href="/compress-pdf-under-2mb">2MB</a> •
+                  <a href="/compress-pdf-under-5mb">5MB</a> •
+                  <a href="/pdf-too-large-to-upload">General upload fix</a>
+                </div>
+
+                <button id="unlockBtn" class="btnPrimary btnStrong" style="width:100%;">
+                  Download smaller PDF
+                </button>
+              </div>
+
               <div class="workActions">
-                <button class="btnSoft" id="upload" disabled>Upload &amp; Prepare</button>
-                <button class="btnPrimary btnStrong" id="continue" disabled>Reduce File Size →</button>
+                <button class="btnSoft" id="upload" disabled>Prepare smaller PDF</button>
+                <button class="btnPrimary btnStrong" id="continue" disabled>Continue to download</button>
+              </div>
+
+              <div class="plainNote" style="margin-top:14px; text-align:center;">
+                No account required • One-time payment • Built for official forms and portal uploads
               </div>
             </div>
           </div>
 
           <div class="stepsLine">
-            <div class="stepItem"><span class="stepNum">1</span>Select / Drop a PDF</div>
-            <div class="stepItem"><span class="stepNum">2</span>Click <strong>Upload</strong></div>
-            <div class="stepItem"><span class="stepNum">3</span>Continue → Download</div>
+            <div class="stepItem"><span class="stepNum">1</span>Select your PDF</div>
+            <div class="stepItem"><span class="stepNum">2</span>Prepare a smaller version</div>
+            <div class="stepItem"><span class="stepNum">3</span>Download when ready</div>
           </div>
 
           <div class="progressWrap" id="progressWrap" hidden>
@@ -959,6 +1044,7 @@
   }
 
   const doClear = () => {
+    document.body.classList.remove("isProcessed");
     const real = document.getElementById("clearBtn");
     if (real) real.click();
     try{ filesInput.value = ""; }catch(_){}
@@ -1080,6 +1166,19 @@
     const file = filesInput.files && filesInput.files[0];
     if (!file) paintBlank();
   });
+})();
+</script>
+
+<script>
+(() => {
+  const unlockBtn = document.getElementById("unlockBtn");
+  const continueBtn = document.getElementById("continue");
+
+  if (unlockBtn && continueBtn) {
+    unlockBtn.addEventListener("click", () => {
+      continueBtn.click();
+    });
+  }
 })();
 </script>
 

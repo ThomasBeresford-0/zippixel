@@ -94,6 +94,14 @@
         linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,1));
     }
 
+    body.isProcessed #resultPreview{
+    display:block !important;
+    }
+
+    body.isProcessed .workActions{
+      display:none !important;
+    }
+
     .toolHeadMinimal{
       border-bottom:1px solid rgba(15,23,42,.10);
       padding-bottom: 14px;
@@ -543,6 +551,7 @@
 
     <nav class="navLinks" aria-label="Primary tools">
       <a href="/" data-nav="compress">Compress</a>
+      <a href="/compress-image" data-nav="compress-image">Compress Image</a>
       <a href="/merge-pdf" data-nav="merge">Merge</a>
       <a href="/split-pdf" data-nav="split">Split</a>
       <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
@@ -561,19 +570,44 @@
 
       <div id="tool" class="tool toolPremium toolMega">
 
-        <div class="toolHead toolHeadMinimal">
-          <h1 class="toolTitle">Compress PDF Under 1MB</h1>
-            <p class="toolSub">
-              Need your PDF under <strong>1MB</strong>? Compress it here for strict upload limits on forms, applications and older submission systems. No signup required. Secure processing.
-            </p>
+      <div class="toolHead toolHeadMinimal">
+        <h1 class="toolTitle">Compress PDF to Under 1MB</h1>
+        <p class="toolSub" style="text-align:center; max-width:760px; margin:10px auto 0;">
+          Need to get a PDF under <strong>1MB</strong> fast? Upload it here, preview the result, and see exactly how small your file becomes before you unlock the download. Ideal for strict forms, older portals and aggressive upload limits.
+        </p>
+
+        <div style="text-align:center; margin-top:12px; font-size:14px; opacity:.86; font-weight:800;">
+          No signup • Secure processing • One-time payment • Preview before download
         </div>
+
+        <div style="text-align:center; margin-top:10px; font-size:14px;">
+          Try:
+          <a href="/compress-pdf-under-2mb">2MB limit</a> •
+          <a href="/compress-pdf-under-5mb">5MB limit</a> •
+          <a href="/pdf-too-large-to-upload">General upload fix</a>
+        </div>
+
+        <div style="
+          margin:14px auto 0;
+          max-width:760px;
+          display:flex;
+          flex-wrap:wrap;
+          justify-content:center;
+          gap:10px;
+        ">
+          <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">Strict 1MB target</span>
+          <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">Preview before download</span>
+          <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">One-time payment</span>
+          <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">No signup</span>
+        </div>
+      </div>
 
         <div class="statusWrap">
           <div class="statusLeft">
             <div class="status" id="status">Ready</div>
             <div class="spinner" id="spinner"></div>
           </div>
-          <div class="statusHint" id="statusHint">Drop a PDF to begin.</div>
+          <div class="statusHint" id="statusHint">Drop a PDF to begin. We’ll target under <strong>1MB</strong>.</div>
         </div>
 
         <fieldset style="display:none;">
@@ -602,17 +636,17 @@
           <select id="rotateDegrees"><option value="90" selected>90°</option><option value="180">180°</option><option value="270">270°</option></select>
         </div>
 
-        <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
-          <div class="dzCenter">
-            <div class="dzTitle" id="dzTitle">Drop a PDF to get under 1MB</div>
-            <div class="dzSub" id="dzSub">PDF only • Reduce file size for strict 1MB limits</div>
+      <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
+        <div class="dzCenter">
+          <div class="dzTitle" id="dzTitle">Drop your PDF here to get it under 1MB</div>
+          <div class="dzSub" id="dzSub">PDF only • Built for strict upload limits, forms and older portals</div>
 
-            <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
-            <input id="files" type="file" accept="application/pdf" />
+          <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
+          <input id="files" type="file" accept="application/pdf" />
 
-            <div class="dzFine">Tip: if it’s still over 1MB after compressing, split the PDF or remove image-heavy pages before exporting again.</div>
-          </div>
+          <div class="dzFine">Tip: if it’s still over 1MB after compressing, split the PDF or reduce image-heavy pages first.</div>
         </div>
+      </div>
 
         <div class="workPanel" aria-label="Selected file">
           <div class="workTop">
@@ -642,25 +676,77 @@
           </div>
 
           <div class="workBottom">
+
+            <div id="resultPreview" style="
+              display:none;
+              text-align:center;
+              margin-bottom:14px;
+              padding:16px;
+              border:1px solid rgba(15,23,42,.14);
+              border-radius:12px;
+              background:linear-gradient(180deg,#ffffff,#f8fafc);
+            ">
+              <div style="font-weight:1000; font-size:20px; margin-bottom:10px;">
+                ✔ Your PDF is now smaller and ready for strict upload limits
+              </div>
+
+              <div style="font-size:14px; opacity:.9; margin-bottom:8px;">
+                Original: <strong id="originalSize">—</strong>
+              </div>
+
+              <div style="font-size:16px; font-weight:1000; margin-bottom:6px;">
+                New: <strong id="newSize">—</strong>
+              </div>
+
+              <div id="savingsPct" style="
+                font-size:14px;
+                font-weight:1000;
+                color:#16a34a;
+                margin-bottom:12px;
+              ">
+                ↓ —% smaller — targeted for 1MB limit
+              </div>
+
+              <div style="font-size:13px; opacity:.78; margin-bottom:14px;">
+                Your smaller file is prepared. Review the result, then download it instantly.
+              </div>
+
+              <div style="font-size:13px; opacity:.75; margin-bottom:10px;">
+                Need a less strict limit?
+                <a href="/compress-pdf-under-2mb">2MB</a> •
+                <a href="/compress-pdf-under-5mb">5MB</a> •
+                <a href="/compress-pdf-under-10mb">10MB</a>
+              </div>
+
+              <button id="unlockBtn" class="btnPrimary btnStrong" style="width:100%;">
+                Download smaller PDF
+              </button>
+            </div>
+
             <div class="workActions">
-              <button class="btnSoft" id="upload" disabled>Upload PDF</button>
-              <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
+              <button class="btnSoft" id="upload" disabled>Prepare smaller PDF</button>
+              <button class="btnPrimary btnStrong" id="continue" disabled>Continue to download</button>
+            </div>
+
+            <div class="plainNote" style="margin-top:14px; text-align:center;">
+              No account required • One-time payment • Useful for strict upload limits and older forms
             </div>
           </div>
         </div>
 
         <div class="stepsLine">
-          <div class="stepItem"><span class="stepNum">1</span>Select / Drop a PDF</div>
-          <div class="stepItem"><span class="stepNum">2</span>Click <strong>Upload</strong></div>
-          <div class="stepItem"><span class="stepNum">3</span>Continue → Download</div>
+          <div class="stepItem"><span class="stepNum">1</span>Select your PDF</div>
+          <div class="stepItem"><span class="stepNum">2</span>Prepare a smaller version</div>
+          <div class="stepItem"><span class="stepNum">3</span>Download when ready</div>
         </div>
 
-          <div class="relatedLinks" style="margin-top:18px;">
-            <a href="/compress-pdf-under-2mb">Compress PDF under 2MB</a>
-            <a href="/compress-pdf-under-5mb">Compress PDF under 5MB</a>
-            <a href="/pdf-too-large-to-upload">PDF too large to upload</a>
-            <a href="/compress-pdf-for-job-application">Compress PDF for job applications</a>
-          </div>
+      <div class="relatedLinks" style="margin-top:18px;">
+        <a href="/compress-pdf-under-2mb">Compress PDF under 2MB</a>
+        <a href="/compress-pdf-under-5mb">Compress PDF under 5MB</a>
+        <a href="/compress-pdf-under-10mb">Compress PDF under 10MB</a>
+        <a href="/pdf-too-large-to-upload">PDF too large to upload</a>
+        <a href="/compress-pdf-for-job-application">Compress PDF for job applications</a>
+      </div>
         <div class="progressWrap" id="progressWrap" hidden>
           <div class="progressTop">
             <div id="progressLabel">Uploading…</div>
@@ -967,6 +1053,19 @@
     const file = filesInput.files && filesInput.files[0];
     if (!file) paintBlank();
   });
+})();
+</script>
+
+<script>
+(() => {
+  const unlockBtn = document.getElementById("unlockBtn");
+  const continueBtn = document.getElementById("continue");
+
+  if (unlockBtn && continueBtn) {
+    unlockBtn.addEventListener("click", () => {
+      continueBtn.click();
+    });
+  }
 })();
 </script>
 

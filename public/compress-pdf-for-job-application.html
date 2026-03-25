@@ -493,7 +493,8 @@
     </a>
 
     <nav class="navLinks" aria-label="Primary tools">
-      <a href="/" data-nav="compress">Compress</a>
+      <a href="/" data-nav="compress" aria-current="page">Compress</a>
+      <a href="/compress-image" data-nav="compress-image">Compress Image</a>
       <a href="/merge-pdf" data-nav="merge">Merge</a>
       <a href="/split-pdf" data-nav="split">Split</a>
       <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
@@ -654,8 +655,8 @@
             </div>
 
             <div class="workActions">
-              <button class="btnSoft" id="upload" disabled>Prepare PDF</button>
-              <button class="btnPrimary btnStrong" id="continue" disabled>Download smaller PDF</button>
+              <button class="btnSoft" id="upload" disabled>Prepare smaller PDF</button>
+              <button class="btnPrimary btnStrong" id="continue" disabled>Continue to download</button>
             </div>
 
             <div class="plainNote" style="margin-top:14px; text-align:center;">
@@ -666,9 +667,9 @@
 
         <!-- STEPS (pre-select only) -->
         <div class="stepsLine">
-          <div class="stepItem"><span class="stepNum">1</span>Select / Drop a PDF</div>
-          <div class="stepItem"><span class="stepNum">2</span>Click <strong>Upload</strong></div>
-          <div class="stepItem"><span class="stepNum">3</span>Continue → Download</div>
+          <div class="stepItem"><span class="stepNum">1</span>Select your PDF</div>
+          <div class="stepItem"><span class="stepNum">2</span>Prepare a smaller version</div>
+          <div class="stepItem"><span class="stepNum">3</span>Download when ready</div>
         </div>
 
         <!-- PROGRESS -->
@@ -822,6 +823,7 @@
   }
 
   const doClear = () => {
+    document.body.classList.remove("isProcessed");
     const real = document.getElementById("clearBtn");
     if (real) real.click();
     try{ filesInput.value = ""; }catch(_){}

@@ -86,6 +86,14 @@
       background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,1));
     }
 
+    body.isProcessed #resultPreview{
+    display:block !important;
+    }
+
+    body.isProcessed .workActions{
+      display:none !important;
+    }
+
     .toolHeadMinimal{
       border-bottom:1px solid rgba(15,23,42,.10);
       padding-bottom:14px;
@@ -618,16 +626,17 @@
       <img src="/logo.png" alt="PDFOperations" class="brandLogoFull" />
     </a>
 
-    <nav class="navLinks" aria-label="Primary tools">
-      <a href="/" data-nav="compress" aria-current="page">Compress</a>
-      <a href="/merge-pdf" data-nav="merge">Merge</a>
-      <a href="/split-pdf" data-nav="split">Split</a>
-      <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
-      <a href="/convert" data-nav="convert">Convert</a>
-      <a href="/sign-pdf" data-nav="sign">Sign</a>
-      <a href="/edit-pdf" data-nav="edit">Edit</a>
-      <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
-    </nav>
+  <nav class="navLinks" aria-label="Primary tools">
+    <a href="/" data-nav="compress" aria-current="page">Compress</a>
+    <a href="/compress-image" data-nav="compress-image">Compress Image</a>
+    <a href="/merge-pdf" data-nav="merge">Merge</a>
+    <a href="/split-pdf" data-nav="split">Split</a>
+    <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
+    <a href="/convert" data-nav="convert">Convert</a>
+    <a href="/sign-pdf" data-nav="sign">Sign</a>
+    <a href="/edit-pdf" data-nav="edit">Edit</a>
+    <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
+  </nav>
   </div>
 </header>
 
@@ -637,19 +646,43 @@
       <div id="tool" class="tool toolPremium toolMega">
 
         <div class="toolHead toolHeadMinimal">
-        <h1 class="toolTitle">PDF Won’t Upload? Fix It Fast</h1>
-        <p class="toolSub">
-          If your PDF keeps failing, getting rejected, or refusing to upload, reduce the file size here so it is easier to submit to forms, portals, job applications and email systems. No signup. No account. Just upload and fix it.
-        </p>
-
-
-          <div class="statusWrap">
-            <div class="statusLeft">
-            <div class="status" id="status">Ready to fix your PDF</div>
-              <div class="spinner" id="spinner"></div>
-            </div>
-          <div class="statusHint" id="statusHint">Upload your PDF to make it smaller and uploadable.</div>
+          <h1 class="toolTitle">PDF Won’t Upload? Fix It Fast.</h1>
+          <p class="toolSub" style="text-align:center; max-width:760px; margin:10px auto 0;">
+            Reduce PDF file size for forms, portals, job applications and email attachments. Upload your file, prepare a smaller version, and download it when ready.
+          </p>
+          <div style="text-align:center; margin-top:12px; font-size:14px; opacity:.86; font-weight:800;">
+            No signup • Secure processing • One-time payment • Preview before download
           </div>
+
+          <div style="text-align:center; margin-top:10px; font-size:14px;">
+            Try:
+            <a href="/compress-pdf-under-2mb">2MB limit</a> •
+            <a href="/compress-pdf-under-5mb">5MB limit</a> •
+            <a href="/compress-pdf-for-job-application">Job applications</a>
+          </div>
+
+          <div style="
+            margin:14px auto 0;
+            max-width:760px;
+            display:flex;
+            flex-wrap:wrap;
+            justify-content:center;
+            gap:10px;
+          ">
+            <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">No signup</span>
+            <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">Preview before download</span>
+            <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">One-time payment</span>
+            <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">Fix upload errors</span>
+          </div>
+        </div>
+
+        <div class="statusWrap">
+          <div class="statusLeft">
+            <div class="status" id="status">Ready</div>
+            <div class="spinner" id="spinner"></div>
+          </div>
+          <div class="statusHint" id="statusHint">Drop a PDF to begin.</div>
+        </div>
 
           <fieldset style="display:none;">
             <input type="radio" name="mode" id="modeCompress">
@@ -677,17 +710,15 @@
             <select id="rotateDegrees"><option value="90" selected>90°</option><option value="180">180°</option><option value="270">270°</option></select>
           </div>
 
-          <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
-            <div class="dzCenter">
-            <div class="dzTitle" id="dzTitle">Drop a PDF that won’t upload</div>
-              <div class="dzSub" id="dzSub">PDF only • Fast fix for file size limits</div>
-
-              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
-              <input id="files" type="file" accept="application/pdf" />
-
-              <div class="dzFine">Tip: drag a PDF onto this area.</div>
-            </div>
+        <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
+          <div class="dzCenter">
+            <div class="dzTitle" id="dzTitle">Upload your PDF to fix upload errors</div>
+            <div class="dzSub" id="dzSub">Best for file-too-large errors, forms, portals and email attachments</div>
+            <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
+            <input id="files" type="file" accept="application/pdf" />
+            <div class="dzFine">Common upload caps: 2MB, 5MB and 10MB.</div>
           </div>
+        </div>
 
           <div class="workPanel" aria-label="Selected file">
             <div class="workTop">
@@ -716,33 +747,69 @@
               </div>
             </div>
 
-            <div class="workBottom">
-              <div class="workActions">
-                <button class="btnSoft" id="upload" disabled>Upload &amp; Prepare</button>
-                <button class="btnPrimary btnStrong" id="continue" disabled>Fix My PDF →</button>
-              </div>
-              <div class="plainNote" style="margin-top:14px; text-align:center;">
-                <p style="text-align:center; font-size:13px; opacity:.7; margin:0 0 6px;">
-                  Fix upload errors in seconds • No signup • One-time payment
-                </p>
-                <p style="text-align:center; margin:0;">
-                  Built for upload limits, job applications, forms and email attachments
-                </p>
-                <p style="text-align:center; font-size:13px; opacity:.7; margin-top:6px;">
-                  Free tools compress files. This makes your PDF actually uploadable.
-                </p>
+          <div class="workBottom">
+
+            <div id="resultPreview" style="
+              display:none;
+              text-align:center;
+              margin-bottom:14px;
+              padding:16px;
+              border:1px solid rgba(15,23,42,.14);
+              border-radius:12px;
+              background:linear-gradient(180deg,#ffffff,#f8fafc);
+            ">
+              <div style="font-weight:1000; font-size:20px; margin-bottom:10px;">
+                ✔ Your PDF is now smaller and ready to upload
               </div>
 
-              <p class="plainNote" style="margin-top:8px; text-align:center;">
-                Files are processed to generate your output. See <a href="/privacy">Privacy</a> for retention and deletion details.
-              </p>
+              <div style="font-size:14px; opacity:.9; margin-bottom:8px;">
+                Original: <strong id="originalSize">—</strong>
+              </div>
+
+              <div style="font-size:16px; font-weight:1000; margin-bottom:6px;">
+                New: <strong id="newSize">—</strong>
+              </div>
+
+              <div id="savingsPct" style="
+                font-size:14px;
+                font-weight:1000;
+                color:#16a34a;
+                margin-bottom:12px;
+              ">
+                ↓ —% smaller — easier to upload
+              </div>
+
+              <div style="font-size:13px; opacity:.78; margin-bottom:14px;">
+                Your smaller file is prepared. Review the result, then download it instantly.
+              </div>
+
+              <div style="font-size:13px; opacity:.75; margin-bottom:10px;">
+                Need a specific limit?
+                <a href="/compress-pdf-under-2mb">2MB</a> •
+                <a href="/compress-pdf-under-5mb">5MB</a> •
+                <a href="/compress-pdf-under-10mb">10MB</a>
+              </div>
+
+              <button id="unlockBtn" class="btnPrimary btnStrong" style="width:100%;">
+                Download smaller PDF
+              </button>
             </div>
+
+            <div class="workActions">
+              <button class="btnSoft" id="upload" disabled>Prepare smaller PDF</button>
+              <button class="btnPrimary btnStrong" id="continue" disabled>Continue to download</button>
+            </div>
+
+            <div class="plainNote" style="margin-top:14px; text-align:center;">
+              No account required • One-time payment • Useful for forms, portals, job applications and email attachments
+            </div>
+          </div>
           </div>
 
           <div class="stepsLine">
             <div class="stepItem"><span class="stepNum">1</span>Select your PDF</div>
-            <div class="stepItem"><span class="stepNum">2</span>Upload and prepare it</div>
-            <div class="stepItem"><span class="stepNum">3</span>Get a smaller PDF</div>
+            <div class="stepItem"><span class="stepNum">2</span>Prepare a smaller version</div>
+            <div class="stepItem"><span class="stepNum">3</span>Download when ready</div>
           </div>
 
           <div class="relatedLinks" aria-label="Popular compression links" style="margin-top:18px;">
@@ -1123,6 +1190,19 @@
     const file = filesInput.files && filesInput.files[0];
     if (!file) paintBlank();
   });
+})();
+</script>
+
+<script>
+(() => {
+  const unlockBtn = document.getElementById("unlockBtn");
+  const continueBtn = document.getElementById("continue");
+
+  if (unlockBtn && continueBtn) {
+    unlockBtn.addEventListener("click", () => {
+      continueBtn.click();
+    });
+  }
 })();
 </script>
 
