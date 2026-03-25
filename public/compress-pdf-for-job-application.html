@@ -83,6 +83,14 @@
       background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,1));
     }
 
+    body.isProcessed #resultPreview{
+    display:block !important;
+    }
+
+    body.isProcessed .workActions{
+      display:none !important;
+    }
+
     .toolHeadMinimal{
       border-bottom:1px solid rgba(15,23,42,.10);
       padding-bottom:14px;
@@ -485,7 +493,7 @@
     </a>
 
     <nav class="navLinks" aria-label="Primary tools">
-      <a href="/" data-nav="compress" aria-current="page">Compress</a>
+      <a href="/" data-nav="compress">Compress</a>
       <a href="/merge-pdf" data-nav="merge">Merge</a>
       <a href="/split-pdf" data-nav="split">Split</a>
       <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
@@ -600,9 +608,58 @@
           </div>
 
           <div class="workBottom">
+            <div id="resultPreview" style="
+              display:none;
+              text-align:center;
+              margin-bottom:14px;
+              padding:16px;
+              border:1px solid rgba(15,23,42,.14);
+              border-radius:12px;
+              background:linear-gradient(180deg,#ffffff,#f8fafc);
+            ">
+              <div style="font-weight:1000; font-size:18px; margin-bottom:10px;">
+                ✔ Your PDF is ready for job application upload
+              </div>
+
+              <div style="font-size:14px; opacity:.9; margin-bottom:8px;">
+                Original: <strong id="originalSize">—</strong>
+              </div>
+
+              <div style="font-size:16px; font-weight:1000; margin-bottom:6px;">
+                New: <strong id="newSize">—</strong>
+              </div>
+
+              <div id="savingsPct" style="
+                font-size:14px;
+                font-weight:1000;
+                color:#16a34a;
+                margin-bottom:12px;
+              ">
+                ↓ —% smaller — easier to upload to job portals
+              </div>
+
+              <div style="font-size:13px; opacity:.75; margin-bottom:14px;">
+                Preview your result first — only continue if you want the download
+              </div>
+              <div style="font-size:13px; opacity:.75; margin-bottom:10px;">
+                Need a different limit?
+                <a href="/compress-pdf-under-2mb">2MB</a> •
+                <a href="/compress-pdf-under-5mb">5MB</a> •
+                <a href="/pdf-too-large-to-upload">General upload fix</a>
+              </div>
+
+              <button id="unlockBtn" class="btnPrimary btnStrong" style="width:100%;">
+                Download smaller PDF
+              </button>
+            </div>
+
             <div class="workActions">
-            <button class="btnSoft" id="upload" disabled>Prepare PDF</button>
-            <button class="btnPrimary btnStrong" id="continue" disabled>Unlock Download</button>
+              <button class="btnSoft" id="upload" disabled>Prepare PDF</button>
+              <button class="btnPrimary btnStrong" id="continue" disabled>Download smaller PDF</button>
+            </div>
+
+            <div class="plainNote" style="margin-top:14px; text-align:center;">
+              No account required • Built for CVs and supporting documents • Maximum compression applied automatically
             </div>
           </div>
         </div>
@@ -914,6 +971,18 @@
 
   // initial
   paintBlank();
+})();
+</script>
+<script>
+(() => {
+  const unlockBtn = document.getElementById("unlockBtn");
+  const continueBtn = document.getElementById("continue");
+
+  if (unlockBtn && continueBtn) {
+    unlockBtn.addEventListener("click", () => {
+      continueBtn.click();
+    });
+  }
 })();
 </script>
 
