@@ -17,7 +17,7 @@
       "/compress-pdf-under-1mb": 3.99,
       "/compress-pdf-under-2mb": 3.49,
       "/compress-pdf-for-job-application": 4.99,
-      "/compress-pdf-for-email": 3.49
+      "/reduce-pdf-size-for-email": 3.49
     };
 
   const TOOL_PRICING = {
@@ -169,7 +169,6 @@
   // If this page doesn’t have the tool, bail quietly
   if (!dropzone || !filesEl || !chooseBtn || !uploadBtn || !continueBtn) return;
 
-  // ====== STATE ======
   let jobId = null;
   let creatingJob = false;
   let uploading = false;
@@ -179,6 +178,7 @@
   let uploadedMeta = []; // [{ key, originalname, mimetype }]
   let compressPreviewState = "idle"; // idle | loading | ready | failed
   let compressPreviewError = "";
+  let previewPaywallOpenedForJob = null;
 
   // ====== EXPOSE SELECTION TO TOOL PAGES (rotate preview etc.) ======
   const publishSelected = () => {
@@ -306,7 +306,9 @@
     const fileCount = selected.length;
     const share = !!optShareLink?.checked;
 
-  const pathname = window.location.pathname || "/";
+  const rawPath = window.location.pathname || "/";
+  const pathname = rawPath === "/" ? "/" : rawPath.replace(/\/$/, "");
+
   let base =
     PAGE_PRICING[pathname] ??
     TOOL_PRICING[mode] ??
@@ -347,6 +349,7 @@
     uploadedMeta = [];
     compressPreviewState = "idle";
     compressPreviewError = "";
+    previewPaywallOpenedForJob = null;
     resetProgress();
 
     const preview = document.getElementById("resultPreview");
@@ -1422,6 +1425,7 @@
     uploadedMeta = [];
     compressPreviewState = "idle";
     compressPreviewError = "";
+    previewPaywallOpenedForJob = null;
     resetProgress();
     disarmPricingUI();
     renderSelected();
@@ -1925,6 +1929,7 @@
     uploadedMeta = [];
     compressPreviewState = "idle";
     compressPreviewError = "";
+    previewPaywallOpenedForJob = null;
     disarmPricingUI();
     for (const url of thumbUrls.values()) URL.revokeObjectURL(url);
     thumbUrls.clear();
@@ -2122,11 +2127,21 @@
       }
 
       if (continueBtn) continueBtn.style.display = "none";
-      preview.style.display = "block";
+    preview.style.display = "block";
 
-      setPrimaryStates();
-      setStatus("Your PDF is ready");
-      setHint("Your file has been compressed. Unlock download to get it.");
+    setPrimaryStates();
+    setStatus("Your PDF is ready");
+    setHint("Your file has been compressed. Unlock download to get it.");
+
+    if (previewPaywallOpenedForJob !== jobId) {
+      previewPaywallOpenedForJob = jobId;
+
+      setTimeout(() => {
+        if (!priceModal?.classList.contains("isOpen")) {
+          openPriceModal();
+        }
+      }, 600);
+    }
     } catch (e) {
       if (typeof gtag === "function") {
         gtag("event", "preview_failed", {
@@ -2429,7 +2444,7 @@
             "Perfect for job application portals. Ensure your file meets upload limits.";
         } else {
           priceModalNote.textContent =
-            "Instant download after payment. No signup required.";
+            "Your file is ready. Unlock it instantly — no signup.";
         }
         }
       });
@@ -2437,9 +2452,24 @@
     }
 
     if (priceModalNote) {
-      priceModalNote.textContent = shouldRecommendShare()
-        ? "You’ll be redirected to secure Stripe Checkout. Recommended: get a shareable download link to send your file (especially for large uploads)."
-        : "You’ll be redirected to secure Stripe Checkout.";
+      const pathname = (window.location.pathname || "").toLowerCase();
+
+      if (optShareLink?.checked) {
+        priceModalNote.textContent =
+          "Your file is ready. Share link enabled for easy access.";
+      } else if (pathname.includes("1mb")) {
+        priceModalNote.textContent =
+          "Built for strict 1MB upload limits.";
+      } else if (pathname.includes("job") || pathname.includes("cv") || pathname.includes("resume")) {
+        priceModalNote.textContent =
+          "Optimised for job application uploads.";
+      } else if (pathname.includes("email")) {
+        priceModalNote.textContent =
+          "Optimised for email attachment limits.";
+      } else {
+        priceModalNote.textContent =
+          "Your file is ready. Unlock it instantly — no signup.";
+      }
     }
 
     if (typeof gtag === "function") {
