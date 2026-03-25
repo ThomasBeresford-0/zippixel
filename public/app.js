@@ -1703,6 +1703,14 @@
     const errors = [];
     const incomingValid = [];
 
+    if (typeof gtag === "function" && incomingFiles?.length) {
+      gtag("event", "file_select_attempt", {
+        page: window.location.pathname,
+        mode,
+        attempted_count: incomingFiles.length
+      });
+    }
+
     for (const f of arr) {
       const err = validateFileForMode(f);
       if (err) errors.push(err);
@@ -1712,6 +1720,22 @@
     if (errors.length) {
       setStatus("Some files were skipped");
       setHint(errors.slice(0, 2).map((e) => escapeHtml(e)).join("<br/>") + (errors.length > 2 ? "<br/>…" : ""));
+    }
+
+        if (typeof gtag === "function" && incomingValid.length) {
+      gtag("event", "file_selected", {
+        page: window.location.pathname,
+        mode,
+        file_count: incomingValid.length
+      });
+    }
+
+    if (typeof gtag === "function" && errors.length) {
+      gtag("event", "file_rejected", {
+        page: window.location.pathname,
+        mode,
+        rejected_count: errors.length
+      });
     }
 
     // Any new selection invalidates any prior upload + pricing
@@ -1866,6 +1890,12 @@
   });
 
     clearBtn?.addEventListener("click", () => {
+    if (typeof gtag === "function") {
+      gtag("event", "clear_clicked", {
+        page: window.location.pathname,
+        mode
+      });
+    }
       document.body.classList.remove("isProcessed");
 
       const preview = document.getElementById("resultPreview");
@@ -2067,6 +2097,16 @@
       newSizeEl.textContent = humanFileSize(compressedBytes);
       if (savingsEl) savingsEl.textContent = `↓ ${savedPercent}% smaller`;
 
+      if (typeof gtag === "function") {
+        gtag("event", "preview_ready", {
+          page: window.location.pathname,
+          mode,
+          original_bytes: originalBytes,
+          compressed_bytes: compressedBytes,
+          saved_percent: savedPercent
+        });
+      }
+
       if (unlockBtnEl) {
         const total = calcTotal();
         unlockBtnEl.textContent = "Download Compressed PDF →";
@@ -2088,6 +2128,14 @@
       setStatus("Your PDF is ready");
       setHint("Your file has been compressed. Unlock download to get it.");
     } catch (e) {
+      if (typeof gtag === "function") {
+        gtag("event", "preview_failed", {
+          page: window.location.pathname,
+          mode,
+          error_message: String(e?.message || "preview_failed").slice(0, 120)
+        });
+      }
+
       compressPreviewState = "failed";
       compressPreviewError = e?.message || "Could not prepare preview.";
       console.error("[compress preview]", e);
@@ -2187,6 +2235,13 @@
     }
 
     uploading = true;
+        if (typeof gtag === "function") {
+      gtag("event", "upload_started", {
+        page: window.location.pathname,
+        mode,
+        file_count: selected.length
+      });
+    }
     setBusy(true);
     setPrimaryStates();
 
@@ -2252,6 +2307,14 @@
 
       const reg = await regRes.json();
       if (reg?.error) throw new Error(reg.error);
+
+      if (typeof gtag === "function") {
+        gtag("event", "upload_completed", {
+          page: window.location.pathname,
+          mode,
+          file_count: selected.length
+        });
+      }
 
       if (progressLabel) progressLabel.textContent = "Uploaded";
       if (progressFill) progressFill.style.width = "100%";
@@ -2379,6 +2442,15 @@
         : "You’ll be redirected to secure Stripe Checkout.";
     }
 
+    if (typeof gtag === "function") {
+      gtag("event", "checkout_modal_opened", {
+        page: window.location.pathname,
+        mode,
+        file_count: selected.length,
+        total_price: calcTotal()
+      });
+    }
+
     priceModal.classList.add("isOpen");
     priceModal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
@@ -2414,6 +2486,15 @@
     setStatus("Redirecting");
     setHint("Opening secure checkout…");
     continueBtn.disabled = true;
+        if (typeof gtag === "function") {
+      gtag("event", "checkout_started", {
+        page: window.location.pathname,
+        mode,
+        file_count: selected.length,
+        total_price: calcTotal(),
+        share_link: !!optShareLink?.checked
+      });
+    }
 
     try {
       const resp = await fetch("/api/checkout", {
@@ -2430,8 +2511,23 @@
       if (resp?.error) throw new Error(resp.error);
       if (!resp?.url) throw new Error("Something went wrong.");
 
+      if (typeof gtag === "function") {
+        gtag("event", "checkout_redirected", {
+          page: window.location.pathname,
+          mode,
+          file_count: selected.length,
+          total_price: calcTotal()
+        });
+      }
       window.location.href = resp.url;
     } catch (e) {
+      if (typeof gtag === "function") {
+        gtag("event", "checkout_failed", {
+          page: window.location.pathname,
+          mode,
+          error_message: String(e?.message || "checkout_failed").slice(0, 120)
+        });
+      }
       setStatus("Couldn’t continue");
       setHint(escapeHtml(e?.message || "Please try again."));
       continueBtn.disabled = false;
