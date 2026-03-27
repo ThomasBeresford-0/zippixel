@@ -99,11 +99,21 @@
       user-select:none;
       touch-action:none;
       background:transparent;
-      border:0;
-      border-radius:0;
-      box-shadow:none;
+      border:2px dashed rgba(11,18,32,.38);
+      border-radius:12px;
+      box-shadow:0 10px 30px rgba(2,6,23,.08);
       overflow:visible;
       z-index:2;
+    }
+
+    .previewWatermarkBox:hover{
+      border-color:rgba(11,18,32,.55);
+      box-shadow:0 14px 36px rgba(2,6,23,.12);
+    }
+
+    .previewWatermarkBox.isActive{
+      border-color:#0b1220;
+      box-shadow:0 18px 40px rgba(2,6,23,.16);
     }
 
     .previewWatermark{
@@ -123,21 +133,60 @@
       text-shadow:0 1px 0 rgba(255,255,255,.8);
       pointer-events:none;
       background:transparent;
+      padding:12px;
+      box-sizing:border-box;
     }
 
-    .wmResizeHandle{
+    .wmHandle{
       position:absolute;
-      right:6px;
-      bottom:6px;
-      width:18px;
-      height:18px;
+      width:16px;
+      height:16px;
+      background:#fff;
+      border:2px solid #0b1220;
       border-radius:999px;
-      background:#0b1220;
-      border:2px solid #fff;
-      box-shadow:0 6px 14px rgba(2,6,23,.16);
-      cursor:nwse-resize;
+      box-shadow:0 4px 14px rgba(2,6,23,.18);
       pointer-events:auto;
-      z-index:3;
+      z-index:4;
+    }
+
+    .wmHandle--nw{ top:-8px; left:-8px; cursor:nwse-resize; }
+    .wmHandle--ne{ top:-8px; right:-8px; cursor:nesw-resize; }
+    .wmHandle--sw{ bottom:-8px; left:-8px; cursor:nesw-resize; }
+    .wmHandle--se{ bottom:-8px; right:-8px; cursor:nwse-resize; }
+
+    .wmHandle--n,
+    .wmHandle--s{
+      left:50%;
+      transform:translateX(-50%);
+      cursor:ns-resize;
+    }
+
+    .wmHandle--e,
+    .wmHandle--w{
+      top:50%;
+      transform:translateY(-50%);
+      cursor:ew-resize;
+    }
+
+    .wmHandle--n{ top:-8px; }
+    .wmHandle--s{ bottom:-8px; }
+    .wmHandle--e{ right:-8px; }
+    .wmHandle--w{ left:-8px; }
+
+    @media (max-width: 640px){
+      .wmHandle{
+        width:20px;
+        height:20px;
+      }
+
+      .wmHandle--nw{ top:-10px; left:-10px; }
+      .wmHandle--ne{ top:-10px; right:-10px; }
+      .wmHandle--sw{ bottom:-10px; left:-10px; }
+      .wmHandle--se{ bottom:-10px; right:-10px; }
+      .wmHandle--n{ top:-10px; }
+      .wmHandle--s{ bottom:-10px; }
+      .wmHandle--e{ right:-10px; }
+      .wmHandle--w{ left:-10px; }
     }
 
     /* =========================
@@ -694,7 +743,16 @@
                     <div class="previewOverlay" id="previewOverlay">
                       <div class="previewWatermarkBox" id="previewWatermarkBox">
                         <div class="previewWatermark" id="previewWatermark">CONFIDENTIAL</div>
-                        <div class="wmResizeHandle" id="wmResizeHandle" aria-hidden="true"></div>
+
+                        <div class="wmHandle wmHandle--nw" data-handle="nw" aria-hidden="true"></div>
+                        <div class="wmHandle wmHandle--n"  data-handle="n"  aria-hidden="true"></div>
+                        <div class="wmHandle wmHandle--ne" data-handle="ne" aria-hidden="true"></div>
+
+                        <div class="wmHandle wmHandle--e"  data-handle="e"  aria-hidden="true"></div>
+                        <div class="wmHandle wmHandle--se" data-handle="se" aria-hidden="true"></div>
+                        <div class="wmHandle wmHandle--s"  data-handle="s"  aria-hidden="true"></div>
+                        <div class="wmHandle wmHandle--sw" data-handle="sw" aria-hidden="true"></div>
+                        <div class="wmHandle wmHandle--w"  data-handle="w"  aria-hidden="true"></div>
                       </div>
                     </div>
                   </div>
@@ -944,8 +1002,7 @@
     const overlay=document.getElementById("previewOverlay");
     const previewWM=document.getElementById("previewWatermark");
     const previewBox=document.getElementById("previewWatermarkBox");
-    const wmResizeHandle=document.getElementById("wmResizeHandle");
-
+    const wmHandles = [...document.querySelectorAll(".wmHandle")];      
     const wmText=document.getElementById("wmText");
     const wmSize=document.getElementById("wmSize");
     const wmColor=document.getElementById("wmColor");
@@ -973,6 +1030,8 @@
     let dragStartX = 0;
     let dragStartY = 0;
     let startBox = null;
+    let activeHandle = null;
+    let hasManualResize = false;
 
     function clamp(val, min, max){
       return Math.max(min, Math.min(max, val));
@@ -995,7 +1054,7 @@
     function updatePreview(){
       previewWM.textContent = wmText.value || "";
       previewWM.style.fontSize = wmSize.value + "px";
-      if (activeWatermarkTab === "text" && !isResizing && !isDragging) {
+      if (activeWatermarkTab === "text" && !isResizing && !isDragging && !hasManualResize) {
         const base = parseInt(wmSize.value, 10) || 60;
         wmBox.width = Math.max(220, Math.round(base * 3.8));
         wmBox.height = Math.max(120, Math.round(base * 2.2));
@@ -1075,37 +1134,50 @@
         if (activeWatermarkTab === "text") {
           textPanel.hidden = false;
           imagePanel.hidden = true;
+          hasManualResize = false;
+          wmBox.width = 320;
+          wmBox.height = 180;
           updatePreview();
+          syncPreviewBox();
         } else {
           textPanel.hidden = true;
           imagePanel.hidden = false;
           previewWM.textContent = "";
+          hasManualResize = false;
+          wmBox.width = 260;
+          wmBox.height = 140;
           updatePreview();
           syncPreviewBox();
         }
       });
     });
 
-        previewBox.addEventListener("mousedown", (e) => {
-      if (e.target === wmResizeHandle) return;
+    previewBox.addEventListener("mousedown", (e) => {
       if (wmPosition.value === "tile") return;
+      if (e.target.closest(".wmHandle")) return;
 
       isDragging = true;
       dragStartX = e.clientX;
       dragStartY = e.clientY;
       startBox = { ...wmBox };
+      previewBox.classList.add("isActive");
       e.preventDefault();
     });
 
-    wmResizeHandle.addEventListener("mousedown", (e) => {
-      if (wmPosition.value === "tile") return;
+    wmHandles.forEach((handle) => {
+      handle.addEventListener("mousedown", (e) => {
+        if (wmPosition.value === "tile") return;
 
-      isResizing = true;
-      dragStartX = e.clientX;
-      dragStartY = e.clientY;
-      startBox = { ...wmBox };
-      e.preventDefault();
-      e.stopPropagation();
+        isResizing = true;
+        activeHandle = handle.dataset.handle;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        startBox = { ...wmBox };
+        previewBox.classList.add("isActive");
+
+        e.preventDefault();
+        e.stopPropagation();
+      });
     });
 
     window.addEventListener("mousemove", (e) => {
@@ -1124,25 +1196,99 @@
 
         wmBox.x = clamp(nextX, halfW, 1 - halfW);
         wmBox.y = clamp(nextY, halfH, 1 - halfH);
+
+        syncPreviewBox();
+        return;
       }
 
-      if (isResizing) {
-        wmBox.width = clamp(startBox.width + dx, 80, rect.width * 0.9);
-        wmBox.height = clamp(startBox.height + dy, 40, rect.height * 0.6);
+    if (isResizing) {
+      hasManualResize = true;
 
-        const halfW = (wmBox.width / rect.width) / 2;
-        const halfH = (wmBox.height / rect.height) / 2;
+      let newWidth = startBox.width;
+      let newHeight = startBox.height;
+      let newX = startBox.x;
+      let newY = startBox.y;
 
-        wmBox.x = clamp(wmBox.x, halfW, 1 - halfW);
-        wmBox.y = clamp(wmBox.y, halfH, 1 - halfH);
+        const dxNorm = dx / rect.width;
+        const dyNorm = dy / rect.height;
+
+        const startHalfWNorm = (startBox.width / rect.width) / 2;
+        const startHalfHNorm = (startBox.height / rect.height) / 2;
+
+        const leftNorm = startBox.x - startHalfWNorm;
+        const rightNorm = startBox.x + startHalfWNorm;
+        const topNorm = startBox.y - startHalfHNorm;
+        const bottomNorm = startBox.y + startHalfHNorm;
+
+        let newLeftNorm = leftNorm;
+        let newRightNorm = rightNorm;
+        let newTopNorm = topNorm;
+        let newBottomNorm = bottomNorm;
+
+        if (activeHandle.includes("e")) newRightNorm = rightNorm + dxNorm;
+        if (activeHandle.includes("w")) newLeftNorm = leftNorm + dxNorm;
+        if (activeHandle.includes("s")) newBottomNorm = bottomNorm + dyNorm;
+        if (activeHandle.includes("n")) newTopNorm = topNorm + dyNorm;
+
+        const minWidthNorm = 80 / rect.width;
+        const minHeightNorm = 40 / rect.height;
+
+        if ((newRightNorm - newLeftNorm) < minWidthNorm) {
+          if (activeHandle.includes("w")) {
+            newLeftNorm = newRightNorm - minWidthNorm;
+          } else {
+            newRightNorm = newLeftNorm + minWidthNorm;
+          }
+        }
+
+        if ((newBottomNorm - newTopNorm) < minHeightNorm) {
+          if (activeHandle.includes("n")) {
+            newTopNorm = newBottomNorm - minHeightNorm;
+          } else {
+            newBottomNorm = newTopNorm + minHeightNorm;
+          }
+        }
+
+        newLeftNorm = clamp(newLeftNorm, 0, 1);
+        newRightNorm = clamp(newRightNorm, 0, 1);
+        newTopNorm = clamp(newTopNorm, 0, 1);
+        newBottomNorm = clamp(newBottomNorm, 0, 1);
+
+        if ((newRightNorm - newLeftNorm) < minWidthNorm) {
+          if (activeHandle.includes("w")) {
+            newLeftNorm = Math.max(0, newRightNorm - minWidthNorm);
+          } else {
+            newRightNorm = Math.min(1, newLeftNorm + minWidthNorm);
+          }
+        }
+
+        if ((newBottomNorm - newTopNorm) < minHeightNorm) {
+          if (activeHandle.includes("n")) {
+            newTopNorm = Math.max(0, newBottomNorm - minHeightNorm);
+          } else {
+            newBottomNorm = Math.min(1, newTopNorm + minHeightNorm);
+          }
+        }
+
+        newWidth = (newRightNorm - newLeftNorm) * rect.width;
+        newHeight = (newBottomNorm - newTopNorm) * rect.height;
+        newX = (newLeftNorm + newRightNorm) / 2;
+        newY = (newTopNorm + newBottomNorm) / 2;
+
+        wmBox.width = clamp(newWidth, 80, rect.width * 0.95);
+        wmBox.height = clamp(newHeight, 40, rect.height * 0.85);
+        wmBox.x = clamp(newX, (wmBox.width / rect.width) / 2, 1 - (wmBox.width / rect.width) / 2);
+        wmBox.y = clamp(newY, (wmBox.height / rect.height) / 2, 1 - (wmBox.height / rect.height) / 2);
+
+        syncPreviewBox();
       }
-
-      syncPreviewBox();
     });
 
     window.addEventListener("mouseup", () => {
       isDragging = false;
       isResizing = false;
+      activeHandle = null;
+      previewBox.classList.remove("isActive");
     });
 
     document.getElementById("wmImage").addEventListener("change", async e => {
@@ -1153,6 +1299,7 @@
 
       if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
       imagePreviewUrl = URL.createObjectURL(file);
+      hasManualResize = false;
 
       wmBox.width = 260;
       wmBox.height = 140;
@@ -1169,6 +1316,27 @@
     filesInput.addEventListener("change",async()=>{
       const f=filesInput.files[0];
       if(!f)return;
+
+      imageBytes = null;
+    activeWatermarkTab = "text";
+
+    if (imagePreviewUrl) {
+      URL.revokeObjectURL(imagePreviewUrl);
+      imagePreviewUrl = null;
+    }
+
+    tabs.forEach(b => b.classList.remove("active"));
+    document.querySelector('.tabBtn[data-tab="text"]')?.classList.add("active");
+    textPanel.hidden = false;
+    imagePanel.hidden = true;
+
+    hasManualResize = false;
+    wmBox = {
+      x: 0.5,
+      y: 0.5,
+      width: 320,
+      height: 180
+    };
 
     window.__PDFOPS_SELECTED__ = [f];
     document.dispatchEvent(new CustomEvent("pdfops:selected", {
@@ -1234,9 +1402,6 @@
 
           let drawX = x;
           let drawY = y;
-
-          const estimatedTextWidth = Math.max(120, (wmText.value || "").length * size * 0.55);
-          const estimatedTextHeight = size;
 
           const canvasRect = pageCanvas.getBoundingClientRect();
 
