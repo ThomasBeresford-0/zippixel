@@ -91,8 +91,8 @@
       position:absolute;
       left:50%;
       top:50%;
-      width:220px;
-      height:90px;
+      width:320px;
+      height:180px;
       transform:translate(-50%,-50%);
       pointer-events:auto;
       cursor:move;
@@ -103,6 +103,7 @@
       border-radius:0;
       box-shadow:none;
       overflow:visible;
+      z-index:2;
     }
 
     .previewWatermark{
@@ -116,6 +117,7 @@
       transform:rotate(45deg);
       transform-origin:center;
       font-size:60px;
+      line-height:1;
       white-space:nowrap;
       color:rgba(11,18,32,.88);
       text-shadow:0 1px 0 rgba(255,255,255,.8);
@@ -125,8 +127,8 @@
 
     .wmResizeHandle{
       position:absolute;
-      right:-9px;
-      bottom:-9px;
+      right:6px;
+      bottom:6px;
       width:18px;
       height:18px;
       border-radius:999px;
@@ -960,10 +962,10 @@
     let imagePreviewUrl = null;
 
     let wmBox = {
-      x: 0.5,   // percentage across preview
-      y: 0.5,   // percentage down preview
-      width: 220,
-      height: 90
+      x: 0.5,
+      y: 0.5,
+      width: 320,
+      height: 180
     };
 
     let isDragging = false;
@@ -993,6 +995,11 @@
     function updatePreview(){
       previewWM.textContent = wmText.value || "";
       previewWM.style.fontSize = wmSize.value + "px";
+      if (activeWatermarkTab === "text" && !isResizing && !isDragging) {
+        const base = parseInt(wmSize.value, 10) || 60;
+        wmBox.width = Math.max(220, Math.round(base * 3.8));
+        wmBox.height = Math.max(120, Math.round(base * 2.2));
+      }
       previewWM.style.color = wmColor.value;
       previewWM.style.opacity = wmOpacity.value;
       previewWM.style.transform = "rotate(" + wmRotation.value + "deg)";
@@ -1146,6 +1153,9 @@
 
       if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
       imagePreviewUrl = URL.createObjectURL(file);
+
+      wmBox.width = 260;
+      wmBox.height = 140;
 
       previewWM.textContent = "";
       updatePreview();
