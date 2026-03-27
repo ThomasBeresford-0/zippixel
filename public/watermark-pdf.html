@@ -1273,7 +1273,7 @@
         wmBox.x = clamp(newX, (wmBox.width / rect.width) / 2, 1 - (wmBox.width / rect.width) / 2);
         wmBox.y = clamp(newY, (wmBox.height / rect.height) / 2, 1 - (wmBox.height / rect.height) / 2);
 
-        syncPreviewBox();
+        updatePreview();
       }
     });
 
