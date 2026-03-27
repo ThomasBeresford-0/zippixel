@@ -87,32 +87,6 @@
       overflow:hidden;
     }
 
-    .previewWatermark{
-      position:absolute;
-      left:50%;
-      top:50%;
-      transform:translate(-50%,-50%) rotate(45deg);
-      transform-origin:center;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      width:auto;
-      height:auto;
-      min-width:0;
-      min-height:0;
-      font-weight:1000;
-      opacity:.4;
-      font-size:60px;
-      line-height:1;
-      white-space:nowrap;
-      color:rgba(11,18,32,.88);
-      text-shadow:0 1px 0 rgba(255,255,255,.8);
-      pointer-events:none;
-      background:transparent;
-      padding:0;
-      box-sizing:border-box;
-    }
-
     .previewWatermarkBox{
       position:absolute;
       left:50%;
@@ -120,6 +94,7 @@
       width:320px;
       height:180px;
       transform:translate(-50%,-50%);
+      transform-origin:center;
       pointer-events:auto;
       cursor:move;
       user-select:none;
@@ -132,15 +107,34 @@
       z-index:2;
     }
 
+    .previewWatermark{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      height:100%;
+      font-weight:1000;
+      opacity:.4;
+      font-size:60px;
+      line-height:1;
+      white-space:nowrap;
+      color:rgba(11,18,32,.88);
+      text-shadow:0 1px 0 rgba(255,255,255,.8);
+      pointer-events:none;
+      background:transparent;
+      padding:0;
+      box-sizing:border-box;
+      transform:none;
+    }
+
     .previewWatermarkBox.isActive .previewWatermark{
       outline:1px dashed rgba(11,18,32,.35);
       outline-offset:4px;
     }
 
-    .previewWatermarkBox:hover{
-      box-shadow:none;
-    }
-
+    .previewWatermarkBox:hover,
     .previewWatermarkBox.isActive{
       box-shadow:none;
     }
@@ -162,24 +156,13 @@
     .wmHandle--sw{ bottom:-5px; left:-5px; cursor:nesw-resize; }
     .wmHandle--se{ bottom:-5px; right:-5px; cursor:nwse-resize; }
 
+    /* hide side handles */
     .wmHandle--n,
-    .wmHandle--s{
-      left:50%;
-      transform:translateX(-50%);
-      cursor:ns-resize;
-    }
-
     .wmHandle--e,
+    .wmHandle--s,
     .wmHandle--w{
-      top:50%;
-      transform:translateY(-50%);
-      cursor:ew-resize;
+      display:none;
     }
-
-    .wmHandle--n{ top:-5px; }
-    .wmHandle--s{ bottom:-5px; }
-    .wmHandle--e{ right:-5px; }
-    .wmHandle--w{ left:-5px; }
 
     /* =========================
        HARD AUTHORITY LAYER (NO FUNCTION CHANGES)
@@ -737,14 +720,9 @@
                         <div class="previewWatermark" id="previewWatermark">CONFIDENTIAL</div>
 
                         <div class="wmHandle wmHandle--nw" data-handle="nw" aria-hidden="true"></div>
-                        <div class="wmHandle wmHandle--n"  data-handle="n"  aria-hidden="true"></div>
                         <div class="wmHandle wmHandle--ne" data-handle="ne" aria-hidden="true"></div>
-
-                        <div class="wmHandle wmHandle--e"  data-handle="e"  aria-hidden="true"></div>
                         <div class="wmHandle wmHandle--se" data-handle="se" aria-hidden="true"></div>
-                        <div class="wmHandle wmHandle--s"  data-handle="s"  aria-hidden="true"></div>
                         <div class="wmHandle wmHandle--sw" data-handle="sw" aria-hidden="true"></div>
-                        <div class="wmHandle wmHandle--w"  data-handle="w"  aria-hidden="true"></div>
                       </div>
                     </div>
                   </div>
@@ -1040,7 +1018,7 @@
       previewBox.style.top = py + "px";
       previewBox.style.width = wmBox.width + "px";
       previewBox.style.height = wmBox.height + "px";
-      previewBox.style.transform = "translate(-50%, -50%)";
+      previewBox.style.transform = "translate(-50%, -50%) rotate(" + wmRotation.value + "deg)";
     }
 
     function updatePreview(){
@@ -1057,7 +1035,7 @@
       }
       previewWM.style.color = wmColor.value;
       previewWM.style.opacity = wmOpacity.value;
-      previewWM.style.transform = "translate(-50%, -50%) rotate(" + wmRotation.value + "deg)";
+      previewWM.style.transform = "none";
 
       overlay.style.backgroundImage = "none";
       overlay.style.backgroundRepeat = "no-repeat";
