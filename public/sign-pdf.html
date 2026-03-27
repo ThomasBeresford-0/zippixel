@@ -853,15 +853,15 @@
 
         <!-- Hidden mode controls (keep app.js patterns) -->
         <input type="hidden" id="mode" value="sign_pdf" />
-        <fieldset style="display:none;">
-          <input type="radio" name="mode" id="modeCompress">
-          <input type="radio" name="mode" id="modeCompressPdf">
-          <input type="radio" name="mode" id="modeConvert">
-          <input type="radio" name="mode" id="modeMergePdf">
-          <input type="radio" name="mode" id="modeSplitPdf">
-          <input type="radio" name="mode" id="modeRotatePdf">
-          <input type="radio" name="mode" id="modeSignPdf" checked>
-        </fieldset>
+          <fieldset style="display:none;">
+            <input type="radio" name="mode" id="modeCompress" value="compress">
+            <input type="radio" name="mode" id="modeCompressPdf" value="compress_pdf">
+            <input type="radio" name="mode" id="modeConvert" value="convert">
+            <input type="radio" name="mode" id="modeMergePdf" value="merge_pdf">
+            <input type="radio" name="mode" id="modeSplitPdf" value="split_pdf">
+            <input type="radio" name="mode" id="modeRotatePdf" value="rotate_pdf">
+            <input type="radio" name="mode" id="modeSignPdf" value="sign_pdf" checked>
+          </fieldset>
 
         <!-- DROPZONE -->
         <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
@@ -1409,34 +1409,34 @@
   }
   setInterval(pollSelected, 400);
 
-  // Clear helper
   const doClear = () => {
-    const real = document.getElementById("clearBtn");
-    if (real) real.click();
+  const real = document.getElementById("clearBtn");
+  if (real) real.click();
 
-    try{ filesInput.value = ""; }catch(_){}
-    window.__PDFOPS_SELECTED__ = [];
-    window.dispatchEvent(new Event("pdfops:selected"));
+  try{ filesInput.value = ""; }catch(_){}
+  window.__PDFOPS_SELECTED__ = [];
+  window.dispatchEvent(new Event("pdfops:selected"));
 
-    pdfBytes = null;
-    pdfDocProxy = null;
-    pageCount = 1;
-    currentPage = 1;
+  autoUploaded = false;
 
-    sigPngBytes = null;
-    if (sigOverlay) sigOverlay.hidden = true;
-    if (addToPage) addToPage.disabled = true;
-    if (applySignature) applySignature.disabled = true;
+  pdfBytes = null;
+  pdfDocProxy = null;
+  pageCount = 1;
+  currentPage = 1;
 
-    // blank canvas
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0,0,pageCanvas.width || 2,pageCanvas.height || 2);
+  sigPngBytes = null;
+  if (sigOverlay) sigOverlay.hidden = true;
+  if (addToPage) addToPage.disabled = true;
+  if (applySignature) applySignature.disabled = true;
 
-    setHasFile(false);
-    setStatus("Ready", "Drop a PDF to begin.");
-    resetCtaState();
-    lastFileKey = "";
-  };
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0,0,pageCanvas.width || 2,pageCanvas.height || 2);
+
+  setHasFile(false);
+  setStatus("Ready", "Drop a PDF to begin.");
+  resetCtaState();
+  lastFileKey = "";
+};
 
   clearTopBtn?.addEventListener("click", doClear);
 
@@ -1736,10 +1736,12 @@
     }catch(_){}
   }, { capture:true });
 
-    // Watch real upload / continue button state changes from app.js
+    let autoUploaded = false;
+
     if (uploadBtn) {
       new MutationObserver(() => {
-        if (!uploadBtn.disabled) {
+        if (!uploadBtn.disabled && !autoUploaded) {
+          autoUploaded = true;
           uploadBtn.click();
         }
       }).observe(uploadBtn, { attributes:true, attributeFilter:["disabled"] });
