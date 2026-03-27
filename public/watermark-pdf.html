@@ -133,36 +133,34 @@
     }
 
     .previewWatermarkBox.isActive .previewWatermark{
-      outline:2px dashed rgba(11,18,32,.35);
-      outline-offset:8px;
+      outline:1px dashed rgba(11,18,32,.35);
+      outline-offset:4px;
     }
 
     .previewWatermarkBox:hover{
-      border-color:rgba(11,18,32,.55);
-      box-shadow:0 14px 36px rgba(2,6,23,.12);
+      box-shadow:none;
     }
 
     .previewWatermarkBox.isActive{
-      border-color:#0b1220;
-      box-shadow:0 18px 40px rgba(2,6,23,.16);
+      box-shadow:none;
     }
 
     .wmHandle{
       position:absolute;
-      width:16px;
-      height:16px;
+      width:10px;
+      height:10px;
       background:#fff;
       border:2px solid #0b1220;
       border-radius:999px;
-      box-shadow:0 4px 14px rgba(2,6,23,.18);
+      box-shadow:0 2px 8px rgba(2,6,23,.16);
       pointer-events:auto;
       z-index:4;
     }
 
-    .wmHandle--nw{ top:-8px; left:-8px; cursor:nwse-resize; }
-    .wmHandle--ne{ top:-8px; right:-8px; cursor:nesw-resize; }
-    .wmHandle--sw{ bottom:-8px; left:-8px; cursor:nesw-resize; }
-    .wmHandle--se{ bottom:-8px; right:-8px; cursor:nwse-resize; }
+    .wmHandle--nw{ top:-5px; left:-5px; cursor:nwse-resize; }
+    .wmHandle--ne{ top:-5px; right:-5px; cursor:nesw-resize; }
+    .wmHandle--sw{ bottom:-5px; left:-5px; cursor:nesw-resize; }
+    .wmHandle--se{ bottom:-5px; right:-5px; cursor:nwse-resize; }
 
     .wmHandle--n,
     .wmHandle--s{
@@ -178,26 +176,10 @@
       cursor:ew-resize;
     }
 
-    .wmHandle--n{ top:-8px; }
-    .wmHandle--s{ bottom:-8px; }
-    .wmHandle--e{ right:-8px; }
-    .wmHandle--w{ left:-8px; }
-
-    @media (max-width: 640px){
-      .wmHandle{
-        width:20px;
-        height:20px;
-      }
-
-      .wmHandle--nw{ top:-10px; left:-10px; }
-      .wmHandle--ne{ top:-10px; right:-10px; }
-      .wmHandle--sw{ bottom:-10px; left:-10px; }
-      .wmHandle--se{ bottom:-10px; right:-10px; }
-      .wmHandle--n{ top:-10px; }
-      .wmHandle--s{ bottom:-10px; }
-      .wmHandle--e{ right:-10px; }
-      .wmHandle--w{ left:-10px; }
-    }
+    .wmHandle--n{ top:-5px; }
+    .wmHandle--s{ bottom:-5px; }
+    .wmHandle--e{ right:-5px; }
+    .wmHandle--w{ left:-5px; }
 
     /* =========================
        HARD AUTHORITY LAYER (NO FUNCTION CHANGES)
@@ -1067,8 +1049,8 @@
       if (activeWatermarkTab === "text" && !isResizing && !isDragging && !hasManualResize) {
         const base = parseInt(wmSize.value, 10) || 60;
         const text = wmText.value || "CONFIDENTIAL";
-        const estimatedWidth = Math.round(text.length * base * 0.62);
-        const estimatedHeight = Math.round(base * 1.25);
+        const estimatedWidth = Math.round(text.length * base * 0.56);
+        const estimatedHeight = Math.round(base * 1.05);
 
         wmBox.width = Math.max(120, estimatedWidth);
         wmBox.height = Math.max(48, estimatedHeight);
