@@ -840,7 +840,7 @@
 
         <div class="toolHead toolHeadMinimal">
           <h1 class="toolTitle">Sign PDF Online</h1>
-          <p class="toolSub">Select or drop one PDF. Create a signature. Place it. <strong>Apply</strong>, then <strong>Upload signed PDF</strong> and <strong>Continue to download</strong>.</p>
+          <p class="toolSub">Select or drop one PDF. Create a signature. Place it. <strong>Apply</strong>, then <strong>Continue to secure download</strong>.</p>
         </div>
 
         <div class="statusWrap">
@@ -987,19 +987,8 @@
                 </div>
 
                 <p class="miniNote" id="applyNote">
-                  After applying, the signed PDF is created locally. Then use <strong>Upload signed PDF</strong> and <strong>Continue to download →</strong> below.
+                  After applying, your signed PDF is prepared automatically. Then click <strong>Continue to secure download →</strong>.
                 </p>
-
-                <div class="nextStepCard" id="nextStepCard" hidden>
-                  <div class="nextStepEyebrow">Signature applied</div>
-                  <h3 class="nextStepTitle">Your signed PDF is ready for upload</h3>
-                  <p class="nextStepText">
-                    Next: click <strong>Upload signed PDF</strong>, then click <strong>Continue to download →</strong> to reach the secure payment/download step.
-                  </p>
-                  <div class="applySuccessHint">
-                    This is the part that actually moves you toward download.
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -1017,15 +1006,15 @@
           <div class="workBottom" id="workBottom">
             <div class="workCtaIntro" id="workCtaIntro">
               <div class="workCtaKicker" id="workCtaKicker">Step 3 of 3</div>
-              <h3 class="workCtaTitle" id="workCtaTitle">Upload the signed PDF, then continue to download</h3>
-              <p class="workCtaText" id="workCtaText">
-                After you apply your signature, use the buttons below. “Continue to download” takes you to the secure checkout/download step.
-              </p>
+                <h3 class="workCtaTitle" id="workCtaTitle">Apply your signature, then continue to secure download</h3>
+                <p class="workCtaText" id="workCtaText">
+                  Once your signature is applied, your file is prepared for download.
+                </p>
             </div>
 
             <div class="workActions">
-              <button class="btnSoft" id="upload" disabled>Upload signed PDF</button>
-              <button class="btnPrimary btnStrong ctaGlow" id="continue" disabled>Continue to download →</button>
+              <button class="btnSoft" id="upload" disabled hidden>Upload signed PDF</button>
+              <button class="btnPrimary btnStrong ctaGlow" id="continue" disabled>Continue to secure download →</button>
             </div>
           </div>
         </div>
@@ -1034,7 +1023,7 @@
         <div class="stepsLine">
           <div class="stepItem"><span class="stepNum">1</span>Select / Drop a PDF</div>
           <div class="stepItem"><span class="stepNum">2</span>Create signature + <strong>Apply</strong></div>
-          <div class="stepItem"><span class="stepNum">3</span>Upload → Continue → Download</div>
+          <div class="stepItem"><span class="stepNum">3</span>Continue → Secure download</div>
         </div>
 
         <!-- PROGRESS (app.js may toggle) -->
@@ -1096,7 +1085,7 @@
             </svg>
           </div>
           <h3 class="featTitle">No signup</h3>
-          <p class="featText">No account needed. Apply your signature, then upload and download.</p>
+          <p class="featText">No account needed. Apply your signature, then continue to secure download.</p>
         </div>
 
         <div>
@@ -1143,7 +1132,7 @@
           <div class="faqListPlain">
             <div class="faqItemPlain">
               <div class="faqQ">How do I sign a PDF?</div>
-              <p class="faqA">Select or drop a PDF, create a signature (type, draw, or upload), place it on the correct page, apply it, then upload and continue to download.</p>
+              <p class="faqA">Select or drop a PDF, create a signature (type, draw, or upload), place it on the correct page, apply it, then continue to secure download.</p>
             </div>
 
             <div class="faqItemPlain">
@@ -1153,7 +1142,7 @@
 
             <div class="faqItemPlain">
               <div class="faqQ">Do I need an account?</div>
-              <p class="faqA">No signup required. Apply your signature, upload, then download.</p>
+              <p class="faqA">No signup required. Apply your signature, then continue to secure download.</p>
             </div>
 
             <div class="faqItemPlain">
@@ -1250,7 +1239,6 @@
   const addToPage = document.getElementById("addToPage");
   const applySignature = document.getElementById("applySignature");
 
-  const nextStepCard = document.getElementById("nextStepCard");
   const workBottom = document.getElementById("workBottom");
   const workCtaTitle = document.getElementById("workCtaTitle");
   const workCtaText = document.getElementById("workCtaText");
@@ -1283,43 +1271,39 @@
     if (statusHint) statusHint.textContent = hint || "";
   }
 
-    function resetCtaState(){
-    if (nextStepCard) nextStepCard.hidden = true;
+  function resetCtaState(){
     if (workBottom) workBottom.classList.remove("ctaDone");
     if (uploadBtn) uploadBtn.classList.remove("ctaPulse");
     if (continueBtn) continueBtn.classList.remove("ctaPulse");
 
     if (workCtaKicker) workCtaKicker.textContent = "Step 3 of 3";
-    if (workCtaTitle) workCtaTitle.textContent = "Upload the signed PDF, then continue to download";
+    if (workCtaTitle) workCtaTitle.textContent = "Apply your signature, then continue to secure download";
     if (workCtaText) {
-      workCtaText.textContent = "After you apply your signature, use the buttons below. “Continue to download” takes you to the secure checkout/download step.";
+      workCtaText.textContent = "Once your signature is applied, your file is prepared for download.";
     }
   }
 
-  function showAppliedState(){
-    if (nextStepCard) nextStepCard.hidden = false;
-    if (workBottom) workBottom.classList.add("ctaDone");
-    if (uploadBtn) uploadBtn.classList.add("ctaPulse");
+    function showAppliedState(){
+      if (workBottom) workBottom.classList.add("ctaDone");
 
-    if (workCtaKicker) workCtaKicker.textContent = "Signature ready";
-    if (workCtaTitle) workCtaTitle.textContent = "Now upload the signed PDF";
-    if (workCtaText) {
-      workCtaText.textContent = "Your signature has been applied. Click “Upload signed PDF” first. After upload finishes, click “Continue to download →” to reach payment and download.";
+      if (workCtaKicker) workCtaKicker.textContent = "Signature applied";
+      if (workCtaTitle) workCtaTitle.textContent = "Preparing secure download";
+      if (workCtaText) {
+        workCtaText.textContent = "Your signed PDF is being prepared now. Continue will unlock automatically in a moment.";
+      }
+
+      requestAnimationFrame(() => {
+        workBottom?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
     }
-
-    requestAnimationFrame(() => {
-      workBottom?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    });
-  }
 
   function showContinueState(){
-    if (uploadBtn) uploadBtn.classList.remove("ctaPulse");
     if (continueBtn) continueBtn.classList.add("ctaPulse");
 
-    if (workCtaKicker) workCtaKicker.textContent = "Upload complete";
+    if (workCtaKicker) workCtaKicker.textContent = "Ready";
     if (workCtaTitle) workCtaTitle.textContent = "Continue to secure download";
     if (workCtaText) {
-      workCtaText.textContent = "Your signed PDF is uploaded. Click “Continue to download →” now to move into the checkout/download step.";
+      workCtaText.textContent = "Your signed PDF is ready. Continue now to reach checkout and download.";
     }
   }
   // ===== PDF preview state =====
@@ -1714,8 +1698,9 @@
       lastFileKey = "";
       await ensurePdfLoadedFromSelected();
 
-      setStatus("Ready", "Signature applied. Click Upload signed PDF, then Continue to download →");
+      setStatus("Ready", "Signature applied. Continue to secure download →");
       showAppliedState();
+
         }catch(err){
       console.error(err);
       setStatus("Error", "Could not apply signature. Try again.");
@@ -1752,15 +1737,13 @@
   }, { capture:true });
 
     // Watch real upload / continue button state changes from app.js
-  if (uploadBtn) {
-    new MutationObserver(() => {
-      if (!uploadBtn.disabled && nextStepCard && !nextStepCard.hidden) {
-        uploadBtn.classList.add("ctaPulse");
-      } else {
-        uploadBtn.classList.remove("ctaPulse");
-      }
-    }).observe(uploadBtn, { attributes:true, attributeFilter:["disabled"] });
-  }
+    if (uploadBtn) {
+      new MutationObserver(() => {
+        if (!uploadBtn.disabled) {
+          uploadBtn.click();
+        }
+      }).observe(uploadBtn, { attributes:true, attributeFilter:["disabled"] });
+    }
 
   if (continueBtn) {
     new MutationObserver(() => {
