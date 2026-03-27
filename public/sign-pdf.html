@@ -340,31 +340,53 @@
       gap:10px;
       padding:12px;
       border-bottom:1px solid rgba(15,23,42,.10);
-      background:#fff;
+      background:#f8fafc;
       flex-wrap:wrap;
     }
+
     .tabBtn{
-      height:34px;
-      padding:0 12px;
-      border-radius:10px;
+      height:40px;
+      padding:0 14px;
+      border-radius:12px;
       border:1px solid rgba(15,23,42,.14);
-      background:#fff;
+      background:#ffffff;
       font-weight:950;
       letter-spacing:-.01em;
-      color:rgba(11,18,32,.86);
+      color:rgba(11,18,32,.72);
       cursor:pointer;
+      transition:all .18s ease;
     }
-    .tabBtn.isActive{
-      border-color: rgba(11,18,32,.28);
-      box-shadow:0 14px 34px rgba(2,6,23,.10);
+
+    .tabBtn:hover{
+      border-color:rgba(15,23,42,.24);
+      color:rgba(11,18,32,.92);
       transform:translateY(-1px);
-      color:rgba(11,18,32,.96);
+    }
+
+    .tabBtn.isActive{
+      background:#0f172a;
+      color:#ffffff;
+      border-color:#0f172a;
+      box-shadow:0 14px 34px rgba(2,6,23,.18);
+      transform:translateY(-1px);
+    }
+
+    .tabBtn:focus-visible{
+      outline:3px solid rgba(59,130,246,.22);
+      outline-offset:2px;
     }
 
     .sigPanel{
       padding:12px;
       background:#fff;
+      border-top:1px solid transparent;
     }
+
+    .sigPanel.isActive{
+      background:linear-gradient(180deg, rgba(15,23,42,.03), rgba(255,255,255,1));
+      border-top:1px solid rgba(15,23,42,.10);
+    }
+
     .field{ display:block; margin-bottom:12px; }
     .label{
       display:block;
@@ -1261,10 +1283,19 @@
     new MutationObserver(apply).observe(meta, { attributes: true, attributeFilter: ["hidden"] });
   }
 
-  function showTab(name){
-    tabs.forEach(t => t.classList.toggle("isActive", t.dataset.tab === name));
-    panels.forEach(p => p.hidden = (p.dataset.panel !== name));
-  }
+    function showTab(name){
+      tabs.forEach(t => {
+        const active = t.dataset.tab === name;
+        t.classList.toggle("isActive", active);
+        t.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+
+      panels.forEach(p => {
+        const active = p.dataset.panel === name;
+        p.hidden = !active;
+        p.classList.toggle("isActive", active);
+      });
+    }
 
   function setStatus(text, hint){
     if (status) status.textContent = text || "Ready";
