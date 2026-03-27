@@ -552,6 +552,141 @@
     }
 
     .icoStroke{ stroke: rgba(11,18,32,.92); }
+        /* =========================
+       SIGN FLOW CLARITY UPGRADE
+    ========================== */
+    .nextStepCard{
+      margin:14px 0 0;
+      border:1px solid rgba(15,23,42,.14);
+      background:linear-gradient(180deg, rgba(11,18,32,.03), rgba(11,18,32,.01));
+      border-radius:14px;
+      padding:14px 16px;
+      box-shadow:0 18px 44px rgba(2,6,23,.08);
+    }
+    .nextStepEyebrow{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      font-weight:1000;
+      color:rgba(11,18,32,.62);
+      margin-bottom:6px;
+    }
+    .nextStepTitle{
+      font-size:18px;
+      line-height:1.15;
+      letter-spacing:-.02em;
+      font-weight:1000;
+      color:rgba(11,18,32,.95);
+      margin:0 0 6px;
+    }
+    .nextStepText{
+      margin:0;
+      font-size:14px;
+      line-height:1.6;
+      color:rgba(11,18,32,.78);
+      max-width:70ch;
+    }
+
+    .workBottom{
+      position:sticky;
+      bottom:0;
+      z-index:20;
+      padding:14px 16px 16px 16px;
+      border-top:1px solid rgba(15,23,42,.12);
+      background:linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,1));
+      box-shadow:0 -18px 40px rgba(2,6,23,.08);
+      backdrop-filter: blur(10px);
+    }
+
+    .workCtaIntro{
+      text-align:center;
+      margin-bottom:12px;
+    }
+    .workCtaKicker{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:6px 10px;
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:1000;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      color:rgba(11,18,32,.70);
+      margin-bottom:8px;
+    }
+    .workCtaTitle{
+      margin:0;
+      font-size:18px;
+      font-weight:1000;
+      letter-spacing:-.02em;
+      color:rgba(11,18,32,.96);
+    }
+    .workCtaText{
+      margin:6px auto 0;
+      font-size:13px;
+      line-height:1.55;
+      color:rgba(11,18,32,.72);
+      max-width:72ch;
+    }
+
+    .workActions{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    .workActions .btnSoft,
+    .workActions .btnPrimary{
+      height:50px;
+      border-radius:12px;
+      font-weight:1000;
+      letter-spacing:-.01em;
+      min-width:260px;
+    }
+
+    .btnPrimary.btnStrong.ctaGlow{
+      box-shadow:0 20px 44px rgba(2,6,23,.16);
+    }
+
+    .ctaPulse{
+      animation: ctaPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes ctaPulse{
+      0%   { transform:translateY(0); box-shadow:0 20px 44px rgba(2,6,23,.12); }
+      50%  { transform:translateY(-1px); box-shadow:0 24px 54px rgba(2,6,23,.18); }
+      100% { transform:translateY(0); box-shadow:0 20px 44px rgba(2,6,23,.12); }
+    }
+
+    .ctaDone{
+      border-color: rgba(16,185,129,.28) !important;
+      background: linear-gradient(180deg, rgba(16,185,129,.10), rgba(16,185,129,.04)) !important;
+    }
+
+    .stepDoneBadge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(16,185,129,.24);
+      background:rgba(16,185,129,.08);
+      color:rgba(6,78,59,.92);
+      font-size:12px;
+      font-weight:1000;
+      letter-spacing:-.01em;
+    }
+
+    .applySuccessHint{
+      margin-top:10px;
+      font-size:13px;
+      line-height:1.6;
+      color:rgba(11,18,32,.76);
+    }
   </style>
 
   <script type="application/ld+json">
@@ -705,7 +840,7 @@
 
         <div class="toolHead toolHeadMinimal">
           <h1 class="toolTitle">Sign PDF Online</h1>
-          <p class="toolSub">Select or drop one PDF. Create a signature. Place it. <strong>Apply</strong>, then <strong>Upload</strong> and <strong>Continue</strong>.</p>
+          <p class="toolSub">Select or drop one PDF. Create a signature. Place it. <strong>Apply</strong>, then <strong>Upload signed PDF</strong> and <strong>Continue to download</strong>.</p>
         </div>
 
         <div class="statusWrap">
@@ -850,9 +985,21 @@
                   <button class="btn" id="addToPage" type="button" disabled>Add to page</button>
                   <button class="btn btnPrimary" id="applySignature" type="button" disabled>Apply signature</button>
                 </div>
+
                 <p class="miniNote" id="applyNote">
-                  After applying, click <strong>Upload PDF</strong>, then <strong>Continue →</strong> to download.
+                  After applying, the signed PDF is created locally. Then use <strong>Upload signed PDF</strong> and <strong>Continue to download →</strong> below.
                 </p>
+
+                <div class="nextStepCard" id="nextStepCard" hidden>
+                  <div class="nextStepEyebrow">Signature applied</div>
+                  <h3 class="nextStepTitle">Your signed PDF is ready for upload</h3>
+                  <p class="nextStepText">
+                    Next: click <strong>Upload signed PDF</strong>, then click <strong>Continue to download →</strong> to reach the secure payment/download step.
+                  </p>
+                  <div class="applySuccessHint">
+                    This is the part that actually moves you toward download.
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -867,10 +1014,18 @@
 
           </div>
 
-          <div class="workBottom">
+          <div class="workBottom" id="workBottom">
+            <div class="workCtaIntro" id="workCtaIntro">
+              <div class="workCtaKicker" id="workCtaKicker">Step 3 of 3</div>
+              <h3 class="workCtaTitle" id="workCtaTitle">Upload the signed PDF, then continue to download</h3>
+              <p class="workCtaText" id="workCtaText">
+                After you apply your signature, use the buttons below. “Continue to download” takes you to the secure checkout/download step.
+              </p>
+            </div>
+
             <div class="workActions">
-              <button class="btnSoft" id="upload" disabled>Upload PDF</button>
-              <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
+              <button class="btnSoft" id="upload" disabled>Upload signed PDF</button>
+              <button class="btnPrimary btnStrong ctaGlow" id="continue" disabled>Continue to download →</button>
             </div>
           </div>
         </div>
@@ -1095,6 +1250,14 @@
   const addToPage = document.getElementById("addToPage");
   const applySignature = document.getElementById("applySignature");
 
+  const nextStepCard = document.getElementById("nextStepCard");
+  const workBottom = document.getElementById("workBottom");
+  const workCtaTitle = document.getElementById("workCtaTitle");
+  const workCtaText = document.getElementById("workCtaText");
+  const workCtaKicker = document.getElementById("workCtaKicker");
+  const uploadBtn = document.getElementById("upload");
+  const continueBtn = document.getElementById("continue");
+
   const sigOverlay = document.getElementById("sigOverlay");
   const sigBox = document.getElementById("sigBox");
   const sigImg = document.getElementById("sigImg");
@@ -1120,6 +1283,45 @@
     if (statusHint) statusHint.textContent = hint || "";
   }
 
+    function resetCtaState(){
+    if (nextStepCard) nextStepCard.hidden = true;
+    if (workBottom) workBottom.classList.remove("ctaDone");
+    if (uploadBtn) uploadBtn.classList.remove("ctaPulse");
+    if (continueBtn) continueBtn.classList.remove("ctaPulse");
+
+    if (workCtaKicker) workCtaKicker.textContent = "Step 3 of 3";
+    if (workCtaTitle) workCtaTitle.textContent = "Upload the signed PDF, then continue to download";
+    if (workCtaText) {
+      workCtaText.textContent = "After you apply your signature, use the buttons below. “Continue to download” takes you to the secure checkout/download step.";
+    }
+  }
+
+  function showAppliedState(){
+    if (nextStepCard) nextStepCard.hidden = false;
+    if (workBottom) workBottom.classList.add("ctaDone");
+    if (uploadBtn) uploadBtn.classList.add("ctaPulse");
+
+    if (workCtaKicker) workCtaKicker.textContent = "Signature ready";
+    if (workCtaTitle) workCtaTitle.textContent = "Now upload the signed PDF";
+    if (workCtaText) {
+      workCtaText.textContent = "Your signature has been applied. Click “Upload signed PDF” first. After upload finishes, click “Continue to download →” to reach payment and download.";
+    }
+
+    requestAnimationFrame(() => {
+      workBottom?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  }
+
+  function showContinueState(){
+    if (uploadBtn) uploadBtn.classList.remove("ctaPulse");
+    if (continueBtn) continueBtn.classList.add("ctaPulse");
+
+    if (workCtaKicker) workCtaKicker.textContent = "Upload complete";
+    if (workCtaTitle) workCtaTitle.textContent = "Continue to secure download";
+    if (workCtaText) {
+      workCtaText.textContent = "Your signed PDF is uploaded. Click “Continue to download →” now to move into the checkout/download step.";
+    }
+  }
   // ===== PDF preview state =====
   let pdfBytes = null;
   let pdfDocProxy = null;
@@ -1248,6 +1450,7 @@
 
     setHasFile(false);
     setStatus("Ready", "Drop a PDF to begin.");
+    resetCtaState();
     lastFileKey = "";
   };
 
@@ -1511,8 +1714,9 @@
       lastFileKey = "";
       await ensurePdfLoadedFromSelected();
 
-      setStatus("Ready", "Signature applied. Click Upload PDF, then Continue →");
-    }catch(err){
+      setStatus("Ready", "Signature applied. Click Upload signed PDF, then Continue to download →");
+      showAppliedState();
+        }catch(err){
       console.error(err);
       setStatus("Error", "Could not apply signature. Try again.");
     }
@@ -1547,6 +1751,29 @@
     }catch(_){}
   }, { capture:true });
 
+    // Watch real upload / continue button state changes from app.js
+  if (uploadBtn) {
+    new MutationObserver(() => {
+      if (!uploadBtn.disabled && nextStepCard && !nextStepCard.hidden) {
+        uploadBtn.classList.add("ctaPulse");
+      } else {
+        uploadBtn.classList.remove("ctaPulse");
+      }
+    }).observe(uploadBtn, { attributes:true, attributeFilter:["disabled"] });
+  }
+
+  if (continueBtn) {
+    new MutationObserver(() => {
+      if (!continueBtn.disabled) {
+        showContinueState();
+      } else {
+        continueBtn.classList.remove("ctaPulse");
+      }
+    }).observe(continueBtn, { attributes:true, attributeFilter:["disabled"] });
+  }
+
+  resetCtaState();
+
 })();
 </script>
 <script>
@@ -1575,6 +1802,7 @@
   document.querySelectorAll(`.navLinks a[data-nav="${key}"]`).forEach((el) => {
     el.setAttribute("aria-current", "page");
   });
+
 })();
 </script>
 </body>
