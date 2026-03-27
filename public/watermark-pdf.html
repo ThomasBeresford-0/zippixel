@@ -87,6 +87,32 @@
       overflow:hidden;
     }
 
+    .previewWatermark{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%) rotate(45deg);
+      transform-origin:center;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:auto;
+      height:auto;
+      min-width:0;
+      min-height:0;
+      font-weight:1000;
+      opacity:.4;
+      font-size:60px;
+      line-height:1;
+      white-space:nowrap;
+      color:rgba(11,18,32,.88);
+      text-shadow:0 1px 0 rgba(255,255,255,.8);
+      pointer-events:none;
+      background:transparent;
+      padding:0;
+      box-sizing:border-box;
+    }
+
     .previewWatermarkBox{
       position:absolute;
       left:50%;
@@ -99,11 +125,16 @@
       user-select:none;
       touch-action:none;
       background:transparent;
-      border:2px dashed rgba(11,18,32,.38);
-      border-radius:12px;
-      box-shadow:0 10px 30px rgba(2,6,23,.08);
+      border:0;
+      border-radius:0;
+      box-shadow:none;
       overflow:visible;
       z-index:2;
+    }
+
+    .previewWatermarkBox.isActive .previewWatermark{
+      outline:2px dashed rgba(11,18,32,.35);
+      outline-offset:8px;
     }
 
     .previewWatermarkBox:hover{
@@ -114,27 +145,6 @@
     .previewWatermarkBox.isActive{
       border-color:#0b1220;
       box-shadow:0 18px 40px rgba(2,6,23,.16);
-    }
-
-    .previewWatermark{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:1000;
-      opacity:.4;
-      transform:rotate(45deg);
-      transform-origin:center;
-      font-size:60px;
-      line-height:1;
-      white-space:nowrap;
-      color:rgba(11,18,32,.88);
-      text-shadow:0 1px 0 rgba(255,255,255,.8);
-      pointer-events:none;
-      background:transparent;
-      padding:12px;
-      box-sizing:border-box;
     }
 
     .wmHandle{
@@ -1056,12 +1066,16 @@
       previewWM.style.fontSize = wmSize.value + "px";
       if (activeWatermarkTab === "text" && !isResizing && !isDragging && !hasManualResize) {
         const base = parseInt(wmSize.value, 10) || 60;
-        wmBox.width = Math.max(220, Math.round(base * 3.8));
-        wmBox.height = Math.max(120, Math.round(base * 2.2));
+        const text = wmText.value || "CONFIDENTIAL";
+        const estimatedWidth = Math.round(text.length * base * 0.62);
+        const estimatedHeight = Math.round(base * 1.25);
+
+        wmBox.width = Math.max(120, estimatedWidth);
+        wmBox.height = Math.max(48, estimatedHeight);
       }
       previewWM.style.color = wmColor.value;
       previewWM.style.opacity = wmOpacity.value;
-      previewWM.style.transform = "rotate(" + wmRotation.value + "deg)";
+      previewWM.style.transform = "translate(-50%, -50%) rotate(" + wmRotation.value + "deg)";
 
       overlay.style.backgroundImage = "none";
       overlay.style.backgroundRepeat = "no-repeat";
