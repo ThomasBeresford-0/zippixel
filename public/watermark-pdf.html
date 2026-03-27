@@ -119,7 +119,9 @@
       opacity:.4;
       font-size:60px;
       line-height:1;
-      white-space:nowrap;
+      white-space:normal;
+      text-align:center;
+      overflow:hidden;
       color:rgba(11,18,32,.88);
       text-shadow:0 1px 0 rgba(255,255,255,.8);
       pointer-events:none;
@@ -251,6 +253,7 @@
       color:rgba(11,18,32,.72);
       font-size:13px;
     }
+
     .trustPill{
       padding:0 !important;
       border:0 !important;
@@ -263,6 +266,7 @@
       gap:8px;
       white-space:nowrap;
     }
+
     .trustPill::before{ content:"•"; opacity:.55; }
     .trustBar .trustPill:first-child::before{ content:""; }
 
@@ -1023,7 +1027,22 @@
 
     function updatePreview(){
       previewWM.textContent = wmText.value || "";
-      previewWM.style.fontSize = wmSize.value + "px";
+      if (activeWatermarkTab === "text") {
+        const base = parseInt(wmSize.value, 10) || 60;
+        const fittedSize = hasManualResize
+          ? Math.max(
+              18,
+              Math.min(
+                wmBox.height * 0.78,
+                wmBox.width / Math.max(2, (wmText.value || "CONFIDENTIAL").length * 0.62)
+              )
+            )
+          : base;
+
+        previewWM.style.fontSize = fittedSize + "px";
+      } else {
+        previewWM.style.fontSize = wmSize.value + "px";
+      }
       if (activeWatermarkTab === "text" && !isResizing && !isDragging && !hasManualResize) {
         const base = parseInt(wmSize.value, 10) || 60;
         const text = wmText.value || "CONFIDENTIAL";
