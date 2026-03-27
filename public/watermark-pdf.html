@@ -81,48 +81,52 @@
 
     .previewOverlay{
       position:absolute;
-      inset:0;
+      inset:14px;
       pointer-events:none;
-      padding:24px;
       box-sizing:border-box;
+      overflow:hidden;
     }
 
     .previewWatermarkBox{
       position:absolute;
       left:50%;
       top:50%;
+      width:220px;
+      height:90px;
       transform:translate(-50%,-50%);
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-width:140px;
-      min-height:60px;
-      padding:10px 16px;
       pointer-events:auto;
       cursor:move;
       user-select:none;
       touch-action:none;
-      border:1px dashed rgba(15,23,42,.28);
-      border-radius:12px;
-      background:rgba(255,255,255,.12);
-      box-shadow:0 10px 24px rgba(2,6,23,.10);
+      background:transparent;
+      border:0;
+      border-radius:0;
+      box-shadow:none;
+      overflow:visible;
     }
 
     .previewWatermark{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       font-weight:1000;
       opacity:.4;
       transform:rotate(45deg);
+      transform-origin:center;
       font-size:60px;
       white-space:nowrap;
       color:rgba(11,18,32,.88);
       text-shadow:0 1px 0 rgba(255,255,255,.8);
       pointer-events:none;
+      background:transparent;
     }
 
     .wmResizeHandle{
       position:absolute;
-      right:-8px;
-      bottom:-8px;
+      right:-9px;
+      bottom:-9px;
       width:18px;
       height:18px;
       border-radius:999px;
@@ -131,6 +135,7 @@
       box-shadow:0 6px 14px rgba(2,6,23,.16);
       cursor:nwse-resize;
       pointer-events:auto;
+      z-index:3;
     }
 
     /* =========================
@@ -280,7 +285,8 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      min-height: 380px;
+      min-height:380px;
+      overflow:hidden;
     }
 
     .pageCanvas{
@@ -652,18 +658,18 @@
             <div class="statusHint" id="statusHint">Drop a PDF to begin.</div>
           </div>
 
-        <fieldset style="display:none;">
-          <input type="radio" name="mode" id="modeCompress">
-          <input type="radio" name="mode" id="modeCompressPdf">
-          <input type="radio" name="mode" id="modeConvert">
-          <input type="radio" name="mode" id="modeMergePdf">
-          <input type="radio" name="mode" id="modeSplitPdf">
-          <input type="radio" name="mode" id="modeRotatePdf">
-          <input type="radio" name="mode" id="modeProtectPdf">
-          <input type="radio" name="mode" id="modeWatermarkPdf" checked>
-          <input type="radio" name="mode" id="modeSignPdf">
-          <input type="radio" name="mode" id="modeEditPdf">
-        </fieldset>
+          <fieldset style="display:none;">
+            <input type="radio" name="mode" id="modeCompress" value="compress">
+            <input type="radio" name="mode" id="modeCompressPdf" value="compress_pdf">
+            <input type="radio" name="mode" id="modeConvert" value="convert">
+            <input type="radio" name="mode" id="modeMergePdf" value="merge_pdf">
+            <input type="radio" name="mode" id="modeSplitPdf" value="split_pdf">
+            <input type="radio" name="mode" id="modeRotatePdf" value="rotate_pdf">
+            <input type="radio" name="mode" id="modeProtectPdf" value="protect_pdf">
+            <input type="radio" name="mode" id="modeWatermarkPdf" value="watermark_pdf" checked>
+            <input type="radio" name="mode" id="modeSignPdf" value="sign_pdf">
+            <input type="radio" name="mode" id="modeEditPdf" value="edit_pdf">
+          </fieldset>
 
           <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
             <div class="dzCenter">
@@ -951,6 +957,7 @@
 
     let imageBytes = null;
     let activeWatermarkTab = "text";
+    let imagePreviewUrl = null;
 
     let wmBox = {
       x: 0.5,   // percentage across preview
@@ -997,16 +1004,21 @@
       previewBox.hidden = false;
       previewWM.style.display = "block";
 
-      if (activeWatermarkTab === "image" && imageBytes) {
+      if (activeWatermarkTab === "image" && imagePreviewUrl) {
         previewWM.textContent = "";
-        previewBox.style.backgroundImage = "url(" + URL.createObjectURL(new Blob([imageBytes])) + ")";
-        previewBox.style.backgroundRepeat = "no-repeat";
-        previewBox.style.backgroundPosition = "center";
-        previewBox.style.backgroundSize = "contain";
-        previewBox.style.opacity = wmOpacity.value;
+        previewWM.style.backgroundImage = `url("${imagePreviewUrl}")`;
+        previewWM.style.backgroundRepeat = "no-repeat";
+        previewWM.style.backgroundPosition = "center";
+        previewWM.style.backgroundSize = "contain";
+        previewWM.style.opacity = wmOpacity.value;
+        previewWM.style.color = "transparent";
       } else {
-        previewBox.style.backgroundImage = "none";
-        previewBox.style.opacity = "1";
+        previewWM.style.backgroundImage = "none";
+        previewWM.style.backgroundRepeat = "no-repeat";
+        previewWM.style.backgroundPosition = "center";
+        previewWM.style.backgroundSize = "contain";
+        previewWM.style.opacity = wmOpacity.value;
+        previewWM.style.color = wmColor.value;
       }
 
       if (wmPosition.value === "tile") {
@@ -1097,13 +1109,25 @@
       const dy = e.clientY - dragStartY;
 
       if (isDragging) {
-        wmBox.x = clamp(startBox.x + (dx / rect.width), 0.08, 0.92);
-        wmBox.y = clamp(startBox.y + (dy / rect.height), 0.08, 0.92);
+        const nextX = startBox.x + (dx / rect.width);
+        const nextY = startBox.y + (dy / rect.height);
+
+        const halfW = (wmBox.width / rect.width) / 2;
+        const halfH = (wmBox.height / rect.height) / 2;
+
+        wmBox.x = clamp(nextX, halfW, 1 - halfW);
+        wmBox.y = clamp(nextY, halfH, 1 - halfH);
       }
 
       if (isResizing) {
         wmBox.width = clamp(startBox.width + dx, 80, rect.width * 0.9);
         wmBox.height = clamp(startBox.height + dy, 40, rect.height * 0.6);
+
+        const halfW = (wmBox.width / rect.width) / 2;
+        const halfH = (wmBox.height / rect.height) / 2;
+
+        wmBox.x = clamp(wmBox.x, halfW, 1 - halfW);
+        wmBox.y = clamp(wmBox.y, halfH, 1 - halfH);
       }
 
       syncPreviewBox();
@@ -1115,11 +1139,21 @@
     });
 
     document.getElementById("wmImage").addEventListener("change", async e => {
-      if (!e.target.files[0]) return;
-      imageBytes = await e.target.files[0].arrayBuffer();
+      const file = e.target.files[0];
+      if (!file) return;
+
+      imageBytes = await file.arrayBuffer();
+
+      if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+      imagePreviewUrl = URL.createObjectURL(file);
+
       previewWM.textContent = "";
       updatePreview();
       syncPreviewBox();
+    });
+
+    window.addEventListener("beforeunload", () => {
+      if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
     });
 
     filesInput.addEventListener("change",async()=>{
@@ -1210,7 +1244,7 @@
             const pdfHeight = watermarkHeightPx * scaleY;
 
             drawX = (centerX * scaleX) - (pdfWidth / 2);
-            drawY = h - (centerY * scaleY) - (pdfHeight / 2);
+            drawY = h - ((centerY * scaleY) + (pdfHeight / 2));
 
             if (embeddedImage) {
               imageDrawWidth = pdfWidth;
