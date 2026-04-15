@@ -1073,11 +1073,17 @@
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
-    const doClear = () => {
-      document.body.classList.remove("isProcessed");
-      const real = document.getElementById("clearBtn");
-      if (real) real.click();
-    };
+  const doClear = () => {
+    document.body.classList.remove("isProcessed");
+    const real = document.getElementById("clearBtn");
+    if (real) real.click();
+    try { filesInput.value = ""; } catch (_) {}
+    nameEl.textContent = "PDF";
+    hintEl.textContent = "Upload to continue";
+    setRendered(false);
+    paintBlank();
+    setHasFile(false);
+  };
 
   closeEl.addEventListener("click", doClear);
   clearTopBtn?.addEventListener("click", doClear);
