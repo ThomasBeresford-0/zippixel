@@ -2209,11 +2209,24 @@
           unlockBtnEl.classList.remove("isDisabled");
         }
 
-        compressPreviewState = "ready";
+          compressPreviewState = "failed";
 
-        preview.style.display = "block";
+          preview.style.display = "none";
 
-        setPrimaryStates(); // 🔥 THIS IS THE KEY FIX
+          if (unlockBtnEl) {
+            unlockBtnEl.disabled = true;
+            unlockBtnEl.classList.add("isDisabled");
+          }
+
+          if (continueBtn) {
+            continueBtn.disabled = true;
+            continueBtn.classList.add("isDisabled");
+          }
+
+          setPrimaryStates();
+          setStatus("Could not compress this PDF");
+          setHint("Try a different PDF or a smaller file.");
+          return;
       }
 
       // show continue as fallback too

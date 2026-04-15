@@ -1140,9 +1140,13 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
             quality,
           };
         }
-      } catch (_) {
-        // keep trying
-      }
+    } catch (err) {
+      console.error("[compressPdfBufferToTarget]", {
+        density,
+        quality,
+        message: err.message
+      });
+    }
     }
   }
 
