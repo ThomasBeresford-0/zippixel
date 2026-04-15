@@ -672,19 +672,12 @@
       <div id="tool" class="tool toolPremium toolMega">
 
         <div class="toolHead toolHeadMinimal">
-        <h1 class="toolTitle">PDF Too Large to Upload? Fix It Fast.</h1>
+        <h1 class="toolTitle">Your PDF Is Too Large. Fix It In Seconds.</h1>
         <p class="toolSub" style="text-align:center; max-width:760px; margin:10px auto 0;">
-          Reduce PDF file size for job applications, email attachments, forms and upload portals. Upload your file, prepare a smaller version, and download it when ready.
+          Upload your PDF, preview the smaller result, and only pay if you want the download.
         </p>
         <div style="text-align:center; margin-top:12px; font-size:14px; opacity:.86; font-weight:800;">
           No signup • Secure processing • One-time payment • Preview before download
-        </div>
-
-        <div style="text-align:center; margin-top:10px; font-size:14px;">
-          Try:
-          <a href="/compress-pdf-for-job-application">Job applications</a> •
-          <a href="/compress-pdf-under-2mb">2MB limit</a> •
-          <a href="/reduce-pdf-size-for-email">Email attachments</a>
         </div>
 
         <div style="
@@ -695,10 +688,9 @@
           justify-content:center;
           gap:10px;
         ">
+          <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">See new file size first</span>
+          <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">Ready for upload limits</span>
           <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">No signup</span>
-          <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">Secure processing</span>
-          <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">One-time payment</span>
-          <span style="padding:8px 12px; border:1px solid rgba(15,23,42,.12); border-radius:999px; background:#fff; font-size:13px; font-weight:900;">Common upload limits</span>
         </div>
 
           <div class="statusWrap">
@@ -706,7 +698,7 @@
               <div class="status" id="status">Ready</div>
               <div class="spinner" id="spinner"></div>
             </div>
-            <div class="statusHint" id="statusHint">Drop a PDF to begin.</div>
+            <div class="statusHint" id="statusHint">Upload your PDF to see the smaller result before unlocking the download.</div>
           </div>
 
           <fieldset style="display:none;">
@@ -737,8 +729,8 @@
 
           <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
             <div class="dzCenter">
-              <div class="dzTitle" id="dzTitle">Upload your PDF to make it smaller</div>
-              <div class="dzSub" id="dzSub">Best for file-too-large errors, job applications, email attachments and form uploads</div>
+            <div class="dzTitle" id="dzTitle">Drop your PDF here to fix it now</div>
+            <div class="dzSub" id="dzSub">Preview the smaller result before you pay</div>
 
               <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
               <input id="files" type="file" accept="application/pdf" />
@@ -787,9 +779,9 @@
                 background:linear-gradient(180deg,#ffffff,#f8fafc);
               ">
 
-              <div style="font-weight:1000; font-size:20px; margin-bottom:10px;">
-                ✔ Your file now meets upload limits
-              </div>
+            <div style="font-weight:1000; font-size:20px; margin-bottom:10px;">
+              ✔ Your PDF is now smaller and ready to use
+            </div>
               
 
               <div style="font-size:14px; opacity:.9; margin-bottom:8px;">
@@ -801,12 +793,12 @@
               </div>
 
               <div id="savingsPct" style="
-                font-size:14px;
+                font-size:15px;
                 font-weight:1000;
                 color:#16a34a;
                 margin-bottom:12px;
               ">
-                ↓ —% smaller — should now upload successfully
+                ↓ —% smaller — ready for job portals, forms and email
               </div>
 
               <div style="font-size:13px; opacity:.78; margin-bottom:14px;">
@@ -830,7 +822,7 @@
               <div class="workActions">
               <button class="btnSoft" id="upload" disabled>Prepare smaller PDF</button>
               <button class="btnPrimary btnStrong" id="continue" disabled>
-                Continue to download
+                Continue to smaller PDF →
               </button>
               </div>
 
@@ -949,20 +941,15 @@
           Use a dedicated page for the file limit or use case you are dealing with, whether that is a job portal, government form, university upload or email attachment.
         </p>
 
-        <div class="relatedLinks relatedLinksGrid" aria-label="Common PDF fixes" style="margin-top:20px;">
-          <a href="/pdf-too-large-to-upload">PDF too large to upload</a>
-          <a href="/pdf-wont-upload">PDF won’t upload</a>
-          <a href="/compress-pdf-under-1mb">Compress PDF to 1MB</a>
-          <a href="/compress-pdf-under-2mb">Compress PDF to 2MB</a>
-          <a href="/compress-pdf-under-5mb">Compress PDF to 5MB</a>
-          <a href="/compress-pdf-under-10mb">Compress PDF to 10MB</a>
-          <a href="/compress-pdf-for-job-application">Job application PDFs</a>
-          <a href="/compress-pdf-for-university-upload">University uploads</a>
-          <a href="/compress-pdf-for-government-portal">Government portals</a>
-          <a href="/compress-pdf-for-indeed">Indeed uploads</a>
-          <a href="/reduce-pdf-size-for-email">Reduce PDF size for email</a>
-          <a href="/compress-pdf-for-visa-application">Visa applications</a>
-        </div>
+      <div class="relatedLinks relatedLinksGrid" aria-label="Common PDF fixes" style="margin-top:20px;">
+        <a href="/cv-too-large-to-upload">CV too large to upload</a>
+        <a href="/pdf-wont-upload">PDF won’t upload</a>
+        <a href="/file-too-large-to-upload-pdf">File too large to upload PDF</a>
+        <a href="/pdf-too-large-to-upload">PDF too large to upload</a>
+        <a href="/compress-pdf-for-job-application">Compress PDF for job applications</a>
+        <a href="/compress-pdf-under-2mb">Compress PDF under 2MB</a>
+        <a href="/reduce-pdf-size-for-email">Reduce PDF size for email</a>
+      </div>
 
         <div class="plainNote">
           These pages help you choose the right compression route based on the limit you need to hit.
@@ -1030,28 +1017,6 @@
 
     </div>
   </section>
-  <section class="plainSection">
-  <div class="container heroWide">
-
-    <div class="plainKicker">Popular fixes</div>
-    <h2 class="plainH2">Fix common PDF upload errors</h2>
-    <p class="plainLead">
-      Quickly fix common PDF issues for job applications, uploads and document portals.
-    </p>
-
-    <div class="relatedLinks relatedLinksGrid" style="margin-top:20px;">
-      <a href="/pdf-too-large-for-workday">PDF too large for Workday</a>
-      <a href="/resume-upload-failed-pdf">Resume upload failed</a>
-      <a href="/bank-statement-pdf-too-large">Bank statement PDF too large</a>
-
-      <a href="/pdf-too-large-to-upload">PDF too large to upload</a>
-      <a href="/compress-pdf-for-job-application">Job application PDFs</a>
-      <a href="/reduce-pdf-size-for-email">Reduce PDF for email</a>
-      <a href="/compress-pdf-for-indeed">Indeed upload fix</a>
-    </div>
-
-  </div>
-</section>
 </main>
 
 <footer class="footer">
@@ -1065,8 +1030,8 @@
     <a href="/pricing">Pricing</a>
     <a href="/privacy">Privacy</a>
     <a href="/terms">Terms</a>
-    <a href="/compress-pdf-under-2mb">Compress PDF to 2MB</a>
-    <a href="/compress-pdf-under-5mb">Compress PDF to 5MB</a>
+    <a href="/cv-too-large-to-upload">CV too large to upload</a>
+    <a href="/pdf-wont-upload">PDF won’t upload</a>
     <a href="/compress-pdf-for-job-application">Job application PDFs</a>
   </div>
   </div>
