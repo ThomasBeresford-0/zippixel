@@ -1157,8 +1157,14 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
     };
   }
 
-  throw new Error("Could not compress this PDF.");
-}
+  console.warn("⚠️ Falling back to original PDF (unsupported format)");
+
+  return {
+    buffer: inputBuffer,
+    hitTarget: false,
+    fallback: true
+  };
+  }
 
 async function buildCompressPreview(job) {
   requireR2();
