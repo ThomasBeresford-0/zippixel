@@ -195,6 +195,9 @@
   let mode = "compress";
   let convertTargetValue = null;
 
+  const pathname = window.location.pathname || "/";
+  const isHomepageFreeCompress = pathname === "/";
+
   // Compress PDF level
   let pdfCompressLevelValue = "balanced"; // balanced | light | max
 
@@ -377,7 +380,9 @@
     if (unlockBtn) {
       unlockBtn.disabled = true;
       unlockBtn.classList.add("isDisabled");
-      unlockBtn.textContent = "Unlock Download →";
+      unlockBtn.textContent = isHomepageFreeCompress
+      ? "Download free PDF →"
+      : "Unlock Download →";
     }
 
     if (reason) {
@@ -715,7 +720,7 @@
       mode === "image_compress"
         ? "Download smaller images →"
         : mode === "compress_pdf"
-          ? "Unlock Download"
+          ? (isHomepageFreeCompress ? "Download free PDF →" : "Unlock Download")
           : mode === "split_pdf"
             ? "Unlock Download"
             : mode === "rotate_pdf"
@@ -729,7 +734,12 @@
     // unlock button state
     if (unlockBtn) {
     const canUnlock =
-      mode === "compress_pdf" &&
+      (
+        mode === "compress_pdf" ||
+        mode === "split_pdf" ||
+        mode === "rotate_pdf" ||
+        mode === "convert"
+      ) &&
       uploadedMeta.length > 0;
 
     unlockBtn.disabled = !canUnlock;
@@ -796,7 +806,11 @@
 
         if (compressPreviewState === "ready") {
           setStatus("Your PDF is ready");
-          setHint("Your file has been compressed. Unlock download to get it.");
+          setHint(
+            isHomepageFreeCompress
+              ? "Your file has been compressed. Download your free PDF."
+              : "Your file has been compressed. Unlock download to get it."
+          );
           return;
         }
 
@@ -1677,7 +1691,13 @@
     setPrimaryStates();
 
     try {
-      const res = await fetch("/api/jobs", { method: "POST" });
+    const res = await fetch("/api/jobs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        originPath: window.location.pathname || "/"
+      })
+    });
       if (!res.ok) throw new Error("Failed to create job");
       const j = await res.json();
       if (!j?.jobId) throw new Error("No jobId returned");
@@ -2113,8 +2133,9 @@
       }
 
       if (unlockBtnEl) {
-        const total = calcTotal();
-        unlockBtnEl.textContent = "Download Compressed PDF →";
+        unlockBtnEl.textContent = isHomepageFreeCompress
+          ? "Download free PDF →"
+          : "Unlock Download →";
       }
 
       compressPreviewState = "ready";
@@ -2131,9 +2152,13 @@
 
     setPrimaryStates();
     setStatus("Your PDF is ready");
-    setHint("Your file has been compressed. Unlock download to get it.");
+    setHint(
+      isHomepageFreeCompress
+        ? "Your file has been compressed. Download your free PDF."
+        : "Your file has been compressed. Unlock download to get it."
+    );
 
-    if (previewPaywallOpenedForJob !== jobId) {
+    if (!isHomepageFreeCompress && previewPaywallOpenedForJob !== jobId) {
       previewPaywallOpenedForJob = jobId;
 
       setTimeout(() => {
@@ -2142,6 +2167,7 @@
         }
       }, 600);
     }
+
     } catch (e) {
       if (typeof gtag === "function") {
         gtag("event", "preview_failed", {
@@ -2176,8 +2202,9 @@
         }
 
         if (unlockBtnEl) {
-          const total = calcTotal();
-          unlockBtnEl.textContent = "Download Compressed PDF →";
+          unlockBtnEl.textContent = isHomepageFreeCompress
+            ? "Download free PDF →"
+            : "Download Compressed PDF →";
           unlockBtnEl.disabled = false;
           unlockBtnEl.classList.remove("isDisabled");
         }
@@ -2407,33 +2434,37 @@
   // ====== MODAL ======
   let shareListenerAttached = false;
 
-  const openPriceModal = () => {
-    // 🔒 absolute gate: modal cannot be opened unless upload finished
-    if (!uploadedMeta.length) {
-      setStatus("Upload first");
-      setHint("Please upload your files before continuing.");
-      return false;
-    }
-    if (!priceModal) return false;
+const openPriceModal = () => {
+  if (isHomepageFreeCompress && mode === "compress_pdf") {
+    return false;
+  }
 
-    disableLegacyOptions();
+  // 🔒 absolute gate: modal cannot be opened unless upload finished
+  if (!uploadedMeta.length) {
+    setStatus("Upload first");
+    setHint("Please upload your files before continuing.");
+    return false;
+  }
+  if (!priceModal) return false;
 
-    // Now (and only now) we allow pricing surfaces to appear
-    armPricingUI();
+  disableLegacyOptions();
 
-    applyShareDefault();
-    safeLocalSet(LS.shareSeen, "1");
+  // Now (and only now) we allow pricing surfaces to appear
+  armPricingUI();
 
-    syncModalTierUI();
-    syncModalTotalUI();
+  applyShareDefault();
+  safeLocalSet(LS.shareSeen, "1");
 
-    if (!shareListenerAttached && optShareLink) {
-      optShareLink.addEventListener("change", () => {
-        rememberSharePref();
-        syncModalTotalUI();
-        if (priceModalNote && optShareLink.checked) {
-          priceModalNote.textContent = "You’ll be redirected to secure Stripe Checkout. Share link enabled.";
-        } else if (priceModalNote) {
+  syncModalTierUI();
+  syncModalTotalUI();
+
+  if (!shareListenerAttached && optShareLink) {
+    optShareLink.addEventListener("change", () => {
+      rememberSharePref();
+      syncModalTotalUI();
+      if (priceModalNote && optShareLink.checked) {
+        priceModalNote.textContent = "You’ll be redirected to secure Stripe Checkout. Share link enabled.";
+      } else if (priceModalNote) {
         const pathname = window.location.pathname || "";
 
         if (pathname.includes("1mb")) {
@@ -2446,47 +2477,47 @@
           priceModalNote.textContent =
             "Your file is ready. Unlock it instantly — no signup.";
         }
-        }
-      });
-      shareListenerAttached = true;
-    }
-
-    if (priceModalNote) {
-      const pathname = (window.location.pathname || "").toLowerCase();
-
-      if (optShareLink?.checked) {
-        priceModalNote.textContent =
-          "Your file is ready. Share link enabled for easy access.";
-      } else if (pathname.includes("1mb")) {
-        priceModalNote.textContent =
-          "Built for strict 1MB upload limits.";
-      } else if (pathname.includes("job") || pathname.includes("cv") || pathname.includes("resume")) {
-        priceModalNote.textContent =
-          "Optimised for job application uploads.";
-      } else if (pathname.includes("email")) {
-        priceModalNote.textContent =
-          "Optimised for email attachment limits.";
-      } else {
-        priceModalNote.textContent =
-          "Your file is ready. Unlock it instantly — no signup.";
       }
-    }
+    });
+    shareListenerAttached = true;
+  }
 
-    if (typeof gtag === "function") {
-      gtag("event", "checkout_modal_opened", {
-        page: window.location.pathname,
-        mode,
-        file_count: selected.length,
-        total_price: calcTotal()
-      });
-    }
+  if (priceModalNote) {
+    const pathname = (window.location.pathname || "").toLowerCase();
 
-    priceModal.classList.add("isOpen");
-    priceModal.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-    modalPayBtn?.focus();
-    return true;
-  };
+    if (optShareLink?.checked) {
+      priceModalNote.textContent =
+        "Your file is ready. Share link enabled for easy access.";
+    } else if (pathname.includes("1mb")) {
+      priceModalNote.textContent =
+        "Built for strict 1MB upload limits.";
+    } else if (pathname.includes("job") || pathname.includes("cv") || pathname.includes("resume")) {
+      priceModalNote.textContent =
+        "Optimised for job application uploads.";
+    } else if (pathname.includes("email")) {
+      priceModalNote.textContent =
+        "Optimised for email attachment limits.";
+    } else {
+      priceModalNote.textContent =
+        "Your file is ready. Unlock it instantly — no signup.";
+    }
+  }
+
+  if (typeof gtag === "function") {
+    gtag("event", "checkout_modal_opened", {
+      page: window.location.pathname,
+      mode,
+      file_count: selected.length,
+      total_price: calcTotal()
+    });
+  }
+
+  priceModal.classList.add("isOpen");
+  priceModal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+  modalPayBtn?.focus();
+  return true;
+};
 
   const closePriceModal = () => {
     if (!priceModal) return;
@@ -2505,67 +2536,91 @@
     if (e.key === "Escape" && priceModal?.classList.contains("isOpen")) closePriceModal();
   });
 
-  // ====== CHECKOUT ======
-  const startCheckout = async () => {
+  const startFreeDownload = async () => {
     if (!jobId) return;
 
-    const n = selected.length;
-    const tier = getTier(n);
-
     setBusy(true);
-    setStatus("Redirecting");
-    setHint("Opening secure checkout…");
-    continueBtn.disabled = true;
-        if (typeof gtag === "function") {
-      gtag("event", "checkout_started", {
-        page: window.location.pathname,
-        mode,
-        file_count: selected.length,
-        total_price: calcTotal(),
-        share_link: !!optShareLink?.checked
-      });
-    }
+    setStatus("Preparing download");
+    setHint("Getting your free PDF ready…");
 
     try {
-      const resp = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jobId,
-          mode,
-          shareLink: !!optShareLink?.checked,
-          fileCount: n
-        }),
-      }).then((r) => r.json());
-
-      if (resp?.error) throw new Error(resp.error);
-      if (!resp?.url) throw new Error("Something went wrong.");
-
-      if (typeof gtag === "function") {
-        gtag("event", "checkout_redirected", {
-          page: window.location.pathname,
-          mode,
-          file_count: selected.length,
-          total_price: calcTotal()
-        });
-      }
-      window.location.href = resp.url;
+      window.location.href = `/api/download-free/${encodeURIComponent(jobId)}`;
     } catch (e) {
-      if (typeof gtag === "function") {
-        gtag("event", "checkout_failed", {
-          page: window.location.pathname,
-          mode,
-          error_message: String(e?.message || "checkout_failed").slice(0, 120)
-        });
-      }
-      setStatus("Couldn’t continue");
-      setHint(escapeHtml(e?.message || "Please try again."));
-      continueBtn.disabled = false;
+      setStatus("Couldn’t download");
+      setHint("Please try again.");
     } finally {
       setBusy(false);
       setPrimaryStates();
     }
   };
+
+  // ====== CHECKOUT ======
+const startCheckout = async () => {
+  if (!jobId) return;
+
+  if (isHomepageFreeCompress && mode === "compress_pdf") {
+    await startFreeDownload();
+    return;
+  }
+
+  const n = selected.length;
+
+  setBusy(true);
+  setStatus("Redirecting");
+  setHint("Opening secure checkout…");
+  continueBtn.disabled = true;
+
+  if (typeof gtag === "function") {
+    gtag("event", "checkout_started", {
+      page: window.location.pathname,
+      mode,
+      file_count: selected.length,
+      total_price: calcTotal(),
+      share_link: !!optShareLink?.checked
+    });
+  }
+
+  try {
+    const resp = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jobId,
+        mode,
+        shareLink: !!optShareLink?.checked,
+        fileCount: n
+      }),
+    }).then((r) => r.json());
+
+    if (resp?.error) throw new Error(resp.error);
+    if (!resp?.url) throw new Error("Something went wrong.");
+
+    if (typeof gtag === "function") {
+      gtag("event", "checkout_redirected", {
+        page: window.location.pathname,
+        mode,
+        file_count: selected.length,
+        total_price: calcTotal()
+      });
+    }
+
+    window.location.href = resp.url;
+  } catch (e) {
+    if (typeof gtag === "function") {
+      gtag("event", "checkout_failed", {
+        page: window.location.pathname,
+        mode,
+        error_message: String(e?.message || "checkout_failed").slice(0, 120)
+      });
+    }
+    setStatus("Couldn’t continue");
+    setHint(escapeHtml(e?.message || "Please try again."));
+    continueBtn.disabled = false;
+  } finally {
+    setBusy(false);
+    setPrimaryStates();
+  }
+};
 
   // Pay button inside modal -> checkout
   modalPayBtn?.addEventListener("click", async () => {
@@ -2599,13 +2654,18 @@
       await setBackendMode();
     } catch {}
 
+    if (isHomepageFreeCompress && mode === "compress_pdf") {
+      await startFreeDownload();
+      return;
+    }
+
     const opened = openPriceModal();
     if (!opened) {
       await startCheckout();
     }
   });
 
-  if (unlockBtn) {
+if (unlockBtn) {
   unlockBtn.addEventListener("click", async () => {
     if (typeof gtag === "function") {
       gtag("event", "unlock_btn_click", {
@@ -2625,6 +2685,11 @@
       await setBackendMode();
     } catch {}
 
+    if (isHomepageFreeCompress && mode === "compress_pdf") {
+      await startFreeDownload();
+      return;
+    }
+
     const opened = openPriceModal();
     if (!opened) {
       await startCheckout();
@@ -2632,16 +2697,16 @@
   });
 }
 
-  continueBtn.textContent =
-    mode === "compress_pdf"
+continueBtn.textContent =
+  mode === "compress_pdf"
+    ? (isHomepageFreeCompress ? "Download free PDF →" : "Unlock Download →")
+    : mode === "split_pdf"
       ? "Unlock Download"
-      : mode === "split_pdf"
+      : mode === "rotate_pdf"
         ? "Unlock Download"
-        : mode === "rotate_pdf"
+        : mode === "convert"
           ? "Unlock Download"
-          : mode === "convert"
-            ? "Unlock Download"
-            : "Review & Continue →";
+          : "Review & Continue →";
 
   continueBtn.style.display = "";
 
@@ -2662,7 +2727,7 @@
   if (unlockBtn) {
     unlockBtn.disabled = true;
     unlockBtn.classList.add("isDisabled");
-    unlockBtn.textContent = "Unlock Download →";
+    unlockBtn.textContent = isHomepageFreeCompress ? "Download free PDF →" : "Unlock Download →";
   }
 
   renderSelected();

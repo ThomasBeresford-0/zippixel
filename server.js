@@ -635,8 +635,8 @@ TOOL_PAGES.forEach((slug) => {
 // ====== API ======
 
 // Create job
-app.post("/api/jobs", (_, res) => {
-  const jobId = newId();
+app.post("/api/jobs", (req, res) => {
+    const jobId = newId();
 
   jobs.set(jobId, {
     jobId,
@@ -645,6 +645,9 @@ app.post("/api/jobs", (_, res) => {
 
     status: "CREATED", // CREATED -> UPLOADED -> PAID
     files: [],
+
+    originPath: String(req.body?.originPath || "/").trim() || "/",
+    freeEligible: String(req.body?.originPath || "/").trim() === "/",
 
     options: { shareLink: false },
 
@@ -945,10 +948,16 @@ app.post("/api/jobs/:jobId/mode", (req, res) => {
 // Checkout
 app.post("/api/checkout", async (req, res) => {
   try {
-    requireStripe();
-
     const { jobId, shareLink } = req.body || {};
     const job = getJob(jobId);
+
+    if (job.freeEligible && job.mode === "compress_pdf") {
+      return res.json({
+        url: `/api/download-free/${encodeURIComponent(job.jobId)}`
+      });
+    }
+
+    requireStripe();
 
     if (job.status !== "UPLOADED") throw new Error("Nothing to pay for");
     if (!job.files?.length) throw new Error("No files registered");
@@ -1199,6 +1208,55 @@ async function buildCompressPreview(job) {
 
   return job.previewResult;
 }
+
+// Free homepage download
+app.get("/api/download-free/:jobId", async (req, res) => {
+  try {
+    requireR2();
+
+    const job = getJob(req.params.jobId);
+
+    if (!job.freeEligible) {
+      throw new Error("Free download is not available for this job");
+    }
+
+    if (job.status !== "UPLOADED" && job.status !== "PAID") {
+      throw new Error("Job is not ready");
+    }
+
+    if (job.mode !== "compress_pdf") {
+      throw new Error("Free download is only available for compress_pdf");
+    }
+
+    validateJobFilesForMode(job);
+
+    job.downloadCount = Number(job.downloadCount || 0) + 1;
+
+    if (!job.previewFileKey || !job.previewResult) {
+      await buildCompressPreview(job);
+    }
+
+    const only = job.files[0];
+    const obj = await r2.send(
+      new GetObjectCommand({ Bucket: R2_BUCKET, Key: job.previewFileKey })
+    );
+    const buffer = await streamToBuffer(obj.Body);
+
+    const base = sanitizeName(
+      String(only.originalname || "document").replace(/\.pdf$/i, "")
+    );
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${base}_compressed.pdf"`
+    );
+
+    return res.send(buffer);
+  } catch (e) {
+    res.status(400).send(e.message);
+  }
+});
 
 // Download (paid)
 app.get("/api/download/:jobId", async (req, res) => {
