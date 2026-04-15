@@ -617,15 +617,19 @@
           <div class="stepItem"><span class="stepNum">3</span>Download when ready</div>
         </div>
 
-        <div class="progressWrap" id="progressWrap" hidden>
-          <div class="progressTop">
-            <div id="progressLabel">Uploading…</div>
-            <div id="progressPct">0%</div>
-          </div>
-          <div class="progressBar">
-            <div class="progressFill" id="progressFill"></div>
-          </div>
+      <div class="progressWrap" id="progressWrap" hidden>
+        <div class="progressTop">
+          <div id="progressLabel">Uploading…</div>
+          <div id="progressPct">0%</div>
         </div>
+
+        <!-- ✅ THIS WAS MISSING -->
+        <div id="progressMeta" style="font-size:12px; opacity:.7; margin-top:6px;"></div>
+
+        <div class="progressBar">
+          <div class="progressFill" id="progressFill"></div>
+        </div>
+      </div>
 
       </div>
 

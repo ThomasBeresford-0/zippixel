@@ -10,19 +10,19 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>CV Too Large to Upload? Fix It in Seconds | PDFOperations</title>
-  <meta name="description" content="CV too large to upload? Fix it instantly. Reduce file size for job applications, Indeed and recruiter portals. No signup required." />
+  <title>CV Too Large to Upload? Reduce PDF Size for Job Applications | PDFOperations</title>
+  <meta name="description" content="CV too large to upload? Reduce your CV PDF size fast for job applications, recruiter portals, NHS Jobs and Indeed. Fix file size errors in seconds." />
   <link rel="canonical" href="https://pdfoperations.com/cv-too-large-to-upload" />
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light">
 
-  <meta property="og:title" content="CV Too Large to Upload? Fix It in Seconds | PDFOperations" />
+  <meta property="og:description" content="Fix CV upload errors fast. Reduce PDF size for job applications, recruiter portals, NHS Jobs and Indeed." />
   <meta property="og:description" content="Fix CV upload errors instantly. Reduce file size for job applications, Indeed and recruiter portals. No signup required." />
   <meta property="og:url" content="https://pdfoperations.com/cv-too-large-to-upload" />
 
-  <meta name="twitter:title" content="CV Too Large to Upload? Fix It in Seconds | PDFOperations" />
-  <meta name="twitter:description" content="Fix CV upload errors instantly. Reduce file size for job applications and portals. No signup required." />
+  <meta name="twitter:title" content="CV Too Large to Upload? Reduce PDF Size Fast | PDFOperations" />
+  <meta name="twitter:description" content="Fix CV upload errors fast. Reduce PDF size for job applications, recruiter portals, NHS Jobs and Indeed." />
 
   <!-- Google Analytics (PDFOperations) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQ3QKV7KHG"></script>
@@ -551,14 +551,6 @@
       },
       {
         "@type":"Question",
-        "name":"Can I reduce a PDF for email attachments?",
-        "acceptedAnswer":{
-          "@type":"Answer",
-          "text":"Yes. Compressing a PDF can help you meet attachment size limits for Gmail, Outlook and other email services."
-        }
-      },
-      {
-        "@type":"Question",
         "name":"Do I need an account to compress a PDF?",
         "acceptedAnswer":{
           "@type":"Answer",
@@ -636,20 +628,38 @@
     <div class="container heroWide">
       <div id="tool" class="tool toolPremium toolMega">
 
-        <div class="toolHead toolHeadMinimal">
-        <h1 class="toolTitle">CV Too Large to Upload? Fix It Fast</h1>
-        <p class="toolSub">
-          If your CV PDF is too large for a job application, recruiter portal or Indeed upload, reduce the file size here in seconds. No signup. No account. Just upload and fix it.
-        </p>
+      <h1 class="toolTitle">CV Too Large to Upload? Reduce It Fast.</h1>
 
+      <p class="toolSub">
+        Job application websites often reject CV PDFs that are over the file size limit.
+        Upload your CV below to make it smaller and get it ready for Indeed, NHS Jobs, recruiter portals and online application forms.
+      </p>
 
+      <div style="margin-top:14px; display:flex; flex-wrap:wrap; gap:10px;">
+        <span style="padding:8px 12px; border-radius:999px; background:#fff; border:1px solid rgba(15,23,42,.12); font-size:13px; font-weight:800;">Built for CV PDFs</span>
+        <span style="padding:8px 12px; border-radius:999px; background:#fff; border:1px solid rgba(15,23,42,.12); font-size:13px; font-weight:800;">Fix upload errors</span>
+        <span style="padding:8px 12px; border-radius:999px; background:#fff; border:1px solid rgba(15,23,42,.12); font-size:13px; font-weight:800;">No signup</span>
+        <span style="padding:8px 12px; border-radius:999px; background:#fff; border:1px solid rgba(15,23,42,.12); font-size:13px; font-weight:800;">Fast PDF compression</span>
+      </div>
+
+      <div style="margin-top:14px; padding:14px 16px; border-radius:14px; background:linear-gradient(180deg, rgba(11,18,32,.03), rgba(11,18,32,.01)); border:1px solid rgba(15,23,42,.10);">
+        <div style="font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:.08em; opacity:.65;">Typical problem</div>
+        <div style="margin-top:8px; font-size:15px; line-height:1.6; font-weight:700;">
+          CV PDF is too large → application portal rejects upload → deadline gets closer.
+        </div>
+        <div style="margin-top:8px; font-size:14px; opacity:.82;">
+          Use this page to reduce your CV PDF size before submitting your application.
+        </div>
+      </div>
 
           <div class="statusWrap">
             <div class="statusLeft">
               <div class="status" id="status">Ready to fix your CV</div>
               <div class="spinner" id="spinner"></div>
             </div>
-            <div class="statusHint" id="statusHint">Upload your CV to make it smaller and uploadable.</div>
+              <div class="statusHint" id="statusHint">
+                Upload your CV PDF to preview it, reduce the file size and get it ready for job application portals.
+              </div>
           </div>
 
           <fieldset style="display:none;">
@@ -681,7 +691,7 @@
           <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
             <div class="dzCenter">
               <div class="dzTitle" id="dzTitle">Drop your CV PDF here</div>
-              <div class="dzSub" id="dzSub">PDF only • Fast fix for file size limits</div>
+              <div class="dzSub" id="dzSub">PDF only • Ideal for job applications and upload forms</div>
 
               <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
               <input id="files" type="file" accept="application/pdf" />
@@ -705,7 +715,10 @@
                 <div class="thumbType" id="thumbType">PDF</div>
                 <div class="thumbName" id="thumbName">PDF</div>
                 <div class="thumbClose" id="thumbClose" aria-label="Remove">×</div>
-                <div class="thumbHint" id="thumbHint">Upload to continue</div>
+                <div class="thumbHint" id="thumbHint">
+                Upload to continue  
+                <br><span id="sizePreview" style="font-weight:700;"></span>
+                </div>
               </div>
 
               <div class="fileMeta" id="fileMeta" hidden>
@@ -719,15 +732,22 @@
 
             <div class="workBottom">
               <div class="workActions">
-                <button class="btnSoft" id="upload" disabled>Upload &amp; Prepare</button>
-                <button class="btnPrimary btnStrong" id="continue" disabled>Fix My CV →</button>
+                <div style="text-align:center; font-size:13px; margin-top:6px; opacity:.75;">
+                Many job portals reject CV PDFs above 2MB
+                </div>
+                <button class="btnSoft" id="upload" disabled>
+                Preview My CV
+                </button>
+                <button class="btnPrimary btnStrong" id="continue" disabled>
+                Continue to Smaller CV →
+                </button>
               </div>
               <div class="plainNote" style="margin-top:14px; text-align:center;">
                 <p style="text-align:center; font-size:13px; opacity:.7; margin:0 0 6px;">
-                  Fix upload errors in seconds • No signup • One-time payment
+                  See how much smaller your CV becomes before paying • No signup
                 </p>
                 <p style="text-align:center; margin:0;">
-                  Built for upload limits, job applications, forms and email attachments
+                  Built specifically for CV uploads and job application limits
                 </p>
               </div>
 
@@ -741,14 +761,6 @@
             <div class="stepItem"><span class="stepNum">1</span>Select your PDF</div>
             <div class="stepItem"><span class="stepNum">2</span>Upload and prepare it</div>
             <div class="stepItem"><span class="stepNum">3</span>Get a smaller PDF</div>
-          </div>
-
-          <div class="relatedLinks" aria-label="Popular compression links" style="margin-top:18px;">
-            <a href="/compress-pdf-for-job-application">Compress PDF for job applications</a>
-            <a href="/compress-pdf-under-2mb">Compress PDF under 2MB</a>
-            <a href="/compress-pdf-under-5mb">Compress PDF under 5MB</a>
-            <a href="/pdf-too-large-to-upload">PDF too large to upload</a>
-            <a href="/reduce-pdf-size-for-email">Reduce PDF size for email</a>
           </div>
 
           <div class="progressWrap" id="progressWrap" hidden>
@@ -769,10 +781,12 @@
   <section class="plainSection" id="about">
     <div class="container heroWide">
 
-      <div class="plainKicker">CV upload fix</div>
-      <h2 class="plainH2">Reduce CV PDF file size for job applications</h2>
+      <div class="plainKicker">CV PDF upload help</div>
+      <h2 class="plainH2">Reduce CV PDF size for job applications, recruiter portals and online forms</h2>
       <p class="plainLead" style="margin-top:14px;">
-        If your CV is too large to upload, use PDFOperations to reduce the file size so it is easier to submit through job portals, recruiter systems and Indeed-style application forms.
+        A CV that looks fine on your computer can still be too large for a job application website.
+        Many portals set strict PDF upload limits, which causes frustrating errors right before submission.
+        This page is built to help you make your CV PDF smaller so it is easier to upload to recruiter systems, NHS Jobs, Indeed and other application forms.
       </p>
 
       <div class="featureGrid" aria-label="What you can do">
@@ -783,7 +797,7 @@
               <path class="icoStroke" d="M14 3v4a2 2 0 0 0 2 2h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">Pass upload limits</h3>
+          <h3 class="featTitle">Pass job application limits</h3>
           <p class="featText">Make oversized PDFs smaller so they are easier to upload to forms, portals and application systems.</p>
         </div>
 
@@ -795,8 +809,8 @@
               <path class="icoStroke" d="M7 17h10" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">Fast, simple flow</h3>
-          <p class="featText">Select your PDF, prepare it, then continue to get a smaller version without extra setup.</p>
+          <h3 class="featTitle">Fix “file too large” errors</h3>
+          <p class="featText">Instantly reduce file size so your CV uploads without being rejected.</p>
         </div>
 
         <div>
@@ -806,7 +820,7 @@
               <path class="icoStroke" d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">Check the right file</h3>
+          <h3 class="featTitle">Keep your CV readable</h3>
           <p class="featText">Preview the first page before you continue, so you know you are working with the correct PDF.</p>
         </div>
 
@@ -817,7 +831,7 @@
               <path class="icoStroke" d="M9 10h6" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">No account required</h3>
+          <h3 class="featTitle">Built for CV uploads</h3>
           <p class="featText">No signup, no dashboard and no wasted time. Just upload your PDF and continue.</p>
         </div>
 
@@ -828,7 +842,7 @@
               <path class="icoStroke" d="M6 11h12v10H6V11Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">Secure handling</h3>
+          <h3 class="featTitle">No account needed</h3>
           <p class="featText">Your file is processed to generate the output you need. See Privacy for retention and deletion details.</p>
         </div>
 
@@ -839,50 +853,10 @@
               <path class="icoStroke" d="M4 6v2M4 11v2M4 16v2" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">More PDF tools</h3>
+          <h3 class="featTitle">Fast results</h3>
           <p class="featText">Need to do more than compress? Use the same workflow to merge, split, convert or rotate PDFs.</p>
         </div>
       </div>
-
-      <div class="plainDivider"></div>
-
-      <section class="plainSection" id="common-fixes">
-        <div class="plainKicker">Popular fixes</div>
-        <h2 class="plainH2">Choose the exact PDF size fix you need</h2>
-        <p class="plainLead" style="margin-top:14px;">
-          Use a dedicated page for the file limit or use case you are dealing with, whether that is a job portal, government form, university upload or email attachment.
-        </p>
-
-        <div class="relatedLinks" aria-label="Common PDF fixes" style="margin-top:20px;">
-          <a href="/compress-pdf-under-1mb">Compress PDF to 1MB</a>
-          <a href="/compress-pdf-under-2mb">Compress PDF to 2MB</a>
-          <a href="/compress-pdf-under-5mb">Compress PDF to 5MB</a>
-          <a href="/compress-pdf-under-10mb">Compress PDF to 10MB</a>
-
-          <a href="/pdf-too-large-to-upload">PDF too large to upload</a>
-
-          <a href="/compress-pdf-for-job-application">Job application PDFs</a>
-          <a href="/compress-pdf-for-university-upload">University uploads</a>
-          <a href="/compress-pdf-for-government-portal">Government portals</a>
-          <a href="/compress-pdf-for-indeed">Indeed uploads</a>
-          <a href="/compress-pdf-for-gmail">Email attachments</a>
-          <a href="/compress-pdf-for-visa-application">Visa applications</a>
-
-          <a href="/reduce-pdf-size-for-email">Reduce PDF size for email</a>
-        </div>
-
-        <div class="plainNote">
-          These pages help you choose the right compression route based on the limit you need to hit.
-        </div>
-
-        <div class="plainNote" style="margin-top:20px;">
-        Need something specific? Try:
-        <a href="/compress-pdf-for-university-upload">coursework uploads</a>,
-        <a href="/compress-pdf-for-government-portal">government forms</a>,
-        or <a href="/compress-pdf-for-job-application">job applications</a>.
-      </div>
-
-      </section>
 
       <div class="plainDivider"></div>
 
@@ -901,18 +875,13 @@
           </div>
 
           <div class="faqItemPlain">
-            <div class="faqQ">Can I reduce a PDF for email attachments?</div>
-            <p class="faqA">Yes. A smaller PDF is easier to send through Gmail, Outlook and other email services with attachment limits.</p>
-          </div>
-
-          <div class="faqItemPlain">
             <div class="faqQ">Do I need an account?</div>
             <p class="faqA">No. There is no account required to use this tool.</p>
           </div>
 
           <div class="plainNote">
-            Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
-          </div>
+            Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a> • <a href="/compress-pdf-for-job-application">Job application PDF help</a>
+                    </div>
         </div>
 
         <div>
@@ -930,7 +899,9 @@
           </div>
 
           <div class="plainNote">
-            Tip: If you’re compressing for email, aim for the smallest file size that still looks clean when printed.
+            Related help: <a href="/compress-pdf-for-job-application">Compress PDF for job applications</a> •
+            <a href="/pdf-wont-upload">PDF won’t upload?</a> •
+            <a href="/file-too-large-to-upload-pdf">File too large to upload?</a>
           </div>
         </div>
       </div>
@@ -950,8 +921,8 @@
     <a href="/pricing">Pricing</a>
     <a href="/privacy">Privacy</a>
     <a href="/terms">Terms</a>
-    <a href="/compress-pdf-under-2mb">Compress PDF to 2MB</a>
-    <a href="/compress-pdf-under-5mb">Compress PDF to 5MB</a>
+    <a href="/compress-pdf-for-job-application">Job application PDFs</a>
+    <a href="/pdf-wont-upload">PDF won't upload</a>
     <a href="/compress-pdf-for-job-application">Job application PDFs</a>
   </div>
   </div>
@@ -1089,6 +1060,13 @@
     nameEl.textContent = file.name || "PDF";
     hintEl.textContent = "Upload to continue";
     setHasFile(true);
+
+    const sizePreview = document.getElementById("sizePreview");
+
+    if (sizePreview && file) {
+      const mb = (file.size / (1024 * 1024)).toFixed(2);
+      sizePreview.textContent = `Current size: ${mb}MB`;
+    }
 
     const isPdf = (file.type === "application/pdf") || /\.pdf$/i.test(file.name || "");
     if (!isPdf){
