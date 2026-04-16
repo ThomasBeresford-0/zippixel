@@ -809,7 +809,7 @@
               <a href="/compress-pdf-for-job-application">Compress PDF for job application</a>
               </div>
 
-              <button id="unlockBtn" class="btnPrimary btnStrong" style="width:100%;">
+              <button id="unlockBtn" type="button" class="btnPrimary btnStrong" style="width:100%;">
                 Download free PDF
               </button>
 
@@ -817,12 +817,12 @@
               </div>
 
 
-              <div class="workActions">
-              <button class="btnSoft" id="upload" disabled>Prepare smaller PDF</button>
-              <button class="btnPrimary btnStrong" id="continue" disabled>
-                Download free PDF →
-              </button>
-              </div>
+            <div class="workActions">
+            <button type="button" class="btnSoft" id="upload">Prepare smaller PDF</button>
+            <button type="button" class="btnPrimary btnStrong" id="continue">
+              Download free PDF →
+            </button>
+            </div>
             </div>
           </div>
 
@@ -1222,6 +1222,26 @@
       continueBtn.click();
     });
   }
+})();
+</script>
+
+<script>
+(() => {
+  const filesInput = document.getElementById("files");
+  const uploadBtn = document.getElementById("upload");
+  const continueBtn = document.getElementById("continue");
+  const unlockBtn = document.getElementById("unlockBtn");
+
+  function setReadyState() {
+    const hasFile = !!(filesInput && filesInput.files && filesInput.files.length);
+    if (uploadBtn) uploadBtn.disabled = !hasFile;
+    if (continueBtn) continueBtn.disabled = !hasFile;
+    if (unlockBtn) unlockBtn.disabled = !hasFile;
+  }
+
+  filesInput?.addEventListener("change", setReadyState);
+  window.addEventListener("load", setReadyState);
+  setReadyState();
 })();
 </script>
 
