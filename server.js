@@ -1089,12 +1089,15 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
       { density: 120, quality: 68, maxWidth: 1600 },
       { density: 110, quality: 62, maxWidth: 1500 },
       { density: 100, quality: 58, maxWidth: 1400 },
+      { density: 90, quality: 52, maxWidth: 1300 },
     ],
     balanced: [
       { density: 105, quality: 58, maxWidth: 1400 },
       { density: 95, quality: 52, maxWidth: 1300 },
       { density: 85, quality: 46, maxWidth: 1200 },
       { density: 75, quality: 40, maxWidth: 1100 },
+      { density: 65, quality: 34, maxWidth: 1000 },
+      { density: 55, quality: 30, maxWidth: 900 },
     ],
     max: [
       { density: 90, quality: 44, maxWidth: 1200 },
@@ -1102,6 +1105,8 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
       { density: 70, quality: 34, maxWidth: 950 },
       { density: 60, quality: 30, maxWidth: 850 },
       { density: 50, quality: 26, maxWidth: 760 },
+      { density: 42, quality: 22, maxWidth: 680 },
+      { density: 36, quality: 18, maxWidth: 620 },
     ],
   };
 
@@ -1182,7 +1187,11 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
     };
   }
 
-  throw new Error("Could not create a smaller PDF for this file.");
+  return {
+    buffer: Buffer.from(inputBuffer),
+    hitTarget: false,
+    fallback: true,
+  };
 }
 
 async function buildCompressPreview(job) {
@@ -1211,13 +1220,11 @@ async function buildCompressPreview(job) {
 
   const compressedBytes = result.buffer.length;
 
-  if (compressedBytes >= originalBytes) {
-    throw new Error("Compression did not reduce the file size.");
-  }
+  const isActuallySmaller = compressedBytes < originalBytes;
 
-  const savedBytes = originalBytes - compressedBytes;
+  const savedBytes = Math.max(0, originalBytes - compressedBytes);
   const savedPercent =
-    originalBytes > 0 ? Math.round((savedBytes / originalBytes) * 100) : 0;
+    originalBytes > 0 ? Math.max(0, Math.round((savedBytes / originalBytes) * 100)) : 0;
 
   const previewFileKey = `${job.jobId}/preview_compressed.pdf`;
 
@@ -1238,6 +1245,8 @@ async function buildCompressPreview(job) {
     savedBytes,
     savedPercent,
     hitTarget: !!result.hitTarget,
+    fallback: !!result.fallback,
+    isActuallySmaller,
   };
 
   return job.previewResult;
@@ -1296,7 +1305,7 @@ app.get("/api/download-free/:jobId", async (req, res) => {
       "Content-Disposition",
       `attachment; filename="${finalName}"`
     );
-    
+
     return res.send(buffer);
   } catch (e) {
     res.status(400).send(e.message);
