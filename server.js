@@ -1086,27 +1086,26 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
 
   const presets = {
     light: [
-      { density: 120, quality: 68, maxWidth: 1600 },
-      { density: 110, quality: 62, maxWidth: 1500 },
-      { density: 100, quality: 58, maxWidth: 1400 },
-      { density: 90, quality: 52, maxWidth: 1300 },
+      { density: 110, quality: 60, maxWidth: 1400, grayscale: false },
+      { density: 100, quality: 54, maxWidth: 1300, grayscale: false },
+      { density: 90, quality: 48, maxWidth: 1200, grayscale: false },
     ],
     balanced: [
-      { density: 105, quality: 58, maxWidth: 1400 },
-      { density: 95, quality: 52, maxWidth: 1300 },
-      { density: 85, quality: 46, maxWidth: 1200 },
-      { density: 75, quality: 40, maxWidth: 1100 },
-      { density: 65, quality: 34, maxWidth: 1000 },
-      { density: 55, quality: 30, maxWidth: 900 },
+      { density: 100, quality: 52, maxWidth: 1300, grayscale: false },
+      { density: 90, quality: 46, maxWidth: 1200, grayscale: false },
+      { density: 80, quality: 40, maxWidth: 1050, grayscale: false },
+      { density: 72, quality: 34, maxWidth: 950, grayscale: false },
+      { density: 72, quality: 34, maxWidth: 950, grayscale: true },
+      { density: 64, quality: 30, maxWidth: 850, grayscale: true },
     ],
     max: [
-      { density: 90, quality: 44, maxWidth: 1200 },
-      { density: 80, quality: 38, maxWidth: 1050 },
-      { density: 70, quality: 34, maxWidth: 950 },
-      { density: 60, quality: 30, maxWidth: 850 },
-      { density: 50, quality: 26, maxWidth: 760 },
-      { density: 42, quality: 22, maxWidth: 680 },
-      { density: 36, quality: 18, maxWidth: 620 },
+      { density: 90, quality: 42, maxWidth: 1150, grayscale: false },
+      { density: 80, quality: 36, maxWidth: 1000, grayscale: false },
+      { density: 70, quality: 30, maxWidth: 900, grayscale: false },
+      { density: 60, quality: 26, maxWidth: 800, grayscale: true },
+      { density: 52, quality: 22, maxWidth: 700, grayscale: true },
+      { density: 44, quality: 18, maxWidth: 620, grayscale: true },
+      { density: 36, quality: 14, maxWidth: 540, grayscale: true },
     ],
   };
 
@@ -1122,7 +1121,7 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
         const pageWidth = srcPage.getWidth();
         const pageHeight = srcPage.getHeight();
 
-        const rendered = await sharp(inputBuffer, {
+        let pipeline = sharp(inputBuffer, {
           density: attempt.density,
           page: pageIndex,
         })
@@ -1131,7 +1130,13 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
             width: attempt.maxWidth,
             withoutEnlargement: true,
             fit: "inside",
-          })
+          });
+
+        if (attempt.grayscale) {
+          pipeline = pipeline.grayscale();
+        }
+
+        const rendered = await pipeline
           .jpeg({
             quality: attempt.quality,
             mozjpeg: true,
@@ -1152,6 +1157,15 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
       }
 
       const pdfBytes = await pdf.save({ useObjectStreams: true });
+
+      console.log("[compress attempt]", {
+        originalBytes: inputBuffer.length,
+        outputBytes: pdfBytes.length,
+        density: attempt.density,
+        quality: attempt.quality,
+        maxWidth: attempt.maxWidth,
+        grayscale: !!attempt.grayscale,
+      });
 
       if (!bestPdfBytes || pdfBytes.length < bestPdfBytes.length) {
         bestPdfBytes = pdfBytes;
@@ -1247,6 +1261,8 @@ async function buildCompressPreview(job) {
     hitTarget: !!result.hitTarget,
     fallback: !!result.fallback,
     isActuallySmaller,
+    level: normalizePdfLevel(job.pdfCompressLevel),
+    targetBytes: targetBytes || null,
   };
 
   return job.previewResult;
