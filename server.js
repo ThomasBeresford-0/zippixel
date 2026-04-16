@@ -1161,6 +1161,7 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
       console.log("[compress attempt]", {
         originalBytes: inputBuffer.length,
         outputBytes: pdfBytes.length,
+        smaller: pdfBytes.length < inputBuffer.length,
         density: attempt.density,
         quality: attempt.quality,
         maxWidth: attempt.maxWidth,
@@ -1185,11 +1186,14 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
         };
       }
     } catch (err) {
-      console.error("[compressPdfBufferToTarget]", {
+      console.error("[compressPdfBufferToTarget FULL ERROR]", err);
+      console.error("[compressPdfBufferToTarget META]", {
         density: attempt.density,
         quality: attempt.quality,
         maxWidth: attempt.maxWidth,
-        message: err.message,
+        grayscale: !!attempt.grayscale,
+        message: err?.message,
+        stack: err?.stack,
       });
     }
   }
