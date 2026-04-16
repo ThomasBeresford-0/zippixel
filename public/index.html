@@ -766,57 +766,68 @@
             <div class="workBottom">
 
               <!-- 🔥 RESULT PREVIEW (MONEY MAKER UPGRADE) -->
-              <div id="resultPreview" style="
-                display:none;
-                text-align:center;
-                margin-bottom:14px;
-                padding:16px;
-                border:1px solid rgba(15,23,42,.14);
-                border-radius:12px;
-                background:linear-gradient(180deg,#ffffff,#f8fafc);
-              ">
-
-            <div style="font-weight:1000; font-size:20px; margin-bottom:10px;">
-              ✔ Your PDF is ready
-            </div>
-              
-
-              <div style="font-size:14px; opacity:.9; margin-bottom:8px;">
-                Original: <strong id="originalSize">—</strong>
-              </div>
-
-              <div style="font-size:16px; font-weight:1000; margin-bottom:6px;">
-                Result: <strong id="newSize">—</strong>
-              </div>
-
-            <div id="savingsPct" style="
-              font-size:15px;
-              font-weight:1000;
-              color:#16a34a;
-              margin-bottom:12px;
+            <div id="resultPreview" style="
+              display:none;
+              text-align:center;
+              margin-bottom:14px;
+              padding:18px;
+              border:1px solid rgba(15,23,42,.14);
+              border-radius:16px;
+              background:linear-gradient(180deg,#ffffff,#f8fafc);
+              box-shadow:0 18px 40px rgba(2,6,23,.08);
             ">
-              ↓ —% smaller
-            </div>
 
-              <div style="font-size:13px; opacity:.75; margin-bottom:10px;">
-                Need a specific limit?
-              <a href="/compress-pdf-under-2mb">Compress PDF under 2MB</a> •
-              <a href="/compress-pdf-under-5mb">Compress PDF under 5MB</a> •
-              <a href="/compress-pdf-for-job-application">Compress PDF for job application</a>
+              <div style="font-weight:1000; font-size:22px; margin-bottom:12px;">
+                ✔ Your PDF is compressed
+              </div>
+
+              <div style="
+                display:grid;
+                grid-template-columns:repeat(2,minmax(0,1fr));
+                gap:12px;
+                margin-bottom:14px;
+              ">
+                <div style="border:1px solid rgba(15,23,42,.10); border-radius:12px; padding:14px; background:#fff;">
+                  <div style="font-size:12px; opacity:.65; margin-bottom:6px;">Original</div>
+                  <div id="originalSize" style="font-size:22px; font-weight:1000;">—</div>
+                </div>
+
+                <div style="border:1px solid rgba(15,23,42,.10); border-radius:12px; padding:14px; background:#fff;">
+                  <div style="font-size:12px; opacity:.65; margin-bottom:6px;">Compressed</div>
+                  <div id="newSize" style="font-size:22px; font-weight:1000;">—</div>
+                </div>
+              </div>
+
+              <div style="margin-bottom:14px;">
+                <div style="height:14px; background:rgba(15,23,42,.08); border-radius:999px; overflow:hidden;">
+                  <div id="savingsBar" style="
+                    width:0%;
+                    height:100%;
+                    background:linear-gradient(90deg,#16a34a,#22c55e);
+                    transition:width .4s ease;
+                  "></div>
+                </div>
+
+                <div id="savingsPct" style="font-size:15px; font-weight:1000; color:#16a34a; margin-top:10px;">
+                  ↓ —% smaller
+                </div>
               </div>
 
               <button id="unlockBtn" type="button" class="btnPrimary btnStrong" style="width:100%;">
-                Download free PDF
+                Download your compressed PDF
               </button>
 
-
+              <div style="font-size:13px; opacity:.72; margin-top:10px;">
+                No signup • Instant download
               </div>
+
+            </div>
 
 
             <div class="workActions">
             <button type="button" class="btnSoft" id="upload">Prepare smaller PDF</button>
             <button type="button" class="btnPrimary btnStrong" id="continue">
-              Download free PDF →
+              Download your compressed PDF →
             </button>
             </div>
             </div>
@@ -1206,6 +1217,57 @@
     const file = filesInput.files && filesInput.files[0];
     if (!file) paintBlank();
   });
+
+  function parseSizeTextToBytes(text){
+    if (!text) return NaN;
+    const cleaned = String(text).trim().replace(/,/g, "");
+    const match = cleaned.match(/([\d.]+)\s*(B|KB|MB|GB)/i);
+    if (!match) return NaN;
+
+    const value = Number(match[1]);
+    const unit = match[2].toUpperCase();
+
+    if (!Number.isFinite(value)) return NaN;
+
+    if (unit === "B") return value;
+    if (unit === "KB") return value * 1024;
+    if (unit === "MB") return value * 1024 * 1024;
+    if (unit === "GB") return value * 1024 * 1024 * 1024;
+
+    return NaN;
+  }
+
+  function refreshSavingsBar(){
+    const originalEl = document.getElementById("originalSize");
+    const newEl = document.getElementById("newSize");
+    const pctEl = document.getElementById("savingsPct");
+    const barEl = document.getElementById("savingsBar");
+
+    if (!originalEl || !newEl || !pctEl || !barEl) return;
+
+    const originalBytes = parseSizeTextToBytes(originalEl.textContent);
+    const newBytes = parseSizeTextToBytes(newEl.textContent);
+
+    if (!Number.isFinite(originalBytes) || !Number.isFinite(newBytes) || originalBytes <= 0) {
+      pctEl.textContent = "↓ —% smaller";
+      barEl.style.width = "0%";
+      return;
+    }
+
+    const savedPct = Math.max(0, Math.round(((originalBytes - newBytes) / originalBytes) * 100));
+    pctEl.textContent = `↓ ${savedPct}% smaller`;
+    barEl.style.width = `${Math.min(savedPct, 100)}%`;
+  }
+
+  const originalSizeEl = document.getElementById("originalSize");
+  const newSizeEl = document.getElementById("newSize");
+
+  if (originalSizeEl && newSizeEl) {
+    const observer = new MutationObserver(refreshSavingsBar);
+    observer.observe(originalSizeEl, { childList: true, subtree: true, characterData: true });
+    observer.observe(newSizeEl, { childList: true, subtree: true, characterData: true });
+    refreshSavingsBar();
+  }
 })();
 </script>
 
