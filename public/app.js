@@ -2112,15 +2112,25 @@
       const result = data?.result || {};
       const originalBytes = Number(result.originalBytes || 0);
       const compressedBytes = Number(result.compressedBytes || 0);
-      const savedPercent = Number(result.savedPercent || 0);
 
       if (!originalBytes || !compressedBytes) {
         throw new Error("Preview size data missing");
       }
 
+      const computedSavedPercent = Math.max(
+        0,
+        Math.round(((originalBytes - compressedBytes) / originalBytes) * 100)
+      );
+
       originalSizeEl.textContent = humanFileSize(originalBytes);
       newSizeEl.textContent = humanFileSize(compressedBytes);
-      if (savingsEl) savingsEl.textContent = `↓ ${savedPercent}% smaller`;
+
+      if (savingsEl) {
+        savingsEl.textContent =
+          computedSavedPercent > 0
+            ? `↓ ${computedSavedPercent}% smaller`
+            : `Ready to download`;
+      }
 
       if (typeof gtag === "function") {
         gtag("event", "preview_ready", {
@@ -2128,8 +2138,8 @@
           mode,
           original_bytes: originalBytes,
           compressed_bytes: compressedBytes,
-          saved_percent: savedPercent
-        });
+          saved_percent: computedSavedPercent
+          });
       }
 
       if (unlockBtnEl) {
