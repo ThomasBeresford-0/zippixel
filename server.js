@@ -18,6 +18,9 @@ const archiver = require("archiver");
 const path = require("path");
 const crypto = require("crypto");
 const Stripe = require("stripe");
+const { execFileSync } = require("child_process");
+const fs = require("fs");
+const os = require("os");
 
 // sharp is optional at boot
 let sharp = null;
@@ -381,7 +384,6 @@ function validateJobFilesForMode(job) {
   }
 
   if (job.mode === "compress_pdf") {
-    if (!sharp) throw new Error("PDF compression is unavailable (sharp not installed).");
     if (!PDFDocumentLib) throw new Error("PDF compression is unavailable (pdf-lib not installed).");
     if (files.length !== 1) throw new Error("Compress PDF requires exactly 1 PDF.");
     const nonPdf = files.find((f) => !isPdfMeta(f));
@@ -1077,131 +1079,92 @@ app.get("/api/status/:jobId", async (req, res) => {
 });
 
 async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
-  if (!sharp) throw new Error("PDF compression is unavailable (sharp not installed).");
   if (!PDFDocumentLib) throw new Error("PDF compression is unavailable (pdf-lib not installed).");
 
-  const srcPdf = await PDFDocumentLib.load(inputBuffer);
-  const totalPages = srcPdf.getPageCount();
   const lvl = normalizePdfLevel(level);
 
-  const presets = {
-    light: [
-      { density: 110, quality: 60, maxWidth: 1400, grayscale: false },
-      { density: 100, quality: 54, maxWidth: 1300, grayscale: false },
-      { density: 90, quality: 48, maxWidth: 1200, grayscale: false },
-    ],
-    balanced: [
-      { density: 100, quality: 52, maxWidth: 1300, grayscale: false },
-      { density: 90, quality: 46, maxWidth: 1200, grayscale: false },
-      { density: 80, quality: 40, maxWidth: 1050, grayscale: false },
-      { density: 72, quality: 34, maxWidth: 950, grayscale: false },
-      { density: 72, quality: 34, maxWidth: 950, grayscale: true },
-      { density: 64, quality: 30, maxWidth: 850, grayscale: true },
-    ],
-    max: [
-      { density: 90, quality: 42, maxWidth: 1150, grayscale: false },
-      { density: 80, quality: 36, maxWidth: 1000, grayscale: false },
-      { density: 70, quality: 30, maxWidth: 900, grayscale: false },
-      { density: 60, quality: 26, maxWidth: 800, grayscale: true },
-      { density: 52, quality: 22, maxWidth: 700, grayscale: true },
-      { density: 44, quality: 18, maxWidth: 620, grayscale: true },
-      { density: 36, quality: 14, maxWidth: 540, grayscale: true },
-    ],
+  const gsProfiles = {
+    light: ["/printer", "/ebook"],
+    balanced: ["/ebook", "/screen"],
+    max: ["/screen", "/ebook"],
   };
 
-  const attempts = presets[lvl] || presets.balanced;
-  let bestPdfBytes = null;
+  const profiles = gsProfiles[lvl] || gsProfiles.balanced;
+  let bestBuffer = null;
 
-  for (const attempt of attempts) {
+  for (const profile of profiles) {
+    let inputPath = null;
+    let outputPath = null;
+
     try {
-      const pdf = await PDFDocumentLib.create();
+      inputPath = path.join(
+        os.tmpdir(),
+        `pdfops_in_${Date.now()}_${Math.random().toString(16).slice(2)}.pdf`
+      );
+      outputPath = path.join(
+        os.tmpdir(),
+        `pdfops_out_${Date.now()}_${Math.random().toString(16).slice(2)}.pdf`
+      );
 
-      for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
-        const srcPage = srcPdf.getPage(pageIndex);
-        const pageWidth = srcPage.getWidth();
-        const pageHeight = srcPage.getHeight();
+      fs.writeFileSync(inputPath, inputBuffer);
 
-        let pipeline = sharp(inputBuffer, {
-          density: attempt.density,
-          page: pageIndex,
-        })
-          .flatten({ background: "#ffffff" })
-          .resize({
-            width: attempt.maxWidth,
-            withoutEnlargement: true,
-            fit: "inside",
-          });
+      execFileSync(
+        "gs",
+        [
+          "-sDEVICE=pdfwrite",
+          "-dCompatibilityLevel=1.4",
+          `-dPDFSETTINGS=${profile}`,
+          "-dNOPAUSE",
+          "-dQUIET",
+          "-dBATCH",
+          `-sOutputFile=${outputPath}`,
+          inputPath,
+        ],
+        { stdio: "pipe" }
+      );
 
-        if (attempt.grayscale) {
-          pipeline = pipeline.grayscale();
-        }
+      if (!fs.existsSync(outputPath)) continue;
 
-        const rendered = await pipeline
-          .jpeg({
-            quality: attempt.quality,
-            mozjpeg: true,
-            progressive: true,
-            chromaSubsampling: "4:2:0",
-          })
-          .toBuffer();
+      const out = fs.readFileSync(outputPath);
 
-        const img = await pdf.embedJpg(rendered);
-        const page = pdf.addPage([pageWidth, pageHeight]);
-
-        page.drawImage(img, {
-          x: 0,
-          y: 0,
-          width: pageWidth,
-          height: pageHeight,
-        });
-      }
-
-      const pdfBytes = await pdf.save({ useObjectStreams: true });
-
-      console.log("[compress attempt]", {
+      console.log("[ghostscript compress attempt]", {
+        profile,
         originalBytes: inputBuffer.length,
-        outputBytes: pdfBytes.length,
-        smaller: pdfBytes.length < inputBuffer.length,
-        density: attempt.density,
-        quality: attempt.quality,
-        maxWidth: attempt.maxWidth,
-        grayscale: !!attempt.grayscale,
+        outputBytes: out.length,
+        smaller: out.length < inputBuffer.length,
       });
 
-      if (!bestPdfBytes || pdfBytes.length < bestPdfBytes.length) {
-        bestPdfBytes = pdfBytes;
+      if (!bestBuffer || out.length < bestBuffer.length) {
+        bestBuffer = out;
       }
 
-      if (
-        targetBytes &&
-        pdfBytes.length <= targetBytes &&
-        pdfBytes.length < inputBuffer.length
-      ) {
+      if (targetBytes && out.length <= targetBytes && out.length < inputBuffer.length) {
         return {
-          buffer: Buffer.from(pdfBytes),
+          buffer: Buffer.from(out),
           hitTarget: true,
-          density: attempt.density,
-          quality: attempt.quality,
-          maxWidth: attempt.maxWidth,
+          profile,
         };
       }
     } catch (err) {
-      console.error("[compressPdfBufferToTarget FULL ERROR]", err);
-      console.error("[compressPdfBufferToTarget META]", {
-        density: attempt.density,
-        quality: attempt.quality,
-        maxWidth: attempt.maxWidth,
-        grayscale: !!attempt.grayscale,
+      console.error("[ghostscript compress error]", {
+        profile,
         message: err?.message,
         stack: err?.stack,
       });
+    } finally {
+      try {
+        if (inputPath && fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
+      } catch {}
+      try {
+        if (outputPath && fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
+      } catch {}
     }
   }
 
-  if (bestPdfBytes && bestPdfBytes.length < inputBuffer.length) {
+  if (bestBuffer && bestBuffer.length < inputBuffer.length) {
     return {
-      buffer: Buffer.from(bestPdfBytes),
-      hitTarget: !targetBytes || bestPdfBytes.length <= targetBytes,
+      buffer: Buffer.from(bestBuffer),
+      hitTarget: !targetBytes || bestBuffer.length <= targetBytes,
     };
   }
 
