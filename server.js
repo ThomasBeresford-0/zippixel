@@ -1266,13 +1266,21 @@ app.get("/api/download-free/:jobId", async (req, res) => {
 
     job.downloadCount = Number(job.downloadCount || 0) + 1;
 
-    if (!job.previewFileKey || !job.previewResult) {
-      await buildCompressPreview(job);
+    const only = job.files[0];
+    let downloadKey = null;
+
+    try {
+      if (!job.previewFileKey || !job.previewResult) {
+        await buildCompressPreview(job);
+      }
+      downloadKey = job.previewFileKey;
+    } catch (err) {
+      console.warn("[download-free] compression fallback:", err.message);
+      downloadKey = only.key;
     }
 
-    const only = job.files[0];
     const obj = await r2.send(
-      new GetObjectCommand({ Bucket: R2_BUCKET, Key: job.previewFileKey })
+      new GetObjectCommand({ Bucket: R2_BUCKET, Key: downloadKey })
     );
     const buffer = await streamToBuffer(obj.Body);
 
@@ -1281,11 +1289,14 @@ app.get("/api/download-free/:jobId", async (req, res) => {
     );
 
     res.setHeader("Content-Type", "application/pdf");
+    const finalName =
+      downloadKey === only.key ? `${base}.pdf` : `${base}_compressed.pdf`;
+
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${base}_compressed.pdf"`
+      `attachment; filename="${finalName}"`
     );
-
+    
     return res.send(buffer);
   } catch (e) {
     res.status(400).send(e.message);
