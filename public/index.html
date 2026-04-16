@@ -651,7 +651,7 @@
       });
   </script>
 
-<script defer src="/app.js?v=18"></script>
+<script defer src="/app.js?v=19"></script>
 </head>
 
 <body class="page pageCompressPdf" data-tool="compress_pdf">
@@ -1222,26 +1222,6 @@
       continueBtn.click();
     });
   }
-})();
-</script>
-
-<script>
-(() => {
-  const filesInput = document.getElementById("files");
-  const uploadBtn = document.getElementById("upload");
-  const continueBtn = document.getElementById("continue");
-  const unlockBtn = document.getElementById("unlockBtn");
-
-  function setReadyState() {
-    const hasFile = !!(filesInput && filesInput.files && filesInput.files.length);
-    if (uploadBtn) uploadBtn.disabled = !hasFile;
-    if (continueBtn) continueBtn.disabled = !hasFile;
-    if (unlockBtn) unlockBtn.disabled = !hasFile;
-  }
-
-  filesInput?.addEventListener("change", setReadyState);
-  window.addEventListener("load", setReadyState);
-  setReadyState();
 })();
 </script>
 
