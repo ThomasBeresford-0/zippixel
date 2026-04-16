@@ -1,6 +1,6 @@
-FROM node:22-bookworm
+FROM node:18-bullseye
 
-RUN apt-get update && apt-get install -y ghostscript && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y ghostscript
 
 WORKDIR /app
 
@@ -8,8 +8,6 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-
-ENV NODE_ENV=production
 
 EXPOSE 10000
 
