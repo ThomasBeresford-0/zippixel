@@ -733,17 +733,17 @@
 
     // unlock button state
     if (unlockBtn) {
-    const canUnlock =
-      (
-        mode === "compress_pdf" ||
-        mode === "split_pdf" ||
-        mode === "rotate_pdf" ||
-        mode === "convert"
-      ) &&
-      uploadedMeta.length > 0;
+      const canUnlock =
+        mode === "compress_pdf"
+          ? (isHomepageFreeCompress ? selected.length > 0 : uploadedMeta.length > 0)
+          : (
+              mode === "split_pdf" ||
+              mode === "rotate_pdf" ||
+              mode === "convert"
+            ) && uploadedMeta.length > 0;
 
-    unlockBtn.disabled = !canUnlock;
-    unlockBtn.classList.toggle("isDisabled", !canUnlock);
+      unlockBtn.disabled = !canUnlock;
+      unlockBtn.classList.toggle("isDisabled", !canUnlock);
     }
 
     if (!hasFiles) {
@@ -2221,24 +2221,17 @@
           unlockBtnEl.classList.remove("isDisabled");
         }
 
-          compressPreviewState = "failed";
+        compressPreviewState = "failed";
+        preview.style.display = "block";
 
-          preview.style.display = "none";
+        if (continueBtn) {
+          continueBtn.style.display = "none";
+        }
 
-          if (unlockBtnEl) {
-            unlockBtnEl.disabled = true;
-            unlockBtnEl.classList.add("isDisabled");
-          }
-
-          if (continueBtn) {
-            continueBtn.disabled = true;
-            continueBtn.classList.add("isDisabled");
-          }
-
-          setPrimaryStates();
-          setStatus("Could not compress this PDF");
-          setHint("Try a different PDF or a smaller file.");
-          return;
+        setPrimaryStates();
+        setStatus("Could not compress this PDF");
+        setHint("This PDF could not be reduced further, but you can still download it.");
+        return;
       }
 
       // show continue as fallback too
@@ -2698,7 +2691,30 @@ if (unlockBtn) {
       });
     }
 
-    if (!jobId) return;
+    if (!jobId && selected.length) {
+      try {
+        await ensureJob();
+      } catch {
+        setStatus("Couldn’t start");
+        setHint("Refresh and try again.");
+        return;
+      }
+    }
+
+    if (isHomepageFreeCompress && mode === "compress_pdf") {
+      if (!uploadedMeta.length) {
+        if (selected.length) {
+          uploadBtn.click();
+        } else {
+          setStatus("Add a PDF");
+          setHint("Select a PDF first.");
+        }
+        return;
+      }
+
+      await startFreeDownload();
+      return;
+    }
 
     if (!uploadedMeta.length) {
       setStatus("Upload first");
@@ -2709,11 +2725,6 @@ if (unlockBtn) {
     try {
       await setBackendMode();
     } catch {}
-
-    if (isHomepageFreeCompress && mode === "compress_pdf") {
-      await startFreeDownload();
-      return;
-    }
 
     const opened = openPriceModal();
     if (!opened) {
@@ -2750,8 +2761,6 @@ continueBtn.textContent =
   setFileInputAccept();
 
   if (unlockBtn) {
-    unlockBtn.disabled = true;
-    unlockBtn.classList.add("isDisabled");
     unlockBtn.textContent = isHomepageFreeCompress ? "Download free PDF →" : "Unlock Download →";
   }
 
