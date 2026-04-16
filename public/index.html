@@ -1066,7 +1066,7 @@
   const setHasFile = (v) => document.body.classList.toggle("hasFile", !!v);
 
   if (meta) {
-    const apply = () => setHasFile(!meta.hasAttribute("hidden"));
+    const apply = () => {};
     apply();
     new MutationObserver(apply).observe(meta, { attributes: true, attributeFilter: ["hidden"] });
   }
