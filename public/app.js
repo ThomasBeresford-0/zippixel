@@ -2112,6 +2112,8 @@
       const result = data?.result || {};
       const originalBytes = Number(result.originalBytes || 0);
       const compressedBytes = Number(result.compressedBytes || 0);
+      const fallback = !!result.fallback;
+      const isActuallySmaller = !!result.isActuallySmaller;
 
       if (!originalBytes || !compressedBytes) {
         throw new Error("Preview size data missing");
@@ -2125,11 +2127,11 @@
       originalSizeEl.textContent = humanFileSize(originalBytes);
       newSizeEl.textContent = humanFileSize(compressedBytes);
 
-      if (savingsEl) {
-        savingsEl.textContent =
-          computedSavedPercent > 0
-            ? `↓ ${computedSavedPercent}% smaller`
-            : `Ready to download`;
+      if (fallback || !isActuallySmaller || compressedBytes >= originalBytes) {
+        newSizeEl.textContent = "Could not reduce";
+        if (savingsEl) savingsEl.textContent = "This PDF could not be reduced further";
+      } else {
+        if (savingsEl) savingsEl.textContent = `↓ ${computedSavedPercent}% smaller`;
       }
 
       if (typeof gtag === "function") {
