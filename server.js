@@ -1150,20 +1150,14 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
     }
   }
 
-  if (bestPdfBytes) {
+  if (bestPdfBytes && bestPdfBytes.length < inputBuffer.length) {
     return {
       buffer: Buffer.from(bestPdfBytes),
       hitTarget: !targetBytes || bestPdfBytes.length <= targetBytes,
     };
   }
 
-  console.warn("⚠️ Falling back to original PDF (unsupported format)");
-
-  return {
-    buffer: inputBuffer,
-    hitTarget: false,
-    fallback: true
-  };
+  throw new Error("Could not create a smaller PDF for this file.");
   }
 
 async function buildCompressPreview(job) {
@@ -1191,9 +1185,14 @@ async function buildCompressPreview(job) {
   );
 
   const compressedBytes = result.buffer.length;
-  const savedBytes = Math.max(0, originalBytes - compressedBytes);
+
+  if (compressedBytes >= originalBytes) {
+    throw new Error("Compression did not reduce the file size.");
+  }
+
+  const savedBytes = originalBytes - compressedBytes;
   const savedPercent =
-    originalBytes > 0 ? Math.max(0, Math.round((savedBytes / originalBytes) * 100)) : 0;
+    originalBytes > 0 ? Math.round((savedBytes / originalBytes) * 100) : 0;
 
   const previewFileKey = `${job.jobId}/preview_compressed.pdf`;
 
