@@ -1084,69 +1084,94 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
   const totalPages = srcPdf.getPageCount();
   const lvl = normalizePdfLevel(level);
 
-  const densityMap = {
-    light: [144, 132, 120],
-    balanced: [132, 118, 104, 92],
-    max: [118, 104, 92, 82, 72],
+  const presets = {
+    light: [
+      { density: 120, quality: 68, maxWidth: 1600 },
+      { density: 110, quality: 62, maxWidth: 1500 },
+      { density: 100, quality: 58, maxWidth: 1400 },
+    ],
+    balanced: [
+      { density: 105, quality: 58, maxWidth: 1400 },
+      { density: 95, quality: 52, maxWidth: 1300 },
+      { density: 85, quality: 46, maxWidth: 1200 },
+      { density: 75, quality: 40, maxWidth: 1100 },
+    ],
+    max: [
+      { density: 90, quality: 44, maxWidth: 1200 },
+      { density: 80, quality: 38, maxWidth: 1050 },
+      { density: 70, quality: 34, maxWidth: 950 },
+      { density: 60, quality: 30, maxWidth: 850 },
+      { density: 50, quality: 26, maxWidth: 760 },
+    ],
   };
 
-  const qualityMap = {
-    light: [82, 76, 70],
-    balanced: [72, 66, 60, 54],
-    max: [62, 56, 50, 44, 38],
-  };
-
-  const densities = densityMap[lvl];
-  const qualities = qualityMap[lvl];
-
+  const attempts = presets[lvl] || presets.balanced;
   let bestPdfBytes = null;
 
-  for (const density of densities) {
-    for (const quality of qualities) {
-      try {
-        const pdf = await PDFDocumentLib.create();
+  for (const attempt of attempts) {
+    try {
+      const pdf = await PDFDocumentLib.create();
 
-        for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
-          const jpgBuf = await sharp(inputBuffer, {
-            density,
-            page: pageIndex,
+      for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+        const srcPage = srcPdf.getPage(pageIndex);
+        const pageWidth = srcPage.getWidth();
+        const pageHeight = srcPage.getHeight();
+
+        const rendered = await sharp(inputBuffer, {
+          density: attempt.density,
+          page: pageIndex,
+        })
+          .flatten({ background: "#ffffff" })
+          .resize({
+            width: attempt.maxWidth,
+            withoutEnlargement: true,
+            fit: "inside",
           })
-            .jpeg({ quality, mozjpeg: true })
-            .toBuffer();
+          .jpeg({
+            quality: attempt.quality,
+            mozjpeg: true,
+            progressive: true,
+            chromaSubsampling: "4:2:0",
+          })
+          .toBuffer();
 
-          const img = await pdf.embedJpg(jpgBuf);
-          const dims = img.scale(1);
+        const img = await pdf.embedJpg(rendered);
+        const page = pdf.addPage([pageWidth, pageHeight]);
 
-          const page = pdf.addPage([dims.width, dims.height]);
-          page.drawImage(img, {
-            x: 0,
-            y: 0,
-            width: dims.width,
-            height: dims.height,
-          });
-        }
+        page.drawImage(img, {
+          x: 0,
+          y: 0,
+          width: pageWidth,
+          height: pageHeight,
+        });
+      }
 
-        const pdfBytes = await pdf.save({ useObjectStreams: false });
+      const pdfBytes = await pdf.save({ useObjectStreams: true });
 
-        if (!bestPdfBytes || pdfBytes.length < bestPdfBytes.length) {
-          bestPdfBytes = pdfBytes;
-        }
+      if (!bestPdfBytes || pdfBytes.length < bestPdfBytes.length) {
+        bestPdfBytes = pdfBytes;
+      }
 
-        if (targetBytes && pdfBytes.length <= targetBytes) {
-          return {
-            buffer: Buffer.from(pdfBytes),
-            hitTarget: true,
-            density,
-            quality,
-          };
-        }
+      if (
+        targetBytes &&
+        pdfBytes.length <= targetBytes &&
+        pdfBytes.length < inputBuffer.length
+      ) {
+        return {
+          buffer: Buffer.from(pdfBytes),
+          hitTarget: true,
+          density: attempt.density,
+          quality: attempt.quality,
+          maxWidth: attempt.maxWidth,
+        };
+      }
     } catch (err) {
       console.error("[compressPdfBufferToTarget]", {
-        density,
-        quality,
-        message: err.message
+        density: attempt.density,
+        quality: attempt.quality,
+        maxWidth: attempt.maxWidth,
+        message: err.message,
       });
-    }
     }
   }
 
@@ -1158,7 +1183,7 @@ async function compressPdfBufferToTarget(inputBuffer, level, targetBytes) {
   }
 
   throw new Error("Could not create a smaller PDF for this file.");
-  }
+}
 
 async function buildCompressPreview(job) {
   requireR2();
