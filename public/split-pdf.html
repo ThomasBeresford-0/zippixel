@@ -1,9 +1,9 @@
-<!-- public/split-pdf.html — PDFOperations (v14 - FULL RAMBO / HARD UI + SEO + NO FUNCTION CHANGES)
+<!-- public/split-pdf.html — PDFOperations (v15 - FULL RAMBO MONEY PAGE; PREVIEW-FIRST SPLIT FLOW; NO FUNCTION CHANGES)
      ✅ NO app.js hook/ID changes
-     ✅ Keeps your split reorder/delete/reset logic EXACTLY as-is
+     ✅ Keeps split reorder/delete/reset logic
      ✅ Keeps PDF.js ESM loader
-     ✅ Matches Merge page “Full Rambo” look: hard instrument panel, minimal shadow, reduced rounding, no bubbles
-     ✅ Below-fold SEO section updated (content can change) but LOOK matches merge page
+     ✅ Adds stronger conversion framing + proof-before-download flow
+     ✅ Keeps checkout modal required by app.js
 -->
 <!doctype html>
 <html lang="en">
@@ -12,14 +12,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Split PDF Online — Separate PDF Pages Instantly | PDFOperations</title>
-  <meta name="description" content="Split a PDF into separate pages online. Upload one PDF, reorder or remove pages, then download a ZIP containing one PDF per page. Secure, fast, no signup." />
+  <meta name="description" content="Split a PDF into separate pages online. Upload one PDF, remove or reorder pages, preview the result, then download a ZIP containing one PDF per page." />
   <link rel="canonical" href="https://pdfoperations.com/split-pdf" />
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light" />
 
-  <!-- Google Analytics (PDFOperations) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQ3QKV7KHG"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -28,21 +27,18 @@
     gtag('config', 'G-YQ3QKV7KHG');
   </script>
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="Split PDF Online — Separate PDF Pages Instantly" />
-  <meta property="og:description" content="Upload one PDF, reorder or remove pages, then download a ZIP containing one PDF per page." />
+  <meta property="og:title" content="Split PDF Online — Separate PDF Pages Instantly | PDFOperations" />
+  <meta property="og:description" content="Upload one PDF, remove or reorder pages, preview the output, then download a ZIP containing one PDF per page." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/split-pdf" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
   <meta property="og:image:alt" content="PDFOperations — Split PDF" />
 
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Split PDF Online — Separate PDF Pages Instantly" />
-  <meta name="twitter:description" content="Upload one PDF, reorder or remove pages, then download a ZIP containing one PDF per page." />
+  <meta name="twitter:title" content="Split PDF Online — Separate PDF Pages Instantly | PDFOperations" />
+  <meta name="twitter:description" content="Split one PDF into separate page files, remove or reorder pages, preview the result, then download." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
-  <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/png" sizes="192x192" href="/web-app-manifest-192x192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="/web-app-manifest-512x512.png">
@@ -50,16 +46,12 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/style.css?v=36" />
 
-  <!-- =========================
-       SCHEMA (SEO)
-  ========================== -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -76,12 +68,17 @@
     "@type":"WebPage",
     "name":"Split PDF Online — PDFOperations",
     "url":"https://pdfoperations.com/split-pdf",
-    "description":"Split a PDF into separate pages online. Upload one PDF, reorder or remove pages, then download a ZIP containing one PDF per page.",
+    "description":"Split a PDF into separate pages online. Upload one PDF, remove or reorder pages, preview the result, then download a ZIP containing one PDF per page.",
     "isPartOf":{
       "@type":"WebSite",
       "name":"PDFOperations",
       "url":"https://pdfoperations.com/"
-    }
+    },
+    "about": {
+      "@type": "Thing",
+      "name": "PDF split"
+    },
+    "primaryImageOfPage": "https://pdfoperations.com/og.png"
   }
   </script>
 
@@ -95,12 +92,18 @@
     "operatingSystem":"Web",
     "browserRequirements":"Requires JavaScript. Works in modern browsers.",
     "url":"https://pdfoperations.com/split-pdf",
-    "description":"Online tool to split a PDF into individual pages. Reorder or remove pages, then download a ZIP containing one PDF per page.",
+    "description":"Online tool to split a PDF into individual pages. Remove or reorder pages, preview the result, then download a ZIP containing one PDF per page.",
+    "offers": {
+      "@type": "Offer",
+      "price": "2.99",
+      "priceCurrency": "GBP"
+    },
     "featureList":[
       "Split PDF into separate pages",
       "Reorder PDF pages",
       "Remove pages before output",
-      "Download pages as a ZIP archive"
+      "Download pages as a ZIP archive",
+      "Preview output before download"
     ]
   }
   </script>
@@ -126,7 +129,7 @@
         "name":"How do I split a PDF into separate pages?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"Upload one PDF, optionally reorder or delete pages, then continue to download a ZIP containing one PDF per page."
+          "text":"Upload one PDF, optionally remove or reorder pages, prepare the output, then continue to download a ZIP containing one PDF per page."
         }
       },
       {
@@ -150,7 +153,7 @@
         "name":"What do I download after splitting?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"A ZIP file containing separate PDFs (one per page), produced in the order shown in the page grid."
+          "text":"A ZIP file containing separate PDFs, one per page, produced in the order shown in the page grid."
         }
       },
       {
@@ -158,23 +161,13 @@
         "name":"Do I need an account to split PDFs?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"No signup required. Upload, continue, then download."
+          "text":"No signup required. Upload, prepare, then continue when ready."
         }
       }
     ]
   }
   </script>
 
-  <!-- =========================================================
-       PDF.js (self-hosted ESM) — module loader
-       expects:
-         /public/vendor/pdfjs/pdf.min.mjs
-         /public/vendor/pdfjs/pdf.worker.min.mjs
-       exposes:
-         window.__pdfjsReady (Promise)
-         window.pdfjsLib
-         window.__pdfjsWorkerOK
-  ========================================================== -->
   <script type="module">
     const PDFJS_SRC = "/vendor/pdfjs/pdf.min.mjs";
     const WORKER_SRC = "/vendor/pdfjs/pdf.worker.min.mjs";
@@ -207,17 +200,14 @@
   </script>
 
   <style>
-    /* Protect [hidden] + modal hidden states */
     #pdfPreviewModal[hidden],
     #pdfReorderWrap[hidden],
     #fileMeta[hidden],
-    #priceModal[aria-hidden="true"]{ display:none !important; }
+    #priceModal[aria-hidden="true"]{
+      display:none !important;
+    }
     [hidden]{ display:none !important; }
 
-    /* Header logo safety (consistent across pages) */
-    .brandLogo{ height:34px; width:auto; display:block; flex:0 0 auto; }
-
-    /* ===== FULL RAMBO HARDENING ===== */
     :root{
       --hard-border: rgba(15,23,42,.14);
       --soft-border: rgba(15,23,42,.10);
@@ -225,28 +215,41 @@
       --muted: rgba(11,18,32,.78);
     }
 
-    body.isProcessed #splitReadyBox{
-    display:block !important;
-    }
+    .brandLogo{ height:34px; width:auto; display:block; flex:0 0 auto; }
 
-    body.isProcessed .actionRow{
-      display:none !important;
-    }
-
-    /* Nav alignment (matches merge page hard vibe) */
     .nav{
       border-bottom: 1px solid rgba(15,23,42,.10);
       background: rgba(245,247,251,.86);
       backdrop-filter: blur(10px);
     }
+
     .navLinks a{
       font-weight: 900;
       letter-spacing:-.01em;
       opacity:.86;
     }
+
     .navLinks a[aria-current="page"]{
       opacity: 1;
       border-bottom: 1px solid rgba(11,18,32,.35);
+    }
+
+    .hero.heroPremium.heroToolFirst{
+      padding-top:22px;
+      padding-bottom:20px;
+    }
+
+    .tool.toolPremium.toolMega{
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.14);
+      box-shadow:0 26px 80px rgba(2,6,23,.10);
+      background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,1));
+    }
+
+    .toolHeadMinimal{
+      border-bottom:1px solid rgba(15,23,42,.10);
+      padding-bottom:14px;
+      margin-bottom:14px;
     }
 
     .proKicker{
@@ -255,35 +258,181 @@
       letter-spacing:.10em;
       opacity:.72;
       text-transform:uppercase;
+      text-align:center;
     }
 
-    /* Trust row (no pills) */
-    .trustBar{
-      display:flex; flex-wrap:wrap; gap:10px 16px;
-      margin-top:12px; padding-top:12px;
-      border-top:1px solid rgba(15,23,42,.10);
-      color:rgba(11,18,32,.72); font-size:13px;
+    .toolTitle{
+      text-align:center;
+      letter-spacing:-.03em;
+      font-weight:1000;
     }
-    .trustPill{
-      padding:0 !important; border:0 !important; background:transparent !important;
-      border-radius:0 !important; box-shadow:none !important;
-      font-weight:800; display:flex; align-items:center; gap:8px;
+
+    .toolSub{
+      max-width:700px;
+      margin:10px auto 0;
+      text-align:center;
+      opacity:.82;
+    }
+
+    .valueStrip{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .valueStripCard{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      background:linear-gradient(180deg,#fff,#f8fafc);
+      padding:14px;
+      text-align:center;
+    }
+
+    .valueStripCard strong{
+      display:block;
+      font-size:15px;
+      letter-spacing:-.02em;
+      color:rgba(11,18,32,.96);
+      margin-bottom:6px;
+    }
+
+    .valueStripCard span{
+      display:block;
+      font-size:13px;
+      line-height:1.5;
       color:rgba(11,18,32,.72);
     }
+
+    @media (max-width: 900px){
+      .valueStrip{ grid-template-columns:1fr; }
+    }
+
+    .trustBar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 16px;
+      margin-top:14px;
+      padding-top:14px;
+      border-top:1px solid rgba(15,23,42,.10);
+      color:rgba(11,18,32,.72);
+      font-size:13px;
+      justify-content:center;
+    }
+
+    .trustPill{
+      padding:0 !important;
+      border:0 !important;
+      background:transparent !important;
+      border-radius:0 !important;
+      box-shadow:none !important;
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      color:rgba(11,18,32,.72);
+    }
+
     .trustPill::before{ content:"•"; opacity:.55; }
     .trustBar .trustPill:first-child::before{ content:""; }
 
-    /* ===== Split thumbs: hard + consistent with merge ===== */
+    .statusWrap{
+      margin-top:14px;
+      margin-bottom:14px;
+      padding:12px 14px;
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:12px;
+      background:rgba(248,250,252,.9);
+    }
+
+    .statusLeft{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .status{
+      font-weight:1000;
+      letter-spacing:-.01em;
+    }
+
+    .spinner{
+      width:16px;
+      height:16px;
+      border-radius:999px;
+      border:2px solid rgba(15,23,42,.14);
+      border-top-color:rgba(15,23,42,.8);
+      animation:pdfopsSpin .8s linear infinite;
+    }
+
+    @keyframes pdfopsSpin{
+      to{ transform:rotate(360deg); }
+    }
+
+    .statusHint{
+      margin-top:6px;
+      font-size:13px;
+      line-height:1.5;
+      color:rgba(11,18,32,.72);
+    }
+
+    .proofRow{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:14px;
+      margin-bottom:14px;
+    }
+
+    .proofCard{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      background:linear-gradient(180deg,#fff,#f8fafc);
+      padding:14px;
+    }
+
+    .proofLabel{
+      font-size:12px;
+      opacity:.66;
+      margin-bottom:6px;
+    }
+
+    .proofValue{
+      font-size:20px;
+      font-weight:1000;
+      letter-spacing:-.03em;
+      color:rgba(11,18,32,.95);
+    }
+
+    @media (max-width: 900px){
+      .proofRow{ grid-template-columns:1fr; }
+    }
+
     .pdfReorderWrap{
-      margin-top:14px; padding-top:14px;
+      margin-top:14px;
+      padding-top:14px;
       border-top:1px solid rgba(15,23,42,.10);
     }
+
     .pdfReorderHead{
-      display:flex; align-items:flex-start; justify-content:space-between;
-      gap:14px; margin:2px 0 12px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      margin:2px 0 12px;
     }
-    .pdfReorderTitle{ font-weight:1000; letter-spacing:-.03em; }
-    .pdfReorderSub{ opacity:.80; font-size:13px; line-height:1.4; margin-top:4px; }
+
+    .pdfReorderTitle{
+      font-weight:1000;
+      letter-spacing:-.03em;
+    }
+
+    .pdfReorderSub{
+      opacity:.80;
+      font-size:13px;
+      line-height:1.4;
+      margin-top:4px;
+    }
 
     .pdfThumbGrid{
       display:grid;
@@ -291,6 +440,7 @@
       gap:10px;
       margin-top:10px;
     }
+
     @media (max-width:1100px){ .pdfThumbGrid{ grid-template-columns:repeat(4, minmax(0,1fr)); } }
     @media (max-width:720px){ .pdfThumbGrid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
 
@@ -302,20 +452,32 @@
       overflow:hidden;
       box-shadow:none;
       cursor:grab;
-      user-select:none; -webkit-user-select:none;
+      user-select:none;
+      -webkit-user-select:none;
       transition:transform .08s ease, border-color .08s ease, outline-color .08s ease, background .08s ease, opacity .08s ease;
       will-change:transform;
     }
+
     .pdfThumb:hover{
       transform:translateY(-1px);
       border-color: rgba(15,23,42,.22);
       background: rgba(11,18,32,.01);
     }
-    .pdfThumb:active{ cursor:grabbing; transform:translateY(0); }
-    .pdfThumb.isDragging{ opacity:.55; }
-    .pdfThumb.isOver{ outline:2px solid rgba(11,18,32,.22); outline-offset:2px; }
 
-    /* Split thumb internal layout from your JS */
+    .pdfThumb:active{
+      cursor:grabbing;
+      transform:translateY(0);
+    }
+
+    .pdfThumb.isDragging{
+      opacity:.55;
+    }
+
+    .pdfThumb.isOver{
+      outline:2px solid rgba(11,18,32,.22);
+      outline-offset:2px;
+    }
+
     .pdfThumbTop{
       display:flex;
       justify-content:space-between;
@@ -323,6 +485,7 @@
       gap:10px;
       padding:10px 10px 0;
     }
+
     .pdfThumbBadge{
       font-size:12px;
       font-weight:950;
@@ -331,6 +494,7 @@
       white-space:nowrap;
       opacity:.92;
     }
+
     .pdfThumbActions{
       display:flex;
       gap:8px;
@@ -338,7 +502,6 @@
       pointer-events:auto;
     }
 
-    /* btnTiny: hard, not pill/bubble */
     .btnTiny{
       padding:6px 10px;
       border-radius:10px;
@@ -357,14 +520,21 @@
       margin-top:10px;
     }
 
-    .pdfTinyNote{ margin-top:10px; font-size:12px; opacity:.78; }
+    .pdfTinyNote{
+      margin-top:10px;
+      font-size:12px;
+      opacity:.78;
+    }
 
-    /* Order number badge: square-ish */
     .pdfOrderBadge{
       position:absolute;
-      top:10px; left:10px;
-      width:28px; height:28px;
-      display:flex; align-items:center; justify-content:center;
+      top:10px;
+      left:10px;
+      width:28px;
+      height:28px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       border-radius:8px;
       background: rgba(11,18,32,.94);
       color:#fff;
@@ -377,46 +547,189 @@
       z-index:2;
     }
 
-    /* ===== Preview modal (hard frame) ===== */
-    .pdfPreviewModal{
-      position:fixed; inset:0; z-index:1000;
-      background:rgba(2,6,23,.68);
-      display:flex; align-items:center; justify-content:center;
-      padding:18px;
-      backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    .progressWrap{
+      display:block;
+      margin:16px 0 0 0;
+      padding:14px 14px 12px;
+      border:1px solid rgba(15,23,42,.14);
+      border-radius:14px;
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+      box-shadow:0 16px 38px rgba(2,6,23,.08);
     }
+
+    .progressTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+
+    #progressLabel{
+      font-size:14px;
+      font-weight:1000;
+      color:rgba(11,18,32,.92);
+      letter-spacing:-.01em;
+    }
+
+    #progressPct{
+      font-size:14px;
+      font-weight:1000;
+      color:rgba(11,18,32,.72);
+    }
+
+    .progressBar{
+      height:12px;
+      border-radius:999px;
+      background:rgba(15,23,42,.10);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .progressFill{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      background:linear-gradient(90deg,#0f172a,#334155);
+      transition:width .25s ease;
+    }
+
+    .progressBar::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.28) 50%,transparent 100%);
+      transform:translateX(-100%);
+      animation:pdfopsProgressShine 1.2s linear infinite;
+    }
+
+    @keyframes pdfopsProgressShine{
+      100%{ transform:translateX(100%); }
+    }
+
+    #splitReadyBox{
+      display:none;
+      text-align:center;
+      margin-top:14px;
+      margin-bottom:14px;
+      padding:18px;
+      border:1px solid rgba(15,23,42,.14);
+      border-radius:16px;
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+      box-shadow:0 18px 40px rgba(2,6,23,.08);
+    }
+
+    body.isProcessed #splitReadyBox{
+      display:block !important;
+    }
+
+    body.isProcessed .actionRow{
+      display:none !important;
+    }
+
+    .splitReadyTitle{
+      font-weight:1000;
+      font-size:22px;
+      margin-bottom:12px;
+      letter-spacing:-.03em;
+    }
+
+    .splitReadyGrid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    @media (max-width: 900px){
+      .splitReadyGrid{ grid-template-columns:1fr; }
+    }
+
+    .splitReadyStat{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:12px;
+      padding:14px;
+      background:#fff;
+    }
+
+    .splitReadyLabel{
+      font-size:12px;
+      opacity:.65;
+      margin-bottom:6px;
+    }
+
+    .splitReadyValue{
+      font-size:22px;
+      font-weight:1000;
+      letter-spacing:-.03em;
+    }
+
+    .splitReadyFine{
+      font-size:13px;
+      opacity:.72;
+      margin-top:10px;
+    }
+
+    .pdfPreviewModal{
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      background:rgba(2,6,23,.68);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+
     .pdfPreviewCard{
-      width:min(980px,96vw); max-height:90vh;
+      width:min(980px,96vw);
+      max-height:90vh;
       background:#fff;
       border:1px solid var(--hard-border);
       border-radius:12px;
       overflow:hidden;
       box-shadow:0 40px 120px rgba(0,0,0,.38);
-      display:flex; flex-direction:column;
+      display:flex;
+      flex-direction:column;
     }
+
     .pdfPreviewTop{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px; padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 14px;
       border-bottom:1px solid rgba(15,23,42,.10);
       background:linear-gradient(180deg, rgba(11,18,32,.03), transparent);
     }
+
     .pdfPreviewTitle{
-      font-weight:1000; letter-spacing:-.03em;
-      overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:75%;
-    }
-    .pdfPreviewBody{
-      padding:12px; overflow:auto;
-      background:#fff;
-    }
-    .pdfPreviewCanvas{
-      width:100%; display:block; background:#fff;
-      border-radius:10px; border:1px solid rgba(15,23,42,.12);
+      font-weight:1000;
+      letter-spacing:-.03em;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      max-width:75%;
     }
 
-    /* =========================
-       CLEAN SUPPORT SECTION (MATCHES MERGE LOOK)
-    ========================== */
+    .pdfPreviewBody{
+      padding:12px;
+      overflow:auto;
+      background:#fff;
+    }
+
+    .pdfPreviewCanvas{
+      width:100%;
+      display:block;
+      background:#fff;
+      border-radius:10px;
+      border:1px solid rgba(15,23,42,.12);
+    }
+
     .plainSection{ padding:56px 0 38px; }
+
     .plainKicker{
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       font-size:12px;
@@ -424,6 +737,7 @@
       text-transform:uppercase;
       opacity:.70;
     }
+
     .plainH2{
       margin:12px 0 8px;
       font-size:44px;
@@ -432,7 +746,11 @@
       font-weight:950;
       color:rgba(11,18,32,.96);
     }
-    @media (max-width: 720px){ .plainH2{ font-size:34px; } }
+
+    @media (max-width: 720px){
+      .plainH2{ font-size:34px; }
+    }
+
     .plainLead{
       margin:0;
       font-size:16px;
@@ -447,9 +765,11 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap:42px 44px;
     }
+
     @media (max-width: 980px){
       .featureGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap:32px 28px; }
     }
+
     @media (max-width: 640px){
       .featureGrid{ grid-template-columns: 1fr; gap:26px; }
     }
@@ -467,7 +787,10 @@
       gap:44px;
       align-items:start;
     }
-    @media (max-width: 980px){ .plainBottomGrid{ grid-template-columns: 1fr; gap:32px; } }
+
+    @media (max-width: 980px){
+      .plainBottomGrid{ grid-template-columns: 1fr; gap:32px; }
+    }
 
     .faqListPlain{ margin-top:10px; display:grid; gap:18px; }
     .faqItemPlain{ padding-top:16px; border-top:1px solid rgba(15,23,42,.10); }
@@ -482,13 +805,17 @@
       gap:14px 18px;
       font-size:15px;
     }
+
     .relatedLinks a{
       text-decoration:none;
       font-weight:900;
       color:rgba(11,18,32,.92);
       border-bottom:1px solid rgba(11,18,32,.20);
     }
-    .relatedLinks a:hover{ border-bottom-color: rgba(11,18,32,.55); }
+
+    .relatedLinks a:hover{
+      border-bottom-color: rgba(11,18,32,.55);
+    }
 
     .plainNote{
       margin-top:14px;
@@ -498,18 +825,16 @@
       max-width: 80ch;
     }
 
-    /* Minimal inline SVG styling */
     .icoStroke{ stroke: rgba(11,18,32,.92); }
     .icoFill{ fill: rgba(11,18,32,.92); }
   </style>
 </head>
 
-<body class="page" data-tool="split_pdf">
+<body class="page pageSplitPdf" data-tool="split_pdf">
 <a href="#tool" class="srOnly">Skip to the tool</a>
 
 <header class="nav">
   <div class="container navInner">
-
     <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/logo.png" alt="PDFOperations" class="brandLogoFull" />
     </a>
@@ -525,30 +850,42 @@
       <a href="/edit-pdf" data-nav="edit">Edit</a>
       <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
     </nav>
-
   </div>
 </header>
 
 <main>
-
   <section class="hero heroPremium heroToolFirst">
     <div class="container heroWide">
-
       <div id="tool" class="tool toolPremium toolMega">
 
         <div class="toolHead toolHeadMinimal">
-          <div class="proKicker">PDF Tool</div>
-          <h1 class="toolTitle">Split a PDF Into Separate Files</h1>
+          <div class="proKicker">PDF split</div>
+          <h1 class="toolTitle">Split one PDF into separate page files</h1>
           <p class="toolSub">
-            Remove pages, reorder the output, and prepare a clean ZIP with one PDF per page. No signup. Pay once. Download instantly.
+            Remove pages you do not need, reorder the output, preview the result, then download a clean ZIP with one PDF per page.
           </p>
 
-        <div class="trustBar" aria-label="Trust indicators">
-          <div class="trustPill">No signup</div>
-          <div class="trustPill">Remove pages</div>
-          <div class="trustPill">Reorder output</div>
-          <div class="trustPill">ZIP download</div>
-        </div>
+          <div class="valueStrip" aria-label="Benefits">
+            <div class="valueStripCard">
+              <strong>One page per file</strong>
+              <span>Create a tidy ZIP containing separate PDFs instead of one bulky document.</span>
+            </div>
+            <div class="valueStripCard">
+              <strong>Remove unwanted pages</strong>
+              <span>Cut blank, duplicate or irrelevant pages before the final output is prepared.</span>
+            </div>
+            <div class="valueStripCard">
+              <strong>Preview before download</strong>
+              <span>Check the output order first so the value is obvious before the final step.</span>
+            </div>
+          </div>
+
+          <div class="trustBar" aria-label="Trust indicators">
+            <div class="trustPill">No signup</div>
+            <div class="trustPill">Remove pages</div>
+            <div class="trustPill">Reorder output</div>
+            <div class="trustPill">ZIP download</div>
+          </div>
         </div>
 
         <div class="statusWrap">
@@ -556,10 +893,24 @@
             <div class="status" id="status">Ready</div>
             <div class="spinner" id="spinner"></div>
           </div>
-          <div class="statusHint" id="statusHint">Upload 1 PDF, then remove or reorder pages before download.</div>
+          <div class="statusHint" id="statusHint">Upload 1 PDF, then remove or reorder pages before preparing the final ZIP.</div>
         </div>
 
-        <!-- REQUIRED MODE INPUTS (app.js) -->
+        <div class="proofRow" aria-label="Common uses">
+          <div class="proofCard">
+            <div class="proofLabel">Best for</div>
+            <div class="proofValue">Page extraction</div>
+          </div>
+          <div class="proofCard">
+            <div class="proofLabel">Also useful for</div>
+            <div class="proofValue">Uploads</div>
+          </div>
+          <div class="proofCard">
+            <div class="proofLabel">Output</div>
+            <div class="proofValue">ZIP of PDFs</div>
+          </div>
+        </div>
+
         <fieldset style="display:none;">
           <input type="radio" name="mode" id="modeCompress">
           <input type="radio" name="mode" id="modeCompressPdf">
@@ -569,7 +920,6 @@
           <input type="radio" name="mode" id="modeRotatePdf">
         </fieldset>
 
-        <!-- Default compression level (hidden; app.js expects it to exist in some flows) -->
         <div id="pdfCompressRow" style="display:none;">
           <select id="pdfCompressLevel">
             <option value="balanced" selected>Balanced</option>
@@ -578,7 +928,6 @@
           </select>
         </div>
 
-        <!-- Hidden Convert (app.js compatibility) -->
         <div id="convertRow" style="display:none;">
           <select id="convertFrom">
             <option value="auto" selected>Auto detect</option>
@@ -590,7 +939,6 @@
           </select>
         </div>
 
-        <!-- Hidden Rotate (app.js compatibility) -->
         <div style="display:none;">
           <select id="rotateDegrees">
             <option value="90" selected>90°</option>
@@ -599,13 +947,11 @@
           </select>
         </div>
 
-        <!-- DROPZONE -->
         <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
-
           <div class="dzCenter">
             <div class="dzIcon"><span class="dzArrow">↑</span></div>
-            <div class="dzTitle" id="dzTitle">Drop a PDF here</div>
-            <div class="dzSub" id="dzSub">PDF only • One file in • ZIP out</div>
+            <div class="dzTitle" id="dzTitle">Drop a PDF here to split it now</div>
+            <div class="dzSub" id="dzSub">PDF only • One file in • One ZIP out</div>
 
             <div class="filePick">
               <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
@@ -623,13 +969,12 @@
 
             <ol class="fileList" id="fileList"></ol>
 
-            <!-- PAGE REORDER -->
             <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
               <div class="pdfReorderHead">
                 <div>
                   <div class="pdfReorderTitle">Reorder & remove pages</div>
                   <div class="pdfReorderSub">
-                    Drag to set output order. Delete removes from output only.
+                    Drag to set output order. Delete removes pages from output only.
                     <span id="pdfReorderCount"></span>
                   </div>
                 </div>
@@ -642,14 +987,12 @@
               <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
               <div class="pdfTinyNote" id="pdfThumbNote" hidden></div>
             </div>
-
           </div>
         </div>
 
-        <!-- PROGRESS -->
         <div class="progressWrap" id="progressWrap" hidden>
           <div class="progressTop">
-            <div id="progressLabel">Uploading…</div>
+            <div id="progressLabel">Preparing split PDF output…</div>
             <div id="progressPct">0%</div>
           </div>
           <div class="progressBar">
@@ -658,47 +1001,52 @@
           <div id="progressMeta"></div>
         </div>
 
-        <!-- ACTIONS -->
-          <div class="actionRow actionRowWide">
-            <button class="btnSoft" id="upload" disabled>Upload PDF</button>
-            <button class="btnPrimary btnStrong" id="continue" disabled>Unlock Download</button>
+        <div class="actionRow actionRowWide">
+          <button class="btnSoft" id="upload" disabled>Prepare split output</button>
+          <button class="btnPrimary btnStrong" id="continue" disabled>Unlock download →</button>
+        </div>
+
+        <div id="splitReadyBox">
+          <div class="splitReadyTitle">✔ Your split output is ready</div>
+
+          <div class="splitReadyGrid">
+            <div class="splitReadyStat">
+              <div class="splitReadyLabel">Pages kept</div>
+              <div class="splitReadyValue" id="splitPageCount">—</div>
+            </div>
+
+            <div class="splitReadyStat">
+              <div class="splitReadyLabel">Output type</div>
+              <div class="splitReadyValue">ZIP</div>
+            </div>
+
+            <div class="splitReadyStat">
+              <div class="splitReadyLabel">Status</div>
+              <div class="splitReadyValue">Ready</div>
+            </div>
           </div>
 
-          <div id="splitReadyBox" style="
-            display:none;
-            text-align:center;
-            margin-bottom:14px;
-            padding:16px;
-            border:1px solid rgba(15,23,42,.14);
-            border-radius:12px;
-            background:linear-gradient(180deg,#ffffff,#f8fafc);
-          ">
-            <div style="font-weight:1000; font-size:16px; margin-bottom:8px;">
-              ✔ Your split output is ready
-            </div>
-            <div style="font-size:13px; opacity:.85; margin-bottom:12px;">
-              Your page order and removals have been prepared for final download.
-            </div>
-            <button id="splitUnlockBtn" class="btnPrimary btnStrong" style="width:100%;" type="button">
-              Unlock Download
-            </button>
-          </div>
+          <button id="splitUnlockBtn" class="btnPrimary btnStrong" style="width:100%;" type="button">
+            Download split ZIP →
+          </button>
 
-        <div class="fineprint">Tip: remove blank or unnecessary pages first so your final ZIP stays clean and organised.</div>
+          <div class="splitReadyFine">
+            Your page order and removals have been prepared for final download.
+          </div>
+        </div>
+
+        <div class="fineprint">Tip: remove blank or irrelevant pages first so your final ZIP stays tidy and useful.</div>
       </div>
-
     </div>
   </section>
 
-  <!-- CLEAN SUPPORT SECTION (MATCHES MERGE LOOK; SEO TEXT UPDATED) -->
   <section class="plainSection" id="about">
     <div class="container heroWide">
 
-      <div class="plainKicker">About</div>
-      <h2 class="plainH2">Split PDF pages online</h2>
+      <div class="plainKicker">Split PDF online</div>
+      <h2 class="plainH2">Separate one PDF into clean, individual page files</h2>
       <p class="plainLead">
-        Split one PDF into separate page files for uploads, review packs, portals, or cleaner sharing.
-        Remove pages you do not need, set the output order, then download a ZIP containing one PDF per page.
+        Use PDFOperations to split a PDF into separate page files when you only need certain pages, want to upload documents individually, or need a cleaner way to share or organise content. Remove unwanted pages first, set the output order, then download a ZIP containing one PDF per page.
       </p>
 
       <div class="featureGrid" aria-label="What you can do">
@@ -710,7 +1058,7 @@
             </svg>
           </div>
           <h3 class="featTitle">Split into separate page files</h3>
-          <p class="featText">Download a single ZIP containing one PDF per page for fast sharing and uploads.</p>
+          <p class="featText">Download a single ZIP containing one PDF per page for cleaner uploads, sharing and organisation.</p>
         </div>
 
         <div>
@@ -720,8 +1068,8 @@
               <path class="icoStroke" d="M4 6v2M4 11v2M4 16v2" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">Reorder output</h3>
-          <p class="featText">Drag pages to set the exact output sequence. The ZIP follows the order shown.</p>
+          <h3 class="featTitle">Set the output order</h3>
+          <p class="featText">Drag pages into the exact sequence you want. The final ZIP follows the order shown in the grid.</p>
         </div>
 
         <div>
@@ -732,8 +1080,8 @@
               <path class="icoStroke" d="M6 6l1 16h10l1-16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">Remove pages</h3>
-          <p class="featText">Delete removes pages from the output only. Reset restores everything instantly.</p>
+          <h3 class="featTitle">Remove unwanted pages</h3>
+          <p class="featText">Delete blank, duplicate or unnecessary pages before output. Reset restores everything if needed.</p>
         </div>
 
         <div>
@@ -743,8 +1091,8 @@
               <path class="icoStroke" d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">Preview while organizing</h3>
-          <p class="featText">Use thumbnails to verify the right pages before you upload and continue.</p>
+          <h3 class="featTitle">Preview while organising</h3>
+          <p class="featText">Use thumbnails to verify the right pages before you continue so the result feels trustworthy.</p>
         </div>
 
         <div>
@@ -754,8 +1102,8 @@
               <path class="icoStroke" d="M9 10h6" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">No account</h3>
-          <p class="featText">No signup. Upload, continue, then download when your output is ready.</p>
+          <h3 class="featTitle">No account wall</h3>
+          <p class="featText">No signup required. Upload, prepare the output, then continue when the final ZIP is ready.</p>
         </div>
 
         <div>
@@ -766,7 +1114,7 @@
             </svg>
           </div>
           <h3 class="featTitle">Secure processing</h3>
-          <p class="featText">Files are processed to generate your output. See Privacy for retention details.</p>
+          <p class="featText">Files are processed to generate your output. See Privacy for retention and deletion details.</p>
         </div>
       </div>
 
@@ -780,7 +1128,7 @@
           <div class="faqListPlain">
             <div class="faqItemPlain">
               <div class="faqQ">Can I remove pages before splitting?</div>
-              <p class="faqA">Yes — Delete removes pages from the output ZIP only. Use Reset to restore all pages.</p>
+              <p class="faqA">Yes. Delete removes pages from the output ZIP only. Use Reset to restore all pages.</p>
             </div>
 
             <div class="faqItemPlain">
@@ -790,17 +1138,17 @@
 
             <div class="faqItemPlain">
               <div class="faqQ">What do I download?</div>
-              <p class="faqA">A single ZIP containing one PDF per page (in your chosen order).</p>
+              <p class="faqA">A single ZIP containing one PDF per page, in your chosen order.</p>
             </div>
 
             <div class="faqItemPlain">
               <div class="faqQ">Do I need an account?</div>
-              <p class="faqA">No signup required. Upload, continue, then download.</p>
+              <p class="faqA">No signup required. Upload, prepare, then continue when ready.</p>
             </div>
           </div>
 
           <div class="plainNote">
-            Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
+            Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a> • <a href="/pricing">Pricing</a>
           </div>
         </div>
 
@@ -808,7 +1156,7 @@
           <div class="plainKicker">Related tools</div>
           <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.02em; font-weight:950;">More PDF tools</h3>
           <p class="plainLead" style="font-size:15px; margin-top:0; max-width:56ch;">
-            Need something else? Use the same workflow across tools — upload, process, download.
+            Need something else? Use the same upload → prepare → download flow across the rest of the tool set.
           </p>
 
           <div class="relatedLinks" aria-label="Related PDF tools">
@@ -819,14 +1167,13 @@
           </div>
 
           <div class="plainNote">
-            Tip: For long PDFs, remove unneeded pages first to keep the ZIP tidy.
+            Tip: for long PDFs, remove unnecessary pages first so the final ZIP stays clean and easier to use.
           </div>
         </div>
       </div>
 
     </div>
   </section>
-
 </main>
 
 <footer class="footer">
@@ -844,7 +1191,6 @@
   </div>
 </footer>
 
-<!-- OPTIONAL Preview modal (safe; won’t show unless JS opens it) -->
 <div id="pdfPreviewModal" class="pdfPreviewModal" hidden aria-hidden="true">
   <div class="pdfPreviewCard" role="dialog" aria-modal="true" aria-labelledby="pdfPreviewTitle">
     <div class="pdfPreviewTop">
@@ -857,7 +1203,6 @@
   </div>
 </div>
 
-<!-- CHECKOUT MODAL (REQUIRED by app.js) -->
 <div class="modalOverlay" id="priceModal" aria-hidden="true">
   <div class="modalCard premiumModal">
     <div class="modalTop">
@@ -923,7 +1268,6 @@
   </div>
 </div>
 
-<!-- ===== Page-owned reorder + delete logic (works alongside app.js) ===== -->
 <script>
 (() => {
   const wrap = document.getElementById("pdfReorderWrap");
@@ -933,21 +1277,31 @@
   const noteEl = document.getElementById("pdfThumbNote");
   const fileInput = document.getElementById("files");
   const clearBtn = document.getElementById("clearBtn");
+  const splitPageCount = document.getElementById("splitPageCount");
 
   if (!wrap || !grid || !resetBtn || !countEl || !fileInput) return;
 
   let pdfDoc = null;
   let objectUrl = null;
 
-  let originalOrder = []; // [1..n]
-  let order = [];         // current [pageNo,...] (1-based)
+  let originalOrder = [];
+  let order = [];
 
-  // Expose for app.js
   window.__PDFOPS_PAGE_ORDER__ = null;
+
+  function updatePreparedStats() {
+    if (splitPageCount) {
+      splitPageCount.textContent = order.length ? String(order.length) : "—";
+    }
+  }
 
   function setNote(text) {
     if (!noteEl) return;
-    if (!text) { noteEl.hidden = true; noteEl.textContent = ""; return; }
+    if (!text) {
+      noteEl.hidden = true;
+      noteEl.textContent = "";
+      return;
+    }
     noteEl.textContent = text;
     noteEl.hidden = false;
   }
@@ -955,6 +1309,7 @@
   function updateCount() {
     const n = order.length;
     countEl.textContent = n ? `(${n} page${n === 1 ? "" : "s"})` : "";
+    updatePreparedStats();
   }
 
   function showWrap() {
@@ -968,7 +1323,6 @@
     }
   }
 
-  // Renumber visible order badges (1..N) after any change
   function renumberBadges() {
     const cards = [...grid.querySelectorAll(".pdfThumb")];
     cards.forEach((card, idx) => {
@@ -1003,7 +1357,7 @@
       .map(el => Number(el.dataset.page))
       .filter(n => Number.isFinite(n) && n > 0);
 
-    window.__PDFOPS_PAGE_ORDER__ = order.slice(); // 1-based
+    window.__PDFOPS_PAGE_ORDER__ = order.slice();
     updateCount();
     showWrap();
     renumberBadges();
@@ -1015,7 +1369,6 @@
     card.draggable = true;
     card.dataset.page = String(pageNumber);
 
-    // order badge (position, not page number)
     const orderBadge = document.createElement("div");
     orderBadge.className = "pdfOrderBadge";
     orderBadge.textContent = "•";
@@ -1097,6 +1450,7 @@
 
     syncOrderFromDOM();
     wrap.hidden = false;
+    updatePreparedStats();
   }
 
   function resetAll() {
@@ -1106,9 +1460,9 @@
     order = originalOrder.slice();
     for (const pageNo of order) grid.appendChild(makeThumbCard(pageNo));
     syncOrderFromDOM();
+    updatePreparedStats();
   }
 
-  // ========= Drag reorder =========
   let dragPage = null;
 
   grid.addEventListener("dragstart", (e) => {
@@ -1166,9 +1520,6 @@
     clearOverStates();
   });
 
-  // ========= Inputs =========
-  resetBtn.addEventListener("click", resetAll);
-
   fileInput.addEventListener("change", async () => {
     const f = fileInput.files && fileInput.files[0];
     if (!f) return;
@@ -1185,28 +1536,33 @@
       grid.innerHTML = "";
       wrap.hidden = true;
       window.__PDFOPS_PAGE_ORDER__ = null;
+      updatePreparedStats();
       setNote("Couldn’t generate thumbnails for this PDF. You can still upload and split normally.");
       revokeUrl();
     }
   });
 
-    if (clearBtn) {
-      clearBtn.addEventListener("click", () => {
-        document.body.classList.remove("isProcessed");
-        pdfDoc = null;
-        originalOrder = [];
-        order = [];
-        grid.innerHTML = "";
-        wrap.hidden = true;
-        window.__PDFOPS_PAGE_ORDER__ = null;
-        setNote("");
-        revokeUrl();
-      });
-    }
+  resetBtn.addEventListener("click", resetAll);
+
+  if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+      document.body.classList.remove("isProcessed");
+      pdfDoc = null;
+      originalOrder = [];
+      order = [];
+      grid.innerHTML = "";
+      wrap.hidden = true;
+      window.__PDFOPS_PAGE_ORDER__ = null;
+      updatePreparedStats();
+      setNote("");
+      revokeUrl();
+    });
+  }
 })();
 </script>
 
 <script src="/app.js?v=18" defer></script>
+
 <script>
 (() => {
   const splitUnlockBtn = document.getElementById("splitUnlockBtn");
@@ -1219,6 +1575,7 @@
   }
 })();
 </script>
+
 <script>
 (function () {
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
