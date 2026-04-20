@@ -1,7 +1,8 @@
-<!-- public/merge-pdf.html — PDFOperations (v14 - FULL RAMBO / HARD UI + SEO + NO FUNCTION CHANGES)
-     ✅ Keeps ALL app.js v17.7 IDs/hooks + merge reorder JS + modal
-     ✅ Hard “instrument panel” aesthetic (no bubble feel, reduced rounding, no floaty shadows)
-     ✅ Keeps support section layout + SEO schema unchanged
+<!-- public/merge-pdf.html — PDFOperations (v15 - FULL RAMBO MONEY PAGE; PREVIEW-FIRST MERGE FLOW; NO FUNCTION CHANGES)
+     ✅ Keeps ALL app.js IDs/hooks + merge reorder JS + modal
+     ✅ Keeps PDF.js module loader
+     ✅ Adds stronger conversion framing + proof-before-download flow
+     ✅ Keeps reorder grid, preview modal, and tool compatibility
 -->
 <!doctype html>
 <html lang="en">
@@ -10,14 +11,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Merge PDF Online — Combine PDFs in Seconds | PDFOperations</title>
-  <meta name="description" content="Merge PDF files online. Combine multiple PDFs into one document, reorder pages, then download the merged PDF. Secure, fast, no signup." />
+  <meta name="description" content="Merge PDF files online. Combine multiple PDFs into one document, reorder pages, preview the final result, then download the merged PDF." />
   <link rel="canonical" href="https://pdfoperations.com/merge-pdf" />
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light" />
 
-  <!-- Google Analytics (PDFOperations) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQ3QKV7KHG"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -26,48 +26,71 @@
     gtag('config', 'G-YQ3QKV7KHG');
   </script>
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="Merge PDF Online — Combine PDFs in Seconds" />
-  <meta property="og:description" content="Combine multiple PDF files into one. Reorder pages and download securely." />
+  <meta property="og:title" content="Merge PDF Online — Combine PDFs in Seconds | PDFOperations" />
+  <meta property="og:description" content="Combine multiple PDF files into one, reorder pages, preview the result, then download the merged PDF." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/merge-pdf" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
   <meta property="og:image:alt" content="PDFOperations — Merge PDF" />
 
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Merge PDF Online — Combine PDFs in Seconds" />
-  <meta name="twitter:description" content="Merge multiple PDFs into one. Reorder pages and download." />
+  <meta name="twitter:title" content="Merge PDF Online — Combine PDFs in Seconds | PDFOperations" />
+  <meta name="twitter:description" content="Combine PDF files into one, reorder pages, preview the result, then download." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
   
-  <!-- Favicons -->
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/style.css?v=36" />
 
-  <!-- =========================
-       SCHEMA (SEO)
-  ========================== -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
     "@type":"WebPage",
     "name":"Merge PDF Online — PDFOperations",
     "url":"https://pdfoperations.com/merge-pdf",
-    "description":"Merge PDF files online. Combine multiple PDFs into one document, reorder pages, then download the merged PDF.",
+    "description":"Merge PDF files online. Combine multiple PDFs into one document, reorder pages, preview the result, then download the merged PDF.",
     "isPartOf":{
       "@type":"WebSite",
       "name":"PDFOperations",
       "url":"https://pdfoperations.com/"
-    }
+    },
+    "about": {
+      "@type": "Thing",
+      "name": "PDF merge"
+    },
+    "primaryImageOfPage": "https://pdfoperations.com/og.png"
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"PDFOperations - Merge PDF",
+    "applicationCategory":"BusinessApplication",
+    "applicationSubCategory":"PDF Utilities",
+    "operatingSystem":"Web",
+    "browserRequirements":"Requires JavaScript. Works in modern browsers.",
+    "url":"https://pdfoperations.com/merge-pdf",
+    "description":"Merge multiple PDF files into one document, reorder pages, preview the result, then download.",
+    "offers": {
+      "@type": "Offer",
+      "price": "2.99",
+      "priceCurrency": "GBP"
+    },
+    "featureList":[
+      "Merge multiple PDFs into one file",
+      "Reorder pages before merging",
+      "Preview pages before download",
+      "Prepare merged output before checkout"
+    ]
   }
   </script>
 
@@ -92,7 +115,7 @@
         "name":"How do I merge PDF files?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"Add two or more PDF files, upload them, reorder pages if needed, then continue to download a single merged PDF."
+          "text":"Add two or more PDF files, upload them, reorder pages if needed, preview the result, then continue to download a single merged PDF."
         }
       },
       {
@@ -105,18 +128,10 @@
       },
       {
         "@type":"Question",
-        "name":"Is my PDF data secure?",
-        "acceptedAnswer":{
-          "@type":"Answer",
-          "text":"Files are processed to generate your merged output. Downloads are available after payment. See the Privacy page for retention and deletion details."
-        }
-      },
-      {
-        "@type":"Question",
         "name":"Do I need an account to merge PDFs?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"No. There is no signup. Upload, continue, then download when ready."
+          "text":"No. There is no signup. Upload, prepare the merge, then continue when ready."
         }
       },
       {
@@ -124,16 +139,13 @@
         "name":"Why does the preview show fewer pages sometimes?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"For performance, thumbnails may be limited on very large documents. All pages are still included in the merge (nothing is dropped)."
+          "text":"For performance, thumbnails may be limited on very large documents. All pages are still included in the merge."
         }
       }
     ]
   }
   </script>
 
-  <!-- =========================================================
-       PDF.js (self-hosted ESM) — module loader
-  ========================================================== -->
   <script type="module">
     const PDFJS_SRC = "/vendor/pdfjs/pdf.min.mjs";
     const WORKER_SRC = "/vendor/pdfjs/pdf.worker.min.mjs";
@@ -166,16 +178,13 @@
   </script>
 
   <style>
-    /* Protect [hidden] */
     #pdfPreviewModal[hidden],
     #pdfReorderWrap[hidden],
-    #fileMeta[hidden]{ display:none !important; }
+    #fileMeta[hidden]{
+      display:none !important;
+    }
     [hidden]{ display:none !important; }
 
-    /* Header logo safety (consistent across pages) */
-    .brandLogo{ height:34px; width:auto; display:block; flex:0 0 auto; }
-
-    /* ===== FULL RAMBO HARDENING ===== */
     :root{
       --hard-border: rgba(15,23,42,.14);
       --soft-border: rgba(15,23,42,.10);
@@ -183,20 +192,41 @@
       --muted: rgba(11,18,32,.78);
     }
 
-    /* Nav alignment (matches privacy/terms hard vibe) */
+    .brandLogo{ height:34px; width:auto; display:block; flex:0 0 auto; }
+
     .nav{
       border-bottom: 1px solid rgba(15,23,42,.10);
       background: rgba(245,247,251,.86);
       backdrop-filter: blur(10px);
     }
+
     .navLinks a{
       font-weight: 900;
       letter-spacing:-.01em;
       opacity:.86;
     }
+
     .navLinks a[aria-current="page"]{
       opacity: 1;
       border-bottom: 1px solid rgba(11,18,32,.35);
+    }
+
+    .hero.heroPremium.heroToolFirst{
+      padding-top:22px;
+      padding-bottom:20px;
+    }
+
+    .tool.toolPremium.toolMega{
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.14);
+      box-shadow:0 26px 80px rgba(2,6,23,.10);
+      background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,1));
+    }
+
+    .toolHeadMinimal{
+      border-bottom:1px solid rgba(15,23,42,.10);
+      padding-bottom:14px;
+      margin-bottom:14px;
     }
 
     .proKicker{
@@ -205,41 +235,191 @@
       letter-spacing:.10em;
       opacity:.72;
       text-transform:uppercase;
+      text-align:center;
+    }
+
+    .toolTitle{
+      text-align:center;
+      letter-spacing:-.03em;
+      font-weight:1000;
+    }
+
+    .toolSub{
+      max-width:700px;
+      margin:10px auto 0;
+      text-align:center;
+      opacity:.82;
+    }
+
+    .valueStrip{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .valueStripCard{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      background:linear-gradient(180deg,#fff,#f8fafc);
+      padding:14px;
+      text-align:center;
+    }
+
+    .valueStripCard strong{
+      display:block;
+      font-size:15px;
+      letter-spacing:-.02em;
+      color:rgba(11,18,32,.96);
+      margin-bottom:6px;
+    }
+
+    .valueStripCard span{
+      display:block;
+      font-size:13px;
+      line-height:1.5;
+      color:rgba(11,18,32,.72);
+    }
+
+    @media (max-width: 900px){
+      .valueStrip{ grid-template-columns:1fr; }
     }
 
     .trustBar{
-      display:flex; flex-wrap:wrap; gap:10px 16px;
-      margin-top:12px; padding-top:12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 16px;
+      margin-top:14px;
+      padding-top:14px;
       border-top:1px solid rgba(15,23,42,.10);
-      color:rgba(11,18,32,.72); font-size:13px;
+      color:rgba(11,18,32,.72);
+      font-size:13px;
+      justify-content:center;
     }
+
     .trustPill{
-      padding:0 !important; border:0 !important; background:transparent !important;
-      border-radius:0 !important; box-shadow:none !important;
-      font-weight:800; display:flex; align-items:center; gap:8px;
+      padding:0 !important;
+      border:0 !important;
+      background:transparent !important;
+      border-radius:0 !important;
+      box-shadow:none !important;
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
+
     .trustPill::before{ content:"•"; opacity:.55; }
     .trustBar .trustPill:first-child::before{ content:""; }
 
+    .statusWrap{
+      margin-top:14px;
+      margin-bottom:14px;
+      padding:12px 14px;
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:12px;
+      background:rgba(248,250,252,.9);
+    }
+
+    .statusLeft{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .status{
+      font-weight:1000;
+      letter-spacing:-.01em;
+    }
+
+    .spinner{
+      width:16px;
+      height:16px;
+      border-radius:999px;
+      border:2px solid rgba(15,23,42,.14);
+      border-top-color:rgba(15,23,42,.8);
+      animation:pdfopsSpin .8s linear infinite;
+    }
+
+    @keyframes pdfopsSpin{
+      to{ transform:rotate(360deg); }
+    }
+
+    .statusHint{
+      margin-top:6px;
+      font-size:13px;
+      line-height:1.5;
+      color:rgba(11,18,32,.72);
+    }
+
+    .proofRow{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:14px;
+      margin-bottom:14px;
+    }
+
+    .proofCard{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      background:linear-gradient(180deg,#fff,#f8fafc);
+      padding:14px;
+    }
+
+    .proofLabel{
+      font-size:12px;
+      opacity:.66;
+      margin-bottom:6px;
+    }
+
+    .proofValue{
+      font-size:20px;
+      font-weight:1000;
+      letter-spacing:-.03em;
+      color:rgba(11,18,32,.95);
+    }
+
+    @media (max-width: 900px){
+      .proofRow{ grid-template-columns:1fr; }
+    }
+
     .pdfReorderWrap{
-      margin-top:14px; padding-top:14px;
+      margin-top:14px;
+      padding-top:14px;
       border-top:1px solid rgba(15,23,42,.10);
     }
+
     .pdfReorderHead{
-      display:flex; align-items:flex-start; justify-content:space-between;
-      gap:14px; margin:2px 0 12px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      margin:2px 0 12px;
     }
-    .pdfReorderTitle{ font-weight:1000; letter-spacing:-.03em; }
-    .pdfReorderSub{ opacity:.80; font-size:13px; line-height:1.4; margin-top:4px; }
+
+    .pdfReorderTitle{
+      font-weight:1000;
+      letter-spacing:-.03em;
+    }
+
+    .pdfReorderSub{
+      opacity:.80;
+      font-size:13px;
+      line-height:1.4;
+      margin-top:4px;
+    }
 
     .pdfThumbGrid{
-      display:grid; grid-template-columns:repeat(6, minmax(0,1fr));
-      gap:10px; margin-top:10px;
+      display:grid;
+      grid-template-columns:repeat(6, minmax(0,1fr));
+      gap:10px;
+      margin-top:10px;
     }
+
     @media (max-width:1100px){ .pdfThumbGrid{ grid-template-columns:repeat(4, minmax(0,1fr)); } }
     @media (max-width:720px){ .pdfThumbGrid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
 
-    /* HARD thumbs: less radius, no floaty shadow */
     .pdfThumb{
       position:relative;
       border:1px solid var(--hard-border);
@@ -248,57 +428,97 @@
       overflow:hidden;
       box-shadow:none;
       cursor:grab;
-      user-select:none; -webkit-user-select:none;
+      user-select:none;
+      -webkit-user-select:none;
       transition:transform .08s ease, border-color .08s ease, outline-color .08s ease, background .08s ease;
     }
+
     .pdfThumb:hover{
       transform:translateY(-1px);
       border-color: rgba(15,23,42,.22);
       background: rgba(11,18,32,.01);
     }
-    .pdfThumb:active{ cursor:grabbing; transform:translateY(0); }
-    .pdfThumb.isDragging{ opacity:.55; transform:scale(.995); }
-    .pdfThumb.isOver{ outline:2px solid rgba(11,18,32,.22); outline-offset:2px; }
 
-    /* prevent inner nodes stealing drag */
+    .pdfThumb:active{
+      cursor:grabbing;
+      transform:translateY(0);
+    }
+
+    .pdfThumb.isDragging{
+      opacity:.55;
+      transform:scale(.995);
+    }
+
+    .pdfThumb.isOver{
+      outline:2px solid rgba(11,18,32,.22);
+      outline-offset:2px;
+    }
+
     .pdfThumbImg,
     .pdfThumbMeta,
-    .pdfThumbImg *{ pointer-events:none; }
+    .pdfThumbImg *{
+      pointer-events:none;
+    }
 
     .pdfThumbImg{
       width:100%;
       aspect-ratio:3/4;
       background: linear-gradient(180deg, rgba(15,23,42,.03), rgba(15,23,42,.01));
-      display:flex; align-items:center; justify-content:center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
+
     .pdfThumbImg img{
-      width:100%; height:100%; object-fit:cover; display:block;
-      -webkit-user-drag:none; user-select:none;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      -webkit-user-drag:none;
+      user-select:none;
     }
 
     .pdfThumbMeta{
-      display:flex; justify-content:space-between; align-items:center;
-      gap:10px; padding:9px 10px; font-size:12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding:9px 10px;
+      font-size:12px;
       border-top:1px solid rgba(15,23,42,.10);
       background:#fff;
       color:rgba(11,18,32,.84);
     }
+
     .pdfThumbPill{
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       font-size:11px;
-      padding:0; border:0; background:transparent; border-radius:0;
-      white-space:nowrap; max-width:100%;
-      overflow:hidden; text-overflow:ellipsis; opacity:.85;
+      padding:0;
+      border:0;
+      background:transparent;
+      border-radius:0;
+      white-space:nowrap;
+      max-width:100%;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      opacity:.85;
     }
 
-    .pdfTinyNote{ margin-top:10px; font-size:12px; opacity:.78; }
+    .pdfTinyNote{
+      margin-top:10px;
+      font-size:12px;
+      opacity:.78;
+    }
 
-    /* Order number badge: square-ish (NOT pill) */
     .pdfOrderBadge{
       position:absolute;
-      top:10px; left:10px;
-      width:28px; height:28px;
-      display:flex; align-items:center; justify-content:center;
+      top:10px;
+      left:10px;
+      width:28px;
+      height:28px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       border-radius:8px;
       background: rgba(11,18,32,.94);
       color:#fff;
@@ -310,46 +530,224 @@
       pointer-events:none;
     }
 
-    /* Modal: hard frame */
-    .pdfPreviewModal{
-      position:fixed; inset:0; z-index:1000;
-      background:rgba(2,6,23,.68);
-      display:flex; align-items:center; justify-content:center;
-      padding:18px;
-      backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    .progressWrap{
+      display:block;
+      margin:16px 0 0 0;
+      padding:14px 14px 12px;
+      border:1px solid rgba(15,23,42,.14);
+      border-radius:14px;
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+      box-shadow:0 16px 38px rgba(2,6,23,.08);
     }
+
+    .progressTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+
+    #progressLabel{
+      font-size:14px;
+      font-weight:1000;
+      color:rgba(11,18,32,.92);
+      letter-spacing:-.01em;
+    }
+
+    #progressPct{
+      font-size:14px;
+      font-weight:1000;
+      color:rgba(11,18,32,.72);
+    }
+
+    .progressBar{
+      height:12px;
+      border-radius:999px;
+      background:rgba(15,23,42,.10);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .progressFill{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      background:linear-gradient(90deg,#0f172a,#334155);
+      transition:width .25s ease;
+    }
+
+    .progressBar::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.28) 50%,transparent 100%);
+      transform:translateX(-100%);
+      animation:pdfopsProgressShine 1.2s linear infinite;
+    }
+
+    @keyframes pdfopsProgressShine{
+      100%{ transform:translateX(100%); }
+    }
+
+    .mergeReadyBox{
+      display:none;
+      text-align:center;
+      margin-top:14px;
+      margin-bottom:14px;
+      padding:18px;
+      border:1px solid rgba(15,23,42,.14);
+      border-radius:16px;
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+      box-shadow:0 18px 40px rgba(2,6,23,.08);
+    }
+
+    body.isProcessed .mergeReadyBox{
+      display:block !important;
+    }
+
+    body.isProcessed .actionRowWide{
+      display:none !important;
+    }
+
+    .mergeReadyTitle{
+      font-weight:1000;
+      font-size:22px;
+      margin-bottom:12px;
+      letter-spacing:-.03em;
+    }
+
+    .mergeReadyGrid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    @media (max-width: 900px){
+      .mergeReadyGrid{ grid-template-columns:1fr; }
+    }
+
+    .mergeReadyStat{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:12px;
+      padding:14px;
+      background:#fff;
+    }
+
+    .mergeReadyLabel{
+      font-size:12px;
+      opacity:.65;
+      margin-bottom:6px;
+    }
+
+    .mergeReadyValue{
+      font-size:22px;
+      font-weight:1000;
+      letter-spacing:-.03em;
+    }
+
+    .mergeReadyFine{
+      font-size:13px;
+      opacity:.72;
+      margin-top:10px;
+    }
+
+    .actionRowWide{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .actionRowWide .btnSoft,
+    .actionRowWide .btnPrimary{
+      min-width:240px;
+      height:46px;
+      border-radius:12px;
+      font-weight:950;
+      letter-spacing:-.01em;
+    }
+
+    @media (max-width: 640px){
+      .actionRowWide{
+        flex-direction:column;
+      }
+      .actionRowWide .btnSoft,
+      .actionRowWide .btnPrimary{
+        width:100%;
+        min-width:unset;
+      }
+    }
+
+    .fineprint{
+      text-align:center;
+      margin-top:12px;
+      font-size:13px;
+      color:rgba(11,18,32,.68);
+    }
+
+    .pdfPreviewModal{
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      background:rgba(2,6,23,.68);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+
     .pdfPreviewCard{
-      width:min(980px,96vw); max-height:90vh;
+      width:min(980px,96vw);
+      max-height:90vh;
       background:#fff;
       border:1px solid var(--hard-border);
       border-radius:12px;
       overflow:hidden;
       box-shadow:0 40px 120px rgba(0,0,0,.38);
-      display:flex; flex-direction:column;
+      display:flex;
+      flex-direction:column;
     }
+
     .pdfPreviewTop{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px; padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 14px;
       border-bottom:1px solid rgba(15,23,42,.10);
       background:linear-gradient(180deg, rgba(11,18,32,.03), transparent);
     }
+
     .pdfPreviewTitle{
-      font-weight:1000; letter-spacing:-.03em;
-      overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:75%;
-    }
-    .pdfPreviewBody{
-      padding:12px; overflow:auto;
-      background:#fff;
-    }
-    .pdfPreviewCanvas{
-      width:100%; display:block; background:#fff;
-      border-radius:10px; border:1px solid rgba(15,23,42,.12);
+      font-weight:1000;
+      letter-spacing:-.03em;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      max-width:75%;
     }
 
-    /* =========================
-       CLEAN SUPPORT SECTION (kept layout; hardened micro-typography)
-    ========================== */
+    .pdfPreviewBody{
+      padding:12px;
+      overflow:auto;
+      background:#fff;
+    }
+
+    .pdfPreviewCanvas{
+      width:100%;
+      display:block;
+      background:#fff;
+      border-radius:10px;
+      border:1px solid rgba(15,23,42,.12);
+    }
+
     .plainSection{ padding:56px 0 38px; }
+
     .plainKicker{
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       font-size:12px;
@@ -357,6 +755,7 @@
       text-transform:uppercase;
       opacity:.70;
     }
+
     .plainH2{
       margin:12px 0 8px;
       font-size:44px;
@@ -365,7 +764,11 @@
       font-weight:950;
       color:rgba(11,18,32,.96);
     }
-    @media (max-width: 720px){ .plainH2{ font-size:34px; } }
+
+    @media (max-width: 720px){
+      .plainH2{ font-size:34px; }
+    }
+
     .plainLead{
       margin:0;
       font-size:16px;
@@ -380,9 +783,11 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap:42px 44px;
     }
+
     @media (max-width: 980px){
       .featureGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap:32px 28px; }
     }
+
     @media (max-width: 640px){
       .featureGrid{ grid-template-columns: 1fr; gap:26px; }
     }
@@ -400,7 +805,10 @@
       gap:44px;
       align-items:start;
     }
-    @media (max-width: 980px){ .plainBottomGrid{ grid-template-columns: 1fr; gap:32px; } }
+
+    @media (max-width: 980px){
+      .plainBottomGrid{ grid-template-columns: 1fr; gap:32px; }
+    }
 
     .faqListPlain{ margin-top:10px; display:grid; gap:18px; }
     .faqItemPlain{ padding-top:16px; border-top:1px solid rgba(15,23,42,.10); }
@@ -415,13 +823,17 @@
       gap:14px 18px;
       font-size:15px;
     }
+
     .relatedLinks a{
       text-decoration:none;
       font-weight:900;
       color:rgba(11,18,32,.92);
       border-bottom:1px solid rgba(11,18,32,.20);
     }
-    .relatedLinks a:hover{ border-bottom-color: rgba(11,18,32,.55); }
+
+    .relatedLinks a:hover{
+      border-bottom-color: rgba(11,18,32,.55);
+    }
 
     .plainNote{
       margin-top:14px;
@@ -431,18 +843,16 @@
       max-width: 80ch;
     }
 
-    /* Minimal inline SVG styling */
     .icoStroke{ stroke: rgba(11,18,32,.92); }
     .icoFill{ fill: rgba(11,18,32,.92); }
   </style>
 </head>
 
-<body class="page" data-tool="merge_pdf">
+<body class="page pageMergePdf" data-tool="merge_pdf">
 <a href="#tool" class="srOnly">Skip to the tool</a>
 
 <header class="nav">
   <div class="container navInner">
-
     <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/logo.png" alt="PDFOperations" class="brandLogoFull" />
     </a>
@@ -462,25 +872,38 @@
 </header>
 
 <main>
-
   <section class="hero heroPremium heroToolFirst">
     <div class="container heroWide">
-
       <div id="tool" class="tool toolPremium toolMega">
 
         <div class="toolHead toolHeadMinimal">
-          <div class="proKicker">PDF Tool</div>
-        <h1 class="toolTitle">Merge PDFs in the Right Order — Ready for Download</h1>
-        <p class="toolSub">
-          Combine multiple PDFs into one file, reorder pages, preview before continuing, and prepare a clean final document for download.
-        </p>
+          <div class="proKicker">PDF merge</div>
+          <h1 class="toolTitle">Merge PDF files into one clean document</h1>
+          <p class="toolSub">
+            Combine multiple PDFs into a single file, drag pages into the right order, preview the result, then download when ready.
+          </p>
 
-        <div class="trustBar" aria-label="Trust indicators">
-          <div class="trustPill">No signup</div>
-          <div class="trustPill">Reorder pages</div>
-          <div class="trustPill">Preview before download</div>
-          <div class="trustPill">Secure processing</div>
-        </div>
+          <div class="valueStrip" aria-label="Benefits">
+            <div class="valueStripCard">
+              <strong>One final PDF</strong>
+              <span>Combine scattered files into one clean document for sending, sharing or upload.</span>
+            </div>
+            <div class="valueStripCard">
+              <strong>Set the order yourself</strong>
+              <span>Drag pages into the exact sequence you want before continuing.</span>
+            </div>
+            <div class="valueStripCard">
+              <strong>Preview before download</strong>
+              <span>Check the structure first so the value is obvious before the final step.</span>
+            </div>
+          </div>
+
+          <div class="trustBar" aria-label="Trust indicators">
+            <div class="trustPill">No signup</div>
+            <div class="trustPill">Reorder pages</div>
+            <div class="trustPill">Preview before download</div>
+            <div class="trustPill">Built for real workflows</div>
+          </div>
         </div>
 
         <div class="statusWrap">
@@ -489,11 +912,25 @@
             <div class="spinner" id="spinner"></div>
           </div>
           <div class="statusHint" id="statusHint">
-            Add <b>2+</b> PDFs to begin merging.
+            Add <b>2+</b> PDFs to prepare a merged document.
           </div>
         </div>
 
-        <!-- Hidden mode controls (app.js compatibility) -->
+        <div class="proofRow" aria-label="Common uses">
+          <div class="proofCard">
+            <div class="proofLabel">Best for</div>
+            <div class="proofValue">Client packs</div>
+          </div>
+          <div class="proofCard">
+            <div class="proofLabel">Also useful for</div>
+            <div class="proofValue">Uploads</div>
+          </div>
+          <div class="proofCard">
+            <div class="proofLabel">Key control</div>
+            <div class="proofValue">Page order</div>
+          </div>
+        </div>
+
         <fieldset style="display:none;">
           <input type="radio" name="mode" id="modeCompress">
           <input type="radio" name="mode" id="modeCompressPdf">
@@ -531,11 +968,10 @@
         </div>
 
         <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
-
           <div class="dzCenter">
             <div class="dzIcon"><span class="dzArrow">↑</span></div>
-            <div class="dzTitle" id="dzTitle">Drop PDFs here</div>
-            <div class="dzSub" id="dzSub">PDFs only • Add 2 or more</div>
+            <div class="dzTitle" id="dzTitle">Drop PDFs here to combine them now</div>
+            <div class="dzSub" id="dzSub">PDFs only • Add 2 or more • Reorder before download</div>
 
             <div class="filePick">
               <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDFs</button>
@@ -543,7 +979,7 @@
             </div>
 
             <div class="dzFine">
-              Add files, reorder pages, then continue.
+              Add files, reorder pages, then prepare the final PDF.
             </div>
           </div>
 
@@ -555,7 +991,6 @@
 
             <ol class="fileList" id="fileList"></ol>
 
-            <!-- Page preview + reorder grid -->
             <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
               <div class="pdfReorderHead">
                 <div>
@@ -575,12 +1010,11 @@
               <div class="pdfTinyNote" id="pdfThumbNote" hidden></div>
             </div>
           </div>
-
         </div>
 
         <div class="progressWrap" id="progressWrap" hidden>
           <div class="progressTop">
-            <div id="progressLabel">Uploading…</div>
+            <div id="progressLabel">Preparing merged PDF…</div>
             <div id="progressPct">0%</div>
           </div>
           <div class="progressBar">
@@ -589,49 +1023,55 @@
           <div id="progressMeta"></div>
         </div>
 
-        <div id="mergeReadyBox" style="
-          display:none;
-          text-align:center;
-          margin-bottom:14px;
-          padding:16px;
-          border:1px solid rgba(15,23,42,.14);
-          border-radius:12px;
-          background:linear-gradient(180deg,#ffffff,#f8fafc);
-        ">
-        <div style="font-weight:1000; font-size:16px; margin-bottom:8px;">
-          ✔ Your merged PDF is ready
-        </div>
-        <div style="font-size:13px; opacity:.85; margin-bottom:12px;">
-          Your files have been combined and arranged in your chosen order.
-        </div>
-        <button id="mergeUnlockBtn" class="btnPrimary btnStrong" style="width:100%;">
-          Download Merged PDF
-        </button>
+        <div id="mergeReadyBox" class="mergeReadyBox">
+          <div class="mergeReadyTitle">✔ Your merged PDF is ready</div>
+
+          <div class="mergeReadyGrid">
+            <div class="mergeReadyStat">
+              <div class="mergeReadyLabel">Files added</div>
+              <div class="mergeReadyValue" id="mergeFileCount">—</div>
+            </div>
+
+            <div class="mergeReadyStat">
+              <div class="mergeReadyLabel">Pages prepared</div>
+              <div class="mergeReadyValue" id="mergePageCount">—</div>
+            </div>
+
+            <div class="mergeReadyStat">
+              <div class="mergeReadyLabel">Status</div>
+              <div class="mergeReadyValue">Ready</div>
+            </div>
+          </div>
+
+          <button id="mergeUnlockBtn" class="btnPrimary btnStrong" style="width:100%;">
+            Download merged PDF →
+          </button>
+
+          <div class="mergeReadyFine">
+            Your files have been combined and arranged in your chosen order.
+          </div>
         </div>
 
         <div class="actionRow actionRowWide">
-          <button class="btnSoft" id="upload" disabled>Prepare PDF</button>
-          <button class="btnPrimary btnStrong" id="continue" disabled>Download Merged PDF →</button>
+          <button class="btnSoft" id="upload" disabled>Prepare merged PDF</button>
+          <button class="btnPrimary btnStrong" id="continue" disabled>Download merged PDF →</button>
         </div>
 
         <div class="fineprint">
-          Tip: Upload PDFs in rough order first — then fine-tune with page reorder.
+          Upload → reorder → prepare the final PDF → download when ready.
         </div>
 
       </div>
-
     </div>
   </section>
 
-  <!-- CLEAN SUPPORT SECTION -->
   <section class="plainSection" id="about">
     <div class="container heroWide">
 
-      <div class="plainKicker">About</div>
-      <h2 class="plainH2">Merge PDF files online</h2>
+      <div class="plainKicker">Merge PDF online</div>
+      <h2 class="plainH2">Combine multiple PDFs into one organised document</h2>
       <p class="plainLead">
-        Combine multiple PDF documents into a single file for client handover, portals, or clean email attachments.
-        Upload your PDFs, reorder pages, then download one merged PDF.
+        Use PDFOperations to merge PDF files online when you need one clean file instead of a messy stack of separate documents. This works well for client packs, evidence bundles, upload portals, admin workflows and email attachments where sending multiple files is clunky.
       </p>
 
       <div class="featureGrid" aria-label="What you can do">
@@ -642,8 +1082,8 @@
               <path class="icoStroke" d="M14 3v4a2 2 0 0 0 2 2h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">Combine PDFs</h3>
-          <p class="featText">Add multiple PDFs and merge them into a single file for sharing or upload portals.</p>
+          <h3 class="featTitle">Combine PDFs into one file</h3>
+          <p class="featText">Turn multiple separate PDFs into one cleaner document for sharing, emailing or uploading.</p>
         </div>
 
         <div>
@@ -653,8 +1093,8 @@
               <path class="icoStroke" d="M4 6v2M4 11v2M4 16v2" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">Reorder pages</h3>
-          <p class="featText">Drag page thumbnails to control the final order. The number badge shows final position.</p>
+          <h3 class="featTitle">Reorder pages before download</h3>
+          <p class="featText">Drag page thumbnails into the exact sequence you want so the final merged file is correctly structured.</p>
         </div>
 
         <div>
@@ -664,8 +1104,8 @@
               <path class="icoStroke" d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">Preview pages</h3>
-          <p class="featText">Click any thumbnail to preview before you upload and continue.</p>
+          <h3 class="featTitle">Preview pages first</h3>
+          <p class="featText">Open page previews before continuing so you can check the file order and feel confident in the result.</p>
         </div>
 
         <div>
@@ -675,8 +1115,8 @@
               <path class="icoStroke" d="M9 10h6" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">No account</h3>
-          <p class="featText">No signup. Just upload PDFs and get the output when it’s ready.</p>
+          <h3 class="featTitle">No account wall</h3>
+          <p class="featText">No signup required. Add files, prepare the merge, then continue when the final PDF is ready.</p>
         </div>
 
         <div>
@@ -686,8 +1126,8 @@
               <path class="icoStroke" d="M12 12l4-2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">Fast workflow</h3>
-          <p class="featText">Upload in rough order first — then fine-tune with reorder for a clean final PDF.</p>
+          <h3 class="featTitle">Fast merge workflow</h3>
+          <p class="featText">Upload in rough order first, then fine-tune with drag reorder for a cleaner final document.</p>
         </div>
 
         <div>
@@ -698,7 +1138,7 @@
             </svg>
           </div>
           <h3 class="featTitle">Secure processing</h3>
-          <p class="featText">Files are processed to generate your merged output. See Privacy for retention details.</p>
+          <p class="featText">Files are processed to generate your merged output. See Privacy for retention and deletion details.</p>
         </div>
       </div>
 
@@ -712,7 +1152,7 @@
           <div class="faqListPlain">
             <div class="faqItemPlain">
               <div class="faqQ">Can I reorder pages before merging?</div>
-              <p class="faqA">Yes — drag pages in the grid to the exact order you want. The merged PDF follows that order.</p>
+              <p class="faqA">Yes. Drag pages in the grid to the exact order you want. The merged PDF follows that order.</p>
             </div>
 
             <div class="faqItemPlain">
@@ -722,17 +1162,17 @@
 
             <div class="faqItemPlain">
               <div class="faqQ">Do I need an account?</div>
-              <p class="faqA">No signup required. Upload, continue, then download.</p>
+              <p class="faqA">No signup required. Upload, prepare the merge, then continue.</p>
             </div>
 
             <div class="faqItemPlain">
               <div class="faqQ">Is there a file limit?</div>
-              <p class="faqA">Limits are enforced in the app. If you hit a limit, split the job into smaller batches.</p>
+              <p class="faqA">Limits are enforced in the app. If you hit one, split the job into smaller batches.</p>
             </div>
           </div>
 
           <div class="plainNote">
-            Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
+            Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a> • <a href="/pricing">Pricing</a>
           </div>
         </div>
 
@@ -740,7 +1180,7 @@
           <div class="plainKicker">Related tools</div>
           <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.02em; font-weight:950;">More PDF tools</h3>
           <p class="plainLead" style="font-size:15px; margin-top:0; max-width:56ch;">
-            Need something else? Use the same workflow across tools — upload, process, download.
+            Need something else? Use the same upload → prepare → download flow across the rest of the tool set.
           </p>
 
           <div class="relatedLinks" aria-label="Related PDF tools">
@@ -751,14 +1191,13 @@
           </div>
 
           <div class="plainNote">
-            Tip: For huge documents, merge in batches so previews stay snappy.
+            Tip: if your final document will be sent or uploaded somewhere important, preview the order first.
           </div>
         </div>
       </div>
 
     </div>
   </section>
-
 </main>
 
 <footer class="footer">
@@ -776,7 +1215,6 @@
   </div>
 </footer>
 
-<!-- Preview modal -->
 <div id="pdfPreviewModal" class="pdfPreviewModal" hidden aria-hidden="true">
   <div class="pdfPreviewCard" role="dialog" aria-modal="true" aria-labelledby="pdfPreviewTitle">
     <div class="pdfPreviewTop">
@@ -790,9 +1228,6 @@
 </div>
 
 <script>
-/* =========================================================
-   Merge — PDF page thumbnails + drag reorder + preview + ORDER NUMBERS
-========================================================= */
 (() => {
   const fileInput = document.getElementById("files");
   const clearBtn = document.getElementById("clearBtn");
@@ -807,6 +1242,9 @@
   const modalTitle = document.getElementById("pdfPreviewTitle");
   const modalClose = document.getElementById("pdfPreviewClose");
   const modalCanvas = document.getElementById("pdfPreviewCanvas");
+
+  const mergeFileCount = document.getElementById("mergeFileCount");
+  const mergePageCount = document.getElementById("mergePageCount");
 
   if (!document.body || document.body.dataset.tool !== "merge_pdf") return;
   if (!grid) return;
@@ -823,6 +1261,7 @@
   let currentOrder = [];
   let pageMap = new Map();
   let pdfBytesByFile = [];
+  let currentFiles = [];
 
   let dragKey = null;
 
@@ -833,6 +1272,17 @@
       detail: { order: window.__pdfopsPageOrder.slice() }
     }));
     updateOrderBadges();
+    updatePreparedStats();
+  }
+
+  function updatePreparedStats() {
+    if (mergeFileCount) {
+      const fileCount = currentFiles.length;
+      mergeFileCount.textContent = fileCount ? String(fileCount) : "—";
+    }
+    if (mergePageCount) {
+      mergePageCount.textContent = currentOrder.length ? String(currentOrder.length) : "—";
+    }
   }
 
   function updateCount() {
@@ -885,12 +1335,14 @@
 
     originalOrder = [];
     currentOrder = [];
+    currentFiles = [];
     pageMap.clear();
     pdfBytesByFile = [];
     dragKey = null;
 
     setOrder([]);
     updateCount();
+    updatePreparedStats();
   }
 
   async function renderThumbForPage(pdfDoc, pageNumber) {
@@ -1033,6 +1485,8 @@
     const pdfs = [...files].filter(f => (f.type === "application/pdf") || /\.pdf$/i.test(f.name));
     if (pdfs.length < 1) return;
 
+    currentFiles = pdfs.slice();
+
     await window.__pdfjsReady;
     const pdfjsLib = window.pdfjsLib;
 
@@ -1117,12 +1571,13 @@
     if (wrap) wrap.hidden = false;
     updateCount();
     updateOrderBadges();
+    updatePreparedStats();
 
     if (clipped && noteEl) {
       noteEl.hidden = false;
       const hiddenCount = Math.max(0, clippedTotalPages - thumbsRendered);
       noteEl.textContent =
-        `Preview limited to ${thumbsRendered} pages for speed. ${hiddenCount} page${hiddenCount === 1 ? "" : "s"} will remain in their original relative position. (Nothing will be dropped.)`;
+        `Preview limited to ${thumbsRendered} pages for speed. ${hiddenCount} page${hiddenCount === 1 ? "" : "s"} will remain in their original relative position. Nothing will be dropped.`;
     }
   }
 
@@ -1152,7 +1607,6 @@
 })();
 </script>
 
-<script src="/app.js?v=18" defer></script>
 <script>
 (() => {
   const mergeUnlockBtn = document.getElementById("mergeUnlockBtn");
@@ -1165,5 +1619,7 @@
   }
 })();
 </script>
+
+<script src="/app.js?v=18" defer></script>
 </body>
 </html>
