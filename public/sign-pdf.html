@@ -1,8 +1,8 @@
-<!-- public/sign-pdf.html — PDFOperations (v2 - FULL RAMBO AUTHORITY UI + SEO; SIGN MODE)
-     ✅ Matches index.html v71 “hard premium utility” vibe + SEO blocks
-     ✅ Keeps core app.js v17.7 hooks/IDs (dropzone/files/choose/upload/continue/fileMeta)
-     ✅ Uses PDF.js ESM .mjs loader pattern (no import.meta issues)
-     ✅ Client-side signing with pdf-lib (replaces selected file so existing upload→checkout uses signed PDF)
+<!-- public/sign-pdf.html — PDFOperations (v3 - FULL RAMBO MONEY PAGE; SIGN FLOW + READY STATE; NO FUNCTION CHANGES)
+     ✅ Matches hard premium utility vibe
+     ✅ Keeps core app.js hooks/IDs (dropzone/files/choose/upload/continue/fileMeta)
+     ✅ Uses PDF.js ESM .mjs loader pattern
+     ✅ Client-side signing with pdf-lib remains intact
 -->
 <!doctype html>
 <html lang="en">
@@ -11,14 +11,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Sign PDF Online — Add a Signature to Any PDF | PDFOperations</title>
-  <meta name="description" content="Sign a PDF online in seconds. Draw, type, or upload a signature, place it on the correct page, then download a signed PDF. Secure processing. No account." />
+  <meta name="description" content="Sign a PDF online in seconds. Draw, type, or upload a signature, place it on the correct page, then download a signed PDF." />
   <link rel="canonical" href="https://pdfoperations.com/sign-pdf" />
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light" />
 
-  <!-- Google Analytics (PDFOperations) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQ3QKV7KHG"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -28,7 +27,7 @@
   </script>
 
   <meta property="og:title" content="Sign PDF Online — Add a Signature | PDFOperations" />
-  <meta property="og:description" content="Add a signature to a PDF. Type, draw, or upload a signature, place it on the page, then download the signed PDF." />
+  <meta property="og:description" content="Type, draw, or upload a signature, place it on the page, then download the signed PDF." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/sign-pdf" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
@@ -36,7 +35,7 @@
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Sign PDF Online — Add a Signature | PDFOperations" />
-  <meta name="twitter:description" content="Add a signature to a PDF. Type, draw, or upload a signature, place it on the page, then download the signed PDF." />
+  <meta name="twitter:description" content="Type, draw, or upload a signature, place it on the page, then download the signed PDF." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -48,9 +47,6 @@
   <link rel="stylesheet" href="/style.css?v=36" />
 
   <style>
-    /* =========================
-       HARD OVERRIDES (NO HOOK BREAKS)
-    ========================== */
     [hidden]{ display:none !important; }
     #files{ display:none !important; }
 
@@ -62,7 +58,6 @@
       transform:translateY(-1px);
     }
 
-    /* Hide app.js mini list UI completely (keep DOM hooks) */
     #fileMeta{
       margin:0 !important;
       padding:0 !important;
@@ -77,9 +72,6 @@
       top:auto !important;
     }
 
-    /* =========================
-       FULL RAMBO AUTHORITY LAYER (MATCH v71)
-    ========================== */
     .hero.heroPremium.heroToolFirst{
       padding-top:22px;
       padding-bottom:20px;
@@ -97,24 +89,178 @@
       padding-bottom:14px;
       margin-bottom:14px;
     }
-    .toolTitle{ letter-spacing:-.03em; font-weight:1000; }
-    .toolSub{ opacity:.78; }
+
+    .proKicker{
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      opacity:.72;
+      text-align:center;
+    }
+
+    .toolTitle{
+      letter-spacing:-.03em;
+      font-weight:1000;
+      text-align:center;
+    }
+
+    .toolSub{
+      opacity:.82;
+      text-align:center;
+      max-width:720px;
+      margin:10px auto 0;
+    }
+
+    .valueStrip{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .valueStripCard{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      background:linear-gradient(180deg,#fff,#f8fafc);
+      padding:14px;
+      text-align:center;
+    }
+
+    .valueStripCard strong{
+      display:block;
+      font-size:15px;
+      letter-spacing:-.02em;
+      color:rgba(11,18,32,.96);
+      margin-bottom:6px;
+    }
+
+    .valueStripCard span{
+      display:block;
+      font-size:13px;
+      line-height:1.5;
+      color:rgba(11,18,32,.72);
+    }
+
+    @media (max-width:900px){
+      .valueStrip{ grid-template-columns:1fr; }
+    }
 
     .nav{
       border-bottom: 1px solid rgba(15,23,42,.10);
       background: rgba(245,247,251,.86);
       backdrop-filter: blur(10px);
     }
-    .brandText .sub{ opacity:.70; }
 
     .navLinks a{
       font-weight:850;
       letter-spacing:-.01em;
       opacity:.86;
     }
+
     .navLinks a[aria-current="page"]{
       opacity:1;
       border-bottom:1px solid rgba(11,18,32,.35);
+    }
+
+    .statusWrap{
+      margin-top:14px;
+      margin-bottom:14px;
+      padding:12px 14px;
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:12px;
+      background:rgba(248,250,252,.9);
+    }
+
+    .statusLeft{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .status{
+      font-weight:1000;
+      letter-spacing:-.01em;
+    }
+
+    .spinner{
+      width:16px;
+      height:16px;
+      border-radius:999px;
+      border:2px solid rgba(15,23,42,.14);
+      border-top-color:rgba(15,23,42,.8);
+      animation:pdfopsSpin .8s linear infinite;
+    }
+
+    @keyframes pdfopsSpin{
+      to{ transform:rotate(360deg); }
+    }
+
+    .statusHint{
+      margin-top:6px;
+      font-size:13px;
+      line-height:1.5;
+      color:rgba(11,18,32,.72);
+    }
+
+    .trustBar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 18px;
+      margin-top:14px;
+      padding-top:14px;
+      border-top:1px solid rgba(15,23,42,.10);
+      color:rgba(11,18,32,.72);
+      font-size:13px;
+      justify-content:center;
+    }
+
+    .trustPill{
+      padding:0 !important;
+      border:0 !important;
+      background:transparent !important;
+      box-shadow:none !important;
+      border-radius:0 !important;
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
+    }
+
+    .trustPill::before{ content:"•"; opacity:.55; }
+    .trustBar .trustPill:first-child::before{ content:""; }
+
+    .proofRow{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:14px;
+      margin-bottom:14px;
+    }
+
+    .proofCard{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      background:linear-gradient(180deg,#fff,#f8fafc);
+      padding:14px;
+    }
+
+    .proofLabel{
+      font-size:12px;
+      opacity:.66;
+      margin-bottom:6px;
+    }
+
+    .proofValue{
+      font-size:20px;
+      font-weight:1000;
+      letter-spacing:-.03em;
+      color:rgba(11,18,32,.95);
+    }
+
+    @media (max-width:900px){
+      .proofRow{ grid-template-columns:1fr; }
     }
 
     .stepsLine{
@@ -127,13 +273,19 @@
       font-size:13px;
       color:rgba(11,18,32,.78);
     }
+
     .stepItem{ display:flex; align-items:center; gap:8px; }
+
     .stepNum{
-      width:22px;height:22px;
+      width:22px;
+      height:22px;
       border-radius:8px;
       border:1px solid rgba(15,23,42,.16);
-      display:flex;align-items:center;justify-content:center;
-      font-weight:900;font-size:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      font-size:12px;
       background:#fff;
     }
 
@@ -160,6 +312,7 @@
       background:linear-gradient(180deg, rgba(11,18,32,.03), transparent);
       flex-wrap:wrap;
     }
+
     .workTop .btnPrimary,
     .workTop .btnGhost{
       min-width:150px;
@@ -180,12 +333,14 @@
       color:rgba(11,18,32,.76);
       margin-top:6px;
     }
+
     .urgencyItem{
       padding:6px 10px;
       border-radius:10px;
       border:1px solid rgba(15,23,42,.12);
       background:rgba(255,255,255,.85);
     }
+
     .urgencyItem strong{ font-weight:950; }
 
     .workStage{
@@ -196,11 +351,11 @@
       align-items:start;
       background:#fff;
     }
+
     @media(max-width: 980px){
       .workStage{ grid-template-columns: 1fr; }
     }
 
-    /* ===== Sign stage (left) ===== */
     .pageStageWrap{
       border:1px solid rgba(15,23,42,.14);
       border-radius:14px;
@@ -208,6 +363,7 @@
       background:#fff;
       box-shadow:0 20px 60px rgba(2,6,23,.10);
     }
+
     .pageStageTop{
       display:flex;
       align-items:center;
@@ -218,16 +374,19 @@
       background:linear-gradient(180deg, rgba(11,18,32,.03), transparent);
       flex-wrap:wrap;
     }
+
     .pageStageTop .miniTitle{
       font-weight:1000;
       letter-spacing:-.02em;
       font-size:14px;
       color:rgba(11,18,32,.92);
     }
+
     .pageStageTop .miniSub{
       font-size:12px;
       color:rgba(11,18,32,.70);
     }
+
     .pageControls{
       display:flex;
       align-items:center;
@@ -235,6 +394,7 @@
       justify-content:flex-end;
       flex-wrap:wrap;
     }
+
     .pageInfo{
       font-size:12px;
       color:rgba(11,18,32,.74);
@@ -244,6 +404,7 @@
       border-radius:10px;
       font-weight:900;
     }
+
     .pageStage{
       position:relative;
       display:flex;
@@ -252,6 +413,7 @@
       padding:14px;
       background:#fff;
     }
+
     .pageCanvas{
       max-width:100%;
       height:auto;
@@ -262,12 +424,12 @@
       box-shadow:0 18px 44px rgba(2,6,23,.10);
     }
 
-    /* draggable signature overlay */
     .sigOverlay{
       position:absolute;
       inset:14px;
       pointer-events:none;
     }
+
     .sigBox{
       position:absolute;
       pointer-events:auto;
@@ -280,6 +442,7 @@
       user-select:none;
       touch-action:none;
     }
+
     .sigBox img{
       width:100%;
       height:100%;
@@ -287,6 +450,7 @@
       display:block;
       background:rgba(255,255,255,.60);
     }
+
     .sigHandle{
       position:absolute;
       right:6px;
@@ -299,6 +463,7 @@
       box-shadow:0 10px 26px rgba(2,6,23,.12);
       cursor:nwse-resize;
     }
+
     .sigHintRow{
       padding:12px;
       border-top:1px solid rgba(15,23,42,.10);
@@ -308,7 +473,6 @@
       line-height:1.55;
     }
 
-    /* ===== Create signature (right) ===== */
     .sigPanelWrap{
       border:1px solid rgba(15,23,42,.14);
       border-radius:14px;
@@ -316,11 +480,13 @@
       background:#fff;
       box-shadow:0 20px 60px rgba(2,6,23,.10);
     }
+
     .panelHead{
       padding:12px 12px;
       border-bottom:1px solid rgba(15,23,42,.10);
       background:linear-gradient(180deg, rgba(11,18,32,.03), transparent);
     }
+
     .panelTitle{
       margin:0;
       font-size:14px;
@@ -328,6 +494,7 @@
       letter-spacing:-.02em;
       color:rgba(11,18,32,.92);
     }
+
     .panelSub{
       margin:6px 0 0;
       font-size:12px;
@@ -371,11 +538,6 @@
       transform:translateY(-1px);
     }
 
-    .tabBtn:focus-visible{
-      outline:3px solid rgba(59,130,246,.22);
-      outline-offset:2px;
-    }
-
     .sigPanel{
       padding:12px;
       background:#fff;
@@ -388,6 +550,7 @@
     }
 
     .field{ display:block; margin-bottom:12px; }
+
     .label{
       display:block;
       font-size:12px;
@@ -396,6 +559,7 @@
       color:rgba(11,18,32,.84);
       margin-bottom:6px;
     }
+
     .input, .select{
       width:100%;
       height:40px;
@@ -408,6 +572,7 @@
       color:rgba(11,18,32,.92);
       outline:none;
     }
+
     .input:focus, .select:focus{
       border-color: rgba(11,18,32,.28);
       box-shadow: 0 0 0 4px rgba(11,18,32,.06);
@@ -420,12 +585,14 @@
       background:linear-gradient(180deg, rgba(11,18,32,.02), transparent);
       box-shadow:0 18px 44px rgba(2,6,23,.08);
     }
+
     .drawCanvas{
       width:100%;
       height:auto;
       display:block;
       background:#fff;
     }
+
     .drawActions{
       display:flex;
       gap:10px;
@@ -443,6 +610,7 @@
       padding:12px;
       background:linear-gradient(180deg, transparent, rgba(11,18,32,.02));
     }
+
     .placeActionsRow{
       display:flex;
       gap:10px;
@@ -450,6 +618,7 @@
       align-items:center;
       justify-content:flex-start;
     }
+
     .miniNote{
       margin:10px 0 0;
       font-size:12px;
@@ -458,125 +627,6 @@
       max-width: 70ch;
     }
 
-    /* Work bottom actions (upload / continue) */
-    .workBottom{
-      padding:14px 16px 16px 16px;
-      border-top:1px solid rgba(15,23,42,.10);
-      background:linear-gradient(180deg, transparent, rgba(11,18,32,.02));
-    }
-    .workActions{
-      display:flex;
-      gap:12px;
-      align-items:center;
-      justify-content:center;
-      flex-wrap:wrap;
-    }
-    .workActions .btnSoft,
-    .workActions .btnPrimary{
-      height:46px;
-      border-radius:12px;
-      font-weight:950;
-      letter-spacing:-.01em;
-      min-width:240px;
-    }
-    @media(max-width: 620px){
-      .workActions{ flex-direction:column; }
-      .workActions .btnSoft,
-      .workActions .btnPrimary{ width:100%; min-width:unset; }
-      .workTop{ flex-direction:column; }
-      .workTop .btnPrimary,
-      .workTop .btnGhost{ width:100%; min-width:unset; max-width:420px; }
-    }
-
-    /* =========================
-       “WE COMPRESS” SUPPORT LAYER — HARD EDITORIAL (MATCH v71)
-    ========================== */
-    .plainSection{ padding:64px 0 40px; }
-    .plainKicker{
-      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size:12px;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      opacity:.72;
-    }
-    .plainH2{
-      margin:14px 0 10px;
-      font-size:44px;
-      line-height:1.05;
-      letter-spacing:-.04em;
-      font-weight:1000;
-      color:rgba(11,18,32,.96);
-    }
-    @media (max-width: 720px){ .plainH2{ font-size:34px; } }
-    .plainLead{
-      margin:0;
-      font-size:16px;
-      line-height:1.65;
-      max-width: 78ch;
-      opacity:.80;
-    }
-
-    .featureGrid{
-      margin-top:34px;
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap:40px 44px;
-    }
-    @media (max-width: 980px){
-      .featureGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap:30px 28px; }
-    }
-    @media (max-width: 640px){
-      .featureGrid{ grid-template-columns: 1fr; gap:24px; }
-    }
-
-    .featIcon{ width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center; margin-bottom:12px; opacity:.95; }
-    .featTitle{ margin:0 0 10px; font-size:18px; letter-spacing:-.02em; font-weight:1000; }
-    .featText{ margin:0; font-size:15px; line-height:1.65; opacity:.80; }
-
-    .plainDivider{ margin:56px 0 0; border-top:1px solid rgba(15,23,42,.12); }
-
-    .plainBottomGrid{
-      margin-top:36px;
-      display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap:44px;
-      align-items:start;
-    }
-    @media (max-width: 980px){ .plainBottomGrid{ grid-template-columns: 1fr; gap:32px; } }
-
-    .faqListPlain{ margin-top:10px; display:grid; gap:18px; }
-    .faqItemPlain{ padding-top:16px; border-top:1px solid rgba(15,23,42,.12); }
-    .faqItemPlain:first-child{ border-top:0; padding-top:0; }
-    .faqQ{ margin:0 0 8px; font-weight:1000; letter-spacing:-.02em; font-size:16px; }
-    .faqA{ margin:0; opacity:.80; line-height:1.65; font-size:15px; max-width: 68ch; }
-
-    .relatedLinks{
-      margin-top:12px;
-      display:flex;
-      flex-wrap:wrap;
-      gap:14px 18px;
-      font-size:15px;
-    }
-    .relatedLinks a{
-      text-decoration:none;
-      font-weight:1000;
-      color:rgba(11,18,32,.92);
-      border-bottom:1px solid rgba(11,18,32,.24);
-    }
-    .relatedLinks a:hover{ border-bottom-color: rgba(11,18,32,.60); }
-
-    .plainNote{
-      margin-top:14px;
-      font-size:13px;
-      opacity:.72;
-      line-height:1.55;
-      max-width: 80ch;
-    }
-
-    .icoStroke{ stroke: rgba(11,18,32,.92); }
-        /* =========================
-       SIGN FLOW CLARITY UPGRADE
-    ========================== */
     .nextStepCard{
       margin:14px 0 0;
       border:1px solid rgba(15,23,42,.14);
@@ -585,6 +635,7 @@
       padding:14px 16px;
       box-shadow:0 18px 44px rgba(2,6,23,.08);
     }
+
     .nextStepEyebrow{
       font-size:11px;
       text-transform:uppercase;
@@ -593,6 +644,7 @@
       color:rgba(11,18,32,.62);
       margin-bottom:6px;
     }
+
     .nextStepTitle{
       font-size:18px;
       line-height:1.15;
@@ -601,12 +653,18 @@
       color:rgba(11,18,32,.95);
       margin:0 0 6px;
     }
+
     .nextStepText{
       margin:0;
       font-size:14px;
       line-height:1.6;
       color:rgba(11,18,32,.78);
       max-width:70ch;
+    }
+
+    body.signedReady .nextStepCard{
+      border-color:rgba(16,185,129,.24);
+      background:linear-gradient(180deg, rgba(16,185,129,.09), rgba(16,185,129,.03));
     }
 
     .workBottom{
@@ -624,6 +682,7 @@
       text-align:center;
       margin-bottom:12px;
     }
+
     .workCtaKicker{
       display:inline-flex;
       align-items:center;
@@ -640,6 +699,7 @@
       color:rgba(11,18,32,.70);
       margin-bottom:8px;
     }
+
     .workCtaTitle{
       margin:0;
       font-size:18px;
@@ -647,6 +707,7 @@
       letter-spacing:-.02em;
       color:rgba(11,18,32,.96);
     }
+
     .workCtaText{
       margin:6px auto 0;
       font-size:13px;
@@ -662,6 +723,7 @@
       justify-content:center;
       flex-wrap:wrap;
     }
+
     .workActions .btnSoft,
     .workActions .btnPrimary{
       height:50px;
@@ -678,6 +740,7 @@
     .ctaPulse{
       animation: ctaPulse 1.5s ease-in-out infinite;
     }
+
     @keyframes ctaPulse{
       0%   { transform:translateY(0); box-shadow:0 20px 44px rgba(2,6,23,.12); }
       50%  { transform:translateY(-1px); box-shadow:0 24px 54px rgba(2,6,23,.18); }
@@ -709,6 +772,186 @@
       line-height:1.6;
       color:rgba(11,18,32,.76);
     }
+
+    .readyBox{
+      display:none;
+      text-align:center;
+      margin:14px 0 0;
+      padding:18px;
+      border:1px solid rgba(15,23,42,.14);
+      border-radius:16px;
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+      box-shadow:0 18px 40px rgba(2,6,23,.08);
+    }
+
+    body.signedReady .readyBox{
+      display:block;
+    }
+
+    body.signedReady .workActions{
+      display:none !important;
+    }
+
+    .readyTitle{
+      font-weight:1000;
+      font-size:22px;
+      margin-bottom:12px;
+      letter-spacing:-.03em;
+    }
+
+    .readyGrid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    @media (max-width:900px){
+      .readyGrid{ grid-template-columns:1fr; }
+    }
+
+    .readyStat{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:12px;
+      padding:14px;
+      background:#fff;
+    }
+
+    .readyLabel{
+      font-size:12px;
+      opacity:.65;
+      margin-bottom:6px;
+    }
+
+    .readyValue{
+      font-size:22px;
+      font-weight:1000;
+      letter-spacing:-.03em;
+    }
+
+    .readyFine{
+      font-size:13px;
+      opacity:.72;
+      margin-top:10px;
+    }
+
+    .plainSection{ padding:64px 0 40px; }
+
+    .plainKicker{
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      opacity:.72;
+    }
+
+    .plainH2{
+      margin:14px 0 10px;
+      font-size:44px;
+      line-height:1.05;
+      letter-spacing:-.04em;
+      font-weight:1000;
+      color:rgba(11,18,32,.96);
+    }
+
+    @media (max-width: 720px){ .plainH2{ font-size:34px; } }
+
+    .plainLead{
+      margin:0;
+      font-size:16px;
+      line-height:1.65;
+      max-width: 78ch;
+      opacity:.80;
+    }
+
+    .featureGrid{
+      margin-top:34px;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:40px 44px;
+    }
+
+    @media (max-width: 980px){
+      .featureGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap:30px 28px; }
+    }
+
+    @media (max-width: 640px){
+      .featureGrid{ grid-template-columns: 1fr; gap:24px; }
+    }
+
+    .featIcon{
+      width:40px;
+      height:40px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:12px;
+      opacity:.95;
+    }
+
+    .featTitle{
+      margin:0 0 10px;
+      font-size:18px;
+      letter-spacing:-.02em;
+      font-weight:1000;
+    }
+
+    .featText{
+      margin:0;
+      font-size:15px;
+      line-height:1.65;
+      opacity:.80;
+    }
+
+    .plainDivider{
+      margin:56px 0 0;
+      border-top:1px solid rgba(15,23,42,.12);
+    }
+
+    .plainBottomGrid{
+      margin-top:36px;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:44px;
+      align-items:start;
+    }
+
+    @media (max-width: 980px){
+      .plainBottomGrid{ grid-template-columns: 1fr; gap:32px; }
+    }
+
+    .faqListPlain{ margin-top:10px; display:grid; gap:18px; }
+    .faqItemPlain{ padding-top:16px; border-top:1px solid rgba(15,23,42,.12); }
+    .faqItemPlain:first-child{ border-top:0; padding-top:0; }
+    .faqQ{ margin:0 0 8px; font-weight:1000; letter-spacing:-.02em; font-size:16px; }
+    .faqA{ margin:0; opacity:.80; line-height:1.65; font-size:15px; max-width: 68ch; }
+
+    .relatedLinks{
+      margin-top:12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px 18px;
+      font-size:15px;
+    }
+
+    .relatedLinks a{
+      text-decoration:none;
+      font-weight:1000;
+      color:rgba(11,18,32,.92);
+      border-bottom:1px solid rgba(11,18,32,.24);
+    }
+
+    .relatedLinks a:hover{ border-bottom-color: rgba(11,18,32,.60); }
+
+    .plainNote{
+      margin-top:14px;
+      font-size:13px;
+      opacity:.72;
+      line-height:1.55;
+      max-width: 80ch;
+    }
+
+    .icoStroke{ stroke: rgba(11,18,32,.92); }
   </style>
 
   <script type="application/ld+json">
@@ -732,7 +975,12 @@
       "@type":"WebSite",
       "name":"PDFOperations",
       "url":"https://pdfoperations.com/"
-    }
+    },
+    "about": {
+      "@type": "Thing",
+      "name": "PDF signing"
+    },
+    "primaryImageOfPage": "https://pdfoperations.com/og.png"
   }
   </script>
 
@@ -757,7 +1005,7 @@
         "name":"How do I sign a PDF online?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"Select or drop a PDF, create a signature (type, draw, or upload), place it on the correct page, apply it, then upload and continue to download the signed PDF."
+          "text":"Select or drop a PDF, create a signature by typing, drawing, or uploading, place it on the correct page, apply it, then continue to download the signed PDF."
         }
       },
       {
@@ -792,25 +1040,28 @@
   {
     "@context":"https://schema.org",
     "@type":"SoftwareApplication",
-    "name":"PDFOperations",
-    "applicationCategory": "BusinessApplication",
+    "name":"PDFOperations - Sign PDF",
+    "applicationCategory":"BusinessApplication",
     "applicationSubCategory":"PDF Utilities",
     "operatingSystem":"Web",
     "browserRequirements":"Requires JavaScript. Works in modern browsers.",
-    "url":"https://pdfoperations.com/",
-    "description":"Online PDF utilities to compress, merge, split, rotate, convert and sign PDF files.",
+    "url":"https://pdfoperations.com/sign-pdf",
+    "description":"Sign PDF documents online by typing, drawing, or uploading a signature, then placing it on the correct page.",
+    "offers":{
+      "@type":"Offer",
+      "priceCurrency":"GBP",
+      "price":"2.99"
+    },
     "featureList":[
-      "Compress PDF files",
-      "Merge PDF documents",
-      "Split PDF pages",
-      "Rotate PDF pages",
-      "Convert PDF to image formats",
-      "Sign PDF documents"
+      "Type a signature",
+      "Draw a signature",
+      "Upload a signature image",
+      "Place signature on the correct page",
+      "Prepare signed PDF before download"
     ]
   }
   </script>
 
-  <!-- ✅ PDF.js module load (ESM .mjs pattern) -->
   <script type="module">
     window.__pdfjsReady = import("/vendor/pdfjs/pdf.min.mjs")
       .then((mod) => {
@@ -834,7 +1085,6 @@
 
 <header class="nav">
   <div class="container navInner">
-
     <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/logo.png" alt="PDFOperations" class="brandLogoFull" />
     </a>
@@ -846,23 +1096,44 @@
       <a href="/split-pdf" data-nav="split">Split</a>
       <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
       <a href="/convert" data-nav="convert">Convert</a>
-      <a href="/sign-pdf" data-nav="sign">Sign</a>
+      <a href="/sign-pdf" data-nav="sign" aria-current="page">Sign</a>
       <a href="/edit-pdf" data-nav="edit">Edit</a>
       <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
     </nav>
-
   </div>
 </header>
 
 <main>
   <section class="hero heroPremium heroToolFirst">
     <div class="container heroWide">
-
       <div id="tool" class="tool toolPremium toolMega">
 
         <div class="toolHead toolHeadMinimal">
-          <h1 class="toolTitle">Sign PDF Online</h1>
-          <p class="toolSub">Select or drop one PDF. Create a signature. Place it. <strong>Apply</strong>, then <strong>Continue to secure download</strong>.</p>
+          <div class="proKicker">PDF signing</div>
+          <h1 class="toolTitle">Sign PDF documents and finish them fast</h1>
+          <p class="toolSub">Upload one PDF, create a signature, place it on the right page, apply it, then continue to secure download.</p>
+
+          <div class="valueStrip" aria-label="Benefits">
+            <div class="valueStripCard">
+              <strong>Sign urgently needed documents</strong>
+              <span>Useful for contracts, forms, approvals, onboarding paperwork and client files that need signing now.</span>
+            </div>
+            <div class="valueStripCard">
+              <strong>Place it exactly where needed</strong>
+              <span>Preview pages, move the signature into position, and resize it before you apply it.</span>
+            </div>
+            <div class="valueStripCard">
+              <strong>See the value before download</strong>
+              <span>Your signed PDF is prepared first, so the final step feels earned instead of speculative.</span>
+            </div>
+          </div>
+
+          <div class="trustBar" aria-label="Trust indicators">
+            <div class="trustPill">No signup</div>
+            <div class="trustPill">Type, draw, or upload</div>
+            <div class="trustPill">Place signature precisely</div>
+            <div class="trustPill">Secure session flow</div>
+          </div>
         </div>
 
         <div class="statusWrap">
@@ -873,32 +1144,42 @@
           <div class="statusHint" id="statusHint">Drop a PDF to begin.</div>
         </div>
 
-        <!-- Hidden mode controls (keep app.js patterns) -->
-        <input type="hidden" id="mode" value="sign_pdf" />
-          <fieldset style="display:none;">
-            <input type="radio" name="mode" id="modeCompress" value="compress">
-            <input type="radio" name="mode" id="modeCompressPdf" value="compress_pdf">
-            <input type="radio" name="mode" id="modeConvert" value="convert">
-            <input type="radio" name="mode" id="modeMergePdf" value="merge_pdf">
-            <input type="radio" name="mode" id="modeSplitPdf" value="split_pdf">
-            <input type="radio" name="mode" id="modeRotatePdf" value="rotate_pdf">
-            <input type="radio" name="mode" id="modeSignPdf" value="sign_pdf" checked>
-          </fieldset>
+        <div class="proofRow" aria-label="Common uses">
+          <div class="proofCard">
+            <div class="proofLabel">Best for</div>
+            <div class="proofValue">Contracts</div>
+          </div>
+          <div class="proofCard">
+            <div class="proofLabel">Also useful for</div>
+            <div class="proofValue">Forms</div>
+          </div>
+          <div class="proofCard">
+            <div class="proofLabel">Key control</div>
+            <div class="proofValue">Placement</div>
+          </div>
+        </div>
 
-        <!-- DROPZONE -->
+        <input type="hidden" id="mode" value="sign_pdf" />
+        <fieldset style="display:none;">
+          <input type="radio" name="mode" id="modeCompress" value="compress">
+          <input type="radio" name="mode" id="modeCompressPdf" value="compress_pdf">
+          <input type="radio" name="mode" id="modeConvert" value="convert">
+          <input type="radio" name="mode" id="modeMergePdf" value="merge_pdf">
+          <input type="radio" name="mode" id="modeSplitPdf" value="split_pdf">
+          <input type="radio" name="mode" id="modeRotatePdf" value="rotate_pdf">
+          <input type="radio" name="mode" id="modeSignPdf" value="sign_pdf" checked>
+        </fieldset>
+
         <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
           <div class="dzCenter">
-            <div class="dzTitle" id="dzTitle">Drop a PDF here</div>
+            <div class="dzTitle" id="dzTitle">Drop a PDF here to sign it now</div>
             <div class="dzSub" id="dzSub">PDF only • 1 file</div>
-
             <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
             <input id="files" type="file" accept="application/pdf" />
-
             <div class="dzFine">Tip: drag a PDF onto this area.</div>
           </div>
         </div>
 
-        <!-- POST-SELECT PANEL -->
         <div class="workPanel" aria-label="Selected file and signing">
           <div class="workTop">
             <button class="btnPrimary" type="button"
@@ -916,7 +1197,6 @@
 
           <div class="workStage">
 
-            <!-- LEFT: PAGE PREVIEW + PLACEMENT -->
             <div class="pageStageWrap" aria-label="PDF page preview">
               <div class="pageStageTop">
                 <div>
@@ -947,7 +1227,6 @@
               </div>
             </div>
 
-            <!-- RIGHT: SIGNATURE CREATION -->
             <div class="sigPanelWrap" aria-label="Create signature">
               <div class="panelHead">
                 <h2 class="panelTitle">Create signature</h2>
@@ -960,7 +1239,6 @@
                 <button class="tabBtn" type="button" data-tab="upload">Upload</button>
               </div>
 
-              <!-- TYPE -->
               <div class="sigPanel" data-panel="type">
                 <label class="field">
                   <span class="label">Signature text</span>
@@ -976,10 +1254,9 @@
                 </label>
 
                 <button class="btn btnPrimary" id="makeTypeSig" type="button">Generate signature</button>
-                <p class="miniNote">Tip: if you want a transparent signature, use Type/Draw and keep the background clear.</p>
+                <p class="miniNote">Tip: if you want a transparent signature, use Type or Draw and keep the background clear.</p>
               </div>
 
-              <!-- DRAW -->
               <div class="sigPanel" data-panel="draw" hidden>
                 <div class="drawWrap">
                   <canvas id="drawCanvas" class="drawCanvas" width="520" height="180" aria-label="Draw signature"></canvas>
@@ -991,13 +1268,12 @@
                 <p class="miniNote">Use a steady stroke. You can resize the signature after placing it.</p>
               </div>
 
-              <!-- UPLOAD -->
               <div class="sigPanel" data-panel="upload" hidden>
                 <label class="field">
                   <span class="label">Upload signature image</span>
                   <input id="sigUpload" type="file" accept="image/*" />
                 </label>
-                <p class="miniNote">Tip: PNG with transparent background looks best.</p>
+                <p class="miniNote">Tip: a PNG with transparent background usually looks best.</p>
               </div>
 
               <hr class="sep"/>
@@ -1008,13 +1284,20 @@
                   <button class="btn btnPrimary" id="applySignature" type="button" disabled>Apply signature</button>
                 </div>
 
+                <div class="nextStepCard" id="nextStepCard">
+                  <div class="nextStepEyebrow" id="nextStepEyebrow">Next step</div>
+                  <h3 class="nextStepTitle" id="nextStepTitle">Apply your signature to create the signed PDF</h3>
+                  <p class="nextStepText" id="nextStepText">
+                    Once applied, the signed PDF is prepared locally and moved into the normal secure download flow.
+                  </p>
+                </div>
+
                 <p class="miniNote" id="applyNote">
                   After applying, your signed PDF is prepared automatically. Then click <strong>Continue to secure download →</strong>.
                 </p>
               </div>
             </div>
 
-            <!-- Keep app.js hooks (hidden) -->
             <div class="fileMeta" id="fileMeta" hidden>
               <div class="fileMetaTop">
                 <div class="fileSummary" id="fileSummary"></div>
@@ -1028,27 +1311,54 @@
           <div class="workBottom" id="workBottom">
             <div class="workCtaIntro" id="workCtaIntro">
               <div class="workCtaKicker" id="workCtaKicker">Step 3 of 3</div>
-                <h3 class="workCtaTitle" id="workCtaTitle">Apply your signature, then continue to secure download</h3>
-                <p class="workCtaText" id="workCtaText">
-                  Once your signature is applied, your file is prepared for download.
-                </p>
+              <h3 class="workCtaTitle" id="workCtaTitle">Apply your signature, then continue to secure download</h3>
+              <p class="workCtaText" id="workCtaText">
+                Once your signature is applied, your file is prepared for download.
+              </p>
             </div>
 
             <div class="workActions">
               <button class="btnSoft" id="upload" disabled hidden>Upload signed PDF</button>
               <button class="btnPrimary btnStrong ctaGlow" id="continue" disabled>Continue to secure download →</button>
             </div>
+
+            <div class="readyBox" id="readyBox">
+              <div class="readyTitle">✔ Your signed PDF is ready</div>
+
+              <div class="readyGrid">
+                <div class="readyStat">
+                  <div class="readyLabel">Status</div>
+                  <div class="readyValue">Signed</div>
+                </div>
+
+                <div class="readyStat">
+                  <div class="readyLabel">Signature source</div>
+                  <div class="readyValue" id="readySigSource">—</div>
+                </div>
+
+                <div class="readyStat">
+                  <div class="readyLabel">Current page</div>
+                  <div class="readyValue" id="readyPageNum">—</div>
+                </div>
+              </div>
+
+              <button id="readyContinueBtn" class="btnPrimary btnStrong ctaGlow" style="width:100%;" type="button">
+                Continue to secure download →
+              </button>
+
+              <div class="readyFine">
+                Your signed PDF has been prepared and is ready for the final download step.
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- STEPS (pre-select only) -->
         <div class="stepsLine">
           <div class="stepItem"><span class="stepNum">1</span>Select / Drop a PDF</div>
           <div class="stepItem"><span class="stepNum">2</span>Create signature + <strong>Apply</strong></div>
           <div class="stepItem"><span class="stepNum">3</span>Continue → Secure download</div>
         </div>
 
-        <!-- PROGRESS (app.js may toggle) -->
         <div class="progressWrap" id="progressWrap" hidden>
           <div class="progressTop">
             <div id="progressLabel">Uploading…</div>
@@ -1060,19 +1370,16 @@
         </div>
 
       </div>
-
     </div>
   </section>
 
-  <!-- CLEAN LANDING SUPPORT SECTION (SEO-friendly, visible text) -->
   <section class="plainSection" id="about">
     <div class="container heroWide">
 
-      <div class="plainKicker">About</div>
-      <h2 class="plainH2">Sign PDF documents online</h2>
+      <div class="plainKicker">Sign PDF online</div>
+      <h2 class="plainH2">Add signatures to contracts, forms and approvals without the usual hassle</h2>
       <p class="plainLead" style="margin-top:14px;">
-        Add a signature to PDFs for contracts, approvals, onboarding forms, and client documents.
-        Create your signature by typing, drawing, or uploading an image — then place it on the correct page.
+        Use PDFOperations to sign PDF documents when paperwork needs to be finished quickly and correctly. Upload the PDF, create your signature by typing, drawing, or uploading an image, place it on the right page, then continue once the signed version is ready.
       </p>
 
       <div class="featureGrid" aria-label="What you can do">
@@ -1084,7 +1391,7 @@
             </svg>
           </div>
           <h3 class="featTitle">Sign on the right page</h3>
-          <p class="featText">Preview pages and place your signature precisely where it needs to go.</p>
+          <p class="featText">Preview pages and place your signature precisely where it needs to go before finalising the document.</p>
         </div>
 
         <div>
@@ -1096,7 +1403,7 @@
             </svg>
           </div>
           <h3 class="featTitle">Type, draw, or upload</h3>
-          <p class="featText">Create a signature that matches your workflow — then apply it to your PDF.</p>
+          <p class="featText">Create a signature in the way that best matches your document and workflow.</p>
         </div>
 
         <div>
@@ -1106,8 +1413,8 @@
               <path class="icoStroke" d="M9 10h6" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">No signup</h3>
-          <p class="featText">No account needed. Apply your signature, then continue to secure download.</p>
+          <h3 class="featTitle">No account wall</h3>
+          <p class="featText">No signup required. Apply the signature, then continue once the signed PDF is prepared.</p>
         </div>
 
         <div>
@@ -1117,8 +1424,8 @@
               <path class="icoStroke" d="M12 3v18" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">Fast, simple steps</h3>
-          <p class="featText">Select a PDF, apply your signature, then continue to download.</p>
+          <h3 class="featTitle">Fast three-step flow</h3>
+          <p class="featText">Select the PDF, apply the signature, then move straight into the secure download step.</p>
         </div>
 
         <div>
@@ -1129,7 +1436,7 @@
             </svg>
           </div>
           <h3 class="featTitle">Secure sessions</h3>
-          <p class="featText">Use a short-lived session flow. See Privacy for retention and deletion details.</p>
+          <p class="featText">Short-lived session flow designed for real document handling. See Privacy for retention details.</p>
         </div>
 
         <div>
@@ -1139,8 +1446,8 @@
               <path class="icoStroke" d="M4 6v2M4 11v2M4 16v2" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
-          <h3 class="featTitle">More tools available</h3>
-          <p class="featText">Compress, merge, split, convert, and rotate PDFs using the same clean flow.</p>
+          <h3 class="featTitle">More PDF tools available</h3>
+          <p class="featText">Compress, merge, split, convert, rotate and sign using the same cleaner workflow style.</p>
         </div>
       </div>
 
@@ -1154,17 +1461,17 @@
           <div class="faqListPlain">
             <div class="faqItemPlain">
               <div class="faqQ">How do I sign a PDF?</div>
-              <p class="faqA">Select or drop a PDF, create a signature (type, draw, or upload), place it on the correct page, apply it, then continue to secure download.</p>
+              <p class="faqA">Select or drop a PDF, create a signature by typing, drawing, or uploading, place it on the correct page, apply it, then continue to secure download.</p>
             </div>
 
             <div class="faqItemPlain">
               <div class="faqQ">Can I sign on the correct page?</div>
-              <p class="faqA">Yes. Use the page controls to navigate, then place your signature precisely before applying.</p>
+              <p class="faqA">Yes. Use the page controls to navigate, then place your signature precisely before applying it.</p>
             </div>
 
             <div class="faqItemPlain">
               <div class="faqQ">Do I need an account?</div>
-              <p class="faqA">No signup required. Apply your signature, then continue to secure download.</p>
+              <p class="faqA">No signup required. Apply the signature, then continue once the signed PDF is ready.</p>
             </div>
 
             <div class="faqItemPlain">
@@ -1174,7 +1481,7 @@
           </div>
 
           <div class="plainNote">
-            Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
+            Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a> • <a href="/pricing">Pricing</a>
           </div>
         </div>
 
@@ -1194,14 +1501,13 @@
           </div>
 
           <div class="plainNote">
-            Tip: If your portal requires initials on multiple pages, apply once, upload, and check the output before sending.
+            Tip: if a portal requires signed paperwork urgently, finish the signature here first so the final file is ready to send.
           </div>
         </div>
       </div>
 
     </div>
   </section>
-
 </main>
 
 <footer class="footer">
@@ -1219,10 +1525,7 @@
   </div>
 </footer>
 
-<!-- pdf-lib (can self-host later) -->
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-
-<!-- Your core frontend -->
 <script src="/app.js?v=18" defer></script>
 
 <script>
@@ -1267,6 +1570,12 @@
   const workCtaKicker = document.getElementById("workCtaKicker");
   const uploadBtn = document.getElementById("upload");
   const continueBtn = document.getElementById("continue");
+  const readyContinueBtn = document.getElementById("readyContinueBtn");
+  const readySigSource = document.getElementById("readySigSource");
+  const readyPageNum = document.getElementById("readyPageNum");
+  const nextStepEyebrow = document.getElementById("nextStepEyebrow");
+  const nextStepTitle = document.getElementById("nextStepTitle");
+  const nextStepText = document.getElementById("nextStepText");
 
   const sigOverlay = document.getElementById("sigOverlay");
   const sigBox = document.getElementById("sigBox");
@@ -1277,25 +1586,27 @@
 
   const setHasFile = (v) => document.body.classList.toggle("hasFile", !!v);
 
+  let currentSigSource = "—";
+
   if (meta) {
     const apply = () => setHasFile(!meta.hasAttribute("hidden"));
     apply();
     new MutationObserver(apply).observe(meta, { attributes: true, attributeFilter: ["hidden"] });
   }
 
-    function showTab(name){
-      tabs.forEach(t => {
-        const active = t.dataset.tab === name;
-        t.classList.toggle("isActive", active);
-        t.setAttribute("aria-pressed", active ? "true" : "false");
-      });
+  function showTab(name){
+    tabs.forEach(t => {
+      const active = t.dataset.tab === name;
+      t.classList.toggle("isActive", active);
+      t.setAttribute("aria-pressed", active ? "true" : "false");
+    });
 
-      panels.forEach(p => {
-        const active = p.dataset.panel === name;
-        p.hidden = !active;
-        p.classList.toggle("isActive", active);
-      });
-    }
+    panels.forEach(p => {
+      const active = p.dataset.panel === name;
+      p.hidden = !active;
+      p.classList.toggle("isActive", active);
+    });
+  }
 
   function setStatus(text, hint){
     if (status) status.textContent = text || "Ready";
@@ -1303,6 +1614,7 @@
   }
 
   function resetCtaState(){
+    document.body.classList.remove("signedReady");
     if (workBottom) workBottom.classList.remove("ctaDone");
     if (uploadBtn) uploadBtn.classList.remove("ctaPulse");
     if (continueBtn) continueBtn.classList.remove("ctaPulse");
@@ -1312,23 +1624,39 @@
     if (workCtaText) {
       workCtaText.textContent = "Once your signature is applied, your file is prepared for download.";
     }
-  }
 
-    function showAppliedState(){
-      if (workBottom) workBottom.classList.add("ctaDone");
-
-      if (workCtaKicker) workCtaKicker.textContent = "Signature applied";
-      if (workCtaTitle) workCtaTitle.textContent = "Preparing secure download";
-      if (workCtaText) {
-        workCtaText.textContent = "Your signed PDF is being prepared now. Continue will unlock automatically in a moment.";
-      }
-
-      requestAnimationFrame(() => {
-        workBottom?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      });
+    if (nextStepEyebrow) nextStepEyebrow.textContent = "Next step";
+    if (nextStepTitle) nextStepTitle.textContent = "Apply your signature to create the signed PDF";
+    if (nextStepText) {
+      nextStepText.textContent = "Once applied, the signed PDF is prepared locally and moved into the normal secure download flow.";
     }
 
+    if (readySigSource) readySigSource.textContent = "—";
+    if (readyPageNum) readyPageNum.textContent = "—";
+  }
+
+  function showAppliedState(){
+    if (workBottom) workBottom.classList.add("ctaDone");
+
+    if (workCtaKicker) workCtaKicker.textContent = "Signature applied";
+    if (workCtaTitle) workCtaTitle.textContent = "Preparing secure download";
+    if (workCtaText) {
+      workCtaText.textContent = "Your signed PDF is being prepared now. Continue will unlock automatically in a moment.";
+    }
+
+    if (nextStepEyebrow) nextStepEyebrow.textContent = "Applied";
+    if (nextStepTitle) nextStepTitle.textContent = "Your signed PDF has been created";
+    if (nextStepText) {
+      nextStepText.textContent = "The updated PDF now includes your signature and is moving into the secure download flow.";
+    }
+
+    requestAnimationFrame(() => {
+      workBottom?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  }
+
   function showContinueState(){
+    document.body.classList.add("signedReady");
     if (continueBtn) continueBtn.classList.add("ctaPulse");
 
     if (workCtaKicker) workCtaKicker.textContent = "Ready";
@@ -1336,19 +1664,20 @@
     if (workCtaText) {
       workCtaText.textContent = "Your signed PDF is ready. Continue now to reach checkout and download.";
     }
+
+    if (readySigSource) readySigSource.textContent = currentSigSource || "—";
+    if (readyPageNum) readyPageNum.textContent = String(currentPage || "—");
   }
-  // ===== PDF preview state =====
+
   let pdfBytes = null;
   let pdfDocProxy = null;
   let currentPage = 1;
   let pageCount = 1;
 
-  // signature image bytes (png)
   let sigPngBytes = null;
   let sigNaturalW = 0;
   let sigNaturalH = 0;
 
-  // overlay box state (CSS pixels relative to pageStage)
   let box = { x: 40, y: 40, w: 220, h: 80 };
 
   function syncBox(){
@@ -1373,7 +1702,6 @@
     const page = await pdfDocProxy.getPage(n);
     const viewport0 = page.getViewport({ scale: 1 });
 
-    // Fit to container width
     const stageW = Math.max(320, pageStage.clientWidth - 28);
     const scale = stageW / viewport0.width;
     const vp = page.getViewport({ scale });
@@ -1381,7 +1709,6 @@
     pageCanvas.width = Math.floor(vp.width);
     pageCanvas.height = Math.floor(vp.height);
 
-    // White background to avoid black flashes
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
 
@@ -1425,7 +1752,6 @@
     return true;
   }
 
-  // ===== react to file selection (via input + drop) =====
   let lastFileKey = "";
   async function pollSelected(){
     const arr = window.__PDFOPS_SELECTED__;
@@ -1441,50 +1767,49 @@
   setInterval(pollSelected, 400);
 
   const doClear = () => {
-  const real = document.getElementById("clearBtn");
-  if (real) real.click();
+    const real = document.getElementById("clearBtn");
+    if (real) real.click();
 
-  try{ filesInput.value = ""; }catch(_){}
-  window.__PDFOPS_SELECTED__ = [];
-  window.dispatchEvent(new Event("pdfops:selected"));
+    try{ filesInput.value = ""; }catch(_){}
+    window.__PDFOPS_SELECTED__ = [];
+    window.dispatchEvent(new Event("pdfops:selected"));
 
-  autoUploaded = false;
+    autoUploaded = false;
 
-  pdfBytes = null;
-  pdfDocProxy = null;
-  pageCount = 1;
-  currentPage = 1;
+    pdfBytes = null;
+    pdfDocProxy = null;
+    pageCount = 1;
+    currentPage = 1;
 
-  sigPngBytes = null;
-  if (sigOverlay) sigOverlay.hidden = true;
-  if (addToPage) addToPage.disabled = true;
-  if (applySignature) applySignature.disabled = true;
+    sigPngBytes = null;
+    currentSigSource = "—";
+    if (sigOverlay) sigOverlay.hidden = true;
+    if (addToPage) addToPage.disabled = true;
+    if (applySignature) applySignature.disabled = true;
 
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0,0,pageCanvas.width || 2,pageCanvas.height || 2);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0,0,pageCanvas.width || 2,pageCanvas.height || 2);
 
-  setHasFile(false);
-  setStatus("Ready", "Drop a PDF to begin.");
-  resetCtaState();
-  lastFileKey = "";
-};
+    setHasFile(false);
+    setStatus("Ready", "Drop a PDF to begin.");
+    resetCtaState();
+    lastFileKey = "";
+  };
 
   clearTopBtn?.addEventListener("click", doClear);
 
-  // ===== page nav =====
   prevPage?.addEventListener("click", async () => {
     if (!pdfDocProxy) return;
     await renderPage(Math.max(1, currentPage - 1));
   });
+
   nextPage?.addEventListener("click", async () => {
     if (!pdfDocProxy) return;
     await renderPage(Math.min(pageCount, currentPage + 1));
   });
 
-  // ===== tabs =====
   tabs.forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
 
-  // ===== signature creation helpers =====
   async function setSigFromDataUrl(dataUrl){
     return new Promise(async (resolve) => {
       if (!sigImg) return resolve(false);
@@ -1517,13 +1842,14 @@
     });
   }
 
-  // TYPE -> dataURL
   makeTypeSig?.addEventListener("click", async () => {
     const text = (typeInput?.value || "").trim();
     if (!text){
       setStatus("Ready", "Enter signature text, then generate.");
       return;
     }
+
+    currentSigSource = "Typed";
 
     const c = document.createElement("canvas");
     c.width = 1200;
@@ -1549,7 +1875,6 @@
     setStatus("Ready", "Signature created. Drag it into position, then apply.");
   });
 
-  // DRAW
   function resetDraw(){
     if (!dctx) return;
     dctx.clearRect(0,0,drawCanvas.width, drawCanvas.height);
@@ -1559,6 +1884,7 @@
     dctx.lineCap = "round";
     dctx.strokeStyle = "#0b1220";
   }
+
   if (drawCanvas && dctx) resetDraw();
 
   let drawing = false;
@@ -1568,6 +1894,7 @@
     const y = (ev.touches ? ev.touches[0].clientY : ev.clientY) - r.top;
     return { x, y };
   }
+
   function start(ev){
     if (!dctx) return;
     drawing = true;
@@ -1575,6 +1902,7 @@
     dctx.beginPath();
     dctx.moveTo(p.x, p.y);
   }
+
   function move(ev){
     if (!drawing || !dctx) return;
     const p = pos(ev);
@@ -1582,6 +1910,7 @@
     dctx.stroke();
     ev.preventDefault();
   }
+
   function end(){ drawing = false; }
 
   drawCanvas?.addEventListener("mousedown", start);
@@ -1591,17 +1920,23 @@
   drawCanvas?.addEventListener("touchmove", move, { passive:false });
   drawCanvas?.addEventListener("touchend", end);
 
-  clearDraw?.addEventListener("click", () => { resetDraw(); setStatus("Ready","Cleared. Draw again, then use drawing."); });
+  clearDraw?.addEventListener("click", () => {
+    resetDraw();
+    setStatus("Ready","Cleared. Draw again, then use drawing.");
+  });
+
   useDraw?.addEventListener("click", async () => {
+    currentSigSource = "Drawn";
     if (!drawCanvas) return;
     await setSigFromDataUrl(drawCanvas.toDataURL("image/png"));
     setStatus("Ready", "Signature created. Drag it into position, then apply.");
   });
 
-  // UPLOAD signature image
   sigUpload?.addEventListener("change", async (e) => {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
+
+    currentSigSource = "Uploaded";
 
     const dataUrl = await new Promise((res) => {
       const fr = new FileReader();
@@ -1613,7 +1948,6 @@
     setStatus("Ready", "Signature created. Drag it into position, then apply.");
   });
 
-  // draggable / resizable overlay
   let dragging = false;
   let resizing = false;
   let startX = 0, startY = 0;
@@ -1626,6 +1960,7 @@
     startBox = { ...box };
     e.preventDefault();
   });
+
   sigHandle?.addEventListener("mousedown", (e) => {
     resizing = true;
     startX = e.clientX; startY = e.clientY;
@@ -1652,14 +1987,17 @@
     clampBox(stageRect);
     syncBox();
   });
-  window.addEventListener("mouseup", () => { dragging = false; resizing = false; });
+
+  window.addEventListener("mouseup", () => {
+    dragging = false;
+    resizing = false;
+  });
 
   addToPage?.addEventListener("click", () => {
     if (sigOverlay) sigOverlay.hidden = false;
     setStatus("Ready", "Drag to position, then apply.");
   });
 
-  // Convert overlay coords to PDF coords
   function overlayToPdfCoords(pdfPage, stageW, stageH){
     const sz = pdfPage.getSize();
     const pw = sz.width, ph = sz.height;
@@ -1688,7 +2026,7 @@
         return;
       }
       if (!sigPngBytes){
-        setStatus("Ready", "Create a signature first (type/draw/upload).");
+        setStatus("Ready", "Create a signature first.");
         return;
       }
       if (!pdfDocProxy){
@@ -1721,32 +2059,27 @@
       const signedName = (inputFile.name || "document.pdf").replace(/\.pdf$/i, "") + " (signed).pdf";
       const signedFile = new File([out], signedName, { type:"application/pdf" });
 
-      // Replace selected file so existing upload/checkout uses signed PDF
       window.__PDFOPS_SELECTED__ = [signedFile];
       window.dispatchEvent(new Event("pdfops:selected"));
 
-      // Reload preview from signed file (keeps page count / overlay working)
       lastFileKey = "";
       await ensurePdfLoadedFromSelected();
 
       setStatus("Ready", "Signature applied. Continue to secure download →");
       showAppliedState();
 
-        }catch(err){
+    }catch(err){
       console.error(err);
       setStatus("Error", "Could not apply signature. Try again.");
     }
   });
 
-  // default tab
   showTab("type");
 
-  // If user selects directly via input without app.js, still works
   filesInput.addEventListener("change", async () => {
     const file = filesInput.files && filesInput.files[0];
     if (!file) return;
     setStatus("Ready", "Loading preview…");
-    // app.js typically sets __PDFOPS_SELECTED__; but if it doesn't for some reason, set it here.
     try{
       if (!window.__PDFOPS_SELECTED__ || !window.__PDFOPS_SELECTED__[0]) {
         window.__PDFOPS_SELECTED__ = [file];
@@ -1767,16 +2100,16 @@
     }catch(_){}
   }, { capture:true });
 
-    let autoUploaded = false;
+  let autoUploaded = false;
 
-    if (uploadBtn) {
-      new MutationObserver(() => {
-        if (!uploadBtn.disabled && !autoUploaded) {
-          autoUploaded = true;
-          uploadBtn.click();
-        }
-      }).observe(uploadBtn, { attributes:true, attributeFilter:["disabled"] });
-    }
+  if (uploadBtn) {
+    new MutationObserver(() => {
+      if (!uploadBtn.disabled && !autoUploaded) {
+        autoUploaded = true;
+        uploadBtn.click();
+      }
+    }).observe(uploadBtn, { attributes:true, attributeFilter:["disabled"] });
+  }
 
   if (continueBtn) {
     new MutationObserver(() => {
@@ -1788,10 +2121,14 @@
     }).observe(continueBtn, { attributes:true, attributeFilter:["disabled"] });
   }
 
-  resetCtaState();
+  readyContinueBtn?.addEventListener("click", () => {
+    continueBtn?.click();
+  });
 
+  resetCtaState();
 })();
 </script>
+
 <script>
 (function () {
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
@@ -1818,7 +2155,6 @@
   document.querySelectorAll(`.navLinks a[data-nav="${key}"]`).forEach((el) => {
     el.setAttribute("aria-current", "page");
   });
-
 })();
 </script>
 </body>
