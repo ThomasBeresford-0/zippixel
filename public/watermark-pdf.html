@@ -1,8 +1,7 @@
-<!-- public/watermark-pdf.html — PDFOperations (v3 - FULL RAMBO WATERMARK TOOL; SEO SUPPORT SECTION MATCHES INDEX v71)
-     ✅ NO app.js hook/ID changes
+<!-- public/watermark-pdf.html — PDFOperations (v4 - FULL RAMBO WATERMARK TOOL; FIXED REAL FLOW)
      ✅ Keeps existing watermark flow + IDs (files/dropzone/workPanel/pageCanvas/wm* inputs/applyWatermark/upload/continue)
-     ✅ Adds the SAME “plainSection” support layout as index v71 (but individualized for Watermark)
-     ✅ Adds JSON-LD blocks (Organization + WebPage + Breadcrumb + FAQ + SoftwareApplication)
+     ✅ Real workflow: select PDF → preview watermark → apply watermark → replace selected file → prepare output → unlock download
+     ✅ Adds clean ready state
      ✅ Keeps PDF.js ESM loader paths (/vendor/pdfjs/*.mjs)
      ✅ app.js loaded ONCE
 -->
@@ -19,7 +18,6 @@
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light" />
 
-  <!-- Google Analytics (PDFOperations) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQ3QKV7KHG"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -40,7 +38,6 @@
   <meta name="twitter:description" content="Add a text or logo watermark to a PDF. Adjust opacity, size, rotation, and placement." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
-
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/png" sizes="192x192" href="/web-app-manifest-192x192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="/web-app-manifest-512x512.png">
@@ -50,10 +47,6 @@
   <link rel="stylesheet" href="/style.css?v=36" />
 
   <style>
-    /* =========================
-       TAB + PREVIEW LAYER (existing functionality)
-       Polished to match index v71 “hard utility”
-    ========================== */
     .tabRow{ display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
     .tabBtn{
       padding:8px 14px;
@@ -70,7 +63,7 @@
       border-color:#0b1220;
     }
 
-        #applyWatermark{
+    #applyWatermark{
       width:100%;
       min-height:46px;
       border-radius:12px;
@@ -157,19 +150,11 @@
     .wmHandle--ne{ top:-5px; right:-5px; cursor:nesw-resize; }
     .wmHandle--sw{ bottom:-5px; left:-5px; cursor:nesw-resize; }
     .wmHandle--se{ bottom:-5px; right:-5px; cursor:nwse-resize; }
-
-    /* hide side handles */
     .wmHandle--n,
     .wmHandle--e,
     .wmHandle--s,
-    .wmHandle--w{
-      display:none;
-    }
+    .wmHandle--w{ display:none; }
 
-    /* =========================
-       HARD AUTHORITY LAYER (NO FUNCTION CHANGES)
-       Aligns shell + “plainSection” look with index v71
-    ========================== */
     .brandLogo{ height:32px; width:auto; display:block; flex:0 0 auto; }
 
     .nav{
@@ -177,8 +162,6 @@
       background: rgba(245,247,251,.86);
       backdrop-filter: blur(10px);
     }
-    .brandText .sub{ opacity:.70; }
-
     .navLinks a{
       font-weight: 850;
       letter-spacing:-.01em;
@@ -188,28 +171,6 @@
       opacity:1;
       border-bottom:1px solid rgba(11,18,32,.35);
     }
-
-    .subNav{
-      border-bottom: 1px solid rgba(15,23,42,.10);
-      background: rgba(245,247,251,.72);
-      backdrop-filter: blur(10px);
-    }
-    .subNavInner{
-      display:flex;
-      gap:14px 18px;
-      flex-wrap:wrap;
-      padding:10px 0;
-    }
-    .subNav a{
-      text-decoration:none;
-      font-weight:950;
-      letter-spacing:-.01em;
-      color:rgba(11,18,32,.84);
-      opacity:.86;
-      border-bottom:1px solid rgba(11,18,32,.18);
-      padding-bottom:2px;
-    }
-    .subNav a:hover{ border-bottom-color: rgba(11,18,32,.55); }
 
     #dropzone.isDragOver{
       outline:2px solid rgba(11,18,32,.14);
@@ -243,7 +204,7 @@
     }
     .toolSub{ opacity:.78; }
 
-        .trustBar{
+    .trustBar{
       display:flex;
       flex-wrap:wrap;
       gap:10px 18px;
@@ -427,9 +388,33 @@
       .workActions .btnPrimary{ width:100%; min-width:unset; }
     }
 
-    /* =========================
-       “WE COMPRESS” SUPPORT LAYER — HARD EDITORIAL (MATCH INDEX v71)
-    ========================== */
+    .readyBox{
+      display:none;
+      text-align:center;
+      margin-top:14px;
+      padding:16px;
+      border:1px solid rgba(15,23,42,.14);
+      border-radius:12px;
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+    }
+    body.isProcessed .readyBox{
+      display:block !important;
+    }
+    body.isProcessed .workActions{
+      display:none !important;
+    }
+
+    .readyTitle{
+      font-weight:1000;
+      font-size:16px;
+      margin-bottom:8px;
+    }
+    .readyText{
+      font-size:13px;
+      opacity:.85;
+      margin-bottom:12px;
+    }
+
     .plainSection{ padding:64px 0 40px; }
     .plainKicker{
       font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -515,7 +500,6 @@
     .icoStroke{ stroke: rgba(11,18,32,.92); }
   </style>
 
-  <!-- JSON-LD: Organization -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -526,7 +510,6 @@
   }
   </script>
 
-  <!-- JSON-LD: WebPage -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -542,7 +525,6 @@
   }
   </script>
 
-  <!-- JSON-LD: Breadcrumb -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -554,7 +536,6 @@
   }
   </script>
 
-  <!-- JSON-LD: FAQ -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -565,7 +546,7 @@
         "name":"How do I add a watermark to a PDF?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"Select or drop a PDF, choose text or image watermark settings, click Apply Watermark, then upload and continue to download your watermarked file."
+          "text":"Select or drop a PDF, choose text or image watermark settings, click Apply Watermark, then prepare and continue to download your watermarked file."
         }
       },
       {
@@ -596,7 +577,6 @@
   }
   </script>
 
-  <!-- JSON-LD: SoftwareApplication -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -618,7 +598,6 @@
   }
   </script>
 
-  <!-- ✅ PDF.js module load -->
   <script type="module">
     window.__pdfjsReady = import("/vendor/pdfjs/pdf.min.mjs")
       .then((mod) => {
@@ -633,7 +612,6 @@
         return null;
       });
   </script>
-
 </head>
 
 <body class="page pageWatermarkPdf" data-tool="watermark_pdf">
@@ -643,7 +621,6 @@
 
   <header class="nav">
     <div class="container navInner">
-
       <a class="brand" href="/" aria-label="PDFOperations home">
         <img src="/logo.png" alt="PDFOperations" class="brandLogoFull" />
       </a>
@@ -659,7 +636,6 @@
         <a href="/edit-pdf" data-nav="edit">Edit</a>
         <a href="/watermark-pdf" data-nav="watermark" aria-current="page">Watermark</a>
       </nav>
-
     </div>
   </header>
 
@@ -668,17 +644,17 @@
       <div class="container heroWide">
         <div id="tool" class="tool toolPremium toolMega">
 
-        <div class="toolHead toolHeadMinimal">
-          <h1 class="toolTitle">Add Watermark to PDF</h1>
-          <p class="toolSub">Text or logo watermark. Live preview. Apply to all pages.</p>
+          <div class="toolHead toolHeadMinimal">
+            <h1 class="toolTitle">Add Watermark to PDF</h1>
+            <p class="toolSub">Text or logo watermark. Live preview. Apply to all pages.</p>
 
-          <div class="trustBar" aria-label="Trust indicators">
-            <div class="trustPill">No signup</div>
-            <div class="trustPill">Text or logo watermark</div>
-            <div class="trustPill">Live preview</div>
-            <div class="trustPill">Secure processing</div>
+            <div class="trustBar" aria-label="Trust indicators">
+              <div class="trustPill">No signup</div>
+              <div class="trustPill">Text or logo watermark</div>
+              <div class="trustPill">Live preview</div>
+              <div class="trustPill">Secure processing</div>
+            </div>
           </div>
-        </div>
 
           <div class="statusWrap">
             <div class="statusLeft">
@@ -712,24 +688,24 @@
           </div>
 
           <div class="workPanel" hidden id="workPanel">
-
             <div class="workStage">
 
               <div class="pageStageWrap">
-                <div class="pageStageTop"><div class="miniTitle">Live Preview</div></div>
-                  <div class="pageStage">
-                    <canvas id="pageCanvas" class="pageCanvas"></canvas>
-                    <div class="previewOverlay" id="previewOverlay">
-                      <div class="previewWatermarkBox" id="previewWatermarkBox">
-                        <div class="previewWatermark" id="previewWatermark">CONFIDENTIAL</div>
-
-                        <div class="wmHandle wmHandle--nw" data-handle="nw" aria-hidden="true"></div>
-                        <div class="wmHandle wmHandle--ne" data-handle="ne" aria-hidden="true"></div>
-                        <div class="wmHandle wmHandle--se" data-handle="se" aria-hidden="true"></div>
-                        <div class="wmHandle wmHandle--sw" data-handle="sw" aria-hidden="true"></div>
-                      </div>
+                <div class="pageStageTop">
+                  <div class="miniTitle">Live Preview</div>
+                </div>
+                <div class="pageStage">
+                  <canvas id="pageCanvas" class="pageCanvas"></canvas>
+                  <div class="previewOverlay" id="previewOverlay">
+                    <div class="previewWatermarkBox" id="previewWatermarkBox">
+                      <div class="previewWatermark" id="previewWatermark">CONFIDENTIAL</div>
+                      <div class="wmHandle wmHandle--nw" data-handle="nw" aria-hidden="true"></div>
+                      <div class="wmHandle wmHandle--ne" data-handle="ne" aria-hidden="true"></div>
+                      <div class="wmHandle wmHandle--se" data-handle="se" aria-hidden="true"></div>
+                      <div class="wmHandle wmHandle--sw" data-handle="sw" aria-hidden="true"></div>
                     </div>
                   </div>
+                </div>
               </div>
 
               <div class="sigPanelWrap">
@@ -739,7 +715,6 @@
                 </div>
 
                 <div class="sigPanel">
-
                   <div class="tabRow">
                     <button class="tabBtn active" data-tab="text" type="button">Text</button>
                     <button class="tabBtn" data-tab="image" type="button">Image</button>
@@ -799,7 +774,6 @@
                   <p class="plainNote" style="margin-top:12px;">
                     Tip: Keep opacity low for readability on printed documents.
                   </p>
-
                 </div>
               </div>
 
@@ -807,18 +781,24 @@
 
             <div class="workBottom">
               <div class="workActions">
-                <button class="btnSoft" id="upload" disabled>Upload PDF</button>
+                <button class="btnSoft" id="upload" disabled>Prepare watermarked PDF</button>
                 <button class="btnPrimary btnStrong" id="continue" disabled>Continue →</button>
               </div>
-            </div>
 
+              <div class="readyBox" id="readyBox">
+                <div class="readyTitle">✔ Your watermarked PDF is ready</div>
+                <div class="readyText">Your watermark has been prepared for final download.</div>
+                <button id="watermarkUnlockBtn" class="btnPrimary btnStrong" style="width:100%;" type="button">
+                  Unlock Download
+                </button>
+              </div>
+            </div>
           </div>
 
         </div>
       </div>
     </section>
 
-    <!-- CLEAN LANDING SUPPORT SECTION (SEO-friendly, visible text) -->
     <section class="plainSection" id="about">
       <div class="container heroWide">
 
@@ -908,7 +888,7 @@
             <div class="faqListPlain">
               <div class="faqItemPlain">
                 <div class="faqQ">How do I add a watermark to a PDF?</div>
-                <p class="faqA">Select or drop a PDF, configure your text or logo watermark, click <strong>Apply Watermark</strong>, then upload and continue.</p>
+                <p class="faqA">Select or drop a PDF, configure your text or logo watermark, click <strong>Apply Watermark</strong>, then prepare and continue.</p>
               </div>
 
               <div class="faqItemPlain">
@@ -918,7 +898,7 @@
 
               <div class="faqItemPlain">
                 <div class="faqQ">Will the watermark apply to all pages?</div>
-                <p class="faqA">The watermark is applied across the PDF pages based on your settings (including tile mode if selected).</p>
+                <p class="faqA">The watermark is applied across the PDF pages based on your settings.</p>
               </div>
 
               <div class="faqItemPlain">
@@ -967,30 +947,37 @@
 
   <script>
   (async function(){
-
-    const filesInput=document.getElementById("files");
-    const dropzone=document.getElementById("dropzone");
-    const workPanel=document.getElementById("workPanel");
-    const pageCanvas=document.getElementById("pageCanvas");
-    const ctx=pageCanvas.getContext("2d");
-    const overlay=document.getElementById("previewOverlay");
-    const previewWM=document.getElementById("previewWatermark");
-    const previewBox=document.getElementById("previewWatermarkBox");
-    const wmHandles = [...document.querySelectorAll(".wmHandle")];      
-    const wmText=document.getElementById("wmText");
-    const wmSize=document.getElementById("wmSize");
-    const wmColor=document.getElementById("wmColor");
-    const wmOpacity=document.getElementById("wmOpacity");
-    const wmRotation=document.getElementById("wmRotation");
-    const wmPosition=document.getElementById("wmPosition");
-
-    const textPanel=document.getElementById("textPanel");
-    const imagePanel=document.getElementById("imagePanel");
-    const tabs=document.querySelectorAll(".tabBtn");
+    const filesInput = document.getElementById("files");
+    const dropzone = document.getElementById("dropzone");
+    const workPanel = document.getElementById("workPanel");
+    const pageCanvas = document.getElementById("pageCanvas");
+    const ctx = pageCanvas.getContext("2d");
+    const overlay = document.getElementById("previewOverlay");
+    const previewWM = document.getElementById("previewWatermark");
+    const previewBox = document.getElementById("previewWatermarkBox");
+    const wmHandles = [...document.querySelectorAll(".wmHandle")];
+    const wmText = document.getElementById("wmText");
+    const wmSize = document.getElementById("wmSize");
+    const wmColor = document.getElementById("wmColor");
+    const wmOpacity = document.getElementById("wmOpacity");
+    const wmRotation = document.getElementById("wmRotation");
+    const wmPosition = document.getElementById("wmPosition");
+    const textPanel = document.getElementById("textPanel");
+    const imagePanel = document.getElementById("imagePanel");
+    const tabs = document.querySelectorAll(".tabBtn");
+    const uploadBtn = document.getElementById("upload");
+    const continueBtn = document.getElementById("continue");
+    const applyBtn = document.getElementById("applyWatermark");
+    const unlockBtn = document.getElementById("watermarkUnlockBtn");
+    const status = document.getElementById("status");
+    const statusHint = document.getElementById("statusHint");
 
     let imageBytes = null;
     let activeWatermarkTab = "text";
     let imagePreviewUrl = null;
+    let currentFile = null;
+    let lastFileKey = "";
+    let applying = false;
 
     let wmBox = {
       x: 0.5,
@@ -1007,13 +994,24 @@
     let activeHandle = null;
     let hasManualResize = false;
 
+    function setStatus(a, b){
+      if (status) status.textContent = a || "Ready";
+      if (statusHint) statusHint.textContent = b || "";
+    }
+
     function clamp(val, min, max){
       return Math.max(min, Math.min(max, val));
     }
 
+    function getSelectedFile(){
+      const arr = window.__PDFOPS_SELECTED__;
+      if (Array.isArray(arr) && arr[0]) return arr[0];
+      if (filesInput && filesInput.files && filesInput.files[0]) return filesInput.files[0];
+      return null;
+    }
+
     function syncPreviewBox(){
       if (!previewBox || !overlay) return;
-
       const overlayRect = overlay.getBoundingClientRect();
       const px = wmBox.x * overlayRect.width;
       const py = wmBox.y * overlayRect.height;
@@ -1027,6 +1025,7 @@
 
     function updatePreview(){
       previewWM.textContent = wmText.value || "";
+
       if (activeWatermarkTab === "text") {
         const base = parseInt(wmSize.value, 10) || 60;
         const fittedSize = hasManualResize
@@ -1043,6 +1042,7 @@
       } else {
         previewWM.style.fontSize = wmSize.value + "px";
       }
+
       if (activeWatermarkTab === "text" && !isResizing && !isDragging && !hasManualResize) {
         const base = parseInt(wmSize.value, 10) || 60;
         const text = wmText.value || "CONFIDENTIAL";
@@ -1052,6 +1052,7 @@
         wmBox.width = Math.max(120, estimatedWidth);
         wmBox.height = Math.max(48, estimatedHeight);
       }
+
       previewWM.style.color = wmColor.value;
       previewWM.style.opacity = wmOpacity.value;
       previewWM.style.transform = "none";
@@ -1094,12 +1095,70 @@
         )`;
       } else {
         previewBox.hidden = false;
-
         syncPreviewBox();
       }
     }
 
-    [wmText,wmSize,wmColor,wmOpacity,wmRotation].forEach(el=>{
+    async function renderFirstPage(fileOrBytes){
+      const lib = window.pdfjsLib || await window.__pdfjsReady;
+      if (!lib) return;
+
+      const data = fileOrBytes instanceof Uint8Array
+        ? fileOrBytes
+        : new Uint8Array(await fileOrBytes.arrayBuffer());
+
+      const pdf = await lib.getDocument({ data }).promise;
+      const page = await pdf.getPage(1);
+      const vp = page.getViewport({ scale: 1 });
+
+      pageCanvas.width = vp.width;
+      pageCanvas.height = vp.height;
+      await page.render({ canvasContext: ctx, viewport: vp }).promise;
+
+      updatePreview();
+      syncPreviewBox();
+    }
+
+    async function loadPdf(file){
+      if (!file) return;
+      if (!(file.type === "application/pdf" || /\.pdf$/i.test(file.name || ""))) return;
+
+      const key = `${file.name}:${file.size}:${file.lastModified || 0}`;
+      if (key === lastFileKey) return;
+      lastFileKey = key;
+
+      currentFile = file;
+      window.__PDFOPS_SELECTED__ = [file];
+
+      imageBytes = null;
+      activeWatermarkTab = "text";
+
+      if (imagePreviewUrl) {
+        URL.revokeObjectURL(imagePreviewUrl);
+        imagePreviewUrl = null;
+      }
+
+      tabs.forEach(b => b.classList.remove("active"));
+      document.querySelector('.tabBtn[data-tab="text"]')?.classList.add("active");
+      textPanel.hidden = false;
+      imagePanel.hidden = true;
+
+      hasManualResize = false;
+      wmBox = { x: 0.5, y: 0.5, width: 320, height: 180 };
+
+      dropzone.hidden = true;
+      workPanel.hidden = false;
+      document.body.classList.remove("isProcessed");
+
+      if (uploadBtn) uploadBtn.disabled = true;
+      if (continueBtn) continueBtn.disabled = true;
+
+      setStatus("Loading…", "Opening your PDF preview…");
+      await renderFirstPage(file);
+      setStatus("Ready", "Adjust your watermark, then apply it.");
+    }
+
+    [wmText, wmSize, wmColor, wmOpacity, wmRotation].forEach(el => {
       el.addEventListener("input", updatePreview);
     });
 
@@ -1118,9 +1177,9 @@
       updatePreview();
     });
 
-    tabs.forEach(btn=>{
-      btn.addEventListener("click",()=>{
-        tabs.forEach(b=>b.classList.remove("active"));
+    tabs.forEach(btn => {
+      btn.addEventListener("click", () => {
+        tabs.forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
         activeWatermarkTab = btn.dataset.tab || "text";
 
@@ -1130,18 +1189,15 @@
           hasManualResize = false;
           wmBox.width = 320;
           wmBox.height = 180;
-          updatePreview();
-          syncPreviewBox();
         } else {
           textPanel.hidden = true;
           imagePanel.hidden = false;
-          previewWM.textContent = "";
           hasManualResize = false;
           wmBox.width = 260;
           wmBox.height = 140;
-          updatePreview();
-          syncPreviewBox();
         }
+        updatePreview();
+        syncPreviewBox();
       });
     });
 
@@ -1167,7 +1223,6 @@
         dragStartY = e.clientY;
         startBox = { ...wmBox };
         previewBox.classList.add("isActive");
-
         e.preventDefault();
         e.stopPropagation();
       });
@@ -1194,13 +1249,13 @@
         return;
       }
 
-    if (isResizing) {
-      hasManualResize = true;
+      if (isResizing) {
+        hasManualResize = true;
 
-      let newWidth = startBox.width;
-      let newHeight = startBox.height;
-      let newX = startBox.x;
-      let newY = startBox.y;
+        let newWidth = startBox.width;
+        let newHeight = startBox.height;
+        let newX = startBox.x;
+        let newY = startBox.y;
 
         const dxNorm = dx / rect.width;
         const dyNorm = dy / rect.height;
@@ -1227,41 +1282,19 @@
         const minHeightNorm = 40 / rect.height;
 
         if ((newRightNorm - newLeftNorm) < minWidthNorm) {
-          if (activeHandle.includes("w")) {
-            newLeftNorm = newRightNorm - minWidthNorm;
-          } else {
-            newRightNorm = newLeftNorm + minWidthNorm;
-          }
+          if (activeHandle.includes("w")) newLeftNorm = newRightNorm - minWidthNorm;
+          else newRightNorm = newLeftNorm + minWidthNorm;
         }
 
         if ((newBottomNorm - newTopNorm) < minHeightNorm) {
-          if (activeHandle.includes("n")) {
-            newTopNorm = newBottomNorm - minHeightNorm;
-          } else {
-            newBottomNorm = newTopNorm + minHeightNorm;
-          }
+          if (activeHandle.includes("n")) newTopNorm = newBottomNorm - minHeightNorm;
+          else newBottomNorm = newTopNorm + minHeightNorm;
         }
 
         newLeftNorm = clamp(newLeftNorm, 0, 1);
         newRightNorm = clamp(newRightNorm, 0, 1);
         newTopNorm = clamp(newTopNorm, 0, 1);
         newBottomNorm = clamp(newBottomNorm, 0, 1);
-
-        if ((newRightNorm - newLeftNorm) < minWidthNorm) {
-          if (activeHandle.includes("w")) {
-            newLeftNorm = Math.max(0, newRightNorm - minWidthNorm);
-          } else {
-            newRightNorm = Math.min(1, newLeftNorm + minWidthNorm);
-          }
-        }
-
-        if ((newBottomNorm - newTopNorm) < minHeightNorm) {
-          if (activeHandle.includes("n")) {
-            newTopNorm = Math.max(0, newBottomNorm - minHeightNorm);
-          } else {
-            newBottomNorm = Math.min(1, newTopNorm + minHeightNorm);
-          }
-        }
 
         newWidth = (newRightNorm - newLeftNorm) * rect.width;
         newHeight = (newBottomNorm - newTopNorm) * rect.height;
@@ -1306,197 +1339,186 @@
       if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
     });
 
-    filesInput.addEventListener("change",async()=>{
-      const f=filesInput.files[0];
-      if(!f)return;
-
-      imageBytes = null;
-    activeWatermarkTab = "text";
-
-    if (imagePreviewUrl) {
-      URL.revokeObjectURL(imagePreviewUrl);
-      imagePreviewUrl = null;
-    }
-
-    tabs.forEach(b => b.classList.remove("active"));
-    document.querySelector('.tabBtn[data-tab="text"]')?.classList.add("active");
-    textPanel.hidden = false;
-    imagePanel.hidden = true;
-
-    hasManualResize = false;
-    wmBox = {
-      x: 0.5,
-      y: 0.5,
-      width: 320,
-      height: 180
-    };
-
-    window.__PDFOPS_SELECTED__ = [f];
-    document.dispatchEvent(new CustomEvent("pdfops:selected", {
-      detail: { files: [f] }
-    }));
-
-      dropzone.hidden=true;
-      workPanel.hidden=false;
-
-      const lib=window.pdfjsLib||await window.__pdfjsReady;
-      const pdf=await lib.getDocument({data:await f.arrayBuffer()}).promise;
-      const page=await pdf.getPage(1);
-      const vp=page.getViewport({scale:1});
-      pageCanvas.width=vp.width;
-      pageCanvas.height=vp.height;
-      await page.render({canvasContext:ctx,viewport:vp}).promise;
-
-      updatePreview();
-      syncPreviewBox();
+    filesInput.addEventListener("change", async () => {
+      const f = filesInput.files[0];
+      if (!f) return;
+      await loadPdf(f);
     });
 
-    document.getElementById("applyWatermark").addEventListener("click",async()=>{
-      const file=window.__PDFOPS_SELECTED__?.[0];
-      if(!file)return;
+    dropzone.addEventListener("drop", async (e) => {
+      const f = e.dataTransfer?.files?.[0];
+      if (!f) return;
+      await loadPdf(f);
+    }, { capture:true });
 
-      const bytes=await file.arrayBuffer();
-      const pdfDoc=await PDFLib.PDFDocument.load(bytes);
-      const pages=pdfDoc.getPages();
-      let embeddedImage = null;
+    async function applyWatermarkToPdf(){
+      if (applying) return;
+      const file = getSelectedFile();
+      if (!file) return;
 
-      if (activeWatermarkTab === "image" && imageBytes) {
-        try { embeddedImage = await pdfDoc.embedPng(imageBytes); }
-        catch { embeddedImage = await pdfDoc.embedJpg(imageBytes); }
-      }
+      applying = true;
+      try {
+        setStatus("Applying…", "Creating your watermarked PDF…");
 
-      pages.forEach(page=>{
-        const {width,height}=page.getSize();
+        const bytes = await file.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(bytes);
+        const pages = pdfDoc.getPages();
+        let embeddedImage = null;
 
-        if (wmPosition.value === "tile") {
-          for (let x = 40; x < width; x += 260) {
-            for (let y = 40; y < height; y += 180) {
-              draw(page, x, y, width, height, "tile");
-            }
-          }
-        } else {
-          draw(page, 0, 0, width, height, wmPosition.value);
+        if (activeWatermarkTab === "image" && imageBytes) {
+          try { embeddedImage = await pdfDoc.embedPng(imageBytes); }
+          catch { embeddedImage = await pdfDoc.embedJpg(imageBytes); }
         }
 
-        function draw(page, x, y, w, h, positionMode = "center"){
-          const opacity = parseFloat(wmOpacity.value);
-          const rotation = PDFLib.degrees(parseFloat(wmRotation.value));
-          const size = parseInt(wmSize.value, 10);
+        pages.forEach(page => {
+          const { width, height } = page.getSize();
 
-          let imageDrawWidth = 200;
-          let imageDrawHeight = 100;
-          let textDrawSize = size;
+          if (wmPosition.value === "tile") {
+            for (let x = 40; x < width; x += 260) {
+              for (let y = 40; y < height; y += 180) {
+                draw(page, x, y, width, height, "tile");
+              }
+            }
+          } else {
+            draw(page, 0, 0, width, height, wmPosition.value);
+          }
 
-          const rgb = PDFLib.rgb(
-            parseInt(wmColor.value.substr(1,2),16) / 255,
-            parseInt(wmColor.value.substr(3,2),16) / 255,
-            parseInt(wmColor.value.substr(5,2),16) / 255
-          );
+          function draw(page, x, y, w, h, positionMode = "center"){
+            const opacity = parseFloat(wmOpacity.value);
+            const rotation = PDFLib.degrees(parseFloat(wmRotation.value));
+            const size = parseInt(wmSize.value, 10);
 
-          let drawX = x;
-          let drawY = y;
+            let imageDrawWidth = 200;
+            let imageDrawHeight = 100;
+            let textDrawSize = size;
 
-          const canvasRect = pageCanvas.getBoundingClientRect();
+            const rgb = PDFLib.rgb(
+              parseInt(wmColor.value.substr(1,2),16) / 255,
+              parseInt(wmColor.value.substr(3,2),16) / 255,
+              parseInt(wmColor.value.substr(5,2),16) / 255
+            );
 
-          const watermarkWidthPx = wmBox.width;
-          const watermarkHeightPx = wmBox.height;
+            let drawX = x;
+            let drawY = y;
 
-          const scaleX = w / canvasRect.width;
-          const scaleY = h / canvasRect.height;
+            const canvasRect = pageCanvas.getBoundingClientRect();
+            const watermarkWidthPx = wmBox.width;
+            const watermarkHeightPx = wmBox.height;
 
-          if (positionMode !== "tile") {
-            const centerX = wmBox.x * canvasRect.width;
-            const centerY = wmBox.y * canvasRect.height;
+            const scaleX = w / canvasRect.width;
+            const scaleY = h / canvasRect.height;
 
-            const pdfWidth = watermarkWidthPx * scaleX;
-            const pdfHeight = watermarkHeightPx * scaleY;
+            if (positionMode !== "tile") {
+              const centerX = wmBox.x * canvasRect.width;
+              const centerY = wmBox.y * canvasRect.height;
 
-            drawX = (centerX * scaleX) - (pdfWidth / 2);
-            drawY = h - ((centerY * scaleY) + (pdfHeight / 2));
+              const pdfWidth = watermarkWidthPx * scaleX;
+              const pdfHeight = watermarkHeightPx * scaleY;
+
+              drawX = (centerX * scaleX) - (pdfWidth / 2);
+              drawY = h - ((centerY * scaleY) + (pdfHeight / 2));
+
+              if (embeddedImage) {
+                imageDrawWidth = pdfWidth;
+                imageDrawHeight = pdfHeight;
+              } else {
+                textDrawSize = Math.max(18, pdfHeight * 0.7);
+              }
+            }
 
             if (embeddedImage) {
-              imageDrawWidth = pdfWidth;
-              imageDrawHeight = pdfHeight;
+              page.drawImage(embeddedImage, {
+                x: drawX,
+                y: drawY,
+                width: imageDrawWidth,
+                height: imageDrawHeight,
+                opacity,
+                rotate: rotation
+              });
             } else {
-              textDrawSize = Math.max(18, pdfHeight * 0.7);
+              page.drawText(wmText.value || "", {
+                x: drawX,
+                y: drawY,
+                size: textDrawSize,
+                color: rgb,
+                opacity,
+                rotate: rotation
+              });
             }
           }
+        });
 
-          if (embeddedImage) {
-            page.drawImage(embeddedImage, {
-              x: drawX,
-              y: drawY,
-              width: imageDrawWidth,
-              height: imageDrawHeight,
-              opacity,
-              rotate: rotation
-            });
-          } else {
-            page.drawText(wmText.value || "", {
-              x: drawX,
-              y: drawY,
-              size: textDrawSize,
-              color: rgb,
-              opacity,
-              rotate: rotation
-            });
-          }
-        }
-      });
+        const out = await pdfDoc.save();
+        const newFile = new File(
+          [out],
+          (file.name || "document.pdf").replace(/\.pdf$/i,"") + " (watermarked).pdf",
+          { type:"application/pdf" }
+        );
 
-      const out=await pdfDoc.save();
-      const newFile=new File([out],file.name.replace(/\.pdf$/i,"")+" (watermarked).pdf",{type:"application/pdf"});
+        window.__PDFOPS_SELECTED__ = [newFile];
+        currentFile = newFile;
+        lastFileKey = "";
 
-    window.__PDFOPS_SELECTED__ = [newFile];
-    document.dispatchEvent(new CustomEvent("pdfops:selected", {
-      detail: { files: [newFile] }
-    }));
+        await renderFirstPage(new Uint8Array(out));
 
-    // Re-render preview from the newly watermarked PDF
-    const lib2 = window.pdfjsLib || await window.__pdfjsReady;
-    const pdf2 = await lib2.getDocument({ data: out }).promise;
-    const page2 = await pdf2.getPage(1);
-    const vp2 = page2.getViewport({ scale: 1 });
+        if (uploadBtn) uploadBtn.disabled = false;
+        if (continueBtn) continueBtn.disabled = false;
 
-    pageCanvas.width = vp2.width;
-    pageCanvas.height = vp2.height;
-    await page2.render({ canvasContext: ctx, viewport: vp2 }).promise;
+        document.body.classList.add("isProcessed");
+        setStatus("Ready", "Your watermarked PDF is ready. Unlock download.");
+      } catch (err) {
+        console.error(err);
+        setStatus("Error", "Could not apply watermark. Try again.");
+      } finally {
+        applying = false;
+      }
+    }
 
-    document.getElementById("upload").disabled=false;
-    document.getElementById("continue").disabled=false;
+    applyBtn.addEventListener("click", applyWatermarkToPdf);
+
+    unlockBtn?.addEventListener("click", () => {
+      continueBtn?.click();
     });
 
+    setInterval(async () => {
+      const f = getSelectedFile();
+      if (!f) return;
+      const key = `${f.name}:${f.size}:${f.lastModified || 0}`;
+      if (key !== lastFileKey) {
+        await loadPdf(f);
+      }
+    }, 500);
+
+    setStatus("Ready", "Drop a PDF to begin.");
   })();
   </script>
 
-<script>
-(function () {
-  const path = window.location.pathname.replace(/\/+$/, "") || "/";
+  <script>
+  (function () {
+    const path = window.location.pathname.replace(/\/+$/, "") || "/";
+    const map = {
+      "/": "compress",
+      "/compress-image": "compress-image",
+      "/merge-pdf": "merge",
+      "/split-pdf": "split",
+      "/rotate-pdf": "rotate",
+      "/convert": "convert",
+      "/sign-pdf": "sign",
+      "/edit-pdf": "edit",
+      "/watermark-pdf": "watermark"
+    };
 
-  const map = {
-    "/": "compress",
-    "/compress-image": "compress-image",
-    "/merge-pdf": "merge",
-    "/split-pdf": "split",
-    "/rotate-pdf": "rotate",
-    "/convert": "convert",
-    "/sign-pdf": "sign",
-    "/edit-pdf": "edit",
-    "/watermark-pdf": "watermark"
-  };
+    const key = map[path];
+    if (!key) return;
 
-  const key = map[path];
-  if (!key) return;
+    document.querySelectorAll(".navLinks a").forEach((el) => {
+      el.removeAttribute("aria-current");
+    });
 
-  document.querySelectorAll(".navLinks a").forEach((el) => {
-    el.removeAttribute("aria-current");
-  });
-
-  document.querySelectorAll(`.navLinks a[data-nav="${key}"]`).forEach((el) => {
-    el.setAttribute("aria-current", "page");
-  });
-})();
-</script>
-
+    document.querySelectorAll(`.navLinks a[data-nav="${key}"]`).forEach((el) => {
+      el.setAttribute("aria-current", "page");
+    });
+  })();
+  </script>
 </body>
 </html>
