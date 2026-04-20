@@ -1,9 +1,8 @@
-<!-- public/convert.html — PDFOperations (v7 - FULL RAMBO CONVERT UX + PRESET PATHS + READY STATE; NO FUNCTION CHANGES)
-    ✅ NO functional changes / all app.js IDs preserved
-     ✅ style.css?v=36 + app.js?v=18
-     ✅ Tool-first UX unchanged
-     ✅ Bottom section now uses the EXACT same “plainSection / featureGrid / faqListPlain / relatedLinks” structure + styling as split-pdf
-     ✅ Schema: Organization + WebPage + SoftwareApplication + Breadcrumb + FAQ
+<!-- public/convert.html — PDFOperations (v8 - FULL RAMBO MONEY PAGE; CONVERT PRESETS + READY STATE; NO FUNCTION CHANGES)
+     ✅ NO functional changes / all app.js IDs preserved
+     ✅ style.css?v=36 + app.js?v=18 compatible
+     ✅ Stronger conversion framing + proof-before-download feel
+     ✅ Same plainSection / featureGrid / faqListPlain / relatedLinks system retained
 -->
 <!doctype html>
 <html lang="en">
@@ -12,14 +11,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Convert PDF, JPG, PNG & WebP Online | PDFOperations</title>
-  <meta name="description" content="Convert PDF, JPG, PNG and WebP files online. Upload files, choose a format, and download instantly. Secure processing. No signup required." />
+  <meta name="description" content="Convert PDF, JPG, PNG and WebP files online. Upload files, choose a format, prepare the converted output, then download instantly." />
   <link rel="canonical" href="https://pdfoperations.com/convert" />
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light" />
 
-  <!-- Google Analytics (PDFOperations) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQ3QKV7KHG"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -28,21 +26,18 @@
     gtag('config', 'G-YQ3QKV7KHG');
   </script>
 
-  <!-- Open Graph -->
   <meta property="og:title" content="Convert PDF, JPG, PNG & WebP Online | PDFOperations" />
-  <meta property="og:description" content="Upload files, choose a format, and download instantly. Multiple files supported." />
+  <meta property="og:description" content="Upload files, choose a format, prepare the converted output, then download. Multiple files supported." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/convert" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
   <meta property="og:image:alt" content="PDFOperations — Convert Files" />
 
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Convert PDF, JPG, PNG & WebP Online | PDFOperations" />
-  <meta name="twitter:description" content="Upload files, choose a format, and download instantly. Multiple files supported." />
+  <meta name="twitter:description" content="Upload files, choose a format, prepare the converted output, then download. Multiple files supported." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
-  <!-- Favicon -->
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96">
   <link rel="shortcut icon" href="/favicon.ico">
@@ -55,11 +50,6 @@
 
   <link rel="stylesheet" href="/style.css?v=36" />
 
-  <!-- =========================
-       SCHEMA (SEO)
-  ========================== -->
-
-  <!-- Organization -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -70,44 +60,52 @@
   }
   </script>
 
-  <!-- WebPage -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
     "@type":"WebPage",
     "name":"Convert PDF, JPG, PNG & WebP Online — PDFOperations",
     "url":"https://pdfoperations.com/convert",
-    "description":"Convert PDF, JPG, PNG and WebP files online. Upload files, choose a format, and download instantly.",
+    "description":"Convert PDF, JPG, PNG and WebP files online. Upload files, choose a format, prepare the converted output, then download instantly.",
     "isPartOf":{
       "@type":"WebSite",
       "name":"PDFOperations",
       "url":"https://pdfoperations.com/"
-    }
+    },
+    "about": {
+      "@type": "Thing",
+      "name": "File conversion"
+    },
+    "primaryImageOfPage": "https://pdfoperations.com/og.png"
   }
   </script>
 
-  <!-- SoftwareApplication -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
     "@type":"SoftwareApplication",
     "name":"PDFOperations - Convert Files",
-    "applicationCategory": "BusinessApplication",
+    "applicationCategory":"BusinessApplication",
     "applicationSubCategory":"File Conversion",
     "operatingSystem":"Web",
     "browserRequirements":"Requires JavaScript. Works in modern browsers.",
     "url":"https://pdfoperations.com/convert",
     "description":"Online file conversion tool to convert between PDF, JPG, PNG and WebP formats.",
     "featureList":[
-      "Convert PDF to JPG, PNG, WebP",
-      "Convert JPG/PNG/WebP to PDF",
+      "Convert PDF to JPG, PNG and WebP",
+      "Convert JPG, PNG and WebP to PDF",
       "Batch convert multiple files",
-      "ZIP download when multiple outputs"
-    ]
+      "ZIP download when multiple outputs are created",
+      "Prepare converted output before download"
+    ],
+    "offers":{
+      "@type":"Offer",
+      "priceCurrency":"GBP",
+      "price":"2.99"
+    }
   }
   </script>
 
-  <!-- Breadcrumb -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -119,7 +117,6 @@
   }
   </script>
 
-  <!-- FAQ -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -130,7 +127,7 @@
         "name":"Can I convert multiple files at once?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"Yes. Add multiple files and they’ll be converted in one session. Multiple outputs are bundled into a ZIP."
+          "text":"Yes. Add multiple files and they will be converted in one session. Multiple outputs are bundled into a ZIP when needed."
         }
       },
       {
@@ -146,7 +143,7 @@
         "name":"Do I need an account to convert files?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"No signup required. Upload, continue, then download."
+          "text":"No signup required. Upload, prepare the conversion, then continue when ready."
         }
       },
       {
@@ -154,7 +151,7 @@
         "name":"What will I download after converting?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"You’ll download the converted file(s). If your job produces multiple outputs, you’ll receive a ZIP bundle."
+          "text":"You will download the converted file or files. If your job produces multiple outputs, they are bundled into one ZIP."
         }
       }
     ]
@@ -162,30 +159,93 @@
   </script>
 
   <style>
-    /* Keep brand logo stable across pages */
     .brandLogo{ height:34px; width:auto; display:block; }
 
-    /* Protect [hidden] from flashing */
     #progressWrap[hidden],
     #fileMeta[hidden]{ display:none !important; }
     [hidden]{ display:none !important; }
 
-    /* ---- No “bubble” look: trust clean inline ---- */
-    .proKicker{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-      font-size:12px;
-      letter-spacing:.02em;
-      opacity:.76;
-      text-transform:uppercase;
-      margin-bottom:8px;
-    }
-
     body.isProcessed #convertReadyBox{
-    display:block !important;
+      display:block !important;
     }
 
     body.isProcessed .actionRow{
       display:none !important;
+    }
+
+    .hero.heroPremium.heroToolFirst{
+      padding-top:22px;
+      padding-bottom:20px;
+    }
+
+    .tool.toolPremium.toolMega{
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.14);
+      box-shadow:0 26px 80px rgba(2,6,23,.10);
+      background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,1));
+    }
+
+    .toolHeadMinimal{
+      border-bottom:1px solid rgba(15,23,42,.10);
+      padding-bottom:14px;
+      margin-bottom:14px;
+    }
+
+    .proKicker{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      font-size:12px;
+      letter-spacing:.10em;
+      opacity:.76;
+      text-transform:uppercase;
+      margin-bottom:8px;
+      text-align:center;
+    }
+
+    .toolTitle{
+      text-align:center;
+      letter-spacing:-.03em;
+      font-weight:1000;
+    }
+
+    .toolSub{
+      max-width:66ch;
+      margin:10px auto 0;
+      text-align:center;
+      opacity:.82;
+    }
+
+    .valueStrip{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .valueStripCard{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      background:linear-gradient(180deg,#fff,#f8fafc);
+      padding:14px;
+      text-align:center;
+    }
+
+    .valueStripCard strong{
+      display:block;
+      font-size:15px;
+      letter-spacing:-.02em;
+      color:rgba(11,18,32,.96);
+      margin-bottom:6px;
+    }
+
+    .valueStripCard span{
+      display:block;
+      font-size:13px;
+      line-height:1.5;
+      color:rgba(11,18,32,.72);
+    }
+
+    @media (max-width:900px){
+      .valueStrip{ grid-template-columns:1fr; }
     }
 
     .trustBar{
@@ -197,6 +257,7 @@
       border-top:1px solid rgba(15,23,42,.10);
       color:rgba(11,18,32,.72);
       font-size:13px;
+      justify-content:center;
     }
 
     .trustPill{
@@ -211,11 +272,57 @@
       gap:8px;
       white-space:nowrap;
     }
+
     .trustPill::before{ content:"•"; opacity:.55; }
     .trustBar .trustPill:first-child::before{ content:""; }
 
-    /* Tool layout: tighten + align */
-    .toolHeadMinimal .toolSub{ max-width: 66ch; }
+    .convertPresetRow{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+      margin-top:16px;
+      margin-bottom:14px;
+    }
+
+    .convertPreset{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:12px;
+      background:#fff;
+      padding:12px;
+      text-align:left;
+      cursor:pointer;
+      transition:transform .08s ease, border-color .08s ease, background .08s ease;
+    }
+
+    .convertPreset:hover{
+      transform:translateY(-1px);
+      border-color:rgba(15,23,42,.22);
+      background:rgba(11,18,32,.01);
+    }
+
+    .convertPreset strong{
+      display:block;
+      font-size:14px;
+      font-weight:950;
+      letter-spacing:-.01em;
+      color:rgba(11,18,32,.94);
+      margin-bottom:4px;
+    }
+
+    .convertPreset span{
+      display:block;
+      font-size:12px;
+      line-height:1.45;
+      color:rgba(11,18,32,.70);
+    }
+
+    @media (max-width:1100px){
+      .convertPresetRow{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+
+    @media (max-width:640px){
+      .convertPresetRow{ grid-template-columns:1fr; }
+    }
 
     .convertRowFull{
       margin-top:12px;
@@ -224,9 +331,27 @@
       align-items:flex-end;
       gap:12px;
     }
-    .convertGroup{ display:flex; flex-direction:column; gap:6px; min-width:220px; }
-    .convertLabel{ font-size:12px; font-weight:800; opacity:.74; letter-spacing:-.01em; }
-    .convertArrow{ font-weight:950; opacity:.55; padding:0 6px 8px; }
+
+    .convertGroup{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:220px;
+    }
+
+    .convertLabel{
+      font-size:12px;
+      font-weight:800;
+      opacity:.74;
+      letter-spacing:-.01em;
+    }
+
+    .convertArrow{
+      font-weight:950;
+      opacity:.55;
+      padding:0 6px 8px;
+    }
+
     .convertHint{
       flex:1;
       min-width:240px;
@@ -237,18 +362,103 @@
       max-width:52ch;
     }
 
-    /* Dropzone polish */
+    #convertFrom, #convertTarget{
+      width:100%;
+      max-width:100%;
+    }
+
     .dropzoneMega{ margin-top:14px; }
     .dzTitle{ font-weight:950; letter-spacing:-.02em; }
     .dzSub{ opacity:.78; }
     .dzFine{ opacity:.74; }
 
-    /* Ensure convert selects feel consistent even if global CSS is opinionated */
-    #convertFrom, #convertTarget{ width:100%; max-width:100%; }
+    .proofRow{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:14px;
+      margin-bottom:14px;
+    }
 
-    /* =========================
-       BOTTOM SEO SECTION — EXACT MATCH TO split-pdf “plainSection” LOOK
-    ========================== */
+    .proofCard{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      background:linear-gradient(180deg,#fff,#f8fafc);
+      padding:14px;
+    }
+
+    .proofLabel{
+      font-size:12px;
+      opacity:.66;
+      margin-bottom:6px;
+    }
+
+    .proofValue{
+      font-size:20px;
+      font-weight:1000;
+      letter-spacing:-.03em;
+      color:rgba(11,18,32,.95);
+    }
+
+    @media (max-width:900px){
+      .proofRow{ grid-template-columns:1fr; }
+    }
+
+    #convertReadyBox{
+      display:none;
+      text-align:center;
+      margin-top:14px;
+      margin-bottom:14px;
+      padding:18px;
+      border:1px solid rgba(15,23,42,.14);
+      border-radius:16px;
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+      box-shadow:0 18px 40px rgba(2,6,23,.08);
+    }
+
+    .convertReadyTitle{
+      font-weight:1000;
+      font-size:22px;
+      margin-bottom:12px;
+      letter-spacing:-.03em;
+    }
+
+    .convertReadyGrid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    @media (max-width:900px){
+      .convertReadyGrid{ grid-template-columns:1fr; }
+    }
+
+    .convertReadyStat{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:12px;
+      padding:14px;
+      background:#fff;
+    }
+
+    .convertReadyLabel{
+      font-size:12px;
+      opacity:.65;
+      margin-bottom:6px;
+    }
+
+    .convertReadyValue{
+      font-size:22px;
+      font-weight:1000;
+      letter-spacing:-.03em;
+    }
+
+    .convertReadyFine{
+      font-size:13px;
+      opacity:.72;
+      margin-top:10px;
+    }
+
     .plainSection{ padding:56px 0 38px; }
     .plainKicker{
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -331,18 +541,16 @@
       max-width: 80ch;
     }
 
-    /* Minimal inline SVG styling (match split) */
     .icoStroke{ stroke: rgba(11,18,32,.92); }
     .icoFill{ fill: rgba(11,18,32,.92); }
   </style>
 </head>
 
-<body class="premium" data-tool="convert">
+<body class="premium page pageConvert" data-tool="convert">
 <a href="#tool" class="srOnly">Skip to the tool</a>
 
 <header class="nav">
   <div class="container navInner">
-
     <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/logo.png" alt="PDFOperations" class="brandLogoFull" />
     </a>
@@ -358,7 +566,6 @@
       <a href="/edit-pdf" data-nav="edit">Edit</a>
       <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
     </nav>
-
   </div>
 </header>
 
@@ -366,15 +573,29 @@
 
 <section class="hero heroPremium heroToolFirst">
   <div class="container heroWide">
-
     <div id="tool" class="tool toolPremium toolMega">
 
       <div class="toolHead toolHeadMinimal">
-        <div class="proKicker">PDF Tool</div>
-        <h1 class="toolTitle">Convert PDF, JPG, PNG and WebP in Seconds</h1>
+        <div class="proKicker">File conversion</div>
+        <h1 class="toolTitle">Convert PDF, JPG, PNG and WebP files fast</h1>
         <p class="toolSub">
-          Change file formats fast for uploads, emails and document workflows. Upload your files, choose an output format, then unlock the converted result.
+          Change file formats for uploads, emails, websites and document workflows. Choose the output you need, prepare the converted result, then download when ready.
         </p>
+
+        <div class="valueStrip" aria-label="Benefits">
+          <div class="valueStripCard">
+            <strong>Fix format problems fast</strong>
+            <span>Useful when a site wants PDF, an email needs images, or a workflow needs a different file type.</span>
+          </div>
+          <div class="valueStripCard">
+            <strong>Batch convert in one go</strong>
+            <span>Upload multiple files and prepare the outputs together instead of running separate jobs.</span>
+          </div>
+          <div class="valueStripCard">
+            <strong>One clean download flow</strong>
+            <span>Get a single file or a ZIP bundle depending on the output your conversion creates.</span>
+          </div>
+        </div>
 
         <div class="trustBar" aria-label="Trust indicators">
           <div class="trustPill">No signup</div>
@@ -392,7 +613,21 @@
         <div class="statusHint" id="statusHint">Choose a target format and add your files.</div>
       </div>
 
-      <!-- REQUIRED MODE INPUTS (app.js compatibility) -->
+      <div class="proofRow" aria-label="Common uses">
+        <div class="proofCard">
+          <div class="proofLabel">Best for</div>
+          <div class="proofValue">Format fixes</div>
+        </div>
+        <div class="proofCard">
+          <div class="proofLabel">Also useful for</div>
+          <div class="proofValue">Batch jobs</div>
+        </div>
+        <div class="proofCard">
+          <div class="proofLabel">Outputs</div>
+          <div class="proofValue">Single or ZIP</div>
+        </div>
+      </div>
+
       <fieldset class="modeRow" style="display:none;">
         <input type="radio" name="mode" id="modeCompress">
         <input type="radio" name="mode" id="modeCompressPdf">
@@ -402,7 +637,6 @@
         <input type="radio" name="mode" id="modeRotatePdf">
       </fieldset>
 
-      <!-- Hidden controls expected by app.js in other flows -->
       <div id="pdfCompressRow" style="display:none;">
         <select id="pdfCompressLevel">
           <option value="balanced" selected>Balanced</option>
@@ -410,6 +644,7 @@
           <option value="max">Maximum</option>
         </select>
       </div>
+
       <div style="display:none;">
         <select id="rotateDegrees">
           <option value="90" selected>90°</option>
@@ -418,9 +653,26 @@
         </select>
       </div>
 
-      <!-- CONVERT CONTROLS (IDs preserved) -->
-      <div class="convertRow convertRowFull" aria-label="Conversion options">
+      <div class="convertPresetRow" aria-label="Popular conversions">
+        <button type="button" class="convertPreset" data-from="pdf" data-to="jpg">
+          <strong>PDF → JPG</strong>
+          <span>Turn PDF pages into images for sharing or uploads.</span>
+        </button>
+        <button type="button" class="convertPreset" data-from="jpg" data-to="pdf">
+          <strong>JPG → PDF</strong>
+          <span>Wrap images into a PDF for forms and portals.</span>
+        </button>
+        <button type="button" class="convertPreset" data-from="png" data-to="pdf">
+          <strong>PNG → PDF</strong>
+          <span>Create PDFs from screenshots or graphics.</span>
+        </button>
+        <button type="button" class="convertPreset" data-from="webp" data-to="png">
+          <strong>WebP → PNG</strong>
+          <span>Convert web images into a more widely accepted format.</span>
+        </button>
+      </div>
 
+      <div class="convertRow convertRowFull" aria-label="Conversion options">
         <div class="convertGroup">
           <div class="convertLabel">From</div>
           <select id="convertFrom">
@@ -444,18 +696,16 @@
           </select>
         </div>
 
-  <div class="convertHint">
-    Choose the output format you want, then upload your files.
-  </div>
-
+        <div class="convertHint" id="convertHintText">
+          Choose the output format you want, then upload your files.
+        </div>
       </div>
 
-      <!-- DROPZONE (IDs preserved) -->
       <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
         <div class="dzCenter">
           <div class="dzIcon"><span class="dzArrow">↑</span></div>
-          <div class="dzTitle" id="dzTitle">Drop files here</div>
-          <div class="dzSub" id="dzSub">Drag & drop or select your files</div>
+          <div class="dzTitle" id="dzTitle">Drop files here to convert them now</div>
+          <div class="dzSub" id="dzSub">Drag and drop or select your files</div>
 
           <div class="filePick">
             <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select files</button>
@@ -474,10 +724,9 @@
         </div>
       </div>
 
-      <!-- PROGRESS (IDs preserved) -->
       <div class="progressWrap" id="progressWrap" hidden>
         <div class="progressTop">
-          <div id="progressLabel">Uploading…</div>
+          <div id="progressLabel">Preparing converted files…</div>
           <div id="progressPct">0%</div>
         </div>
         <div class="progressBar">
@@ -486,48 +735,52 @@
         <div id="progressMeta"></div>
       </div>
 
-      <!-- ACTIONS (IDs preserved) -->
       <div class="actionRow actionRowWide">
-        <button class="btnSoft" id="upload" disabled>Upload files</button>
-        <button class="btnPrimary btnStrong" id="continue" disabled>Unlock Download</button>
+        <button class="btnSoft" id="upload" disabled>Prepare converted files</button>
+        <button class="btnPrimary btnStrong" id="continue" disabled>Unlock download →</button>
       </div>
 
-      <div id="convertReadyBox" style="
-        display:none;
-        text-align:center;
-        margin-bottom:14px;
-        padding:16px;
-        border:1px solid rgba(15,23,42,.14);
-        border-radius:12px;
-        background:linear-gradient(180deg,#ffffff,#f8fafc);
-      ">
-        <div style="font-weight:1000; font-size:16px; margin-bottom:8px;">
-          ✔ Your converted file is ready
+      <div id="convertReadyBox">
+        <div class="convertReadyTitle">✔ Your converted output is ready</div>
+
+        <div class="convertReadyGrid">
+          <div class="convertReadyStat">
+            <div class="convertReadyLabel">Files prepared</div>
+            <div class="convertReadyValue" id="convertReadyCount">—</div>
+          </div>
+
+          <div class="convertReadyStat">
+            <div class="convertReadyLabel">Target format</div>
+            <div class="convertReadyValue" id="convertReadyTarget">—</div>
+          </div>
+
+          <div class="convertReadyStat">
+            <div class="convertReadyLabel">Status</div>
+            <div class="convertReadyValue">Ready</div>
+          </div>
         </div>
-        <div style="font-size:13px; opacity:.85; margin-bottom:12px;">
+
+        <button id="convertUnlockBtn" class="btnPrimary btnStrong" style="width:100%;" type="button">
+          Download converted files →
+        </button>
+
+        <div class="convertReadyFine">
           Your conversion has been prepared for final download.
         </div>
-        <button id="convertUnlockBtn" class="btnPrimary btnStrong" style="width:100%;" type="button">
-          Unlock Download
-        </button>
       </div>
 
       <div class="fineprint">Convert, then download when ready.</div>
     </div>
-
   </div>
 </section>
 
-<!-- CLEAN SUPPORT SECTION (EXACT LOOK + STRUCTURE AS split-pdf; CONVERT COPY) -->
 <section class="plainSection" id="about">
   <div class="container heroWide">
 
-    <div class="plainKicker">About</div>
-    <h2 class="plainH2">Convert PDF, JPG, PNG and WebP files online</h2>
+    <div class="plainKicker">Convert files online</div>
+    <h2 class="plainH2">Convert PDF, JPG, PNG and WebP files without the usual friction</h2>
     <p class="plainLead">
-      Convert documents and images directly in your browser. Upload one file or run a batch conversion, choose an output
-      format, then download your converted file(s). If a job produces multiple outputs, everything is bundled into one ZIP
-      for clean delivery.
+      Use PDFOperations to convert documents and images when a workflow needs the wrong format fixed fast. This is useful for portals that require PDF, image-based uploads, email attachments, screenshots, website assets and document handovers. Upload one file or run a batch job, choose the output you need, then download the converted result.
     </p>
 
     <div class="featureGrid" aria-label="What you can do">
@@ -539,7 +792,7 @@
           </svg>
         </div>
         <h3 class="featTitle">Batch conversions</h3>
-        <p class="featText">Upload multiple files and convert them in one session.</p>
+        <p class="featText">Upload multiple files and convert them in one session instead of handling them one by one.</p>
       </div>
 
       <div>
@@ -549,8 +802,8 @@
             <path class="icoStroke" d="M4 6v2M4 11v2M4 16v2" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </div>
-        <h3 class="featTitle">Choose your output</h3>
-        <p class="featText">Pick PDF, JPG, PNG or WebP — convert in either direction depending on input.</p>
+        <h3 class="featTitle">Choose the output you need</h3>
+        <p class="featText">Convert between PDF, JPG, PNG and WebP depending on the format your workflow actually accepts.</p>
       </div>
 
       <div>
@@ -562,7 +815,7 @@
           </svg>
         </div>
         <h3 class="featTitle">ZIP when needed</h3>
-        <p class="featText">If your conversion produces multiple outputs, they’re delivered in one ZIP.</p>
+        <p class="featText">If your conversion creates multiple outputs, everything is delivered in one cleaner ZIP bundle.</p>
       </div>
 
       <div>
@@ -572,8 +825,8 @@
             <path class="icoStroke" d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3 class="featTitle">Clean delivery workflow</h3>
-        <p class="featText">Made for portals, emails and uploads — convert, then download immediately.</p>
+        <h3 class="featTitle">Built for real delivery</h3>
+        <p class="featText">Useful for portals, admin systems, emails and file handovers where the wrong format blocks progress.</p>
       </div>
 
       <div>
@@ -583,8 +836,8 @@
             <path class="icoStroke" d="M9 10h6" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </div>
-        <h3 class="featTitle">No account</h3>
-        <p class="featText">No signup. Upload, continue, then download when your output is ready.</p>
+        <h3 class="featTitle">No account wall</h3>
+        <p class="featText">No signup required. Upload, prepare the conversion, then continue when the output is ready.</p>
       </div>
 
       <div>
@@ -595,7 +848,7 @@
           </svg>
         </div>
         <h3 class="featTitle">Secure processing</h3>
-        <p class="featText">Files are processed to generate your output. See Privacy for retention details.</p>
+        <p class="featText">Files are processed to generate your output. See Privacy for retention and deletion details.</p>
       </div>
     </div>
 
@@ -609,7 +862,7 @@
         <div class="faqListPlain">
           <div class="faqItemPlain">
             <div class="faqQ">Can I convert multiple files at once?</div>
-            <p class="faqA">Yes — add multiple files and convert them in one session. If your job creates multiple outputs, you’ll get a ZIP bundle.</p>
+            <p class="faqA">Yes. Add multiple files and convert them in one session. If your job creates multiple outputs, you will receive a ZIP bundle.</p>
           </div>
 
           <div class="faqItemPlain">
@@ -619,17 +872,17 @@
 
           <div class="faqItemPlain">
             <div class="faqQ">Do I need an account?</div>
-            <p class="faqA">No signup required. Upload, continue, then download.</p>
+            <p class="faqA">No signup required. Upload, prepare the conversion, then continue when ready.</p>
           </div>
 
           <div class="faqItemPlain">
             <div class="faqQ">What will I download?</div>
-            <p class="faqA">You’ll download the converted file(s). If multiple outputs are produced, they’re delivered as one ZIP bundle.</p>
+            <p class="faqA">You will download the converted file or files. If multiple outputs are produced, they are bundled into one ZIP.</p>
           </div>
         </div>
 
         <div class="plainNote">
-          Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
+          Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a> • <a href="/pricing">Pricing</a>
         </div>
       </div>
 
@@ -637,7 +890,7 @@
         <div class="plainKicker">Related tools</div>
         <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.02em; font-weight:950;">More PDF tools</h3>
         <p class="plainLead" style="font-size:15px; margin-top:0; max-width:56ch;">
-          Need something else? Use the same workflow across tools — upload, process, download.
+          Need something else? Use the same upload → prepare → download flow across the rest of the tool set.
         </p>
 
         <div class="relatedLinks" aria-label="Related PDF tools">
@@ -648,7 +901,7 @@
         </div>
 
         <div class="plainNote">
-          Tip: For bigger batches, convert multiple files at once — you’ll receive one ZIP if needed.
+          Tip: for bigger batches, convert multiple files at once so everything arrives in one cleaner bundle.
         </div>
       </div>
     </div>
@@ -679,12 +932,54 @@
 (() => {
   const convertUnlockBtn = document.getElementById("convertUnlockBtn");
   const continueBtn = document.getElementById("continue");
+  const convertFrom = document.getElementById("convertFrom");
+  const convertTarget = document.getElementById("convertTarget");
+  const convertHintText = document.getElementById("convertHintText");
+  const convertReadyTarget = document.getElementById("convertReadyTarget");
+  const convertReadyCount = document.getElementById("convertReadyCount");
+  const filesInput = document.getElementById("files");
+  const presetButtons = document.querySelectorAll(".convertPreset");
+
+  function updateConvertCopy() {
+    if (convertHintText && convertTarget) {
+      const target = String(convertTarget.value || "").toUpperCase();
+      convertHintText.textContent = target
+        ? `Your files will be prepared as ${target}. Upload one file or run a batch conversion.`
+        : `Choose the output format you want, then upload your files.`;
+    }
+
+    if (convertReadyTarget && convertTarget) {
+      const target = String(convertTarget.value || "").toUpperCase();
+      convertReadyTarget.textContent = target || "—";
+    }
+
+    if (convertReadyCount && filesInput) {
+      const count = filesInput.files ? filesInput.files.length : 0;
+      convertReadyCount.textContent = count ? String(count) : "—";
+    }
+  }
 
   if (convertUnlockBtn && continueBtn) {
     convertUnlockBtn.addEventListener("click", () => {
       continueBtn.click();
     });
   }
+
+  if (convertFrom) convertFrom.addEventListener("change", updateConvertCopy);
+  if (convertTarget) convertTarget.addEventListener("change", updateConvertCopy);
+  if (filesInput) filesInput.addEventListener("change", updateConvertCopy);
+
+  presetButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const from = btn.getAttribute("data-from");
+      const to = btn.getAttribute("data-to");
+      if (convertFrom && from) convertFrom.value = from;
+      if (convertTarget && to) convertTarget.value = to;
+      updateConvertCopy();
+    });
+  });
+
+  updateConvertCopy();
 })();
 </script>
 
