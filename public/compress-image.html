@@ -1,8 +1,8 @@
-<!-- public/compress-image.html — PDFOperations (v1 - IMAGE COMPRESSOR PAGE; TOOL-FIRST; NO MOCK DATA)
-     ✅ Matches style.css?v=36 + app.js?v=18 structure
-     ✅ Uses existing upload / progress / continue flow IDs
-     ✅ Customer-facing copy only
-     ✅ Built for JPG / PNG / WebP compression
+<!-- public/compress-image.html — PDFOperations (v2 - FULL RAMBO IMAGE MONEY PAGE; PREVIEW-FIRST; NO MOCK DATA)
+     ✅ Keeps existing app.js IDs/hooks
+     ✅ Stronger conversion copy
+     ✅ Adds result/savings block before payment
+     ✅ Keeps customer-facing SEO + trust sections
 -->
 <!doctype html>
 <html lang="en">
@@ -11,14 +11,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Compress Image Online — Reduce JPG, PNG & WebP File Size | PDFOperations</title>
-  <meta name="description" content="Compress images online to reduce JPG, PNG and WebP file size for upload limits, email attachments, forms and websites. No signup required." />
+  <meta name="description" content="Compress images online to reduce JPG, PNG and WebP file size for upload limits, email attachments, forms and websites. Preview the smaller result before download." />
   <link rel="canonical" href="https://pdfoperations.com/compress-image" />
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light" />
 
-  <!-- Google Analytics (PDFOperations) -->
+  <meta property="og:title" content="Compress Image Online — Reduce JPG, PNG & WebP File Size | PDFOperations" />
+  <meta property="og:description" content="Reduce image file size for uploads, email attachments, forms and websites. Preview the smaller result before download." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pdfoperations.com/compress-image" />
+  <meta property="og:image" content="https://pdfoperations.com/og.png" />
+  <meta property="og:image:alt" content="PDFOperations — Compress Image" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Compress Image Online — Reduce JPG, PNG & WebP File Size | PDFOperations" />
+  <meta name="twitter:description" content="Reduce JPG, PNG and WebP file size for uploads, email attachments and websites. Preview the smaller result before download." />
+  <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
+
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQ3QKV7KHG"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -27,21 +38,6 @@
     gtag('config', 'G-YQ3QKV7KHG');
   </script>
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="Compress Image Online — Reduce JPG, PNG & WebP File Size | PDFOperations" />
-  <meta property="og:description" content="Reduce image file size for uploads, email attachments, forms and websites. Compress JPG, PNG and WebP online." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://pdfoperations.com/compress-image" />
-  <meta property="og:image" content="https://pdfoperations.com/og.png" />
-  <meta property="og:image:alt" content="PDFOperations — Compress Image" />
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Compress Image Online — Reduce JPG, PNG & WebP File Size | PDFOperations" />
-  <meta name="twitter:description" content="Reduce image file size for uploads, email attachments, forms and websites. Compress JPG, PNG and WebP online." />
-  <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
-
-  <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/png" sizes="192x192" href="/web-app-manifest-192x192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="/web-app-manifest-512x512.png">
@@ -54,7 +50,6 @@
 
   <link rel="stylesheet" href="/style.css?v=36" />
 
-  <!-- Schema -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -76,7 +71,12 @@
       "@type":"WebSite",
       "name":"PDFOperations",
       "url":"https://pdfoperations.com/"
-    }
+    },
+    "about": {
+      "@type": "Thing",
+      "name": "Image compression"
+    },
+    "primaryImageOfPage": "https://pdfoperations.com/og.png"
   }
   </script>
 
@@ -90,13 +90,19 @@
     "operatingSystem":"Web",
     "browserRequirements":"Requires JavaScript. Works in modern browsers.",
     "url":"https://pdfoperations.com/compress-image",
-    "description":"Online image compression for reducing JPG, PNG and WebP file size.",
+    "description":"Online image compression for reducing JPG, PNG and WebP file size for uploads, email attachments and websites.",
+    "offers": {
+      "@type": "Offer",
+      "price": "2.99",
+      "priceCurrency": "GBP"
+    },
     "featureList":[
       "Compress JPG images",
       "Compress PNG images",
       "Compress WebP images",
       "Reduce image size for uploads",
-      "Reduce image size for email"
+      "Reduce image size for email",
+      "Preview smaller results before download"
     ]
   }
   </script>
@@ -122,7 +128,7 @@
         "name":"How do I compress an image online?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"Upload your JPG, PNG or WebP image, prepare it, then continue to download a smaller version."
+          "text":"Upload your JPG, PNG or WebP image, prepare it, preview the smaller result, then continue to download it."
         }
       },
       {
@@ -130,7 +136,7 @@
         "name":"Can I reduce image size for email attachments?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"Yes. Compressing an image can make it easier to send through email and pass attachment size limits."
+          "text":"Yes. Compressing an image makes it easier to send through Gmail, Outlook and work email systems with attachment limits."
         }
       },
       {
@@ -138,7 +144,7 @@
         "name":"Can I compress images for website uploads?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"Yes. Smaller image files are easier to upload to websites, forms and content systems."
+          "text":"Yes. Smaller image files are easier to upload to websites, forms, CMS platforms and listing tools."
         }
       },
       {
@@ -156,92 +162,360 @@
   <style>
     .brandLogo{ height:34px; width:auto; display:block; }
 
+    [hidden]{ display:none !important; }
     #progressWrap[hidden],
     #fileMeta[hidden]{ display:none !important; }
-    [hidden]{ display:none !important; }
+    #files{ display:none !important; }
+
+    .hero.heroPremium.heroToolFirst{
+      padding-top:22px;
+      padding-bottom:20px;
+    }
+
+    .tool.toolPremium.toolMega{
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.14);
+      box-shadow:0 26px 80px rgba(2,6,23,.10);
+      background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,1));
+    }
+
+    .toolHeadMinimal{
+      border-bottom:1px solid rgba(15,23,42,.10);
+      padding-bottom:14px;
+      margin-bottom:14px;
+    }
+
+    .toolTitle{
+      letter-spacing:-.03em;
+      font-weight:1000;
+      text-align:center;
+    }
+
+    .toolSub{
+      opacity:.82;
+      text-align:center;
+      max-width:700px;
+      margin:10px auto 0;
+    }
 
     .proKicker{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
       font-size:12px;
-      letter-spacing:.02em;
-      opacity:.76;
+      letter-spacing:.08em;
       text-transform:uppercase;
+      opacity:.74;
       margin-bottom:8px;
+      text-align:center;
+    }
+
+    .valueStrip{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .valueStripCard{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      background:linear-gradient(180deg,#fff,#f8fafc);
+      padding:14px;
+      text-align:center;
+    }
+
+    .valueStripCard strong{
+      display:block;
+      font-size:15px;
+      letter-spacing:-.02em;
+      color:rgba(11,18,32,.96);
+      margin-bottom:6px;
+    }
+
+    .valueStripCard span{
+      display:block;
+      font-size:13px;
+      line-height:1.5;
+      color:rgba(11,18,32,.72);
+    }
+
+    @media (max-width: 900px){
+      .valueStrip{
+        grid-template-columns:1fr;
+      }
     }
 
     .trustBar{
       display:flex;
       flex-wrap:wrap;
       gap:10px 18px;
-      margin-top:14px;
-      padding-top:14px;
+      margin-top:16px;
+      padding-top:16px;
       border-top:1px solid rgba(15,23,42,.10);
       color:rgba(11,18,32,.72);
       font-size:13px;
+      justify-content:center;
     }
 
     .trustPill{
-      padding:0 !important;
-      border:0 !important;
-      background:transparent !important;
-      box-shadow:none !important;
-      border-radius:0 !important;
-      font-weight:750;
+      font-weight:850;
       display:flex;
       align-items:center;
       gap:8px;
       white-space:nowrap;
     }
-    .trustPill::before{ content:"•"; opacity:.55; }
-    .trustBar .trustPill:first-child::before{ content:""; }
 
-    .toolHeadMinimal .toolSub{ max-width:66ch; }
-
-    .useGrid{
-      margin-top:16px;
-      display:grid;
-      grid-template-columns:repeat(3, minmax(0, 1fr));
-      gap:12px;
+    .trustPill::before{
+      content:"•";
+      opacity:.5;
     }
 
-    .useCard{
+    .trustBar .trustPill:first-child::before{
+      content:"";
+    }
+
+    .statusWrap{
+      margin-top:14px;
+      margin-bottom:14px;
+      padding:12px 14px;
       border:1px solid rgba(15,23,42,.10);
-      border-radius:14px;
-      background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,250,252,.95));
-      padding:14px;
+      border-radius:12px;
+      background:rgba(248,250,252,.9);
     }
 
-    .useCard h3{
-      margin:0 0 8px;
-      font-size:15px;
-      font-weight:900;
-      letter-spacing:-.02em;
-      color:rgba(11,18,32,.96);
+    .statusLeft{
+      display:flex;
+      align-items:center;
+      gap:10px;
     }
 
-    .useCard p{
-      margin:0;
+    .status{
+      font-weight:1000;
+      letter-spacing:-.01em;
+    }
+
+    .spinner{
+      width:16px;
+      height:16px;
+      border-radius:999px;
+      border:2px solid rgba(15,23,42,.14);
+      border-top-color:rgba(15,23,42,.8);
+      animation:pdfopsSpin .8s linear infinite;
+    }
+
+    @keyframes pdfopsSpin{
+      to{ transform:rotate(360deg); }
+    }
+
+    .statusHint{
+      margin-top:6px;
       font-size:13px;
-      line-height:1.55;
-      color:rgba(11,18,32,.74);
-    }
-
-    @media (max-width: 980px){
-      .useGrid{ grid-template-columns:1fr; }
+      line-height:1.5;
+      color:rgba(11,18,32,.72);
     }
 
     .dropzoneMega{ margin-top:14px; }
-    .dzTitle{ font-weight:950; letter-spacing:-.02em; }
+
+    .dzTitle{
+      font-weight:950;
+      letter-spacing:-.02em;
+    }
+
     .dzSub{ opacity:.78; }
     .dzFine{ opacity:.74; }
-
-    #files{ display:none; }
 
     .allowedTypes{
       margin-top:12px;
       font-size:12px;
       opacity:.70;
       text-align:center;
+    }
+
+    .proofRow{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:14px;
+      margin-bottom:14px;
+    }
+
+    .proofCard{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      background:linear-gradient(180deg,#fff,#f8fafc);
+      padding:14px;
+    }
+
+    .proofLabel{
+      font-size:12px;
+      opacity:.66;
+      margin-bottom:6px;
+    }
+
+    .proofValue{
+      font-size:20px;
+      font-weight:1000;
+      letter-spacing:-.03em;
+      color:rgba(11,18,32,.95);
+    }
+
+    @media (max-width: 900px){
+      .proofRow{
+        grid-template-columns:1fr;
+      }
+    }
+
+    .progressWrap{
+      display:block;
+      margin:16px 0 0 0;
+      padding:14px 14px 12px;
+      border:1px solid rgba(15,23,42,.14);
+      border-radius:14px;
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+      box-shadow:0 16px 38px rgba(2,6,23,.08);
+    }
+
+    .progressTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+
+    #progressLabel{
+      font-size:14px;
+      font-weight:1000;
+      color:rgba(11,18,32,.92);
+      letter-spacing:-.01em;
+    }
+
+    #progressPct{
+      font-size:14px;
+      font-weight:1000;
+      color:rgba(11,18,32,.72);
+    }
+
+    .progressBar{
+      height:12px;
+      border-radius:999px;
+      background:rgba(15,23,42,.10);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .progressFill{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      background:linear-gradient(90deg,#0f172a,#334155);
+      transition:width .25s ease;
+    }
+
+    .progressBar::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.28) 50%,transparent 100%);
+      transform:translateX(-100%);
+      animation:pdfopsProgressShine 1.2s linear infinite;
+    }
+
+    @keyframes pdfopsProgressShine{
+      100%{ transform:translateX(100%); }
+    }
+
+    .resultPreview{
+      display:none;
+      text-align:center;
+      margin-top:14px;
+      margin-bottom:14px;
+      padding:18px;
+      border:1px solid rgba(15,23,42,.14);
+      border-radius:16px;
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+      box-shadow:0 18px 40px rgba(2,6,23,.08);
+    }
+
+    body.isProcessed .resultPreview{
+      display:block !important;
+    }
+
+    body.isProcessed .actionRowWide{
+      display:none !important;
+    }
+
+    .resultTitle{
+      font-weight:1000;
+      font-size:22px;
+      margin-bottom:12px;
+      letter-spacing:-.03em;
+    }
+
+    .resultGrid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    @media (max-width: 900px){
+      .resultGrid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    .resultBox{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:12px;
+      padding:14px;
+      background:#fff;
+    }
+
+    .resultBoxLabel{
+      font-size:12px;
+      opacity:.65;
+      margin-bottom:6px;
+    }
+
+    .resultBoxValue{
+      font-size:22px;
+      font-weight:1000;
+      letter-spacing:-.03em;
+    }
+
+    .savingsWrap{
+      margin-bottom:14px;
+    }
+
+    .savingsTrack{
+      height:14px;
+      background:rgba(15,23,42,.08);
+      border-radius:999px;
+      overflow:hidden;
+    }
+
+    .savingsBar{
+      width:0%;
+      height:100%;
+      background:linear-gradient(90deg,#16a34a,#22c55e);
+      transition:width .4s ease;
+    }
+
+    .savingsPct{
+      font-size:15px;
+      font-weight:1000;
+      color:#16a34a;
+      margin-top:10px;
+    }
+
+    .unlockBtn{
+      width:100%;
+    }
+
+    .resultFine{
+      font-size:13px;
+      opacity:.72;
+      margin-top:10px;
     }
 
     .actionRowWide{
@@ -254,7 +528,11 @@
 
     .actionRowWide .btnSoft,
     .actionRowWide .btnPrimary{
-      min-width:220px;
+      min-width:240px;
+      height:46px;
+      border-radius:12px;
+      font-weight:950;
+      letter-spacing:-.01em;
     }
 
     @media (max-width: 640px){
@@ -268,14 +546,23 @@
       }
     }
 
+    .fineprint{
+      text-align:center;
+      margin-top:12px;
+      font-size:13px;
+      color:rgba(11,18,32,.68);
+    }
+
     .plainSection{ padding:56px 0 38px; }
+
     .plainKicker{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
       font-size:12px;
       letter-spacing:.10em;
       text-transform:uppercase;
       opacity:.70;
     }
+
     .plainH2{
       margin:12px 0 8px;
       font-size:44px;
@@ -284,7 +571,11 @@
       font-weight:950;
       color:rgba(11,18,32,.96);
     }
-    @media (max-width: 720px){ .plainH2{ font-size:34px; } }
+
+    @media (max-width: 720px){
+      .plainH2{ font-size:34px; }
+    }
+
     .plainLead{
       margin:0;
       font-size:16px;
@@ -299,18 +590,48 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap:42px 44px;
     }
+
     @media (max-width: 980px){
-      .featureGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap:32px 28px; }
+      .featureGrid{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap:32px 28px;
+      }
     }
+
     @media (max-width: 640px){
-      .featureGrid{ grid-template-columns: 1fr; gap:26px; }
+      .featureGrid{
+        grid-template-columns: 1fr;
+        gap:26px;
+      }
     }
 
-    .featIcon{ width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center; margin-bottom:12px; }
-    .featTitle{ margin:0 0 10px; font-size:18px; letter-spacing:-.01em; font-weight:950; }
-    .featText{ margin:0; font-size:15px; line-height:1.65; opacity:.78; }
+    .featIcon{
+      width:40px;
+      height:40px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:12px;
+    }
 
-    .plainDivider{ margin:52px 0 0; border-top:1px solid rgba(15,23,42,.10); }
+    .featTitle{
+      margin:0 0 10px;
+      font-size:18px;
+      letter-spacing:-.01em;
+      font-weight:950;
+    }
+
+    .featText{
+      margin:0;
+      font-size:15px;
+      line-height:1.65;
+      opacity:.78;
+    }
+
+    .plainDivider{
+      margin:52px 0 0;
+      border-top:1px solid rgba(15,23,42,.10);
+    }
 
     .plainBottomGrid{
       margin-top:34px;
@@ -319,13 +640,44 @@
       gap:44px;
       align-items:start;
     }
-    @media (max-width: 980px){ .plainBottomGrid{ grid-template-columns: 1fr; gap:32px; } }
 
-    .faqListPlain{ margin-top:10px; display:grid; gap:18px; }
-    .faqItemPlain{ padding-top:16px; border-top:1px solid rgba(15,23,42,.10); }
-    .faqItemPlain:first-child{ border-top:0; padding-top:0; }
-    .faqQ{ margin:0 0 8px; font-weight:950; letter-spacing:-.01em; font-size:16px; }
-    .faqA{ margin:0; opacity:.78; line-height:1.65; font-size:15px; max-width:68ch; }
+    @media (max-width: 980px){
+      .plainBottomGrid{
+        grid-template-columns: 1fr;
+        gap:32px;
+      }
+    }
+
+    .faqListPlain{
+      margin-top:10px;
+      display:grid;
+      gap:18px;
+    }
+
+    .faqItemPlain{
+      padding-top:16px;
+      border-top:1px solid rgba(15,23,42,.10);
+    }
+
+    .faqItemPlain:first-child{
+      border-top:0;
+      padding-top:0;
+    }
+
+    .faqQ{
+      margin:0 0 8px;
+      font-weight:950;
+      letter-spacing:-.01em;
+      font-size:16px;
+    }
+
+    .faqA{
+      margin:0;
+      opacity:.78;
+      line-height:1.65;
+      font-size:15px;
+      max-width:68ch;
+    }
 
     .relatedLinks{
       margin-top:12px;
@@ -334,13 +686,17 @@
       gap:14px 18px;
       font-size:15px;
     }
+
     .relatedLinks a{
       text-decoration:none;
       font-weight:900;
       color:rgba(11,18,32,.92);
       border-bottom:1px solid rgba(11,18,32,.20);
     }
-    .relatedLinks a:hover{ border-bottom-color: rgba(11,18,32,.55); }
+
+    .relatedLinks a:hover{
+      border-bottom-color: rgba(11,18,32,.55);
+    }
 
     .plainNote{
       margin-top:14px;
@@ -354,7 +710,7 @@
   </style>
 </head>
 
-<body class="premium" data-tool="image_compress">
+<body class="premium page pageCompressImage" data-tool="image_compress">
 <a href="#tool" class="srOnly">Skip to the tool</a>
 
 <header class="nav">
@@ -381,37 +737,36 @@
 
 <section class="hero heroPremium heroToolFirst">
   <div class="container heroWide">
-
     <div id="tool" class="tool toolPremium toolMega">
 
       <div class="toolHead toolHeadMinimal">
         <div class="proKicker">Image compression</div>
-        <h1 class="toolTitle">Reduce image size instantly</h1>
+        <h1 class="toolTitle">Compress images online and make them upload-ready</h1>
         <p class="toolSub">
-          Make your image smaller for uploads, email attachments, online forms and websites.
-          Compress <strong>JPG, PNG and WebP</strong> files without the usual hassle.
+          Reduce <strong>JPG, PNG and WebP</strong> file size for upload limits, email attachments, online forms and websites.
+          Prepare the smaller result first, then download when ready.
         </p>
+
+        <div class="valueStrip" aria-label="Benefits">
+          <div class="valueStripCard">
+            <strong>Pass upload limits</strong>
+            <span>Make oversized image files small enough for forms, portals and websites.</span>
+          </div>
+          <div class="valueStripCard">
+            <strong>See the result first</strong>
+            <span>Show the smaller output before asking the user to continue.</span>
+          </div>
+          <div class="valueStripCard">
+            <strong>Fast panic fix</strong>
+            <span>Useful when a file is too large and you just need it sorted quickly.</span>
+          </div>
+        </div>
 
         <div class="trustBar" aria-label="Trust indicators">
           <div class="trustPill">No signup</div>
-          <div class="trustPill">Fast workflow</div>
           <div class="trustPill">Built for upload limits</div>
           <div class="trustPill">JPG, PNG, WebP</div>
-        </div>
-
-        <div class="useGrid" aria-label="Common uses">
-          <div class="useCard">
-            <h3>For uploads</h3>
-            <p>Reduce image file size for forms, portals, job applications and website upload limits.</p>
-          </div>
-          <div class="useCard">
-            <h3>For email</h3>
-            <p>Make attachments smaller so they are easier to send through Gmail, Outlook and work email.</p>
-          </div>
-          <div class="useCard">
-            <h3>For websites</h3>
-            <p>Prepare lighter images for pages, product listings, blog posts and content systems.</p>
-          </div>
+          <div class="trustPill">Preview-first flow</div>
         </div>
       </div>
 
@@ -420,7 +775,22 @@
           <div class="status" id="status">Ready</div>
           <div class="spinner" id="spinner"></div>
         </div>
-        <div class="statusHint" id="statusHint">Choose your images to begin.</div>
+        <div class="statusHint" id="statusHint">Choose your images to generate smaller versions.</div>
+      </div>
+
+      <div class="proofRow" aria-label="Common uses">
+        <div class="proofCard">
+          <div class="proofLabel">Best for</div>
+          <div class="proofValue">Uploads</div>
+        </div>
+        <div class="proofCard">
+          <div class="proofLabel">Also useful for</div>
+          <div class="proofValue">Email</div>
+        </div>
+        <div class="proofCard">
+          <div class="proofLabel">Formats</div>
+          <div class="proofValue">JPG / PNG / WebP</div>
+        </div>
       </div>
 
       <!-- REQUIRED MODE INPUTS -->
@@ -441,10 +811,12 @@
           <option value="max">Maximum</option>
         </select>
       </div>
+
       <div id="convertRow" style="display:none;">
         <select id="convertFrom"><option value="auto" selected>Auto detect</option></select>
         <select id="convertTarget"><option value="jpg" selected>JPG</option></select>
       </div>
+
       <div style="display:none;">
         <select id="rotateDegrees">
           <option value="90" selected>90°</option>
@@ -456,8 +828,8 @@
       <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
         <div class="dzCenter">
           <div class="dzIcon"><span class="dzArrow">↑</span></div>
-          <div class="dzTitle" id="dzTitle">Drop your images here</div>
-          <div class="dzSub" id="dzSub">Reduce image size for uploads, email and websites</div>
+          <div class="dzTitle" id="dzTitle">Drop your images here to shrink them now</div>
+          <div class="dzSub" id="dzSub">Prepare smaller versions for upload limits, email and websites</div>
 
           <div class="filePick">
             <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select images</button>
@@ -465,7 +837,7 @@
           </div>
 
           <div class="dzFine">Fast workflow. No signup required.</div>
-          <div class="allowedTypes">JPG, PNG and WebP supported</div>
+          <div class="allowedTypes">Supports JPG, PNG and WebP</div>
         </div>
 
         <div class="fileMeta" id="fileMeta" hidden>
@@ -479,7 +851,7 @@
 
       <div class="progressWrap" id="progressWrap" hidden>
         <div class="progressTop">
-          <div id="progressLabel">Uploading…</div>
+          <div id="progressLabel">Preparing smaller images…</div>
           <div id="progressPct">0%</div>
         </div>
         <div class="progressBar">
@@ -488,26 +860,59 @@
         <div id="progressMeta"></div>
       </div>
 
+      <div class="resultPreview" id="resultPreview">
+        <div class="resultTitle">✔ Your images are ready</div>
+
+        <div class="resultGrid">
+          <div class="resultBox">
+            <div class="resultBoxLabel">Original size</div>
+            <div class="resultBoxValue" id="originalSize">—</div>
+          </div>
+
+          <div class="resultBox">
+            <div class="resultBoxLabel">Compressed size</div>
+            <div class="resultBoxValue" id="newSize">—</div>
+          </div>
+
+          <div class="resultBox">
+            <div class="resultBoxLabel">Output</div>
+            <div class="resultBoxValue" id="resultCount">Smaller files</div>
+          </div>
+        </div>
+
+        <div class="savingsWrap">
+          <div class="savingsTrack">
+            <div class="savingsBar" id="savingsBar"></div>
+          </div>
+          <div class="savingsPct" id="savingsPct">↓ —% smaller</div>
+        </div>
+
+        <button id="unlockBtn" type="button" class="btnPrimary btnStrong unlockBtn">
+          Download smaller images →
+        </button>
+
+        <div class="resultFine">
+          Smaller files prepared first, then download when ready.
+        </div>
+      </div>
+
       <div class="actionRow actionRowWide">
-        <button class="btnSoft" id="upload" disabled>Prepare images</button>
+        <button class="btnSoft" id="upload" disabled>Prepare smaller images</button>
         <button class="btnPrimary btnStrong" id="continue" disabled>Download smaller images →</button>
       </div>
 
-      <div class="fineprint">Compress your images, then download when ready.</div>
-
+      <div class="fineprint">Upload → prepare → review the smaller result → continue.</div>
     </div>
-
   </div>
 </section>
 
 <section class="plainSection" id="about">
   <div class="container heroWide">
 
-    <div class="plainKicker">About</div>
-    <h2 class="plainH2">Compress JPG, PNG and WebP images online</h2>
+    <div class="plainKicker">Compress image online</div>
+    <h2 class="plainH2">Reduce image file size for uploads, email attachments and websites</h2>
     <p class="plainLead">
-      Use PDFOperations to reduce image file size when a file is too large to upload, too heavy to email,
-      or unnecessarily big for a website or content system. Upload your images, prepare them, then continue to download smaller versions.
+      Use PDFOperations to compress images online when a file is too large to upload, too heavy to email, or bigger than it needs to be for a website or content system. This tool is built for real-world friction: rejected uploads, form limits, slow content workflows and oversized image attachments.
     </p>
 
     <div class="featureGrid" aria-label="What you can do">
@@ -519,8 +924,8 @@
             <circle class="icoStroke" cx="9" cy="9" r="1.5" stroke-width="2"/>
           </svg>
         </div>
-        <h3 class="featTitle">Reduce image size</h3>
-        <p class="featText">Make image files smaller so they are easier to upload, send and manage.</p>
+        <h3 class="featTitle">Make images upload-ready</h3>
+        <p class="featText">Reduce image file size so forms, portals, websites and CMS tools are less likely to reject them.</p>
       </div>
 
       <div>
@@ -530,8 +935,8 @@
             <path class="icoStroke" d="M4 6v2M4 11v2M4 16v2" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </div>
-        <h3 class="featTitle">Works with multiple files</h3>
-        <p class="featText">Upload several images in one session and download the results together.</p>
+        <h3 class="featTitle">Handle multiple files</h3>
+        <p class="featText">Upload several images in one go and prepare smaller versions for the whole batch.</p>
       </div>
 
       <div>
@@ -543,7 +948,7 @@
           </svg>
         </div>
         <h3 class="featTitle">Built for real limits</h3>
-        <p class="featText">Useful for upload caps, email attachment limits, forms and content platforms.</p>
+        <p class="featText">Useful when an image is too large for email, forms, admin systems, listings or online applications.</p>
       </div>
 
       <div>
@@ -553,8 +958,8 @@
             <path class="icoStroke" d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3 class="featTitle">Simple workflow</h3>
-        <p class="featText">Select images, prepare them, then continue to download smaller versions.</p>
+        <h3 class="featTitle">Preview-first workflow</h3>
+        <p class="featText">Show the smaller result before continuing, so the value is obvious before the final step.</p>
       </div>
 
       <div>
@@ -564,8 +969,8 @@
             <path class="icoStroke" d="M9 10h6" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </div>
-        <h3 class="featTitle">No signup</h3>
-        <p class="featText">No account required. Just upload, continue and download when ready.</p>
+        <h3 class="featTitle">No signup friction</h3>
+        <p class="featText">No account wall. Just upload your images, prepare smaller files and continue when ready.</p>
       </div>
 
       <div>
@@ -575,8 +980,8 @@
             <path class="icoStroke" d="M6 11h12v10H6V11Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3 class="featTitle">Secure processing</h3>
-        <p class="featText">Files are processed to generate your output. See Privacy for retention details.</p>
+        <h3 class="featTitle">Secure handling</h3>
+        <p class="featText">Files are processed to generate output. See Privacy for retention and deletion details.</p>
       </div>
     </div>
 
@@ -590,27 +995,27 @@
         <div class="faqListPlain">
           <div class="faqItemPlain">
             <div class="faqQ">How do I compress an image online?</div>
-            <p class="faqA">Upload your JPG, PNG or WebP image, prepare it, then continue to download a smaller version.</p>
+            <p class="faqA">Upload your JPG, PNG or WebP image, prepare it, preview the smaller result, then continue to download it.</p>
           </div>
 
           <div class="faqItemPlain">
             <div class="faqQ">Can I reduce image size for email attachments?</div>
-            <p class="faqA">Yes. Smaller image files are easier to send and less likely to hit attachment limits.</p>
+            <p class="faqA">Yes. Smaller image files are easier to send through Gmail, Outlook and work email without hitting attachment limits.</p>
           </div>
 
           <div class="faqItemPlain">
             <div class="faqQ">Can I compress images for website uploads?</div>
-            <p class="faqA">Yes. Smaller images are easier to upload to websites, forms and content systems.</p>
+            <p class="faqA">Yes. Smaller images are easier to upload to websites, forms, CMS platforms and product or listing pages.</p>
           </div>
 
           <div class="faqItemPlain">
             <div class="faqQ">Do I need an account?</div>
-            <p class="faqA">No signup is required.</p>
+            <p class="faqA">No. No signup is required.</p>
           </div>
         </div>
 
         <div class="plainNote">
-          Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
+          Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a> • <a href="/pricing">Pricing</a>
         </div>
       </div>
 
@@ -618,7 +1023,7 @@
         <div class="plainKicker">Related tools</div>
         <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.02em; font-weight:950;">More file tools</h3>
         <p class="plainLead" style="font-size:15px; margin-top:0; max-width:56ch;">
-          Need something else? Use the same simple upload → process → download workflow across the rest of the tool set.
+          Need to do more than compress images? Use the rest of the PDFOperations tool set for document workflows and quick upload fixes.
         </p>
 
         <div class="relatedLinks" aria-label="Related tools">
@@ -630,7 +1035,7 @@
         </div>
 
         <div class="plainNote">
-          Tip: If an upload form rejects your image, reducing file size is often the quickest fix.
+          Tip: when a portal rejects an image upload, reducing file size is usually the fastest fix.
         </div>
       </div>
     </div>
@@ -647,7 +1052,7 @@
         <img src="/logo.png" width="18" height="18" alt="PDFOperations logo">
         <span>PDFOperations</span>
       </div>
-      <div class="footerNote">Professional online file tools.</div>
+      <div class="footerNote">Professional online file tools for real upload problems.</div>
     </div>
     <div class="footerRight">
       <a href="/pricing">Pricing</a>
@@ -656,6 +1061,64 @@
     </div>
   </div>
 </footer>
+
+<script>
+(() => {
+  function parseSizeTextToBytes(text){
+    if (!text) return NaN;
+    const cleaned = String(text).trim().replace(/,/g, "");
+    const match = cleaned.match(/([\d.]+)\s*(B|KB|MB|GB)/i);
+    if (!match) return NaN;
+
+    const value = Number(match[1]);
+    const unit = match[2].toUpperCase();
+    if (!Number.isFinite(value)) return NaN;
+
+    if (unit === "B") return value;
+    if (unit === "KB") return value * 1024;
+    if (unit === "MB") return value * 1024 * 1024;
+    if (unit === "GB") return value * 1024 * 1024 * 1024;
+    return NaN;
+  }
+
+  function refreshSavingsBar(){
+    const originalEl = document.getElementById("originalSize");
+    const newEl = document.getElementById("newSize");
+    const pctEl = document.getElementById("savingsPct");
+    const barEl = document.getElementById("savingsBar");
+    if (!originalEl || !newEl || !pctEl || !barEl) return;
+
+    const originalBytes = parseSizeTextToBytes(originalEl.textContent);
+    const newBytes = parseSizeTextToBytes(newEl.textContent);
+
+    if (!Number.isFinite(originalBytes) || !Number.isFinite(newBytes) || originalBytes <= 0) {
+      pctEl.textContent = "↓ —% smaller";
+      barEl.style.width = "0%";
+      return;
+    }
+
+    const savedPct = Math.max(0, Math.round(((originalBytes - newBytes) / originalBytes) * 100));
+    pctEl.textContent = `↓ ${savedPct}% smaller`;
+    barEl.style.width = `${Math.min(savedPct, 100)}%`;
+  }
+
+  const originalSizeEl = document.getElementById("originalSize");
+  const newSizeEl = document.getElementById("newSize");
+
+  if (originalSizeEl && newSizeEl) {
+    const observer = new MutationObserver(refreshSavingsBar);
+    observer.observe(originalSizeEl, { childList: true, subtree: true, characterData: true });
+    observer.observe(newSizeEl, { childList: true, subtree: true, characterData: true });
+    refreshSavingsBar();
+  }
+
+  const unlockBtn = document.getElementById("unlockBtn");
+  const continueBtn = document.getElementById("continue");
+  if (unlockBtn && continueBtn) {
+    unlockBtn.addEventListener("click", () => continueBtn.click());
+  }
+})();
+</script>
 
 <script src="/app.js?v=18" defer></script>
 </body>
