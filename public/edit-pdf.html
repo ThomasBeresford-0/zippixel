@@ -1,9 +1,9 @@
-<!-- public/edit-pdf.html — PDFOperations (v3 - ELITE EDITOR / REAL WORKFLOW / DROP-IN REPLACEMENT)
+<!-- public/edit-pdf.html — PDFOperations (v4 - ELITE EDITOR / REAL WORKFLOW / FIXED)
      ✅ Keeps existing core IDs/hooks: dropzone/files/chooseBtn/upload/continue/pdfEditor/fileMeta/fileSummary/fileList/clearBtn
      ✅ Keeps shared app.js compatibility via hidden mode radios + data-tool="edit_pdf"
-     ✅ Real editing workflow: select PDF → editor opens → click to add text → style / move / resize → upload edited result
-     ✅ Premium authority UI, clearer controls, better empty/editor states
-     ✅ JSON-LD preserved + upgraded
+     ✅ Real editing workflow now actually exports a new edited PDF and replaces selected file
+     ✅ Fixes selected-file detection and editor load flow
+     ✅ Premium authority UI kept
      ✅ PDF.js self-hosted ESM loader preserved
 -->
 <!doctype html>
@@ -89,29 +89,29 @@
     .toolSub{ opacity:.78; }
 
     .trustBar{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px 18px;
-  margin-top:14px;
-  padding-top:14px;
-  border-top:1px solid rgba(15,23,42,.10);
-  color:rgba(11,18,32,.72);
-  font-size:13px;
-}
-.trustPill{
-  padding:0 !important;
-  border:0 !important;
-  background:transparent !important;
-  box-shadow:none !important;
-  border-radius:0 !important;
-  font-weight:800;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  white-space:nowrap;
-}
-.trustPill::before{ content:"•"; opacity:.55; }
-.trustBar .trustPill:first-child::before{ content:""; }
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 18px;
+      margin-top:14px;
+      padding-top:14px;
+      border-top:1px solid rgba(15,23,42,.10);
+      color:rgba(11,18,32,.72);
+      font-size:13px;
+    }
+    .trustPill{
+      padding:0 !important;
+      border:0 !important;
+      background:transparent !important;
+      box-shadow:none !important;
+      border-radius:0 !important;
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
+    }
+    .trustPill::before{ content:"•"; opacity:.55; }
+    .trustBar .trustPill:first-child::before{ content:""; }
 
     .dropzone.dropzonePremium.dropzoneMega{
       min-height:220px;
@@ -121,7 +121,7 @@
         linear-gradient(180deg, rgba(255,255,255,.95), rgba(247,249,252,.95));
     }
     #dropzone.isDrag{
-        outline:2px solid rgba(11,18,32,.14);
+      outline:2px solid rgba(11,18,32,.14);
       box-shadow:0 24px 70px rgba(2,6,23,.14);
       transform:translateY(-1px);
     }
@@ -163,7 +163,7 @@
 
     .editorShell{
       display:grid;
-      grid-template-columns: 320px minmax(0, 1fr);
+      grid-template-columns:320px minmax(0, 1fr);
       gap:0;
       min-height:680px;
     }
@@ -491,6 +491,33 @@
       min-width:240px;
     }
 
+    .readyBox{
+      display:none;
+      text-align:center;
+      margin-top:14px;
+      padding:16px;
+      border:1px solid rgba(15,23,42,.14);
+      border-radius:12px;
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+    }
+    body.isProcessed .readyBox{
+      display:block !important;
+    }
+    body.isProcessed .workActions{
+      display:none !important;
+    }
+
+    .readyTitle{
+      font-weight:1000;
+      font-size:16px;
+      margin-bottom:8px;
+    }
+    .readyText{
+      font-size:13px;
+      opacity:.85;
+      margin-bottom:12px;
+    }
+
     .plainSection{ padding:64px 0 40px; }
     .plainKicker{
       font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -576,7 +603,7 @@
       max-width:80ch;
     }
 
-        .btnGhost.dangerAction{
+    .btnGhost.dangerAction{
       border-color:rgba(185,28,28,.18);
       color:#991b1b;
       background:rgba(254,242,242,.92);
@@ -675,7 +702,7 @@
         "name":"How do I add text to a PDF?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"Upload a PDF, click anywhere on a page to insert a text block, type your text, then drag to reposition before downloading."
+          "text":"Upload a PDF, click a page to create a text block, type your text, then drag and resize it into place."
         }
       },
       {
@@ -747,17 +774,17 @@
         <img src="/logo.png" alt="PDFOperations" class="brandLogoFull" />
       </a>
 
-    <nav class="navLinks" aria-label="Primary tools">
-      <a href="/" data-nav="compress">Compress</a>
-      <a href="/compress-image" data-nav="compress-image">Compress Image</a>
-      <a href="/merge-pdf" data-nav="merge">Merge</a>
-      <a href="/split-pdf" data-nav="split">Split</a>
-      <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
-      <a href="/convert" data-nav="convert">Convert</a>
-      <a href="/sign-pdf" data-nav="sign">Sign</a>
-      <a href="/edit-pdf" data-nav="edit" aria-current="page">Edit</a>
-      <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
-    </nav>
+      <nav class="navLinks" aria-label="Primary tools">
+        <a href="/" data-nav="compress">Compress</a>
+        <a href="/compress-image" data-nav="compress-image">Compress Image</a>
+        <a href="/merge-pdf" data-nav="merge">Merge</a>
+        <a href="/split-pdf" data-nav="split">Split</a>
+        <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
+        <a href="/convert" data-nav="convert">Convert</a>
+        <a href="/sign-pdf" data-nav="sign">Sign</a>
+        <a href="/edit-pdf" data-nav="edit" aria-current="page">Edit</a>
+        <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
+      </nav>
     </div>
   </header>
 
@@ -801,8 +828,8 @@
 
           <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
             <div class="dzCenter">
-            <div class="dzTitle" id="dzTitle">Drop a PDF here to start editing</div>
-            <div class="dzSub" id="dzSub">PDF only • One file • Add text visually</div>
+              <div class="dzTitle" id="dzTitle">Drop a PDF here to start editing</div>
+              <div class="dzSub" id="dzSub">PDF only • One file • Add text visually</div>
               <button id="chooseBtn" class="btnPrimary btnLarge" type="button">Select PDF</button>
               <input id="files" type="file" accept="application/pdf,.pdf" hidden />
               <div class="dzFine">Open your PDF, add text, move it into place, then continue with the edited file.</div>
@@ -885,10 +912,10 @@
                     </label>
                   </div>
 
-                <div class="miniActions">
-                  <button id="duplicateBlockBtn" class="btnGhost" type="button" disabled>Duplicate</button>
-                  <button id="deleteBlockBtn" class="btnGhost dangerAction" type="button" disabled>Delete</button>
-                </div>
+                  <div class="miniActions">
+                    <button id="duplicateBlockBtn" class="btnGhost" type="button" disabled>Duplicate</button>
+                    <button id="deleteBlockBtn" class="btnGhost dangerAction" type="button" disabled>Delete</button>
+                  </div>
                 </div>
 
                 <div class="sideBlock">
@@ -924,8 +951,8 @@
                   <div class="editorStage">
                     <div class="editorEmpty" id="editorEmpty">
                       <div class="editorEmptyInner">
-                      <h2 class="editorEmptyTitle">Open a PDF and start editing.</h2>
-                      <p class="editorEmptyText">Select a PDF to load the editor. Then click anywhere on a page to add text, adjust style in the sidebar, drag it into place, and continue with the edited file.</p>
+                        <h2 class="editorEmptyTitle">Open a PDF and start editing.</h2>
+                        <p class="editorEmptyText">Select a PDF to load the editor. Then click anywhere on a page to add text, adjust style in the sidebar, drag it into place, and continue with the edited file.</p>
                       </div>
                     </div>
 
@@ -937,8 +964,16 @@
 
             <div class="workBottom">
               <div class="workActions">
-              <button id="upload" class="btnSoft" disabled>Upload edited PDF</button>
-              <button id="continue" class="btnPrimary btnStrong" disabled>Unlock Download</button>
+                <button id="upload" class="btnSoft" disabled>Prepare edited PDF</button>
+                <button id="continue" class="btnPrimary btnStrong" disabled>Unlock Download</button>
+              </div>
+
+              <div class="readyBox" id="readyBox">
+                <div class="readyTitle">✔ Your edited PDF is ready</div>
+                <div class="readyText">Your text changes have been prepared for final download.</div>
+                <button id="editUnlockBtn" class="btnPrimary btnStrong" style="width:100%;" type="button">
+                  Unlock Download
+                </button>
               </div>
             </div>
           </div>
@@ -1095,6 +1130,8 @@
     </div>
   </footer>
 
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
   <script>
   (function(){
     let active = null;
@@ -1102,6 +1139,8 @@
     let currentFile = null;
     let currentPageCount = 0;
     let globalBlockId = 1;
+    let lastFileKey = "";
+    let preparingEditedPdf = false;
 
     window.__PDFOPS_EDIT_MAP__ = [];
 
@@ -1112,6 +1151,7 @@
     const uploadBtn = document.getElementById("upload");
     const continueBtn = document.getElementById("continue");
     const clearBtn = document.getElementById("clearBtn");
+    const editUnlockBtn = document.getElementById("editUnlockBtn");
 
     const statPages = document.getElementById("statPages");
     const statBlocks = document.getElementById("statBlocks");
@@ -1131,9 +1171,30 @@
     const addCenteredTextBtn = document.getElementById("addCenteredTextBtn");
     const clearAllBlocksBtn = document.getElementById("clearAllBlocksBtn");
 
+    const status = document.getElementById("status");
+    const statusHint = document.getElementById("statusHint");
+    const filesInput = document.getElementById("files");
+
+    function setStatus(a, b){
+      if (status) status.textContent = a || "Ready";
+      if (statusHint) statusHint.textContent = b || "";
+    }
+
+    function getSelectedFile(){
+      const arr = window.__PDFOPS_SELECTED__;
+      if (Array.isArray(arr) && arr[0]) return arr[0];
+      if (filesInput && filesInput.files && filesInput.files[0]) return filesInput.files[0];
+      return null;
+    }
+
+    function getBlockCount(){
+      return window.__PDFOPS_EDIT_MAP__.reduce((sum, p) => sum + (p.elements?.length || 0), 0);
+    }
+
     function setDirty(){
       if (uploadBtn) uploadBtn.disabled = false;
       if (continueBtn) continueBtn.disabled = true;
+      document.body.classList.remove("isProcessed");
       syncActionButtons();
     }
 
@@ -1153,7 +1214,7 @@
     }
 
     function updateStats(){
-      const blockCount = window.__PDFOPS_EDIT_MAP__.reduce((sum, p) => sum + (p.elements?.length || 0), 0);
+      const blockCount = getBlockCount();
       statPages.textContent = String(currentPageCount || 0);
       statBlocks.textContent = String(blockCount);
       editorPagesPill.textContent = `${currentPageCount || 0} page${currentPageCount === 1 ? "" : "s"}`;
@@ -1199,7 +1260,7 @@
       block.style.color = entry.color || "#0b1220";
       block.style.fontWeight = String(entry.weight || 700);
       block.style.opacity = String(entry.opacity ?? 1);
-      
+
       let handle = block.querySelector(".textBlockHandle");
       if (!handle) {
         handle = document.createElement("div");
@@ -1426,16 +1487,22 @@
       syncActionButtons();
       if (uploadBtn) uploadBtn.disabled = true;
       if (continueBtn) continueBtn.disabled = true;
+      document.body.classList.remove("isProcessed");
     }
 
-    document.addEventListener("pdfops:selected", async (e) => {
-      try { await (window.__pdfjsReady || Promise.resolve(null)); } catch {}
+    async function loadPdfIntoEditor(file){
+      try {
+        await (window.__pdfjsReady || Promise.resolve(null));
+      } catch {}
 
-      const file = e?.detail?.files?.[0];
       if (!file || !window.pdfjsLib) return;
+      if (!(file.type === "application/pdf" || /\.pdf$/i.test(file.name || ""))) return;
+
+      const key = `${file.name}:${file.size}:${file.lastModified || 0}`;
+      if (key === lastFileKey) return;
+      lastFileKey = key;
 
       globalBlockId = 1;
-
       clearEditorUI();
       currentFile = file;
 
@@ -1443,6 +1510,8 @@
       if (workPanel) workPanel.hidden = false;
       editor.hidden = false;
       editorEmpty.hidden = true;
+
+      setStatus("Loading…", "Opening your PDF editor…");
 
       const buffer = await file.arrayBuffer();
       const pdf = await window.pdfjsLib.getDocument({ data: buffer }).promise;
@@ -1499,7 +1568,84 @@
       syncSidebarFromActive();
       if (uploadBtn) uploadBtn.disabled = true;
       if (continueBtn) continueBtn.disabled = true;
-    });
+      setStatus("Ready", "Click a page to add text, then prepare your edited PDF.");
+    }
+
+    async function prepareEditedPdf(){
+      if (preparingEditedPdf) return;
+      if (!currentFile) return;
+      if (!window.PDFLib || !window.PDFLib.PDFDocument) {
+        setStatus("Error", "PDF editor library failed to load. Refresh and try again.");
+        return;
+      }
+
+      preparingEditedPdf = true;
+      try {
+        setStatus("Preparing…", "Creating your edited PDF…");
+
+        const bytes = new Uint8Array(await currentFile.arrayBuffer());
+        const pdfDoc = await window.PDFLib.PDFDocument.load(bytes);
+
+        const pages = pdfDoc.getPages();
+
+        for (let i = 0; i < window.__PDFOPS_EDIT_MAP__.length; i++) {
+          const p = window.__PDFOPS_EDIT_MAP__[i];
+          const page = pages[i];
+          if (!page || !p || !p.elements || !p.elements.length) continue;
+
+          const pageSize = page.getSize();
+          const scaleX = pageSize.width / p.pageWidth;
+          const scaleY = pageSize.height / p.pageHeight;
+
+          for (const el of p.elements) {
+            const fontSize = (el.size || 24) * scaleY;
+            const opacity = el.opacity ?? 1;
+            const colorHex = (el.color || "#0b1220").replace("#", "");
+            const r = parseInt(colorHex.substring(0, 2), 16) / 255;
+            const g = parseInt(colorHex.substring(2, 4), 16) / 255;
+            const b = parseInt(colorHex.substring(4, 6), 16) / 255;
+
+            const x = (el.x || 0) * scaleX;
+            const yFromTop = (el.y || 0) * scaleY;
+            const y = pageSize.height - yFromTop - fontSize - 8;
+
+            const font =
+              Number(el.weight || 700) >= 700
+                ? await pdfDoc.embedFont(window.PDFLib.StandardFonts.HelveticaBold)
+                : await pdfDoc.embedFont(window.PDFLib.StandardFonts.Helvetica);
+
+            page.drawText(el.text || "", {
+              x,
+              y,
+              size: fontSize,
+              font,
+              color: window.PDFLib.rgb(r, g, b),
+              opacity
+            });
+          }
+        }
+
+        const out = await pdfDoc.save();
+        const editedName = (currentFile.name || "document.pdf").replace(/\.pdf$/i, "") + " (edited).pdf";
+        const editedFile = new File([out], editedName, { type: "application/pdf" });
+
+        window.__PDFOPS_SELECTED__ = [editedFile];
+        window.dispatchEvent(new Event("pdfops:selected"));
+
+        currentFile = editedFile;
+        lastFileKey = "";
+        await loadPdfIntoEditor(editedFile);
+
+        if (continueBtn) continueBtn.disabled = false;
+        document.body.classList.add("isProcessed");
+        setStatus("Ready", "Your edited PDF is ready. Unlock download.");
+      } catch (err) {
+        console.error(err);
+        setStatus("Error", "Could not prepare the edited PDF. Try again.");
+      } finally {
+        preparingEditedPdf = false;
+      }
+    }
 
     blockTextInput.addEventListener("input", () => {
       if (!active || !active.__pdfopsEntry) return;
@@ -1542,6 +1688,7 @@
       if (!active) return;
       removeBlock(active);
     });
+
     addCenteredTextBtn.addEventListener("click", () => {
       const page = lastSelectedPage || 1;
       const pEntry = pageEntry(page);
@@ -1562,9 +1709,40 @@
       clearEditorUI();
       if (dropzone) dropzone.hidden = false;
       if (workPanel) workPanel.hidden = true;
+      try { filesInput.value = ""; } catch(_) {}
+      window.__PDFOPS_SELECTED__ = [];
+      setStatus("Ready", "Drop a PDF to begin editing.");
+      lastFileKey = "";
     });
+
+    uploadBtn?.addEventListener("click", prepareEditedPdf);
+
+    editUnlockBtn?.addEventListener("click", () => {
+      continueBtn?.click();
+    });
+
+    filesInput?.addEventListener("change", async () => {
+      const f = filesInput.files && filesInput.files[0];
+      if (!f) return;
+      window.__PDFOPS_SELECTED__ = [f];
+      await loadPdfIntoEditor(f);
+    });
+
+    dropzone?.addEventListener("drop", async (ev) => {
+      const file = ev.dataTransfer?.files?.[0];
+      if (!file) return;
+      window.__PDFOPS_SELECTED__ = [file];
+      await loadPdfIntoEditor(file);
+    }, { capture:true });
+
+    setInterval(async () => {
+      const f = getSelectedFile();
+      if (!f) return;
+      await loadPdfIntoEditor(f);
+    }, 500);
+
+    setStatus("Ready", "Drop a PDF to begin editing.");
   })();
   </script>
-
 </body>
 </html>
