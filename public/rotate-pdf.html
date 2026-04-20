@@ -1,9 +1,9 @@
-<!-- public/rotate-pdf.html — PDFOperations (v14 - FULL RAMBO / HARD UI + MAX SEO + NO FUNCTION CHANGES)
+<!-- public/rotate-pdf.html — PDFOperations (v15 - FULL RAMBO MONEY PAGE; PREVIEW-FIRST ROTATE FLOW; NO FUNCTION CHANGES)
      ✅ NO app.js hook/ID changes
      ✅ Matches Merge/Split “instrument panel” aesthetic
      ✅ Keeps PDF.js ESM loader paths (/vendor/pdfjs/*.mjs)
-     ✅ Keeps pdf-lib include (as-is)
-     ✅ Strong SEO: WebPage + SoftwareApplication + Breadcrumb + FAQ
+     ✅ Keeps pdf-lib include
+     ✅ Stronger conversion framing + proof-before-download flow
 -->
 <!doctype html>
 <html lang="en">
@@ -12,14 +12,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Rotate PDF Online — Rotate Pages 90°, 180°, 270° | PDFOperations</title>
-  <meta name="description" content="Rotate PDF pages online. Upload one PDF, preview pages, rotate selected pages by 90° steps, then download the updated PDF. Secure, fast, no signup." />
+  <meta name="description" content="Rotate PDF pages online. Upload one PDF, preview pages, rotate selected pages by 90° steps, then download the corrected PDF." />
   <link rel="canonical" href="https://pdfoperations.com/rotate-pdf" />
 
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light" />
 
-  <!-- Google Analytics (PDFOperations) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQ3QKV7KHG"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -28,51 +27,48 @@
     gtag('config', 'G-YQ3QKV7KHG');
   </script>
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="Rotate PDF Online — Rotate Pages 90°, 180°, 270°" />
-  <meta property="og:description" content="Upload one PDF, preview pages, rotate selected pages, then download the updated PDF." />
+  <meta property="og:title" content="Rotate PDF Online — Rotate Pages 90°, 180°, 270° | PDFOperations" />
+  <meta property="og:description" content="Upload one PDF, preview pages, rotate selected pages, then download the corrected PDF." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/rotate-pdf" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
   <meta property="og:image:alt" content="PDFOperations — Rotate PDF" />
 
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Rotate PDF Online — Rotate Pages 90°, 180°, 270°" />
-  <meta name="twitter:description" content="Preview pages, rotate selected pages, then download the updated PDF." />
+  <meta name="twitter:title" content="Rotate PDF Online — Rotate Pages 90°, 180°, 270° | PDFOperations" />
+  <meta name="twitter:description" content="Preview pages, rotate selected pages, then download the corrected PDF." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
-  <!-- Favicons -->
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/style.css?v=36" />
 
-  <!-- pdf-lib (kept as-is per your current setup) -->
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
-  <!-- =========================
-       SCHEMA (MAX SEO)
-  ========================== -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
     "@type":"WebPage",
     "name":"Rotate PDF Online — PDFOperations",
     "url":"https://pdfoperations.com/rotate-pdf",
-    "description":"Rotate PDF pages online. Preview pages, rotate selected pages by 90° steps, then download the updated PDF.",
+    "description":"Rotate PDF pages online. Preview pages, rotate selected pages by 90° steps, then download the corrected PDF.",
     "isPartOf":{
       "@type":"WebSite",
       "name":"PDFOperations",
       "url":"https://pdfoperations.com/"
-    }
+    },
+    "about": {
+      "@type": "Thing",
+      "name": "PDF rotation"
+    },
+    "primaryImageOfPage": "https://pdfoperations.com/og.png"
   }
   </script>
 
@@ -86,12 +82,12 @@
     "operatingSystem":"Web",
     "browserRequirements":"Requires JavaScript. Works in modern browsers.",
     "url":"https://pdfoperations.com/rotate-pdf",
-    "description":"Online tool to rotate PDF pages by 90°, 180° or 270° and download the updated PDF.",
+    "description":"Online tool to rotate PDF pages by 90°, 180° or 270° and download the corrected PDF.",
     "featureList":[
       "Rotate PDF pages 90°, 180°, 270°",
       "Rotate only selected pages",
       "Preview pages before download",
-      "No signup required"
+      "Fix sideways or upside-down scans"
     ],
     "offers":{
       "@type":"Offer",
@@ -120,7 +116,7 @@
       {
         "@type":"Question",
         "name":"How do I rotate a PDF online?",
-        "acceptedAnswer":{"@type":"Answer","text":"Upload one PDF, preview pages, rotate pages by 90° steps, then continue to download the updated PDF."}
+        "acceptedAnswer":{"@type":"Answer","text":"Upload one PDF, preview pages, rotate pages by 90° steps, then continue to download the corrected PDF."}
       },
       {
         "@type":"Question",
@@ -130,32 +126,22 @@
       {
         "@type":"Question",
         "name":"What rotation angles are supported?",
-        "acceptedAnswer":{"@type":"Answer","text":"Rotate pages by 90°, 180°, or 270° (in 90° increments)."}
+        "acceptedAnswer":{"@type":"Answer","text":"Rotate pages by 90°, 180°, or 270° in 90° increments."}
       },
       {
         "@type":"Question",
         "name":"Will rotation change my PDF content?",
-        "acceptedAnswer":{"@type":"Answer","text":"Rotation changes page orientation only. The page content remains the same."}
+        "acceptedAnswer":{"@type":"Answer","text":"No. Rotation changes page orientation only. The page content remains the same."}
       },
       {
         "@type":"Question",
         "name":"Do I need an account to rotate PDFs?",
-        "acceptedAnswer":{"@type":"Answer","text":"No signup required. Upload, rotate, continue, then download."}
+        "acceptedAnswer":{"@type":"Answer","text":"No signup required. Upload, rotate, prepare, then continue when ready."}
       }
     ]
   }
   </script>
 
-  <!-- =========================================================
-       PDF.js (self-hosted ESM) — module loader
-       Matches merge/split:
-         /public/vendor/pdfjs/pdf.min.mjs
-         /public/vendor/pdfjs/pdf.worker.min.mjs
-       Exposes:
-         window.__pdfjsReady (Promise)
-         window.pdfjsLib
-         window.__pdfjsWorkerOK
-  ========================================================== -->
   <script type="module">
     const PDFJS_SRC = "/vendor/pdfjs/pdf.min.mjs";
     const WORKER_SRC = "/vendor/pdfjs/pdf.worker.min.mjs";
@@ -188,7 +174,6 @@
   </script>
 
   <style>
-    /* ===== Protect hidden states (no flashing) ===== */
     #pdfPreviewModal[hidden],
     #pdfReorderWrap[hidden],
     #fileMeta[hidden],
@@ -196,10 +181,8 @@
     #priceModal[aria-hidden="true"]{ display:none !important; }
     [hidden]{ display:none !important; }
 
-    /* Logo safety */
     .brandLogo{ height:34px; width:auto; display:block; flex:0 0 auto; }
 
-    /* ===== FULL RAMBO HARDENING ===== */
     :root{
       --hard-border: rgba(15,23,42,.14);
       --soft-border: rgba(15,23,42,.10);
@@ -208,7 +191,7 @@
     }
 
     body.isProcessed #rotateReadyBox{
-    display:block !important;
+      display:block !important;
     }
 
     body.isProcessed .actionRow{
@@ -220,14 +203,34 @@
       background:rgba(245,247,251,.86);
       backdrop-filter:blur(10px);
     }
+
     .navLinks a{
       font-weight:900;
       letter-spacing:-.01em;
       opacity:.86;
     }
+
     .navLinks a[aria-current="page"]{
       opacity:1;
       border-bottom:1px solid rgba(11,18,32,.35);
+    }
+
+    .hero.heroPremium.heroToolFirst{
+      padding-top:22px;
+      padding-bottom:20px;
+    }
+
+    .tool.toolPremium.toolMega{
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.14);
+      box-shadow:0 26px 80px rgba(2,6,23,.10);
+      background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,1));
+    }
+
+    .toolHeadMinimal{
+      border-bottom:1px solid rgba(15,23,42,.10);
+      padding-bottom:14px;
+      margin-bottom:14px;
     }
 
     .proKicker{
@@ -237,33 +240,181 @@
       opacity:.72;
       text-transform:uppercase;
       margin-bottom:8px;
+      text-align:center;
+    }
+
+    .toolTitle{
+      text-align:center;
+      letter-spacing:-.03em;
+      font-weight:1000;
+    }
+
+    .toolSub{
+      max-width:700px;
+      margin:10px auto 0;
+      text-align:center;
+      opacity:.82;
+    }
+
+    .valueStrip{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .valueStripCard{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      background:linear-gradient(180deg,#fff,#f8fafc);
+      padding:14px;
+      text-align:center;
+    }
+
+    .valueStripCard strong{
+      display:block;
+      font-size:15px;
+      letter-spacing:-.02em;
+      color:rgba(11,18,32,.96);
+      margin-bottom:6px;
+    }
+
+    .valueStripCard span{
+      display:block;
+      font-size:13px;
+      line-height:1.5;
+      color:rgba(11,18,32,.72);
+    }
+
+    @media (max-width:900px){
+      .valueStrip{ grid-template-columns:1fr; }
     }
 
     .trustBar{
-      display:flex; flex-wrap:wrap; gap:10px 16px;
-      margin-top:12px; padding-top:12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 16px;
+      margin-top:14px;
+      padding-top:14px;
       border-top:1px solid rgba(15,23,42,.10);
-      color:rgba(11,18,32,.72); font-size:13px;
+      color:rgba(11,18,32,.72);
+      font-size:13px;
+      justify-content:center;
     }
+
     .trustPill{
-      padding:0 !important; border:0 !important; background:transparent !important;
-      border-radius:0 !important; box-shadow:none !important;
-      font-weight:800; display:flex; align-items:center; gap:8px;
+      padding:0 !important;
+      border:0 !important;
+      background:transparent !important;
+      border-radius:0 !important;
+      box-shadow:none !important;
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
+
     .trustPill::before{ content:"•"; opacity:.55; }
     .trustBar .trustPill:first-child::before{ content:""; }
 
-    /* ===== Rotate preview area (hard) ===== */
+    .statusWrap{
+      margin-top:14px;
+      margin-bottom:14px;
+      padding:12px 14px;
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:12px;
+      background:rgba(248,250,252,.9);
+    }
+
+    .statusLeft{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .status{
+      font-weight:1000;
+      letter-spacing:-.01em;
+    }
+
+    .spinner{
+      width:16px;
+      height:16px;
+      border-radius:999px;
+      border:2px solid rgba(15,23,42,.14);
+      border-top-color:rgba(15,23,42,.8);
+      animation:pdfopsSpin .8s linear infinite;
+    }
+
+    @keyframes pdfopsSpin{
+      to{ transform:rotate(360deg); }
+    }
+
+    .statusHint{
+      margin-top:6px;
+      font-size:13px;
+      line-height:1.5;
+      color:rgba(11,18,32,.72);
+    }
+
+    .proofRow{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:14px;
+      margin-bottom:14px;
+    }
+
+    .proofCard{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      background:linear-gradient(180deg,#fff,#f8fafc);
+      padding:14px;
+    }
+
+    .proofLabel{
+      font-size:12px;
+      opacity:.66;
+      margin-bottom:6px;
+    }
+
+    .proofValue{
+      font-size:20px;
+      font-weight:1000;
+      letter-spacing:-.03em;
+      color:rgba(11,18,32,.95);
+    }
+
+    @media (max-width:900px){
+      .proofRow{ grid-template-columns:1fr; }
+    }
+
     .pdfReorderWrap{
-      margin-top:14px; padding-top:14px;
+      margin-top:14px;
+      padding-top:14px;
       border-top:1px solid rgba(15,23,42,.10);
     }
+
     .rotatePreviewHead{
-      display:flex; align-items:flex-end; justify-content:space-between;
-      gap:10px; margin:0 0 10px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:10px;
+      margin:0 0 10px;
     }
-    .rotatePreviewTitle{ font-weight:1000; letter-spacing:-.03em; font-size:14px; color:rgba(11,18,32,.92); }
-    .rotatePreviewMeta{ font-size:12px; opacity:.72; white-space:nowrap; }
+
+    .rotatePreviewTitle{
+      font-weight:1000;
+      letter-spacing:-.03em;
+      font-size:14px;
+      color:rgba(11,18,32,.92);
+    }
+
+    .rotatePreviewMeta{
+      font-size:12px;
+      opacity:.72;
+      white-space:nowrap;
+    }
 
     .pdfThumbGrid{
       display:grid;
@@ -274,11 +425,12 @@
       transition:opacity .12s ease;
       will-change:opacity;
     }
+
     .pdfThumbGrid.isReady{ opacity:1; }
+
     @media (max-width:1100px){ .pdfThumbGrid{ grid-template-columns:repeat(4, minmax(0,1fr)); } }
     @media (max-width:720px){ .pdfThumbGrid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
 
-    /* HARD thumbs: less radius, no floaty shadow */
     .pdfThumb{
       border:1px solid var(--hard-border);
       background:#fff;
@@ -290,11 +442,13 @@
       transition:transform .08s ease, border-color .08s ease, background .08s ease;
       user-select:none;
     }
+
     .pdfThumb:hover{
       transform:translateY(-1px);
       border-color:rgba(15,23,42,.22);
       background:rgba(11,18,32,.01);
     }
+
     .pdfThumb canvas{
       width:100%;
       height:auto;
@@ -302,12 +456,15 @@
       background:#fff;
     }
 
-    /* Badge: square-ish (not pill) */
     .thumbBadge{
       position:absolute;
-      top:10px; left:10px;
-      width:28px; height:28px;
-      display:flex; align-items:center; justify-content:center;
+      top:10px;
+      left:10px;
+      width:28px;
+      height:28px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       border-radius:8px;
       background:rgba(11,18,32,.94);
       color:#fff;
@@ -318,10 +475,10 @@
       pointer-events:none;
     }
 
-    /* Rotation indicator: hard tag (not pill) */
     .thumbRot{
       position:absolute;
-      top:10px; right:10px;
+      top:10px;
+      right:10px;
       padding:6px 10px;
       border-radius:10px;
       font-size:12px;
@@ -334,16 +491,30 @@
 
     .thumbFoot{
       padding:10px 12px;
-      display:flex; justify-content:space-between; align-items:center;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
       gap:10px;
       border-top:1px solid rgba(15,23,42,.10);
       background:#fff;
     }
-    .thumbFoot .thumbLabel{ font-size:12px; font-weight:900; opacity:.90; }
-    .thumbFoot .thumbAction{ font-size:12px; opacity:.72; }
-    .thumbFoot .thumbAction strong{ font-weight:950; opacity:.92; }
 
-    /* Plan bar: hard frame */
+    .thumbFoot .thumbLabel{
+      font-size:12px;
+      font-weight:900;
+      opacity:.90;
+    }
+
+    .thumbFoot .thumbAction{
+      font-size:12px;
+      opacity:.72;
+    }
+
+    .thumbFoot .thumbAction strong{
+      font-weight:950;
+      opacity:.92;
+    }
+
     .rotateBar{
       margin-top:10px;
       padding:12px;
@@ -357,61 +528,226 @@
       gap:10px;
       flex-wrap:wrap;
     }
-    .rotateBarTitle{ font-weight:950; letter-spacing:-.02em; font-size:13px; }
-    .rotateBarSub{ font-size:12px; opacity:.72; line-height:1.25; }
-    .rotateBarRight{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
 
-    /* app.js expects this element; keep it but hide visually */
+    .rotateBarTitle{
+      font-weight:950;
+      letter-spacing:-.02em;
+      font-size:13px;
+    }
+
+    .rotateBarSub{
+      font-size:12px;
+      opacity:.72;
+      line-height:1.25;
+    }
+
+    .rotateBarRight{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
     #rotateDegrees{ display:none !important; }
 
-    /* Modal: hard frame */
-    .pdfPreviewModal{
-      position:fixed; inset:0; z-index:1000;
-      background:rgba(2,6,23,.68);
-      display:flex; align-items:center; justify-content:center;
-      padding:18px;
-      backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    .progressWrap{
+      display:block;
+      margin:16px 0 0 0;
+      padding:14px 14px 12px;
+      border:1px solid rgba(15,23,42,.14);
+      border-radius:14px;
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+      box-shadow:0 16px 38px rgba(2,6,23,.08);
     }
+
+    .progressTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+
+    #progressLabel{
+      font-size:14px;
+      font-weight:1000;
+      color:rgba(11,18,32,.92);
+      letter-spacing:-.01em;
+    }
+
+    #progressPct{
+      font-size:14px;
+      font-weight:1000;
+      color:rgba(11,18,32,.72);
+    }
+
+    .progressBar{
+      height:12px;
+      border-radius:999px;
+      background:rgba(15,23,42,.10);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .progressFill{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      background:linear-gradient(90deg,#0f172a,#334155);
+      transition:width .25s ease;
+    }
+
+    .progressBar::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.28) 50%,transparent 100%);
+      transform:translateX(-100%);
+      animation:pdfopsProgressShine 1.2s linear infinite;
+    }
+
+    @keyframes pdfopsProgressShine{
+      100%{ transform:translateX(100%); }
+    }
+
+    #rotateReadyBox{
+      display:none;
+      text-align:center;
+      margin-top:14px;
+      margin-bottom:14px;
+      padding:18px;
+      border:1px solid rgba(15,23,42,.14);
+      border-radius:16px;
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+      box-shadow:0 18px 40px rgba(2,6,23,.08);
+    }
+
+    .rotateReadyTitle{
+      font-weight:1000;
+      font-size:22px;
+      margin-bottom:12px;
+      letter-spacing:-.03em;
+    }
+
+    .rotateReadyGrid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    @media (max-width:900px){
+      .rotateReadyGrid{ grid-template-columns:1fr; }
+    }
+
+    .rotateReadyStat{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:12px;
+      padding:14px;
+      background:#fff;
+    }
+
+    .rotateReadyLabel{
+      font-size:12px;
+      opacity:.65;
+      margin-bottom:6px;
+    }
+
+    .rotateReadyValue{
+      font-size:22px;
+      font-weight:1000;
+      letter-spacing:-.03em;
+    }
+
+    .rotateReadyFine{
+      font-size:13px;
+      opacity:.72;
+      margin-top:10px;
+    }
+
+    .pdfPreviewModal{
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      background:rgba(2,6,23,.68);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+
     .pdfPreviewCard{
-      width:min(980px,96vw); max-height:90vh;
+      width:min(980px,96vw);
+      max-height:90vh;
       background:#fff;
       border:1px solid var(--hard-border);
       border-radius:12px;
       overflow:hidden;
       box-shadow:0 40px 120px rgba(0,0,0,.38);
-      display:flex; flex-direction:column;
+      display:flex;
+      flex-direction:column;
     }
+
     .pdfPreviewTop{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px; padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 14px;
       border-bottom:1px solid rgba(15,23,42,.10);
       background:linear-gradient(180deg, rgba(11,18,32,.03), transparent);
     }
+
     .pdfPreviewTitle{
-      font-weight:1000; letter-spacing:-.03em;
-      overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:60%;
-    }
-    .pdfPreviewBody{
-      padding:12px; overflow:auto; background:#fff;
-    }
-    .pdfPreviewCanvas{
-      width:100%; display:block; background:#fff;
-      border-radius:10px; border:1px solid rgba(15,23,42,.12);
+      font-weight:1000;
+      letter-spacing:-.03em;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      max-width:60%;
     }
 
-    /* ===== Below-fold SEO (same system as Merge page) ===== */
-    .plainSection{ padding:56px 0 38px; }
+    .pdfPreviewBody{
+      padding:12px;
+      overflow:auto;
+      background:#fff;
+    }
+
+    .pdfPreviewCanvas{
+      width:100%;
+      display:block;
+      background:#fff;
+      border-radius:10px;
+      border:1px solid rgba(15,23,42,.12);
+    }
+
+    .plainSection{
+      padding:56px 0 38px;
+    }
+
     .plainKicker{
       font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size:12px; letter-spacing:.10em; text-transform:uppercase; opacity:.70;
+      font-size:12px;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      opacity:.70;
     }
+
     .plainH2{
       margin:12px 0 8px;
-      font-size:44px; line-height:1.05;
-      letter-spacing:-.03em; font-weight:950;
+      font-size:44px;
+      line-height:1.05;
+      letter-spacing:-.03em;
+      font-weight:950;
       color:rgba(11,18,32,.96);
     }
-    @media (max-width:720px){ .plainH2{ font-size:34px; } }
+
+    @media (max-width:720px){
+      .plainH2{ font-size:34px; }
+    }
+
     .plainLead{
       margin:0;
       font-size:16px;
@@ -426,13 +762,28 @@
       grid-template-columns:repeat(3, minmax(0,1fr));
       gap:42px 44px;
     }
+
     @media (max-width:980px){ .featureGrid{ grid-template-columns:repeat(2,1fr); gap:32px 28px; } }
     @media (max-width:640px){ .featureGrid{ grid-template-columns:1fr; gap:26px; } }
 
-    .featTitle{ margin:0 0 10px; font-size:18px; letter-spacing:-.01em; font-weight:950; }
-    .featText{ margin:0; font-size:15px; line-height:1.65; opacity:.78; }
+    .featTitle{
+      margin:0 0 10px;
+      font-size:18px;
+      letter-spacing:-.01em;
+      font-weight:950;
+    }
 
-    .plainDivider{ margin:52px 0 0; border-top:1px solid rgba(15,23,42,.10); }
+    .featText{
+      margin:0;
+      font-size:15px;
+      line-height:1.65;
+      opacity:.78;
+    }
+
+    .plainDivider{
+      margin:52px 0 0;
+      border-top:1px solid rgba(15,23,42,.10);
+    }
 
     .plainBottomGrid{
       margin-top:34px;
@@ -441,13 +792,41 @@
       gap:44px;
       align-items:start;
     }
-    @media (max-width:980px){ .plainBottomGrid{ grid-template-columns:1fr; gap:32px; } }
 
-    .faqListPlain{ margin-top:10px; display:grid; gap:18px; }
-    .faqItemPlain{ padding-top:16px; border-top:1px solid rgba(15,23,42,.10); }
-    .faqItemPlain:first-child{ border-top:0; padding-top:0; }
-    .faqQ{ margin:0 0 8px; font-weight:950; letter-spacing:-.01em; font-size:16px; }
-    .faqA{ margin:0; opacity:.78; line-height:1.65; font-size:15px; max-width:68ch; }
+    @media (max-width:980px){
+      .plainBottomGrid{ grid-template-columns:1fr; gap:32px; }
+    }
+
+    .faqListPlain{
+      margin-top:10px;
+      display:grid;
+      gap:18px;
+    }
+
+    .faqItemPlain{
+      padding-top:16px;
+      border-top:1px solid rgba(15,23,42,.10);
+    }
+
+    .faqItemPlain:first-child{
+      border-top:0;
+      padding-top:0;
+    }
+
+    .faqQ{
+      margin:0 0 8px;
+      font-weight:950;
+      letter-spacing:-.01em;
+      font-size:16px;
+    }
+
+    .faqA{
+      margin:0;
+      opacity:.78;
+      line-height:1.65;
+      font-size:15px;
+      max-width:68ch;
+    }
 
     .relatedLinks{
       margin-top:12px;
@@ -456,22 +835,25 @@
       gap:14px 18px;
       font-size:15px;
     }
+
     .relatedLinks a{
       text-decoration:none;
       font-weight:900;
       color:rgba(11,18,32,.92);
       border-bottom:1px solid rgba(11,18,32,.20);
     }
-    .relatedLinks a:hover{ border-bottom-color:rgba(11,18,32,.55); }
+
+    .relatedLinks a:hover{
+      border-bottom-color:rgba(11,18,32,.55);
+    }
   </style>
 </head>
 
-<body class="premium" data-tool="rotate_pdf">
+<body class="premium page pageRotatePdf" data-tool="rotate_pdf">
 <a href="#tool" class="srOnly">Skip to the tool</a>
 
 <header class="nav">
   <div class="container navInner">
-
     <a class="brand" href="/" aria-label="PDFOperations home">
       <img src="/logo.png" alt="PDFOperations" class="brandLogoFull" />
     </a>
@@ -487,26 +869,39 @@
       <a href="/edit-pdf" data-nav="edit">Edit</a>
       <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
     </nav>
-
   </div>
 </header>
 
 <main>
-
   <section class="hero heroPremium heroToolFirst">
     <div class="container heroWide">
       <div id="tool" class="tool toolPremium toolMega">
 
         <div class="toolHead toolHeadMinimal">
-          <div class="proKicker">PDF Tool</div>
-          <h1 class="toolTitle">Rotate PDF</h1>
-          <p class="toolSub">Fix sideways or upside-down pages fast. Preview pages, rotate only the ones you need, then unlock the corrected PDF.</p>
+          <div class="proKicker">PDF rotate</div>
+          <h1 class="toolTitle">Rotate PDF pages and fix orientation fast</h1>
+          <p class="toolSub">Fix sideways or upside-down pages, rotate only the pages that need changing, preview the result, then download the corrected PDF.</p>
+
+          <div class="valueStrip" aria-label="Benefits">
+            <div class="valueStripCard">
+              <strong>Fix bad scans fast</strong>
+              <span>Correct sideways or upside-down pages without rebuilding the document.</span>
+            </div>
+            <div class="valueStripCard">
+              <strong>Rotate only what matters</strong>
+              <span>Leave good pages alone and change only the ones that need correction.</span>
+            </div>
+            <div class="valueStripCard">
+              <strong>Preview before download</strong>
+              <span>Check the corrected orientation first so the value is obvious before the final step.</span>
+            </div>
+          </div>
 
           <div class="trustBar" aria-label="Trust indicators">
-          <div class="trustPill">No signup</div>
-          <div class="trustPill">Rotate selected pages</div>
-          <div class="trustPill">Fix sideways scans</div>
-          <div class="trustPill">Secure processing</div>
+            <div class="trustPill">No signup</div>
+            <div class="trustPill">Rotate selected pages</div>
+            <div class="trustPill">Fix sideways scans</div>
+            <div class="trustPill">Preview before download</div>
           </div>
         </div>
 
@@ -515,10 +910,24 @@
             <div class="status" id="status">Ready</div>
             <div class="spinner" id="spinner"></div>
           </div>
-          <div class="statusHint" id="statusHint">Add 1 PDF to begin.</div>
+          <div class="statusHint" id="statusHint">Add 1 PDF to begin correcting page orientation.</div>
         </div>
 
-        <!-- REQUIRED MODE INPUTS (app.js compatibility) -->
+        <div class="proofRow" aria-label="Common uses">
+          <div class="proofCard">
+            <div class="proofLabel">Best for</div>
+            <div class="proofValue">Scans</div>
+          </div>
+          <div class="proofCard">
+            <div class="proofLabel">Also useful for</div>
+            <div class="proofValue">Forms</div>
+          </div>
+          <div class="proofCard">
+            <div class="proofLabel">Rotation</div>
+            <div class="proofValue">90° steps</div>
+          </div>
+        </div>
+
         <fieldset style="display:none;">
           <input type="radio" name="mode" id="modeCompress">
           <input type="radio" name="mode" id="modeCompressPdf">
@@ -528,7 +937,6 @@
           <input type="radio" name="mode" id="modeRotatePdf" checked>
         </fieldset>
 
-        <!-- Default compression level (hidden; app.js expects it) -->
         <div id="pdfCompressRow" style="display:none;">
           <select id="pdfCompressLevel">
             <option value="balanced" selected>Balanced</option>
@@ -537,13 +945,11 @@
           </select>
         </div>
 
-        <!-- Hidden Convert (app.js compatibility) -->
         <div id="convertRow" style="display:none;">
           <select id="convertFrom"><option value="auto" selected>Auto detect</option></select>
           <select id="convertTarget"><option value="jpg" selected>JPG</option></select>
         </div>
 
-        <!-- Hidden Rotate (app.js expects rotateDegrees to exist) -->
         <div style="display:none;">
           <select id="rotateDegrees">
             <option value="90" selected>90°</option>
@@ -552,19 +958,18 @@
           </select>
         </div>
 
-        <!-- DROPZONE -->
         <div class="dropzone dropzonePremium dropzoneUltra dropzoneMega" id="dropzone">
           <div class="dzCenter">
             <div class="dzIcon"><span class="dzArrow">↑</span></div>
-            <div class="dzTitle" id="dzTitle">Drop a PDF here</div>
-            <div class="dzSub" id="dzSub">PDF only • Single file</div>
+            <div class="dzTitle" id="dzTitle">Drop a PDF here to fix page orientation</div>
+            <div class="dzSub" id="dzSub">PDF only • Single file • Rotate only what needs changing</div>
 
             <div class="filePick">
               <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
               <input id="files" type="file" accept="application/pdf,.pdf" />
             </div>
 
-            <div class="dzFine">Preview pages, rotate, then continue.</div>
+            <div class="dzFine">Preview pages, rotate the problem pages, then continue.</div>
           </div>
 
           <div class="fileMeta" id="fileMeta" hidden>
@@ -575,7 +980,6 @@
 
             <ol class="fileList" id="fileList"></ol>
 
-            <!-- Keep legacy wrapper (app.js safety) -->
             <div id="pdfReorderWrap" class="pdfReorderWrap" hidden>
               <div class="rotatePreviewHead">
                 <div class="rotatePreviewTitle">Pages</div>
@@ -584,7 +988,6 @@
               <div id="pdfThumbGrid" class="pdfThumbGrid"></div>
             </div>
 
-            <!-- STABLE ROTATE UI (page-owned; not touched by app.js) -->
             <section id="pdfopsRotateMount" class="pdfReorderWrap" hidden>
               <div class="rotatePreviewHead">
                 <div class="rotatePreviewTitle">Pages</div>
@@ -604,86 +1007,90 @@
 
               <div id="pdfopsThumbGrid" class="pdfThumbGrid"></div>
             </section>
-
           </div>
         </div>
 
-        <!-- PROGRESS -->
         <div class="progressWrap" id="progressWrap" hidden>
           <div class="progressTop">
-            <div id="progressLabel">Uploading…</div>
+            <div id="progressLabel">Preparing rotated PDF…</div>
             <div id="progressPct">0%</div>
           </div>
           <div class="progressBar"><div class="progressFill" id="progressFill"></div></div>
           <div id="progressMeta"></div>
         </div>
 
-        <!-- ACTIONS -->
         <div class="actionRow actionRowWide">
-          <button class="btnSoft" id="upload" disabled>Upload PDF</button>
-          <button class="btnPrimary btnStrong" id="continue" disabled>Unlock Download</button>
+          <button class="btnSoft" id="upload" disabled>Prepare rotated PDF</button>
+          <button class="btnPrimary btnStrong" id="continue" disabled>Unlock download →</button>
         </div>
 
-        <div id="rotateReadyBox" style="
-          display:none;
-          text-align:center;
-          margin-bottom:14px;
-          padding:16px;
-          border:1px solid rgba(15,23,42,.14);
-          border-radius:12px;
-          background:linear-gradient(180deg,#ffffff,#f8fafc);
-        ">
-          <div style="font-weight:1000; font-size:16px; margin-bottom:8px;">
-            ✔ Your rotated PDF is ready
+        <div id="rotateReadyBox">
+          <div class="rotateReadyTitle">✔ Your rotated PDF is ready</div>
+
+          <div class="rotateReadyGrid">
+            <div class="rotateReadyStat">
+              <div class="rotateReadyLabel">Pages changed</div>
+              <div class="rotateReadyValue" id="rotateChangedCount">—</div>
+            </div>
+
+            <div class="rotateReadyStat">
+              <div class="rotateReadyLabel">Output</div>
+              <div class="rotateReadyValue">Corrected PDF</div>
+            </div>
+
+            <div class="rotateReadyStat">
+              <div class="rotateReadyLabel">Status</div>
+              <div class="rotateReadyValue">Ready</div>
+            </div>
           </div>
-          <div style="font-size:13px; opacity:.85; margin-bottom:12px;">
-            Your page rotations have been prepared for final download.
-          </div>
+
           <button id="rotateUnlockBtn" class="btnPrimary btnStrong" style="width:100%;" type="button">
-            Unlock Download
+            Download corrected PDF →
           </button>
+
+          <div class="rotateReadyFine">
+            Your selected page rotations have been prepared for final download.
+          </div>
         </div>
 
-        <div class="fineprint">Tip: rotate only the pages that need it — the rest stay unchanged.</div>
+        <div class="fineprint">Tip: rotate only the pages that need correction — the rest stay unchanged.</div>
       </div>
     </div>
   </section>
 
-  <!-- ===== BELOW-FOLD SEO (MATCHES MERGE/SPLIT LOOK) ===== -->
   <section class="plainSection" id="about">
     <div class="container heroWide">
 
-      <div class="plainKicker">About</div>
-      <h2 class="plainH2">Rotate PDF pages online</h2>
+      <div class="plainKicker">Rotate PDF online</div>
+      <h2 class="plainH2">Fix sideways, upside-down and badly oriented PDF pages</h2>
       <p class="plainLead">
-        Fix sideways scans, rotated exports, and incorrectly oriented pages.
-        Upload one PDF, preview pages, rotate specific pages by 90° steps, then download a corrected PDF.
+        Use PDFOperations to rotate PDF pages online when scans, exports or attachments come out sideways or upside down. Preview the document first, rotate only the affected pages in 90° steps, then download a corrected version that is easier to read, send and upload.
       </p>
 
       <div class="featureGrid" aria-label="Rotate PDF features">
         <div>
           <h3 class="featTitle">Rotate selected pages</h3>
-          <p class="featText">Rotate one page or many. The final PDF reflects your chosen rotations.</p>
+          <p class="featText">Change only the pages that need correction while leaving the rest of the document untouched.</p>
         </div>
         <div>
           <h3 class="featTitle">Preview before download</h3>
-          <p class="featText">Click a thumbnail to preview and rotate in context before continuing.</p>
+          <p class="featText">Open the page preview and rotate in context before continuing, so the result feels trustworthy.</p>
         </div>
         <div>
           <h3 class="featTitle">90° step rotation</h3>
-          <p class="featText">Cycle 0° → 90° → 180° → 270° to quickly correct orientation.</p>
+          <p class="featText">Cycle 0° → 90° → 180° → 270° to fix common scan and export orientation problems quickly.</p>
         </div>
         <div>
-          <h3 class="featTitle">Ideal for portals</h3>
-          <p class="featText">Rotate signature pages, scanned IDs, invoices, and submissions before upload.</p>
+          <h3 class="featTitle">Useful for uploads</h3>
+          <p class="featText">Rotate signature pages, IDs, invoices, application forms and scanned documents before sending or uploading.</p>
         </div>
         <div>
           <h3 class="featTitle">Secure processing</h3>
-          <p class="featText">Files are processed to generate output. See Privacy for retention details.</p>
+          <p class="featText">Files are processed to generate output. See Privacy for retention and deletion details.</p>
         </div>
         <div>
           <h3 class="featTitle">No account required</h3>
-          <p class="featText">Upload, rotate, continue, then download — no signup.</p>
+          <p class="featText">Upload, rotate, prepare the output, then continue when the corrected PDF is ready.</p>
         </div>
       </div>
 
@@ -701,20 +1108,20 @@
             </div>
             <div class="faqItemPlain">
               <div class="faqQ">What angles are supported?</div>
-              <p class="faqA">90°, 180°, and 270° (in 90° increments).</p>
+              <p class="faqA">90°, 180° and 270°, using 90° increments.</p>
             </div>
             <div class="faqItemPlain">
               <div class="faqQ">Will rotation change the content?</div>
-              <p class="faqA">No. Rotation changes page orientation only — the page content remains the same.</p>
+              <p class="faqA">No. Rotation changes page orientation only. The page content remains the same.</p>
             </div>
             <div class="faqItemPlain">
               <div class="faqQ">Do I need an account?</div>
-              <p class="faqA">No signup required.</p>
+              <p class="faqA">No signup required. Upload, prepare, then continue when ready.</p>
             </div>
           </div>
 
           <div style="margin-top:14px; font-size:13px; opacity:.70;">
-            Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
+            Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a> • <a href="/pricing">Pricing</a>
           </div>
         </div>
 
@@ -730,14 +1137,13 @@
           </div>
 
           <div style="margin-top:14px; font-size:13px; opacity:.70;">
-            Tip: If a scan is upside down, rotate 180° for a clean fix.
+            Tip: if a scan is upside down, rotate 180° for the fastest clean fix.
           </div>
         </div>
       </div>
 
     </div>
   </section>
-
 </main>
 
 <footer class="footer">
@@ -755,7 +1161,6 @@
   </div>
 </footer>
 
-<!-- Preview modal -->
 <div id="pdfPreviewModal" class="pdfPreviewModal" hidden aria-hidden="true">
   <div class="pdfPreviewCard" role="dialog" aria-modal="true" aria-labelledby="pdfPreviewTitle">
     <div class="pdfPreviewTop">
@@ -771,7 +1176,6 @@
   </div>
 </div>
 
-<!-- CHECKOUT MODAL (REQUIRED by app.js) — keep IDs intact -->
 <div class="modalOverlay" id="priceModal" aria-hidden="true">
   <div class="modalCard premiumModal">
     <div class="modalTop">
@@ -837,7 +1241,6 @@
   </div>
 </div>
 
-<!-- ===== Page-owned rotate logic (keeps IDs / works alongside app.js) ===== -->
 <script>
 (() => {
   const $ = (id) => document.getElementById(id);
@@ -847,8 +1250,17 @@
   let lastSig = "";
   let previewPageNo = 0;
 
-  // Rotation map: 1-based index
   window.__PDFOPS_ROTATE_MAP__ = window.__PDFOPS_ROTATE_MAP__ || [];
+
+  function updateReadyStats(){
+    const el = $("rotateChangedCount");
+    if (!el) return;
+    let changed = 0;
+    for (let i = 1; i <= numPages; i++) {
+      if ((window.__PDFOPS_ROTATE_MAP__[i] || 0) !== 0) changed++;
+    }
+    el.textContent = numPages ? String(changed) : "—";
+  }
 
   function nextDeg(d){
     const v = Number(d) || 0;
@@ -860,7 +1272,10 @@
 
   async function ensurePdfJs(){
     let spins = 0;
-    while (!window.__pdfjsReady && spins < 400) { await new Promise(r => setTimeout(r, 20)); spins++; }
+    while (!window.__pdfjsReady && spins < 400) {
+      await new Promise(r => setTimeout(r, 20));
+      spins++;
+    }
     if (!window.__pdfjsReady) throw new Error("__pdfjsReady not set");
     await window.__pdfjsReady;
     if (!window.pdfjsLib?.getDocument) throw new Error("pdfjsLib missing");
@@ -875,6 +1290,7 @@
     if (t) t.textContent = title || "Preview";
     document.body.style.overflow = "hidden";
   }
+
   function hideModal(){
     const modal = $("pdfPreviewModal");
     if (!modal) return;
@@ -914,13 +1330,24 @@
     const bar = $("pdfopsRotateBar");
     const plan = $("pdfopsRotatePlan");
     if (!bar || !plan) return;
-    if (!numPages) { bar.hidden = true; return; }
+
+    if (!numPages) {
+      bar.hidden = true;
+      updateReadyStats();
+      return;
+    }
+
     let changed = 0;
-    for (let i = 1; i <= numPages; i++) if ((window.__PDFOPS_ROTATE_MAP__[i] || 0) !== 0) changed++;
+    for (let i = 1; i <= numPages; i++) {
+      if ((window.__PDFOPS_ROTATE_MAP__[i] || 0) !== 0) changed++;
+    }
+
     bar.hidden = false;
     plan.textContent = changed === 0
       ? "No pages rotated yet. Click a page to preview and rotate."
       : `${changed} page${changed === 1 ? "" : "s"} rotated.`;
+
+    updateReadyStats();
   }
 
   function makeThumb(pageNo){
@@ -954,7 +1381,7 @@
       await renderModalPage(pageNo);
     });
 
-    return { card, canvas, rot };
+    return { card, canvas };
   }
 
   async function renderThumbs(){
@@ -984,9 +1411,16 @@
     grid.classList.add("isReady");
 
     const uploadBtn = $("upload");
-    if (uploadBtn) { uploadBtn.disabled = false; uploadBtn.removeAttribute("disabled"); }
+    if (uploadBtn) {
+      uploadBtn.disabled = false;
+      uploadBtn.removeAttribute("disabled");
+    }
+
     const continueBtn = $("continue");
-    if (continueBtn) { continueBtn.disabled = false; continueBtn.removeAttribute("disabled"); }
+    if (continueBtn) {
+      continueBtn.disabled = false;
+      continueBtn.removeAttribute("disabled");
+    }
   }
 
   async function loadFromFile(f){
@@ -1007,16 +1441,23 @@
     await renderThumbs();
   }
 
-  // click handlers
   document.addEventListener("click", async (e) => {
     const id = e.target && e.target.id;
 
-    if (id === "pdfPreviewClose") { hideModal(); return; }
+    if (id === "pdfPreviewClose") {
+      hideModal();
+      return;
+    }
+
     if (id === "clearBtn") {
-      pdfDoc = null; numPages = 0; lastSig = ""; previewPageNo = 0;
+      pdfDoc = null;
+      numPages = 0;
+      lastSig = "";
+      previewPageNo = 0;
       window.__PDFOPS_ROTATE_MAP__ = [];
       $("pdfopsThumbGrid") && ($("pdfopsThumbGrid").innerHTML = "");
       $("pdfopsRotateMount") && ($("pdfopsRotateMount").hidden = true);
+      updateReadyStats();
       hideModal();
       return;
     }
@@ -1064,6 +1505,7 @@
         if (t) t.textContent = `Page ${previewPageNo} • 90°`;
         await renderModalPage(previewPageNo);
       }
+
       updatePlan();
       return;
     }
@@ -1086,22 +1528,25 @@
         if (t) t.textContent = `Page ${previewPageNo} • 0°`;
         await renderModalPage(previewPageNo);
       }
+
       updatePlan();
       return;
     }
   });
 
-  // modal bg click + escape
-  $("pdfPreviewModal")?.addEventListener("click", (e) => { if (e.target && e.target.id === "pdfPreviewModal") hideModal(); });
-  window.addEventListener("keydown", (e) => { if (e.key === "Escape" && $("pdfPreviewModal") && !$("pdfPreviewModal").hidden) hideModal(); });
+  $("pdfPreviewModal")?.addEventListener("click", (e) => {
+    if (e.target && e.target.id === "pdfPreviewModal") hideModal();
+  });
 
-  // file input
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && $("pdfPreviewModal") && !$("pdfPreviewModal").hidden) hideModal();
+  });
+
   $("files")?.addEventListener("change", async () => {
     const f = $("files").files && $("files").files[0];
     if (!f) return;
     await loadFromFile(f);
   });
-
 })();
 </script>
 
