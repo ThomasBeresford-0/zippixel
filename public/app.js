@@ -2584,6 +2584,10 @@ const openPriceModal = () => {
       window.dispatchEvent(new CustomEvent("pdfops:free-download-started"));
     } catch {}
 
+    try {
+      window.dispatchEvent(new CustomEvent("pdfops:free-download-started"));
+    } catch {}
+
     setBusy(true);
     setStatus("Preparing download");
     setHint("Getting your free PDF ready…");
