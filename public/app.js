@@ -234,10 +234,22 @@
     if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
     return `${(n / (1024 * 1024)).toFixed(2)} MB`;
   };
+
   const escapeHtml = (str) =>
     String(str).replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[m]));
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
   const keyOf = (f) => `${f.name}__${f.size}__${f.lastModified}`;
+
+  const track = (eventName, params = {}) => {
+  if (typeof gtag !== "function") return;
+
+  gtag("event", eventName, {
+    page_path: window.location.pathname,
+    mode,
+    file_count: selected.length,
+    ...params
+  });
+  };
 
   const isImageFile = (f) => (f?.type || "").startsWith("image/");
   const isPdfFile = (f) => {
@@ -309,13 +321,13 @@
     const fileCount = selected.length;
     const share = !!optShareLink?.checked;
 
-  const rawPath = window.location.pathname || "/";
-  const pathname = rawPath === "/" ? "/" : rawPath.replace(/\/$/, "");
+    const path = (window.location.pathname || "/").replace(/\/$/, "") || "/";
 
-  let base =
-    PAGE_PRICING[pathname] ??
-    TOOL_PRICING[mode] ??
-    2.99;
+    let base =
+      PAGE_PRICING[path] ??
+      TOOL_PRICING[mode] ??
+      2.99;
+      
       // Upgrade large jobs
       if (fileCount > PRO_FILE_LIMIT) {
         base = PRO_FILE_PRICE;
@@ -1746,12 +1758,10 @@
       setHint(errors.slice(0, 2).map((e) => escapeHtml(e)).join("<br/>") + (errors.length > 2 ? "<br/>…" : ""));
     }
 
-        if (typeof gtag === "function" && incomingValid.length) {
-      gtag("event", "file_selected", {
-        page: window.location.pathname,
-        mode,
-        file_count: incomingValid.length
-      });
+    if (typeof gtag === "function" && incomingValid.length) {
+    track("file_upload_started", {
+      selected_count: incomingValid.length
+    });
     }
 
     if (typeof gtag === "function" && errors.length) {
@@ -2134,15 +2144,11 @@
         if (savingsEl) savingsEl.textContent = `↓ ${computedSavedPercent}% smaller`;
       }
 
-      if (typeof gtag === "function") {
-        gtag("event", "preview_ready", {
-          page: window.location.pathname,
-          mode,
-          original_bytes: originalBytes,
-          compressed_bytes: compressedBytes,
-          saved_percent: computedSavedPercent
-          });
-      }
+      track("compression_complete", {
+        original_bytes: originalBytes,
+        compressed_bytes: compressedBytes,
+        saved_percent: computedSavedPercent
+      });
 
       if (unlockBtnEl) {
         unlockBtnEl.textContent = isHomepageFreeCompress
@@ -2369,11 +2375,7 @@
       if (reg?.error) throw new Error(reg.error);
 
       if (typeof gtag === "function") {
-        gtag("event", "upload_completed", {
-          page: window.location.pathname,
-          mode,
-          file_count: selected.length
-        });
+        track("file_upload_completed");
       }
 
       if (progressLabel) progressLabel.textContent = "Uploaded";
@@ -2521,14 +2523,9 @@ const openPriceModal = () => {
     }
   }
 
-  if (typeof gtag === "function") {
-    gtag("event", "checkout_modal_opened", {
-      page: window.location.pathname,
-      mode,
-      file_count: selected.length,
-      total_price: calcTotal()
-    });
-  }
+  track("checkout_modal_opened", {
+    total_price: calcTotal()
+  });
 
   priceModal.classList.add("isOpen");
   priceModal.setAttribute("aria-hidden", "false");
@@ -2556,6 +2553,10 @@ const openPriceModal = () => {
 
   const startFreeDownload = async () => {
     if (!jobId) return;
+
+    track("free_download_started", {
+      job_id: jobId
+    });
 
     setBusy(true);
     setStatus("Preparing download");
@@ -2589,7 +2590,7 @@ const startCheckout = async () => {
   continueBtn.disabled = true;
 
   if (typeof gtag === "function") {
-    gtag("event", "checkout_started", {
+    track("checkout_started", {
       page: window.location.pathname,
       mode,
       file_count: selected.length,
@@ -2614,7 +2615,7 @@ const startCheckout = async () => {
     if (!resp?.url) throw new Error("Something went wrong.");
 
     if (typeof gtag === "function") {
-      gtag("event", "checkout_redirected", {
+      track("checkout_redirected", {
         page: window.location.pathname,
         mode,
         file_count: selected.length,
