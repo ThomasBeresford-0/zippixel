@@ -604,6 +604,7 @@ app.get("/compress-pdf.html", (_, res) => {
 });
 
 const TOOL_PAGES = [
+  "compress-file",
   "merge-pdf",
   "split-pdf",
   "pdf-to-jpg",
