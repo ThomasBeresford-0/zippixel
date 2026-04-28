@@ -321,12 +321,34 @@
     const fileCount = selected.length;
     const share = !!optShareLink?.checked;
 
-    const path = (window.location.pathname || "/").replace(/\/$/, "") || "/";
+    const PAGE_PRICING = {
+      "/compress-pdf-under-1mb": 3.99,
+      "/compress-pdf-under-2mb": 3.49,
+      "/compress-pdf-for-job-application": 4.99,
+      "/reduce-pdf-size-for-email": 3.49
+    };
 
     let base =
       PAGE_PRICING[path] ??
       TOOL_PRICING[mode] ??
       2.99;
+
+    // 💰 VALUE-BASED PRICING BOOST
+    const totalBytes = selected.reduce((a, f) => a + (f?.size || 0), 0);
+    const isLargeFile = totalBytes > 10 * 1024 * 1024; // >10MB
+    const isCriticalIntent =
+      path.includes("job") ||
+      path.includes("cv") ||
+      path.includes("resume") ||
+      path.includes("email");
+
+    if (isLargeFile) {
+      base += 1.5; // bigger file = higher willingness to pay
+    }
+
+    if (isCriticalIntent) {
+      base += 1; // job/email urgency = higher conversion value
+    }
       
       // Upgrade large jobs
       if (fileCount > PRO_FILE_LIMIT) {
@@ -2557,6 +2579,10 @@ const openPriceModal = () => {
     track("free_download_started", {
       job_id: jobId
     });
+
+    try {
+      window.dispatchEvent(new CustomEvent("pdfops:free-download-started"));
+    } catch {}
 
     setBusy(true);
     setStatus("Preparing download");

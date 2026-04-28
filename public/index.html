@@ -10,7 +10,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Compress PDF Online Free | Reduce PDF File Size for Uploads | PDFOperations</title>
+  <title>Compress PDF Online Free | Reduce PDF File Size for Uploads, Email & CVs</title>
   <meta name="description" content="Compress PDF online free to reduce file size for uploads, email attachments, forms and job applications. Preview the smaller result and download your PDF." />
   <link rel="canonical" href="https://pdfoperations.com/" />
   <meta name="robots" content="index,follow" />
@@ -634,6 +634,94 @@
     }
 
     .icoStroke{ stroke:rgba(11,18,32,.92); }
+
+    .nextToolModal{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:22px;
+    background:rgba(2,6,23,.48);
+    backdrop-filter:blur(10px);
+  }
+
+  .nextToolModal.isOpen{ display:flex; }
+
+  .nextToolCard{
+    width:min(520px,100%);
+    position:relative;
+    padding:26px;
+    border-radius:22px;
+    background:linear-gradient(180deg,#ffffff,#f8fafc);
+    border:1px solid rgba(15,23,42,.14);
+    box-shadow:0 30px 90px rgba(2,6,23,.28);
+    text-align:center;
+  }
+
+  .nextToolClose{
+    position:absolute;
+    top:12px;
+    right:12px;
+    width:36px;
+    height:36px;
+    border-radius:12px;
+    border:1px solid rgba(15,23,42,.12);
+    background:#fff;
+    font-size:22px;
+    cursor:pointer;
+  }
+
+  .nextToolCard h2{
+    margin:0 0 10px;
+    font-size:28px;
+    line-height:1.08;
+    letter-spacing:-.04em;
+    font-weight:1000;
+  }
+
+  .nextToolCard p{
+    margin:0 0 18px;
+    font-size:15px;
+    line-height:1.6;
+    color:rgba(11,18,32,.72);
+  }
+
+  .nextToolGrid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+    margin-top:16px;
+  }
+
+  .nextToolGrid a{
+    text-decoration:none;
+    padding:13px 12px;
+    border-radius:14px;
+    border:1px solid rgba(15,23,42,.14);
+    background:#fff;
+    font-weight:1000;
+    color:rgba(11,18,32,.92);
+  }
+
+  .nextToolGrid a:hover{
+    transform:translateY(-1px);
+    box-shadow:0 12px 28px rgba(2,6,23,.10);
+  }
+
+  .nextToolNoThanks{
+    margin-top:14px;
+    border:0;
+    background:transparent;
+    font-weight:900;
+    color:rgba(11,18,32,.62);
+    cursor:pointer;
+  }
+
+  @media(max-width:520px){
+    .nextToolGrid{ grid-template-columns:1fr; }
+  }
   </style>
 
   <script type="application/ld+json">
@@ -932,6 +1020,10 @@
                 No signup • Instant download
               </div>
 
+              <div style="font-size:12px; opacity:.6; margin-top:6px;">
+                Files are processed securely and not stored.
+              </div>
+
             </div>
 
 
@@ -971,7 +1063,7 @@
     <div class="plainKicker">Compress PDF online</div>
     <h2 class="plainH2">Reduce PDF file size for uploads, email attachments and forms</h2>
     <p class="plainLead" style="margin-top:14px;">
-      Use PDFOperations to compress PDF online free when your document is too large to upload, too big for an email attachment, or rejected by a job application or form. Upload your PDF, preview the smaller result, and download it directly from this page.
+      Use PDFOperations to make large PDFs smaller when they won’t upload, exceed email limits, or get rejected by job application forms.
     </p>
 
     <p class="plainLead" style="margin-top:14px;">
@@ -1164,6 +1256,26 @@
   </div>
   </div>
 </footer>
+
+<div id="nextToolModal" class="nextToolModal" aria-hidden="true">
+  <div class="nextToolCard">
+    <button id="nextToolClose" class="nextToolClose" type="button">×</button>
+
+    <h2>✔ Your PDF is compressed</h2>
+    <p>Need to merge, split, sign or convert it next?</p>
+
+    <div class="nextToolGrid">
+      <a href="/merge-pdf" data-next-tool="merge">Merge PDFs</a>
+      <a href="/split-pdf" data-next-tool="split">Split PDF</a>
+      <a href="/sign-pdf" data-next-tool="sign">Sign PDF</a>
+      <a href="/convert" data-next-tool="convert">Convert PDF</a>
+    </div>
+
+    <button id="nextToolNoThanks" class="nextToolNoThanks" type="button">
+      No thanks
+    </button>
+  </div>
+</div>
 
 <script>
 (() => {
@@ -1379,6 +1491,48 @@
     observer.observe(newSizeEl, { childList: true, subtree: true, characterData: true });
     refreshSavingsBar();
   }
+
+  const nextToolModal = document.getElementById("nextToolModal");
+const nextToolClose = document.getElementById("nextToolClose");
+const nextToolNoThanks = document.getElementById("nextToolNoThanks");
+
+function openNextToolModal(){
+  if (!nextToolModal) return;
+
+  nextToolModal.classList.add("isOpen");
+  nextToolModal.setAttribute("aria-hidden", "false");
+
+  if (typeof gtag === "function") {
+    gtag("event", "next_tool_modal_opened", {
+      page_path: window.location.pathname
+    });
+  }
+}
+
+function closeNextToolModal(){
+  if (!nextToolModal) return;
+  nextToolModal.classList.remove("isOpen");
+  nextToolModal.setAttribute("aria-hidden", "true");
+}
+
+nextToolClose?.addEventListener("click", closeNextToolModal);
+nextToolNoThanks?.addEventListener("click", closeNextToolModal);
+
+document.querySelectorAll("[data-next-tool]").forEach((link) => {
+  link.addEventListener("click", () => {
+    if (typeof gtag === "function") {
+      gtag("event", "next_tool_clicked", {
+        page_path: window.location.pathname,
+        tool: link.getAttribute("data-next-tool")
+      });
+    }
+  });
+});
+
+window.addEventListener("pdfops:free-download-started", () => {
+  setTimeout(openNextToolModal, 1200);
+});
+
 })();
 </script>
 
