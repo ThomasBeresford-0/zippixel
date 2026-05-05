@@ -241,14 +241,16 @@
   const keyOf = (f) => `${f.name}__${f.size}__${f.lastModified}`;
 
   const track = (eventName, params = {}) => {
-  if (typeof gtag !== "function") return;
+    if (typeof gtag !== "function") return;
 
-  gtag("event", eventName, {
-    page_path: window.location.pathname,
-    mode,
-    file_count: selected.length,
-    ...params
-  });
+    gtag("event", eventName, {
+      page_path: window.location.pathname,
+      page_location: window.location.href,
+      tool_mode: mode,
+      file_count: selected.length,
+      job_id: jobId || null,
+      ...params
+    });
   };
 
   const isImageFile = (f) => (f?.type || "").startsWith("image/");
@@ -1759,10 +1761,8 @@
     const errors = [];
     const incomingValid = [];
 
-    if (typeof gtag === "function" && incomingFiles?.length) {
-      gtag("event", "file_select_attempt", {
-        page: window.location.pathname,
-        mode,
+    if (incomingFiles?.length) {
+      track("file_select_attempt", {
         attempted_count: incomingFiles.length
       });
     }
@@ -1778,16 +1778,14 @@
       setHint(errors.slice(0, 2).map((e) => escapeHtml(e)).join("<br/>") + (errors.length > 2 ? "<br/>…" : ""));
     }
 
-    if (typeof gtag === "function" && incomingValid.length) {
-    track("file_upload_started", {
-      selected_count: incomingValid.length
-    });
+    if (incomingValid.length) {
+      track("file_selected", {
+        selected_count: incomingValid.length
+      });
     }
 
-    if (typeof gtag === "function" && errors.length) {
-      gtag("event", "file_rejected", {
-        page: window.location.pathname,
-        mode,
+    if (errors.length) {
+      track("file_rejected", {
         rejected_count: errors.length
       });
     }
@@ -1944,12 +1942,8 @@
   });
 
     clearBtn?.addEventListener("click", () => {
-    if (typeof gtag === "function") {
-      gtag("event", "clear_clicked", {
-        page: window.location.pathname,
-        mode
-      });
-    }
+    track("clear_clicked");
+
       document.body.classList.remove("isProcessed");
 
       const preview = document.getElementById("resultPreview");
@@ -2207,13 +2201,9 @@
     }
 
     } catch (e) {
-      if (typeof gtag === "function") {
-        gtag("event", "preview_failed", {
-          page: window.location.pathname,
-          mode,
-          error_message: String(e?.message || "preview_failed").slice(0, 120)
-        });
-      }
+    track("preview_failed", {
+      error_message: String(e?.message || "preview_failed").slice(0, 120)
+    });
 
       compressPreviewState = "failed";
       compressPreviewError = e?.message || "Could not prepare preview.";
@@ -2321,13 +2311,9 @@
     }
 
     uploading = true;
-        if (typeof gtag === "function") {
-      gtag("event", "upload_started", {
-        page: window.location.pathname,
-        mode,
-        file_count: selected.length
-      });
-    }
+
+    track("upload_started");
+
     setBusy(true);
     setPrimaryStates();
 
@@ -2394,9 +2380,7 @@
       const reg = await regRes.json();
       if (reg?.error) throw new Error(reg.error);
 
-      if (typeof gtag === "function") {
-        track("file_upload_completed");
-      }
+      track("file_upload_completed");
 
       if (progressLabel) progressLabel.textContent = "Uploaded";
       if (progressFill) progressFill.style.width = "100%";
@@ -2613,15 +2597,10 @@ const startCheckout = async () => {
   setHint("Opening secure checkout…");
   continueBtn.disabled = true;
 
-  if (typeof gtag === "function") {
-    track("checkout_started", {
-      page: window.location.pathname,
-      mode,
-      file_count: selected.length,
-      total_price: calcTotal(),
-      share_link: !!optShareLink?.checked
-    });
-  }
+  track("checkout_started", {
+    total_price: calcTotal(),
+    share_link: !!optShareLink?.checked
+  });
 
   try {
     const resp = await fetch("/api/checkout", {
@@ -2638,24 +2617,16 @@ const startCheckout = async () => {
     if (resp?.error) throw new Error(resp.error);
     if (!resp?.url) throw new Error("Something went wrong.");
 
-    if (typeof gtag === "function") {
-      track("checkout_redirected", {
-        page: window.location.pathname,
-        mode,
-        file_count: selected.length,
-        total_price: calcTotal()
-      });
-    }
+    track("checkout_redirected", {
+      total_price: calcTotal()
+    });
 
     window.location.href = resp.url;
   } catch (e) {
-    if (typeof gtag === "function") {
-      gtag("event", "checkout_failed", {
-        page: window.location.pathname,
-        mode,
-        error_message: String(e?.message || "checkout_failed").slice(0, 120)
-      });
-    }
+  track("checkout_failed", {
+    error_message: String(e?.message || "checkout_failed").slice(0, 120)
+  });
+
     setStatus("Couldn’t continue");
     setHint(escapeHtml(e?.message || "Please try again."));
     continueBtn.disabled = false;
@@ -2679,11 +2650,7 @@ const startCheckout = async () => {
   });
 
   continueBtn.addEventListener("click", async () => {
-    if (typeof gtag === "function") {
-      gtag("event", "continue_click", {
-        page: window.location.pathname
-      });
-    }
+  track("continue_clicked");
 
     if (!jobId) return;
 
@@ -2710,11 +2677,7 @@ const startCheckout = async () => {
 
 if (unlockBtn) {
   unlockBtn.addEventListener("click", async () => {
-    if (typeof gtag === "function") {
-      gtag("event", "unlock_btn_click", {
-        page: window.location.pathname
-      });
-    }
+  track("unlock_clicked");
 
     if (!jobId && selected.length) {
       try {
