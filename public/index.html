@@ -1517,15 +1517,33 @@ function closeNextToolModal(){
   nextToolModal.setAttribute("aria-hidden", "true");
 }
 
-nextToolClose?.addEventListener("click", closeNextToolModal);
-nextToolNoThanks?.addEventListener("click", closeNextToolModal);
+nextToolClose?.addEventListener("click", () => {
+  if (typeof gtag === "function") {
+    gtag("event", "next_tool_closed", {
+      page_path: window.location.pathname
+    });
+  }
+
+  closeNextToolModal();
+});
+
+nextToolNoThanks?.addEventListener("click", () => {
+  if (typeof gtag === "function") {
+    gtag("event", "next_tool_dismissed", {
+      page_path: window.location.pathname
+    });
+  }
+
+  closeNextToolModal();
+});
 
 document.querySelectorAll("[data-next-tool]").forEach((link) => {
   link.addEventListener("click", () => {
     if (typeof gtag === "function") {
       gtag("event", "next_tool_clicked", {
         page_path: window.location.pathname,
-        tool: link.getAttribute("data-next-tool")
+        tool: link.getAttribute("data-next-tool"),
+        destination: link.getAttribute("href")
       });
     }
   });
