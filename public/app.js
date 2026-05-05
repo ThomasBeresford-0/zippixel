@@ -750,18 +750,24 @@
       uploadBtn.textContent = uploading ? "Uploading…" : uploadedMeta.length ? "Re-upload" : "Upload files";
     }
 
-    continueBtn.textContent =
-      mode === "image_compress"
-        ? "Download smaller images →"
-        : mode === "compress_pdf"
-          ? (isHomepageFreeCompress ? "Download free PDF →" : "Unlock Download")
-          : mode === "split_pdf"
+const isCompressWorking =
+  mode === "compress_pdf" &&
+  (uploading || compressPreviewState === "loading");
+
+continueBtn.textContent =
+  isCompressWorking
+    ? "Compressing…"
+    : mode === "image_compress"
+      ? "Download smaller images →"
+      : mode === "compress_pdf"
+        ? (isHomepageFreeCompress ? "Download free PDF →" : "Unlock Download")
+        : mode === "split_pdf"
+          ? "Unlock Download"
+          : mode === "rotate_pdf"
             ? "Unlock Download"
-            : mode === "rotate_pdf"
+            : mode === "convert"
               ? "Unlock Download"
-              : mode === "convert"
-                ? "Unlock Download"
-                : "Review & Continue →";
+              : "Review & Continue →";
 
     setUploaderEnabled(!(uploading || creatingJob));
 
@@ -776,9 +782,18 @@
               mode === "convert"
             ) && uploadedMeta.length > 0;
 
-      unlockBtn.disabled = !canUnlock;
-      unlockBtn.classList.toggle("isDisabled", !canUnlock);
+    unlockBtn.disabled = isCompressWorking || !canUnlock;
+    unlockBtn.classList.toggle("isDisabled", isCompressWorking || !canUnlock);
+
+    if (isCompressWorking) {
+      unlockBtn.textContent = "Compressing…";
+    } else if (mode === "compress_pdf") {
+      unlockBtn.textContent = isHomepageFreeCompress
+        ? "Download free PDF →"
+        : "Unlock Download →";
     }
+    }
+
 
     if (!hasFiles) {
       setStatus("Ready");
