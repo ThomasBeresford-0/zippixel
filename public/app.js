@@ -901,15 +901,19 @@ continueBtn.textContent =
           return;
         }
 
-        if (compressPreviewState === "ready") {
-          setStatus("Your PDF is ready");
-          setHint(
-            isHomepageFreeCompress
+      if (compressPreviewState === "ready") {
+        const paidRoute = latestCompressionResult?.paidRoute || null;
+
+        setStatus("Your PDF is ready");
+        setHint(
+          isHomepageFreeCompress && paidRoute
+            ? `${escapeHtml(paidRoute.reason)} You can continue with the free version, or use the dedicated fixer.`
+            : isHomepageFreeCompress
               ? "Your file has been compressed. Download your free PDF."
               : "Your file has been compressed. Unlock download to get it."
-          );
-          return;
-        }
+        );
+        return;
+      }
 
         if (compressPreviewState === "failed") {
           setStatus("Preview failed");
@@ -2262,10 +2266,14 @@ continueBtn.textContent =
 
     setPrimaryStates();
     setStatus("Your PDF is ready");
+    const paidRoute = latestCompressionResult?.paidRoute || null;
+
     setHint(
-      isHomepageFreeCompress
-        ? "Your file has been compressed. Download your free PDF."
-        : "Your file has been compressed. Unlock download to get it."
+      isHomepageFreeCompress && paidRoute
+        ? `${escapeHtml(paidRoute.reason)} You can continue with the free version, or use the dedicated fixer.`
+        : isHomepageFreeCompress
+          ? "Your file has been compressed. Download your free PDF."
+          : "Your file has been compressed. Unlock download to get it."
     );
 
     if (!isHomepageFreeCompress && previewPaywallOpenedForJob !== jobId) {

@@ -850,7 +850,7 @@
       });
   </script>
 
-<script defer src="/app.js?v=20"></script>
+<script defer src="/app.js?v=21"></script>
 </head>
 
 <body class="page pageCompressPdf" data-tool="compress_pdf">
@@ -976,9 +976,13 @@
               box-shadow:0 18px 40px rgba(2,6,23,.08);
             ">
 
-              <div style="font-weight:1000; font-size:22px; margin-bottom:12px;">
-                ✔ Your PDF is compressed
-              </div>
+            <div style="font-weight:1000; font-size:22px; margin-bottom:8px;">
+              ✔ Free compression complete
+            </div>
+
+            <div style="font-size:14px; line-height:1.5; opacity:.74; margin-bottom:14px;">
+              We’ve reduced your PDF for free. If it still needs to meet a stricter upload limit, use the dedicated fixer below.
+            </div>
 
               <div style="
                 display:grid;
@@ -1013,15 +1017,15 @@
               </div>
 
               <button id="unlockBtn" type="button" class="btnPrimary btnStrong" style="width:100%;">
-                Download your compressed PDF
+                Download your file →
               </button>
 
               <div style="font-size:13px; opacity:.72; margin-top:10px;">
-                No signup • Instant download
+                Free compression available instantly.
               </div>
 
               <div style="font-size:12px; opacity:.6; margin-top:6px;">
-                Files are processed securely for your download.
+                If your PDF is still too large, we’ll point you to the stricter paid fixer.
               </div>
 
             </div>
@@ -1030,7 +1034,7 @@
             <div class="workActions">
             <button type="button" class="btnSoft" id="upload">Prepare smaller PDF</button>
             <button type="button" class="btnPrimary btnStrong" id="continue">
-              Download your compressed PDF →
+              Continue to download →
             </button>
             </div>
             </div>
@@ -1550,6 +1554,37 @@ document.querySelectorAll("[data-next-tool]").forEach((link) => {
 });
 
 const continueBtn = document.getElementById("continue");
+continueBtn?.addEventListener("click", (e) => {
+  try {
+    const originalEl = document.getElementById("originalSize");
+    const newEl = document.getElementById("newSize");
+
+    const originalBytes = parseSizeTextToBytes(originalEl?.textContent);
+    const newBytes = parseSizeTextToBytes(newEl?.textContent);
+
+    // If we can't read sizes → allow normal flow
+    if (!originalBytes || !newBytes) return;
+
+    // 🚨 KEY LOGIC: if still too big → send to paid page
+    if (newBytes > 2 * 1024 * 1024) {
+      e.preventDefault();
+
+      window.location.href = "/compress-pdf-under-2mb";
+      return;
+    }
+
+    // Optional: push even bigger files harder
+    if (originalBytes > 5 * 1024 * 1024 && newBytes > 3 * 1024 * 1024) {
+      e.preventDefault();
+
+      window.location.href = "/compress-pdf-under-5mb";
+      return;
+    }
+
+  } catch (err) {
+    console.warn("Routing check failed:", err);
+  }
+});
 const uploadBtn = document.getElementById("upload");
 
 function setCompressingButtonState(){
