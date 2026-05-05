@@ -1,9 +1,9 @@
-<!-- public/compress-pdf-under-5mb.html — PDFOperations (v2 - 5MB TARGET MODE / MAX FORCED; DROP-IN)
-     ✅ Keeps SAME app.js v17.7 IDs/hooks (NO break)
-     ✅ Keeps SAME PDF.js .mjs loader pattern
-     ✅ Same upload → continue flow
-     ✅ Forces pdfCompressLevel = "max" on this page (silent)
-     ✅ Adds 5MB-target messaging + original size display
+<!-- public/compress-pdf-under-5mb.html — PDFOperations (v3 - PAID 5MB FIXER / APP v21 / DROP-IN)
+     ✅ Keeps app.js IDs/hooks intact
+     ✅ Sets data-tool="compress_pdf"
+     ✅ Sets data-target-bytes="5242880"
+     ✅ Forces Maximum compression silently
+     ✅ Paid intent page, not free homepage clone
 -->
 <!doctype html>
 <html lang="en">
@@ -11,21 +11,20 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Compress PDF to Under 5MB — Fast Upload Fix | PDFOperations</title>
-  <meta name="description" content="Compress a PDF to under 5MB for portals, university submissions and online forms. Maximum compression is applied automatically. Upload → Continue → Download." />
+  <title>Compress PDF Under 5MB | Fix Large PDF Uploads | PDFOperations</title>
+  <meta name="description" content="Compress a PDF under 5MB for online forms, university portals, job applications and document uploads. Built for strict 5MB upload limits." />
   <link rel="canonical" href="https://pdfoperations.com/compress-pdf-under-5mb" />
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light">
 
-  <meta property="og:title" content="Compress PDF to Under 5MB — PDFOperations" />
-  <meta property="og:description" content="Fix “file too large” errors fast. Maximum compression applied automatically. Upload → Continue → Download." />
+  <meta property="og:title" content="Compress PDF Under 5MB | PDFOperations" />
+  <meta property="og:description" content="Fix large PDF upload errors with a dedicated 5MB compression tool." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/compress-pdf-under-5mb" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
   <meta property="og:image:alt" content="PDFOperations — Compress PDF under 5MB" />
 
-  <!-- Google Analytics (PDFOperations) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQ3QKV7KHG"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -35,22 +34,18 @@
   </script>
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Compress PDF to Under 5MB — PDFOperations" />
-  <meta name="twitter:description" content="Fix “file too large” uploads fast. Maximum compression applied automatically." />
+  <meta name="twitter:title" content="Compress PDF Under 5MB | PDFOperations" />
+  <meta name="twitter:description" content="Dedicated PDF compression for strict 5MB upload limits." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="icon" type="image/png" sizes="192x192" href="/web-app-manifest-192x192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/web-app-manifest-512x512.png">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
   <link rel="stylesheet" href="/style.css?v=36" />
 
   <style>
-    /* ===== NO app.js HOOK CHANGES ===== */
-
-    /* Force-hide compression dropdown (we still set it via JS) */
     #pdfCompressRow,
     #pdfCompressLevel{
       display:none !important;
@@ -63,24 +58,36 @@
       overflow:hidden !important;
     }
 
-    /* Hide native file input */
     #files{ display:none !important; }
-
-    #dropzone.isDragOver{
-      outline:2px solid rgba(11,18,32,.14);
-      box-shadow:0 24px 70px rgba(2,6,23,.14);
-      transform:translateY(-1px);
-    }
-
     [hidden]{ display:none !important; }
 
-    .hero.heroPremium.heroToolFirst{ padding-top:22px; padding-bottom:20px; }
+    .hero.heroPremium.heroToolFirst{
+      padding-top:22px;
+      padding-bottom:20px;
+    }
+
+    .nav{
+      border-bottom:1px solid rgba(15,23,42,.10);
+      background:rgba(245,247,251,.86);
+      backdrop-filter:blur(10px);
+    }
+
+    .navLinks a{
+      font-weight:850;
+      letter-spacing:-.01em;
+      opacity:.86;
+    }
+
+    .navLinks a[aria-current="page"]{
+      opacity:1;
+      border-bottom:1px solid rgba(11,18,32,.35);
+    }
 
     .tool.toolPremium.toolMega{
       border-radius:14px;
       border:1px solid rgba(15,23,42,.14);
       box-shadow:0 26px 80px rgba(2,6,23,.10);
-      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,1));
+      background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,1));
     }
 
     .toolHeadMinimal{
@@ -88,35 +95,157 @@
       padding-bottom:14px;
       margin-bottom:14px;
     }
-    .toolTitle{ letter-spacing:-.03em; font-weight:1000; }
-    .toolSub{ opacity:.78; }
 
-    .nav{
-      border-bottom:1px solid rgba(15,23,42,.10);
-      background: rgba(245,247,251,.86);
-      backdrop-filter: blur(10px);
+    .toolTitle{
+      letter-spacing:-.04em;
+      font-weight:1000;
     }
 
-    .navLinks a{ font-weight:850; letter-spacing:-.01em; opacity:.86; }
-    .navLinks a[aria-current="page"]{ opacity:1; border-bottom:1px solid rgba(11,18,32,.35); }
+    .toolSub{
+      opacity:.80;
+    }
 
-    /* Steps */
+    .intentBadge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      margin:0 auto 12px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(15,23,42,.14);
+      background:#fff;
+      font-size:12px;
+      font-weight:1000;
+      letter-spacing:-.01em;
+      color:rgba(11,18,32,.82);
+    }
+
+    .trustLine{
+      text-align:center;
+      margin-top:12px;
+      font-size:14px;
+      font-weight:850;
+      color:rgba(11,18,32,.76);
+    }
+
+    .limitStrip{
+      margin-top:16px;
+      padding:14px 16px;
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:14px;
+      background:linear-gradient(180deg, rgba(11,18,32,.025), rgba(11,18,32,.01));
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 12px;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .limitStrip strong{
+      font-weight:1000;
+      letter-spacing:-.02em;
+    }
+
+    .limitPills{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    .limitPill{
+      font-size:12px;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid rgba(15,23,42,.14);
+      background:#fff;
+      font-weight:900;
+      color:rgba(11,18,32,.86);
+      white-space:nowrap;
+    }
+
+    .statusWrap{
+      margin-top:14px;
+      margin-bottom:14px;
+      padding:12px 14px;
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:12px;
+      background:rgba(248,250,252,.9);
+    }
+
+    .statusLeft{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .status{
+      font-weight:1000;
+      letter-spacing:-.01em;
+    }
+
+    .spinner{
+      width:16px;
+      height:16px;
+      border-radius:999px;
+      border:2px solid rgba(15,23,42,.14);
+      border-top-color:rgba(15,23,42,.8);
+      animation:pdfopsSpin .8s linear infinite;
+    }
+
+    @keyframes pdfopsSpin{
+      to{ transform:rotate(360deg); }
+    }
+
+    .statusHint{
+      margin-top:6px;
+      font-size:13px;
+      line-height:1.5;
+      color:rgba(11,18,32,.72);
+    }
+
+    .dropzone.dropzoneMega{
+      border-radius:16px;
+    }
+
+    #dropzone.isDragOver,
+    #dropzone.isDrag{
+      outline:2px solid rgba(11,18,32,.14);
+      box-shadow:0 24px 70px rgba(2,6,23,.14);
+      transform:translateY(-1px);
+    }
+
     .stepsLine{
-      display:flex; flex-wrap:wrap; gap:14px;
-      margin-top:16px; padding-top:14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      margin-top:16px;
+      padding-top:14px;
       border-top:1px solid rgba(15,23,42,.10);
-      font-size:13px; color:rgba(11,18,32,.78);
+      font-size:13px;
+      color:rgba(11,18,32,.78);
     }
-    .stepItem{ display:flex; align-items:center; gap:8px; }
+
+    .stepItem{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
     .stepNum{
-      width:22px;height:22px; border-radius:8px;
+      width:22px;
+      height:22px;
+      border-radius:8px;
       border:1px solid rgba(15,23,42,.16);
-      display:flex;align-items:center;justify-content:center;
-      font-weight:900;font-size:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      font-size:12px;
       background:#fff;
     }
 
-    /* Post-select panel */
     body.hasFile #dropzone{ display:none !important; }
     body.hasFile .stepsLine{ display:none !important; }
     body:not(.hasFile) .workPanel{ display:none !important; }
@@ -130,23 +259,23 @@
       overflow:hidden;
     }
 
-    body.isProcessed #resultPreview{
-    display:block !important;
-    }
-
-    body.isProcessed .workActions{
-      display:none !important;
-    }
+    body.isProcessed #resultPreview{ display:block !important; }
+    body.isProcessed .workActions{ display:none !important; }
 
     .workTop{
-      display:flex; align-items:center; justify-content:center; gap:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
       padding:12px 14px;
       border-bottom:1px solid rgba(15,23,42,.10);
       background:linear-gradient(180deg, rgba(11,18,32,.03), transparent);
     }
+
     .workTop .btnPrimary,
     .workTop .btnGhost{
-      min-width:150px; height:38px;
+      min-width:150px;
+      height:38px;
       border-radius:10px;
       font-weight:950;
       letter-spacing:-.01em;
@@ -166,7 +295,7 @@
       height:320px;
       border-radius:14px;
       overflow:hidden;
-      background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+      background:linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
       border:1px solid rgba(15,23,42,.14);
       box-shadow:0 28px 80px rgba(2,6,23,.14);
       display:flex;
@@ -190,19 +319,27 @@
     }
 
     .thumbType{
-      position:absolute; inset:0;
-      display:flex; align-items:center; justify-content:center;
-      font-weight:1000; letter-spacing:-.05em;
-      font-size:66px; color:rgba(11,18,32,.26);
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:1000;
+      letter-spacing:-.05em;
+      font-size:66px;
+      color:rgba(11,18,32,.26);
       text-transform:uppercase;
       pointer-events:none;
       text-shadow:0 1px 0 rgba(255,255,255,.9);
     }
+
     .thumbCard.isRendered .thumbType{ display:none; }
 
     .thumbName{
-      position:absolute; top:10px; left:10px;
-      max-width: calc(100% - 56px);
+      position:absolute;
+      top:10px;
+      left:10px;
+      max-width:calc(100% - 56px);
       padding:8px 10px;
       border-radius:12px;
       background:rgba(255,255,255,.94);
@@ -217,45 +354,62 @@
     }
 
     .thumbClose{
-      position:absolute; top:10px; right:10px;
-      width:40px; height:40px;
+      position:absolute;
+      top:10px;
+      right:10px;
+      width:40px;
+      height:40px;
       border-radius:12px;
       border:1px solid rgba(15,23,42,.16);
       background:rgba(255,255,255,.94);
       box-shadow:0 10px 26px rgba(2,6,23,.12);
-      display:flex; align-items:center; justify-content:center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       cursor:pointer;
       color:rgba(11,18,32,.88);
       font-weight:950;
       user-select:none;
     }
-    .thumbClose:hover{ transform: translateY(-1px); }
 
     .thumbHint{
       position:absolute;
-      bottom:10px; left:10px; right:10px;
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
+      bottom:10px;
+      left:10px;
+      right:10px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
       gap:6px;
       color:rgba(11,18,32,.72);
       font-size:12px;
-      padding:10px 10px;
+      padding:10px;
       border-radius:12px;
       background:rgba(255,255,255,.92);
       border:1px solid rgba(15,23,42,.12);
       text-align:center;
     }
-    .thumbHint strong{ font-weight:1000; color:rgba(11,18,32,.90); letter-spacing:-.01em; }
+
+    .thumbHint strong{
+      font-weight:1000;
+      color:rgba(11,18,32,.90);
+      letter-spacing:-.01em;
+    }
 
     .workBottom{
-      padding:14px 16px 16px 16px;
+      padding:14px 16px 16px;
       border-top:1px solid rgba(15,23,42,.10);
       background:linear-gradient(180deg, transparent, rgba(11,18,32,.02));
     }
+
     .workActions{
-      display:flex; gap:12px;
-      align-items:center; justify-content:center;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:center;
     }
+
     .workActions .btnSoft,
     .workActions .btnPrimary{
       height:46px;
@@ -265,7 +419,7 @@
       min-width:240px;
     }
 
-    @media(max-width: 620px){
+    @media(max-width:620px){
       .workActions{ flex-direction:column; }
       .workActions .btnSoft,
       .workActions .btnPrimary{ width:100%; min-width:unset; }
@@ -276,7 +430,6 @@
       .thumbType{ font-size:58px; }
     }
 
-    /* Hide app.js mini list UI completely (keep DOM hooks) */
     #fileMeta{
       margin:0 !important;
       padding:0 !important;
@@ -291,93 +444,155 @@
       top:auto !important;
     }
 
-    /* Support section */
-    .plainSection{ padding:64px 0 40px; }
-    .plainKicker{
-      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-      font-size:12px; letter-spacing:.08em; text-transform:uppercase; opacity:.72;
+    .progressWrap{
+      display:block;
+      margin:16px 0 0;
+      padding:14px 14px 12px;
+      border:1px solid rgba(15,23,42,.14);
+      border-radius:14px;
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+      box-shadow:0 16px 38px rgba(2,6,23,.08);
     }
+
+    .progressWrap[hidden]{ display:none !important; }
+
+    .progressTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+
+    #progressLabel,
+    #progressPct{
+      font-size:14px;
+      font-weight:1000;
+      color:rgba(11,18,32,.82);
+    }
+
+    .progressBar{
+      height:12px;
+      border-radius:999px;
+      background:rgba(15,23,42,.10);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .progressFill{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      background:linear-gradient(90deg,#0f172a,#334155);
+      transition:width .25s ease;
+    }
+
+    .plainSection{ padding:64px 0 40px; }
+
+    .plainKicker{
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      opacity:.72;
+    }
+
     .plainH2{
       margin:14px 0 10px;
-      font-size:44px; line-height:1.05;
+      font-size:44px;
+      line-height:1.05;
       letter-spacing:-.04em;
       font-weight:1000;
       color:rgba(11,18,32,.96);
     }
-    @media (max-width: 720px){ .plainH2{ font-size:34px; } }
+
+    @media (max-width:720px){
+      .plainH2{ font-size:34px; }
+    }
+
     .plainLead{
       margin:0;
       font-size:16px;
       line-height:1.65;
-      max-width: 78ch;
+      max-width:78ch;
       opacity:.80;
     }
 
-    .limitStrip{
-      margin-top:16px;
-      padding:14px 16px;
-      border:1px solid rgba(15,23,42,.12);
-      border-radius:14px;
-      background: linear-gradient(180deg, rgba(11,18,32,.02), rgba(11,18,32,.01));
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px 12px;
-      align-items:center;
-      justify-content:space-between;
-    }
-    .limitStrip strong{ font-weight:1000; letter-spacing:-.02em; }
-    .limitPills{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:flex-end; }
-    .limitPill{
-      font-size:12px;
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid rgba(15,23,42,.14);
-      background:#fff;
-      font-weight:900;
-      letter-spacing:-.01em;
-      color:rgba(11,18,32,.86);
-      white-space:nowrap;
+    .plainDivider{
+      margin:56px 0 0;
+      border-top:1px solid rgba(15,23,42,.12);
     }
 
-    .plainDivider{ margin:56px 0 0; border-top:1px solid rgba(15,23,42,.12); }
     .plainBottomGrid{
       margin-top:36px;
       display:grid;
-      grid-template-columns: 1.1fr .9fr;
+      grid-template-columns:1.1fr .9fr;
       gap:44px;
       align-items:start;
     }
-    @media (max-width: 980px){ .plainBottomGrid{ grid-template-columns: 1fr; gap:32px; } }
 
-    .faqListPlain{ margin-top:10px; display:grid; gap:18px; }
-    .faqItemPlain{ padding-top:16px; border-top:1px solid rgba(15,23,42,.12); }
-    .faqItemPlain:first-child{ border-top:0; padding-top:0; }
-    .faqQ{ margin:0 0 8px; font-weight:1000; letter-spacing:-.02em; font-size:16px; }
-    .faqA{ margin:0; opacity:.80; line-height:1.65; font-size:15px; max-width: 68ch; }
+    @media (max-width:980px){
+      .plainBottomGrid{
+        grid-template-columns:1fr;
+        gap:32px;
+      }
+    }
+
+    .faqListPlain{
+      margin-top:10px;
+      display:grid;
+      gap:18px;
+    }
+
+    .faqItemPlain{
+      padding-top:16px;
+      border-top:1px solid rgba(15,23,42,.12);
+    }
+
+    .faqItemPlain:first-child{
+      border-top:0;
+      padding-top:0;
+    }
+
+    .faqQ{
+      margin:0 0 8px;
+      font-weight:1000;
+      letter-spacing:-.02em;
+      font-size:16px;
+    }
+
+    .faqA{
+      margin:0;
+      opacity:.80;
+      line-height:1.65;
+      font-size:15px;
+      max-width:68ch;
+    }
 
     .relatedLinks{
       margin-top:12px;
-      display:flex; flex-wrap:wrap;
+      display:flex;
+      flex-wrap:wrap;
       gap:14px 18px;
       font-size:15px;
     }
+
     .relatedLinks a{
       text-decoration:none;
       font-weight:1000;
       color:rgba(11,18,32,.92);
       border-bottom:1px solid rgba(11,18,32,.24);
     }
-    .relatedLinks a:hover{ border-bottom-color: rgba(11,18,32,.60); }
+
     .plainNote{
       margin-top:14px;
       font-size:13px;
       opacity:.72;
       line-height:1.55;
-      max-width: 80ch;
+      max-width:80ch;
     }
   </style>
 
-  <!-- Schema (keep yours, just tightened copy) -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -392,13 +607,17 @@
   {
     "@context":"https://schema.org",
     "@type":"WebPage",
-    "name":"Compress PDF to Under 5MB — PDFOperations",
+    "name":"Compress PDF Under 5MB | PDFOperations",
     "url":"https://pdfoperations.com/compress-pdf-under-5mb",
-    "description":"Compress a PDF toward strict 5MB upload limits. Maximum compression is applied automatically.",
+    "description":"Compress a PDF under 5MB for online forms, university portals, job applications and document uploads.",
     "isPartOf":{
       "@type":"WebSite",
       "name":"PDFOperations",
       "url":"https://pdfoperations.com/"
+    },
+    "about":{
+      "@type":"Thing",
+      "name":"PDF compression under 5MB"
     }
   }
   </script>
@@ -424,44 +643,29 @@
         "name":"Does this guarantee my PDF will be under 5MB?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"We apply maximum compression automatically on this page to target 5MB limits. Most text-heavy PDFs compress well. Some scanned or image-heavy PDFs may not reach 5MB without reducing readability."
+          "text":"This page targets 5MB upload limits using maximum compression. Text-heavy PDFs usually compress well, while scanned or image-heavy PDFs may not always reach 5MB without reducing quality."
         }
       },
       {
         "@type":"Question",
-        "name":"How do I compress a PDF to under 5MB?",
+        "name":"How do I compress a PDF under 5MB?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"Select or drop your PDF, click Upload, then Continue to download the compressed file. If you still exceed 5MB, export your PDF at a lower image resolution (often 150–200 DPI)."
+          "text":"Upload your PDF, let PDFOperations prepare a smaller version, then continue to download the compressed PDF."
         }
       },
       {
         "@type":"Question",
-        "name":"Why do portals require under 5MB?",
+        "name":"What is this page best for?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"Many portals limit uploads to reduce bandwidth and storage. Under 5MB is a common cap for forms, applications and submissions."
+          "text":"It is designed for online forms, university portals, government uploads, job applications and document systems that reject PDFs larger than 5MB."
         }
       }
     ]
   }
   </script>
 
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"SoftwareApplication",
-    "name":"PDFOperations",
-    "applicationCategory":"BusinessApplication",
-    "applicationSubCategory":"PDF Utilities",
-    "operatingSystem":"Web",
-    "browserRequirements":"Requires JavaScript. Works in modern browsers.",
-    "url":"https://pdfoperations.com/",
-    "description":"Online PDF utilities to compress, merge, split, rotate and convert PDF files."
-  }
-  </script>
-
-  <!-- ✅ PDF.js module load -->
   <script type="module">
     window.__pdfjsReady = import("/vendor/pdfjs/pdf.min.mjs")
       .then((mod) => {
@@ -477,525 +681,516 @@
       });
   </script>
 
-  <!-- ✅ app.js ONCE -->
-  <script defer src="/app.js?v=18"></script>
+  <script defer src="/app.js?v=21"></script>
 </head>
 
-<body class="page pageCompressPdf">
-<div class="bg" aria-hidden="true"></div>
+<body class="page pageCompressPdf" data-tool="compress_pdf" data-target-bytes="5242880">
+  <div class="bg" aria-hidden="true"></div>
 
-<a href="#tool" class="srOnly">Skip to tool</a>
+  <a href="#tool" class="srOnly">Skip to tool</a>
 
-<header class="nav">
-  <div class="container navInner">
-    <a class="brand" href="/" aria-label="PDFOperations home">
-      <img src="/logo.png" alt="PDFOperations" class="brandLogoFull" />
-    </a>
+  <header class="nav">
+    <div class="container navInner">
+      <a class="brand" href="/" aria-label="PDFOperations home">
+        <img src="/logo.png" alt="PDFOperations" class="brandLogoFull" />
+      </a>
 
-    <nav class="navLinks" aria-label="Primary tools">
-      <a href="/" data-nav="compress" aria-current="page">Compress</a>
-      <a href="/compress-image" data-nav="compress-image">Compress Image</a>
-      <a href="/merge-pdf" data-nav="merge">Merge</a>
-      <a href="/split-pdf" data-nav="split">Split</a>
-      <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
-      <a href="/convert" data-nav="convert">Convert</a>
-      <a href="/sign-pdf" data-nav="sign">Sign</a>
-      <a href="/edit-pdf" data-nav="edit">Edit</a>
-      <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
-    </nav>
-  </div>
-</header>
+      <nav class="navLinks" aria-label="Primary tools">
+        <a href="/" data-nav="compress">Compress</a>
+        <a href="/compress-image" data-nav="compress-image">Compress Image</a>
+        <a href="/merge-pdf" data-nav="merge">Merge</a>
+        <a href="/split-pdf" data-nav="split">Split</a>
+        <a href="/rotate-pdf" data-nav="rotate">Rotate</a>
+        <a href="/convert" data-nav="convert">Convert</a>
+        <a href="/sign-pdf" data-nav="sign">Sign</a>
+        <a href="/edit-pdf" data-nav="edit">Edit</a>
+        <a href="/watermark-pdf" data-nav="watermark">Watermark</a>
+      </nav>
+    </div>
+  </header>
 
-<main>
-  <section class="hero heroPremium heroToolFirst">
-    <div class="container heroWide">
+  <main>
+    <section class="hero heroPremium heroToolFirst">
+      <div class="container heroWide">
+        <div id="tool" class="tool toolPremium toolMega">
 
-      <div id="tool" class="tool toolPremium toolMega">
-
-      <div class="toolHead toolHeadMinimal">
-        <h1 class="toolTitle">Compress PDF to Under 5MB</h1>
-        <p class="toolSub" style="text-align:center; max-width:760px; margin:10px auto 0;">
-          Reduce PDF file size for strict 5MB upload limits. Upload your file, prepare a smaller version, and review the result before downloading.
-        </p>
-        <div style="text-align:center; margin-top:12px; font-size:14px; opacity:.86; font-weight:800;">
-          No signup • Secure processing • One-time payment • Preview before download
-        </div>
-
-        <div style="text-align:center; margin-top:10px; font-size:14px;">
-          Try:
-          <a href="/compress-pdf-under-2mb">2MB limit</a> •
-          <a href="/compress-pdf-under-10mb">10MB limit</a> •
-          <a href="/compress-pdf-for-job-application">Job applications</a>
-        </div>
-
-        <div class="limitStrip" aria-label="Common upload limits">
-          <div><strong>Target:</strong> under <span style="font-weight:1000;">5MB</span> (maximum compression applied)</div>
-          <div class="limitPills" aria-hidden="true">
-            <span class="limitPill">Job portals</span>
-            <span class="limitPill">University forms</span>
-            <span class="limitPill">Gov uploads</span>
-          </div>
-        </div>
-      </div>
-
-        <div class="statusWrap">
-          <div class="statusLeft">
-            <div class="status" id="status">Ready</div>
-            <div class="spinner" id="spinner"></div>
-          </div>
-          <div class="statusHint" id="statusHint">Drop a PDF to begin. We’ll target <strong>under 5MB</strong>.</div>
-        </div>
-
-        <!-- Hidden mode controls -->
-        <fieldset style="display:none;">
-          <input type="radio" name="mode" id="modeCompress">
-          <input type="radio" name="mode" id="modeCompressPdf" checked>
-          <input type="radio" name="mode" id="modeConvert">
-          <input type="radio" name="mode" id="modeMergePdf">
-          <input type="radio" name="mode" id="modeSplitPdf">
-          <input type="radio" name="mode" id="modeRotatePdf">
-        </fieldset>
-
-        <div class="controls" id="pdfCompressRow">
-          <select class="select" id="pdfCompressLevel">
-            <option value="light">Light</option>
-            <option value="balanced">Balanced</option>
-            <option value="max">Maximum</option>
-          </select>
-        </div>
-
-        <div id="convertRow" style="display:none;">
-          <select id="convertFrom"><option value="auto" selected>Auto detect</option></select>
-          <select id="convertTarget"><option value="jpg" selected>JPG</option><option value="png">PNG</option></select>
-        </div>
-
-        <div style="display:none;">
-          <select id="rotateDegrees"><option value="90" selected>90°</option><option value="180">180°</option><option value="270">270°</option></select>
-        </div>
-
-        <!-- DROPZONE -->
-        <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
-          <div class="dzCenter">
-            <div class="dzTitle" id="dzTitle">Upload your PDF to reduce it below 5MB</div>
-
-              <div class="dzSub" id="dzSub">Best for portals, forms, university submissions and stricter upload limits</div>
-
-            <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
-            <input id="files" type="file" accept="application/pdf" />
-
-            <div class="dzFine">Strict 5MB target. Large scanned PDFs may need another pass.</div>
-          </div>
-        </div>
-
-        <!-- POST-SELECT PANEL -->
-        <div class="workPanel" aria-label="Selected file">
-          <div class="workTop">
-            <button class="btnPrimary" type="button"
-              onclick="document.getElementById('chooseBtn') && document.getElementById('chooseBtn').click()">
-              Select PDF
-            </button>
-            <button class="btnGhost" type="button" id="clearTopBtn">Clear</button>
-          </div>
-
-          <div class="workStage">
-            <div class="thumbCard" id="thumbCard" aria-label="Preview">
-              <canvas class="thumbCanvas" id="thumbCanvas"></canvas>
-              <div class="thumbType" id="thumbType">PDF</div>
-              <div class="thumbName" id="thumbName">PDF</div>
-              <div class="thumbClose" id="thumbClose" aria-label="Remove">×</div>
-              <div class="thumbHint" id="thumbHint">
-                <strong id="sizeLine">Target: under 5MB</strong>
-                <span id="sizeSub">Upload to continue</span>
-              </div>
+          <div class="toolHead toolHeadMinimal">
+            <div style="text-align:center;">
+              <div class="intentBadge">Strict upload limit fixer</div>
             </div>
 
-            <!-- Keep app.js hooks -->
-            <div class="fileMeta" id="fileMeta" hidden>
-              <div class="fileMetaTop">
-                <div class="fileSummary" id="fileSummary"></div>
-                <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+            <h1 class="toolTitle">Compress PDF Under 5MB</h1>
+
+            <p class="toolSub" style="text-align:center; max-width:760px; margin:10px auto 0;">
+              Built for online forms, university portals, government uploads and job applications that reject PDFs over 5MB.
+            </p>
+
+            <div class="trustLine">
+              Maximum compression • Preview result • Instant download • No account
+            </div>
+
+            <div class="limitStrip" aria-label="5MB target">
+              <div><strong>Target:</strong> under <span style="font-weight:1000;">5MB</span></div>
+              <div class="limitPills" aria-hidden="true">
+                <span class="limitPill">Forms</span>
+                <span class="limitPill">Portals</span>
+                <span class="limitPill">Applications</span>
               </div>
-              <ul class="fileList" id="fileList"></ul>
             </div>
           </div>
 
-          <div class="workBottom">
+          <div class="statusWrap">
+            <div class="statusLeft">
+              <div class="status" id="status">Ready</div>
+              <div class="spinner" id="spinner"></div>
+            </div>
+            <div class="statusHint" id="statusHint">Upload your PDF. We’ll target <strong>under 5MB</strong>.</div>
+          </div>
 
-            <div id="resultPreview" style="
-              display:none;
-              text-align:center;
-              margin-bottom:14px;
-              padding:16px;
-              border:1px solid rgba(15,23,42,.14);
-              border-radius:12px;
-              background:linear-gradient(180deg,#ffffff,#f8fafc);
-            ">
-              <div style="font-weight:1000; font-size:20px; margin-bottom:10px;">
-                ✔ Your PDF is now smaller and closer to the 5MB target
-              </div>
+          <fieldset style="display:none;">
+            <input type="radio" name="mode" id="modeCompress" value="compress">
+            <input type="radio" name="mode" id="modeCompressPdf" value="compress_pdf" checked>
+            <input type="radio" name="mode" id="modeConvert" value="convert">
+            <input type="radio" name="mode" id="modeMergePdf" value="merge_pdf">
+            <input type="radio" name="mode" id="modeSplitPdf" value="split_pdf">
+            <input type="radio" name="mode" id="modeRotatePdf" value="rotate_pdf">
+          </fieldset>
 
-              <div style="font-size:14px; opacity:.9; margin-bottom:8px;">
-                Original: <strong id="originalSize">—</strong>
-              </div>
+          <div class="controls" id="pdfCompressRow">
+            <select class="select" id="pdfCompressLevel">
+              <option value="light">Light</option>
+              <option value="balanced">Balanced</option>
+              <option value="max" selected>Maximum</option>
+            </select>
+          </div>
 
-              <div style="font-size:16px; font-weight:1000; margin-bottom:6px;">
-                New: <strong id="newSize">—</strong>
-              </div>
+          <div id="convertRow" style="display:none;">
+            <select id="convertFrom"><option value="auto" selected>Auto detect</option></select>
+            <select id="convertTarget"><option value="jpg" selected>JPG</option><option value="png">PNG</option></select>
+          </div>
 
-              <div id="savingsPct" style="
-                font-size:14px;
-                font-weight:1000;
-                color:#16a34a;
-                margin-bottom:12px;
-              ">
-                ↓ —% smaller — better for strict upload limits
-              </div>
+          <div style="display:none;">
+            <select id="rotateDegrees"><option value="90" selected>90°</option><option value="180">180°</option><option value="270">270°</option></select>
+          </div>
 
-              <div style="font-size:13px; opacity:.78; margin-bottom:14px;">
-                Your smaller file is prepared. Review the result, then download it instantly.
-              </div>
+          <div class="dropzone dropzonePremium dropzoneMega" id="dropzone">
+            <div class="dzCenter">
+              <div class="dzTitle" id="dzTitle">Upload your PDF to reduce it under 5MB</div>
+              <div class="dzSub" id="dzSub">For strict upload limits, forms, portals and applications</div>
 
-              <div style="font-size:13px; opacity:.75; margin-bottom:10px;">
-                Need a different limit?
-                <a href="/compress-pdf-under-2mb">2MB</a> •
-                <a href="/compress-pdf-under-10mb">10MB</a> •
-                <a href="/pdf-too-large-to-upload">General upload fix</a>
-              </div>
+              <button class="btnPrimary btnLarge" id="chooseBtn" type="button">Select PDF</button>
+              <input id="files" type="file" accept="application/pdf,.pdf" />
 
-              <button id="unlockBtn" class="btnPrimary btnStrong" style="width:100%;">
-                Download smaller PDF
+              <div class="dzFine">Maximum compression is applied automatically on this page.</div>
+            </div>
+          </div>
+
+          <div class="workPanel" aria-label="Selected file">
+            <div class="workTop">
+              <button class="btnPrimary" type="button"
+                onclick="document.getElementById('chooseBtn') && document.getElementById('chooseBtn').click()">
+                Select PDF
               </button>
+              <button class="btnGhost" type="button" id="clearTopBtn">Clear</button>
             </div>
 
-            <div class="workActions">
-              <button class="btnSoft" id="upload" disabled>Prepare smaller PDF</button>
-              <button class="btnPrimary btnStrong" id="continue" disabled>Continue to download</button>
+            <div class="workStage">
+              <div class="thumbCard" id="thumbCard" aria-label="Preview">
+                <canvas class="thumbCanvas" id="thumbCanvas"></canvas>
+                <div class="thumbType" id="thumbType">PDF</div>
+                <div class="thumbName" id="thumbName">PDF</div>
+                <div class="thumbClose" id="thumbClose" aria-label="Remove">×</div>
+                <div class="thumbHint" id="thumbHint">
+                  <strong id="sizeLine">Target: under 5MB</strong>
+                  <span id="sizeSub">Upload to continue</span>
+                </div>
+              </div>
+
+              <div class="fileMeta" id="fileMeta" hidden>
+                <div class="fileMetaTop">
+                  <div class="fileSummary" id="fileSummary"></div>
+                  <button class="btnGhost" id="clearBtn" type="button">Clear</button>
+                </div>
+                <ul class="fileList" id="fileList"></ul>
+              </div>
             </div>
 
-            <div class="plainNote" style="margin-top:14px; text-align:center;">
-              No account required • One-time payment • Built for strict 5MB upload limits
+            <div class="workBottom">
+              <div id="resultPreview" style="
+                display:none;
+                text-align:center;
+                margin-bottom:14px;
+                padding:18px;
+                border:1px solid rgba(15,23,42,.14);
+                border-radius:16px;
+                background:linear-gradient(180deg,#ffffff,#f8fafc);
+                box-shadow:0 18px 40px rgba(2,6,23,.08);
+              ">
+                <div style="font-weight:1000; font-size:22px; margin-bottom:12px;">
+                  ✔ Your PDF has been compressed
+                </div>
+
+                <div style="
+                  display:grid;
+                  grid-template-columns:repeat(2,minmax(0,1fr));
+                  gap:12px;
+                  margin-bottom:14px;
+                ">
+                  <div style="border:1px solid rgba(15,23,42,.10); border-radius:12px; padding:14px; background:#fff;">
+                    <div style="font-size:12px; opacity:.65; margin-bottom:6px;">Original</div>
+                    <div id="originalSize" style="font-size:22px; font-weight:1000;">—</div>
+                  </div>
+
+                  <div style="border:1px solid rgba(15,23,42,.10); border-radius:12px; padding:14px; background:#fff;">
+                    <div style="font-size:12px; opacity:.65; margin-bottom:6px;">Compressed</div>
+                    <div id="newSize" style="font-size:22px; font-weight:1000;">—</div>
+                  </div>
+                </div>
+
+                <div id="savingsPct" style="font-size:15px; font-weight:1000; color:#16a34a; margin-bottom:12px;">
+                  ↓ —% smaller
+                </div>
+
+                <div style="font-size:13px; opacity:.76; line-height:1.5; margin-bottom:14px;">
+                  Your file is ready. Continue to unlock and download your compressed PDF.
+                </div>
+
+                <button id="unlockBtn" type="button" class="btnPrimary btnStrong" style="width:100%;">
+                  Unlock download →
+                </button>
+
+                <div style="font-size:12px; opacity:.62; margin-top:10px;">
+                  No account • One-time payment • Instant download
+                </div>
+              </div>
+
+              <div class="workActions">
+                <button type="button" class="btnSoft" id="upload">Prepare smaller PDF</button>
+                <button type="button" class="btnPrimary btnStrong" id="continue">Unlock download →</button>
+              </div>
+
+              <div class="plainNote" style="margin-top:14px; text-align:center;">
+                Built for strict 5MB upload limits. Some scanned/image-heavy PDFs may not reach 5MB without visible quality loss.
+              </div>
+            </div>
+          </div>
+
+          <div class="stepsLine">
+            <div class="stepItem"><span class="stepNum">1</span>Select your PDF</div>
+            <div class="stepItem"><span class="stepNum">2</span>Compress toward 5MB</div>
+            <div class="stepItem"><span class="stepNum">3</span>Unlock download</div>
+          </div>
+
+          <div class="progressWrap" id="progressWrap" hidden>
+            <div class="progressTop">
+              <div id="progressLabel">Uploading…</div>
+              <div id="progressPct">0%</div>
+            </div>
+            <div class="progressBar">
+              <div class="progressFill" id="progressFill"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="plainSection" id="about">
+      <div class="container heroWide">
+        <div class="plainKicker">5MB PDF upload fix</div>
+        <h2 class="plainH2">Reduce a PDF for strict 5MB upload limits</h2>
+
+        <p class="plainLead" style="margin-top:14px;">
+          Use this page when a website, portal, university form, government upload or job application rejects your PDF because it is over 5MB.
+        </p>
+
+        <p class="plainLead" style="margin-top:14px;">
+          This is the dedicated 5MB compression route. If you need a stricter limit, use the 2MB or 1MB tools instead.
+        </p>
+
+        <div class="relatedLinks" style="margin-top:20px;">
+          <a href="/compress-pdf-under-2mb">Compress PDF under 2MB</a>
+          <a href="/compress-pdf-under-1mb">Compress PDF under 1MB</a>
+          <a href="/compress-pdf-for-job-application">Compress PDF for job application</a>
+          <a href="/reduce-pdf-size-for-email">Reduce PDF size for email</a>
+        </div>
+
+        <div class="plainDivider"></div>
+
+        <div class="plainBottomGrid" id="faq">
+          <div>
+            <div class="plainKicker">FAQ</div>
+            <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.03em; font-weight:1000;">Common questions</h3>
+
+            <div class="faqListPlain">
+              <div class="faqItemPlain">
+                <div class="faqQ">Does this guarantee under 5MB?</div>
+                <p class="faqA">It targets 5MB using maximum compression. Text-heavy PDFs usually compress well. Scanned or image-heavy PDFs may not always reach 5MB without lowering image quality.</p>
+              </div>
+
+              <div class="faqItemPlain">
+                <div class="faqQ">What if my PDF is still over 5MB?</div>
+                <p class="faqA">Try exporting the original PDF at 150–200 DPI, remove large images if possible, then compress again.</p>
+              </div>
+
+              <div class="faqItemPlain">
+                <div class="faqQ">Is this the same as the free homepage compressor?</div>
+                <p class="faqA">No. The homepage is a general free compressor. This page is for a specific 5MB upload limit and uses maximum compression automatically.</p>
+              </div>
+
+              <div class="faqItemPlain">
+                <div class="faqQ">Do I need an account?</div>
+                <p class="faqA">No. Upload your PDF, prepare the smaller version, then unlock the download.</p>
+              </div>
+            </div>
+
+            <div class="plainNote">
+              Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
+            </div>
+          </div>
+
+          <div>
+            <div class="plainKicker">Other tools</div>
+            <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.03em; font-weight:1000;">More PDF fixes</h3>
+
+            <p class="plainLead" style="font-size:15px; margin-top:0; max-width:56ch;">
+              Need a different workflow? Use another PDFOperations tool.
+            </p>
+
+            <div class="relatedLinks" aria-label="PDF tools">
+              <a href="/">Compress PDF free</a>
+              <a href="/merge-pdf">Merge PDFs</a>
+              <a href="/split-pdf">Split PDF</a>
+              <a href="/rotate-pdf">Rotate PDF</a>
+              <a href="/convert">Convert PDF</a>
+            </div>
+
+            <div class="plainNote">
+              Tip: scanned documents are usually the hardest PDFs to reduce because every page is stored as an image.
             </div>
           </div>
         </div>
+      </div>
+    </section>
+  </main>
 
-        <!-- STEPS (pre-select only) -->
-        <div class="stepsLine">
-          <div class="stepItem"><span class="stepNum">1</span>Select your PDF</div>
-          <div class="stepItem"><span class="stepNum">2</span>Prepare a smaller version</div>
-          <div class="stepItem"><span class="stepNum">3</span>Download when ready</div>
-        </div>
-
-        <!-- PROGRESS -->
-        <div class="progressWrap" id="progressWrap" hidden>
-          <div class="progressTop">
-            <div id="progressLabel">Uploading…</div>
-            <div id="progressPct">0%</div>
-          </div>
-          <div class="progressBar">
-            <div class="progressFill" id="progressFill"></div>
-          </div>
-        </div>
-
+  <footer class="footer">
+    <div class="container footerInner">
+      <div>
+        <strong>PDFOperations</strong>
+        <div>Professional PDF tools for upload limits, forms and document workflows.</div>
       </div>
 
-    </div>
-  </section>
-
-  <section class="plainSection" id="about">
-    <div class="container heroWide">
-
-      <div class="plainKicker">Upload Fix</div>
-      <h2 class="plainH2">Reduce a PDF to under 5MB</h2>
-      <p class="plainLead" style="margin-top:14px;">
-        If an upload form says “file too large”, “max 5MB”, or refuses your PDF, this page is built for that exact problem.
-        We apply maximum compression automatically to target strict 5MB limits.
-      </p>
-
-      <div class="plainDivider"></div>
-
-      <div class="plainBottomGrid" id="faq">
-        <div>
-          <div class="plainKicker">FAQ</div>
-          <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.03em; font-weight:1000;">Common questions</h3>
-
-          <div class="faqListPlain">
-            <div class="faqItemPlain">
-              <div class="faqQ">Does this guarantee under 5MB?</div>
-              <p class="faqA">This page applies maximum compression automatically to target 5MB limits. Most text-heavy PDFs compress well. Some scanned/image-heavy PDFs may not reach 5MB without reducing readability.</p>
-            </div>
-            <div class="faqItemPlain">
-              <div class="faqQ">What if my PDF is still over 5MB?</div>
-              <p class="faqA">If it’s a scan or image-heavy document, try exporting at 150–200 DPI, or removing large images before exporting to PDF, then compress again.</p>
-            </div>
-            <div class="faqItemPlain">
-              <div class="faqQ">Is my PDF secure?</div>
-              <p class="faqA">Files are processed to generate your output. See the Privacy page for retention and deletion details.</p>
-            </div>
-          </div>
-
-          <div class="plainNote">
-            Read more: <a href="/privacy">Privacy</a> • <a href="/terms">Terms</a>
-          </div>
-        </div>
-
-        <div>
-          <div class="plainKicker">Tools</div>
-          <h3 style="margin:12px 0 6px; font-size:22px; letter-spacing:-.03em; font-weight:1000;">Other PDF tools</h3>
-          <p class="plainLead" style="font-size:15px; margin-top:0; max-width:56ch;">
-            If you also need to combine files or reorder pages, jump straight into another tool.
-          </p>
-
-          <div class="relatedLinks" aria-label="PDF tools">
-            <a href="/">Compress (standard)</a>
-            <a href="/merge-pdf">Merge PDF files</a>
-            <a href="/split-pdf">Split PDF pages</a>
-            <a href="/rotate-pdf">Rotate PDF pages</a>
-          </div>
-
-          <div class="plainNote">
-            Tip: For strict portals, export “print” PDFs at 150–200 DPI instead of 300+ DPI.
-          </div>
-        </div>
+      <div class="footerLinks">
+        <a href="/pricing">Pricing</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
       </div>
-
     </div>
-  </section>
+  </footer>
 
-</main>
+  <script>
+  (() => {
+    const FORCE_LEVEL = "max";
+    const TARGET_BYTES = 5 * 1024 * 1024;
 
-<footer class="footer">
-  <div class="container footerInner">
-    <div>
-      <strong>PDFOperations</strong>
-      <div>Professional PDF tools for real workflows.</div>
-    </div>
+    const level = document.getElementById("pdfCompressLevel");
 
-    <div class="footerLinks">
-      <a href="/pricing">Pricing</a>
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
-    </div>
-  </div>
-</footer>
-
-<script>
-(() => {
-  // ---- Force maximum compression on this page (without touching app.js) ----
-  // app.js reads #pdfCompressLevel; we set it to "max" and dispatch change.
-  const level = document.getElementById("pdfCompressLevel");
-  if (level) {
-    level.value = "max";
-    try { level.dispatchEvent(new Event("change", { bubbles: true })); } catch(_) {}
-  }
-
-  // ---- Mini file card UX (no app.js changes) ----
-  const filesInput = document.getElementById("files");
-  const dropzone = document.getElementById("dropzone");
-  const meta = document.getElementById("fileMeta");
-
-  const card = document.getElementById("thumbCard");
-  const canvas = document.getElementById("thumbCanvas");
-  const nameEl = document.getElementById("thumbName");
-  const hintLine = document.getElementById("sizeLine");
-  const hintSub = document.getElementById("sizeSub");
-  const closeEl = document.getElementById("thumbClose");
-  const clearTopBtn = document.getElementById("clearTopBtn");
-
-  if (!filesInput || !canvas || !nameEl || !hintLine || !hintSub || !closeEl || !card) return;
-
-  const ctx = canvas.getContext("2d");
-  const setHasFile = (v) => document.body.classList.toggle("hasFile", !!v);
-
-  if (meta) {
-    const apply = () => setHasFile(!meta.hasAttribute("hidden"));
-    apply();
-    new MutationObserver(apply).observe(meta, { attributes: true, attributeFilter: ["hidden"] });
-  }
-
-  function setRendered(v){ card.classList.toggle("isRendered", !!v); }
-
-  function fmtMB(bytes){
-    const mb = bytes / (1024 * 1024);
-    return (mb < 10 ? mb.toFixed(2) : mb.toFixed(1)) + "MB";
-  }
-
-  function sizeCanvasToCard(){
-    const rect = card.getBoundingClientRect();
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.max(2, Math.floor(rect.width * dpr));
-    canvas.height = Math.max(2, Math.floor(rect.height * dpr));
-  }
-
-  function paintBlank(){
-    sizeCanvasToCard();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  }
-
-  const doClear = () => {
-    document.body.classList.remove("isProcessed");
-    const real = document.getElementById("clearBtn");
-    if (real) real.click();
-    try{ filesInput.value = ""; }catch(_){}
-    nameEl.textContent = "PDF";
-    hintLine.textContent = "Target: under 5MB";
-    hintSub.textContent = "Upload to continue";
-    setRendered(false);
-    paintBlank();
-    setHasFile(false);
-    if (level) {
-      level.value = "max";
-      try { level.dispatchEvent(new Event("change", { bubbles: true })); } catch(_) {}
-    }
-  };
-
-  closeEl.addEventListener("click", doClear);
-  if (clearTopBtn) clearTopBtn.addEventListener("click", doClear);
-
-  function withTimeout(promise, ms, label){
-    return Promise.race([
-      promise,
-      new Promise((_, rej) => setTimeout(() => rej(new Error(label || "timeout")), ms))
-    ]);
-  }
-
-  async function renderAttempt(lib, buf, opts){
-    const task = lib.getDocument(opts);
-    const pdf = await withTimeout(task.promise, 15000, "load-timeout");
-    const page = await withTimeout(pdf.getPage(1), 15000, "page-timeout");
-
-    const viewport0 = page.getViewport({ scale: 1 });
-    const scale = Math.min(canvas.width / viewport0.width, canvas.height / viewport0.height);
-    const viewport = page.getViewport({ scale });
-
-    const renderCanvas = document.createElement("canvas");
-    renderCanvas.width = Math.max(2, Math.floor(viewport.width));
-    renderCanvas.height = Math.max(2, Math.floor(viewport.height));
-    const rctx = renderCanvas.getContext("2d");
-
-    await withTimeout(page.render({ canvasContext: rctx, viewport }).promise, 15000, "render-timeout");
-
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    const dx = Math.floor((canvas.width - renderCanvas.width) / 2);
-    const dy = Math.floor((canvas.height - renderCanvas.height) / 2);
-    ctx.drawImage(renderCanvas, dx, dy);
-
-    try { pdf.destroy(); } catch(_) {}
-  }
-
-  async function renderPdfThumb(file){
-    setRendered(false);
-    paintBlank();
-
-    const lib = window.pdfjsLib || (await (window.__pdfjsReady || Promise.resolve(null)));
-    if (!lib) {
-      hintSub.textContent = "Preview unavailable";
-      return;
-    }
-    try { lib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.mjs"; } catch(_) {}
-
-    const buf = await file.arrayBuffer();
-
-    try{
-      sizeCanvasToCard();
-      await renderAttempt(lib, buf, { data: buf });
-      setRendered(true);
-      return;
-    } catch (_) {}
-
-    try{
-      sizeCanvasToCard();
-      await renderAttempt(lib, buf, { data: buf, disableWorker: true });
-      setRendered(true);
-      return;
-    } catch (_) {
-      setRendered(false);
-      paintBlank();
-    }
-  }
-
-  async function handleFile(file){
-    if (!file) return;
-
-    // force max every time
-    if (level) {
-      level.value = "max";
-      try { level.dispatchEvent(new Event("change", { bubbles: true })); } catch(_) {}
-    }
-
-    nameEl.textContent = file.name || "PDF";
-    setHasFile(true);
-
-    const isPdf = (file.type === "application/pdf") || /\.pdf$/i.test(file.name || "");
-    if (!isPdf){
-      hintLine.textContent = "PDF only";
-      hintSub.textContent = "Select a .pdf file";
-      paintBlank();
-      setRendered(false);
-      return;
-    }
-
-    const mb = file.size / (1024*1024);
-    hintLine.textContent = `Original: ${fmtMB(file.size)} • Target: under 5MB`;
-    if (mb <= 5) {
-      hintSub.textContent = "Already under 5MB — you may not need compression.";
-    } else if (mb <= 12) {
-      hintSub.textContent = "Good chance to hit 5MB. Upload to continue (max compression).";
-    } else {
-      hintSub.textContent = "Large/scanned PDFs may not reach 5MB without quality loss. Upload to try.";
-    }
-
-    await renderPdfThumb(file);
-  }
-
-  // Wire choose button -> hidden file input
-  const chooseBtn = document.getElementById("chooseBtn");
-  if (chooseBtn) chooseBtn.addEventListener("click", () => filesInput.click());
-
-  filesInput.addEventListener("change", () => {
-    const file = filesInput.files && filesInput.files[0];
-    if (file) handleFile(file);
-  });
-
-  // Drag drop onto dropzone (mirrors your existing pattern)
-  if (dropzone) {
-    const prevent = (e) => { e.preventDefault(); e.stopPropagation(); };
-    ["dragenter","dragover","dragleave","drop"].forEach(ev => dropzone.addEventListener(ev, prevent));
-    ["dragenter","dragover"].forEach(ev => dropzone.addEventListener(ev, () => dropzone.classList.add("isDragOver")));
-    ["dragleave","drop"].forEach(ev => dropzone.addEventListener(ev, () => dropzone.classList.remove("isDragOver")));
-    dropzone.addEventListener("drop", (e) => {
-      const dt = e.dataTransfer;
-      const file = dt && dt.files && dt.files[0];
-      if (!file) return;
+    function forceMaxCompression(){
+      if (!level) return;
+      level.value = FORCE_LEVEL;
       try {
-        // Best-effort: assign to input so app.js sees it (may fail in some browsers)
-        const dtx = new DataTransfer();
-        dtx.items.add(file);
-        filesInput.files = dtx.files;
-      } catch(_) {}
-      handleFile(file);
+        level.dispatchEvent(new Event("change", { bubbles:true }));
+      } catch (_) {}
+    }
+
+    forceMaxCompression();
+    window.addEventListener("load", forceMaxCompression);
+
+    const filesInput = document.getElementById("files");
+    const dropzone = document.getElementById("dropzone");
+    const meta = document.getElementById("fileMeta");
+
+    const card = document.getElementById("thumbCard");
+    const canvas = document.getElementById("thumbCanvas");
+    const nameEl = document.getElementById("thumbName");
+    const hintLine = document.getElementById("sizeLine");
+    const hintSub = document.getElementById("sizeSub");
+    const closeEl = document.getElementById("thumbClose");
+    const clearTopBtn = document.getElementById("clearTopBtn");
+
+    if (!filesInput || !canvas || !nameEl || !hintLine || !hintSub || !closeEl || !card) return;
+
+    const ctx = canvas.getContext("2d");
+    const setHasFile = (v) => document.body.classList.toggle("hasFile", !!v);
+
+    if (meta) {
+      const apply = () => setHasFile(!meta.hasAttribute("hidden"));
+      apply();
+      new MutationObserver(apply).observe(meta, { attributes:true, attributeFilter:["hidden"] });
+    }
+
+    function setRendered(v){
+      card.classList.toggle("isRendered", !!v);
+    }
+
+    function fmtMB(bytes){
+      const mb = Number(bytes || 0) / (1024 * 1024);
+      return (mb < 10 ? mb.toFixed(2) : mb.toFixed(1)) + "MB";
+    }
+
+    function sizeCanvasToCard(){
+      const rect = card.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(2, Math.floor(rect.width * dpr));
+      canvas.height = Math.max(2, Math.floor(rect.height * dpr));
+    }
+
+    function paintBlank(){
+      sizeCanvasToCard();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    const doClear = () => {
+      document.body.classList.remove("isProcessed");
+
+      const real = document.getElementById("clearBtn");
+      if (real) real.click();
+
+      try { filesInput.value = ""; } catch (_) {}
+
+      nameEl.textContent = "PDF";
+      hintLine.textContent = "Target: under 5MB";
+      hintSub.textContent = "Upload to continue";
+
+      setRendered(false);
+      paintBlank();
+      setHasFile(false);
+      forceMaxCompression();
+    };
+
+    closeEl.addEventListener("click", doClear);
+    clearTopBtn?.addEventListener("click", doClear);
+
+    function withTimeout(promise, ms, label){
+      return Promise.race([
+        promise,
+        new Promise((_, rej) => setTimeout(() => rej(new Error(label || "timeout")), ms))
+      ]);
+    }
+
+    async function renderAttempt(lib, buf, opts){
+      const task = lib.getDocument(opts);
+      const pdf = await withTimeout(task.promise, 15000, "load-timeout");
+      const page = await withTimeout(pdf.getPage(1), 15000, "page-timeout");
+
+      const viewport0 = page.getViewport({ scale:1 });
+      const scale = Math.min(canvas.width / viewport0.width, canvas.height / viewport0.height);
+      const viewport = page.getViewport({ scale });
+
+      const renderCanvas = document.createElement("canvas");
+      renderCanvas.width = Math.max(2, Math.floor(viewport.width));
+      renderCanvas.height = Math.max(2, Math.floor(viewport.height));
+
+      const rctx = renderCanvas.getContext("2d");
+      await withTimeout(page.render({ canvasContext:rctx, viewport }).promise, 15000, "render-timeout");
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const dx = Math.floor((canvas.width - renderCanvas.width) / 2);
+      const dy = Math.floor((canvas.height - renderCanvas.height) / 2);
+      ctx.drawImage(renderCanvas, dx, dy);
+
+      try { pdf.destroy(); } catch (_) {}
+    }
+
+    async function renderPdfThumb(file){
+      setRendered(false);
+      paintBlank();
+
+      const lib = window.pdfjsLib || (await (window.__pdfjsReady || Promise.resolve(null)));
+
+      if (!lib) {
+        hintSub.textContent = "Preview unavailable";
+        return;
+      }
+
+      try { lib.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.mjs"; } catch (_) {}
+
+      hintSub.textContent = "Rendering preview…";
+      const buf = await file.arrayBuffer();
+
+      try {
+        sizeCanvasToCard();
+        await renderAttempt(lib, buf, { data:buf });
+        setRendered(true);
+        return;
+      } catch (_) {}
+
+      try {
+        sizeCanvasToCard();
+        await renderAttempt(lib, buf, { data:buf, disableWorker:true });
+        setRendered(true);
+      } catch (_) {
+        setRendered(false);
+        paintBlank();
+        hintSub.textContent = "Preview unavailable";
+      }
+    }
+
+    async function handleFile(file){
+      if (!file) return;
+
+      forceMaxCompression();
+
+      nameEl.textContent = file.name || "PDF";
+      setHasFile(true);
+
+      const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name || "");
+
+      if (!isPdf) {
+        hintLine.textContent = "PDF only";
+        hintSub.textContent = "Select a .pdf file";
+        setRendered(false);
+        paintBlank();
+        return;
+      }
+
+      const mb = file.size / (1024 * 1024);
+
+      hintLine.textContent = `Original: ${fmtMB(file.size)} • Target: under 5MB`;
+
+      if (file.size <= TARGET_BYTES) {
+        hintSub.textContent = "Already under 5MB — you may not need this fixer.";
+      } else if (mb <= 12) {
+        hintSub.textContent = "Good chance to hit 5MB. Maximum compression will be used.";
+      } else {
+        hintSub.textContent = "Large or scanned PDFs may need quality reduction to reach 5MB.";
+      }
+
+      await renderPdfThumb(file);
+    }
+
+    paintBlank();
+
+    filesInput.addEventListener("change", () => {
+      const file = filesInput.files && filesInput.files[0];
+      if (file) handleFile(file);
     });
-  }
 
-  // initial
-  paintBlank();
-})();
-</script>
+    dropzone?.addEventListener("drop", (ev) => {
+      const file = ev.dataTransfer?.files?.[0];
+      if (file) handleFile(file);
+    }, { capture:true });
 
-<script>
-(() => {
-  const unlockBtn = document.getElementById("unlockBtn");
-  const continueBtn = document.getElementById("continue");
-
-  if (unlockBtn && continueBtn) {
-    unlockBtn.addEventListener("click", () => {
-      continueBtn.click();
+    window.addEventListener("resize", () => {
+      const file = filesInput.files && filesInput.files[0];
+      if (!file) paintBlank();
     });
-  }
-})();
-</script>
+  })();
+  </script>
 </body>
 </html>
