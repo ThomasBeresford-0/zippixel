@@ -1,9 +1,9 @@
-<!-- public/compress-pdf-under-5mb.html — PDFOperations (v3 - PAID 5MB FIXER / APP v21 / DROP-IN)
+<!-- public/compress-pdf-under-5mb.html — PDFOperations (v4 - PAID 5MB FIXER / APP v21 / DROP-IN)
      ✅ Keeps app.js IDs/hooks intact
      ✅ Sets data-tool="compress_pdf"
      ✅ Sets data-target-bytes="5242880"
      ✅ Forces Maximum compression silently
-     ✅ Paid intent page, not free homepage clone
+     ✅ Paid strict-limit intent page, not free homepage clone
 -->
 <!doctype html>
 <html lang="en">
@@ -12,14 +12,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Compress PDF Under 5MB | Fix Large PDF Uploads | PDFOperations</title>
-  <meta name="description" content="Compress a PDF under 5MB for online forms, university portals, job applications and document uploads. Built for strict 5MB upload limits." />
+  <meta name="description" content="Compress a PDF under 5MB for online forms, university portals, job applications, government uploads and document submission systems." />
   <link rel="canonical" href="https://pdfoperations.com/compress-pdf-under-5mb" />
   <meta name="robots" content="index,follow" />
   <meta name="theme-color" content="#0b1220" />
   <meta name="color-scheme" content="light">
 
   <meta property="og:title" content="Compress PDF Under 5MB | PDFOperations" />
-  <meta property="og:description" content="Fix large PDF upload errors with a dedicated 5MB compression tool." />
+  <meta property="og:description" content="Dedicated PDF compression for strict 5MB upload limits, online forms, university portals and document uploads." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pdfoperations.com/compress-pdf-under-5mb" />
   <meta property="og:image" content="https://pdfoperations.com/og.png" />
@@ -29,13 +29,13 @@
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-YQ3QKV7KHG');
+    gtag("js", new Date());
+    gtag("config", "G-YQ3QKV7KHG");
   </script>
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Compress PDF Under 5MB | PDFOperations" />
-  <meta name="twitter:description" content="Dedicated PDF compression for strict 5MB upload limits." />
+  <meta name="twitter:description" content="Fix large PDF upload errors with a dedicated 5MB PDF compression tool." />
   <meta name="twitter:image" content="https://pdfoperations.com/og.png" />
 
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -584,6 +584,10 @@
       border-bottom:1px solid rgba(11,18,32,.24);
     }
 
+    .relatedLinks a:hover{
+      border-bottom-color:rgba(11,18,32,.60);
+    }
+
     .plainNote{
       margin-top:14px;
       font-size:13px;
@@ -609,7 +613,7 @@
     "@type":"WebPage",
     "name":"Compress PDF Under 5MB | PDFOperations",
     "url":"https://pdfoperations.com/compress-pdf-under-5mb",
-    "description":"Compress a PDF under 5MB for online forms, university portals, job applications and document uploads.",
+    "description":"Compress a PDF under 5MB for online forms, university portals, job applications, government uploads and document submission systems.",
     "isPartOf":{
       "@type":"WebSite",
       "name":"PDFOperations",
@@ -643,7 +647,7 @@
         "name":"Does this guarantee my PDF will be under 5MB?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"This page targets 5MB upload limits using maximum compression. Text-heavy PDFs usually compress well, while scanned or image-heavy PDFs may not always reach 5MB without reducing quality."
+          "text":"This page targets 5MB upload limits using maximum compression. Text-heavy PDFs usually compress well, while scanned or image-heavy PDFs may not always reach 5MB without reducing image quality."
         }
       },
       {
@@ -651,7 +655,7 @@
         "name":"How do I compress a PDF under 5MB?",
         "acceptedAnswer":{
           "@type":"Answer",
-          "text":"Upload your PDF, let PDFOperations prepare a smaller version, then continue to download the compressed PDF."
+          "text":"Upload your PDF, let PDFOperations prepare a smaller version, then continue to unlock and download the compressed PDF."
         }
       },
       {
@@ -661,7 +665,40 @@
           "@type":"Answer",
           "text":"It is designed for online forms, university portals, government uploads, job applications and document systems that reject PDFs larger than 5MB."
         }
+      },
+      {
+        "@type":"Question",
+        "name":"Is this different from the free PDF compressor?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Yes. The homepage compressor is a general free PDF compressor. This page is for a specific 5MB upload limit and uses maximum compression automatically."
+        }
       }
+    ]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"PDFOperations — Compress PDF Under 5MB",
+    "applicationCategory":"BusinessApplication",
+    "applicationSubCategory":"PDF Utility",
+    "operatingSystem":"Web",
+    "browserRequirements":"Requires JavaScript. Works in modern browsers.",
+    "url":"https://pdfoperations.com/compress-pdf-under-5mb",
+    "description":"Dedicated online PDF compression for strict 5MB upload limits.",
+    "offers":{
+      "@type":"Offer",
+      "price":"2.99",
+      "priceCurrency":"GBP"
+    },
+    "featureList":[
+      "Compress PDF under 5MB",
+      "Maximum compression mode",
+      "Preview before download",
+      "No account required"
     ]
   }
   </script>
@@ -684,7 +721,7 @@
   <script defer src="/app.js?v=21"></script>
 </head>
 
-<body class="page pageCompressPdf" data-tool="compress_pdf" data-target-bytes="5242880">
+<body class="page pageCompressPdf pageUnder5mb" data-tool="compress_pdf" data-target-bytes="5242880">
   <div class="bg" aria-hidden="true"></div>
 
   <a href="#tool" class="srOnly">Skip to tool</a>
@@ -716,7 +753,7 @@
 
           <div class="toolHead toolHeadMinimal">
             <div style="text-align:center;">
-              <div class="intentBadge">Strict upload limit fixer</div>
+              <div class="intentBadge">Strict 5MB upload limit fixer</div>
             </div>
 
             <h1 class="toolTitle">Compress PDF Under 5MB</h1>
@@ -732,9 +769,9 @@
             <div class="limitStrip" aria-label="5MB target">
               <div><strong>Target:</strong> under <span style="font-weight:1000;">5MB</span></div>
               <div class="limitPills" aria-hidden="true">
-                <span class="limitPill">Forms</span>
-                <span class="limitPill">Portals</span>
-                <span class="limitPill">Applications</span>
+                <span class="limitPill">Online forms</span>
+                <span class="limitPill">University portals</span>
+                <span class="limitPill">Government uploads</span>
               </div>
             </div>
           </div>
@@ -913,6 +950,7 @@
           <a href="/compress-pdf-under-1mb">Compress PDF under 1MB</a>
           <a href="/compress-pdf-for-job-application">Compress PDF for job application</a>
           <a href="/reduce-pdf-size-for-email">Reduce PDF size for email</a>
+          <a href="/pdf-too-large-to-upload">PDF too large to upload</a>
         </div>
 
         <div class="plainDivider"></div>
@@ -959,6 +997,8 @@
 
             <div class="relatedLinks" aria-label="PDF tools">
               <a href="/">Compress PDF free</a>
+              <a href="/compress-pdf-under-2mb">Under 2MB</a>
+              <a href="/compress-pdf-under-1mb">Under 1MB</a>
               <a href="/merge-pdf">Merge PDFs</a>
               <a href="/split-pdf">Split PDF</a>
               <a href="/rotate-pdf">Rotate PDF</a>
@@ -985,6 +1025,9 @@
         <a href="/pricing">Pricing</a>
         <a href="/privacy">Privacy</a>
         <a href="/terms">Terms</a>
+        <a href="/compress-pdf-under-2mb">Under 2MB</a>
+        <a href="/compress-pdf-under-1mb">Under 1MB</a>
+        <a href="/compress-pdf-for-job-application">Job application PDFs</a>
       </div>
     </div>
   </footer>
