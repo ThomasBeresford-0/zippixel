@@ -1549,6 +1549,64 @@ document.querySelectorAll("[data-next-tool]").forEach((link) => {
   });
 });
 
+const continueBtn = document.getElementById("continue");
+const uploadBtn = document.getElementById("upload");
+
+function setCompressingButtonState(){
+  if (continueBtn) {
+    continueBtn.disabled = true;
+    continueBtn.textContent = "Compressing…";
+    continueBtn.style.opacity = "0.7";
+    continueBtn.style.cursor = "not-allowed";
+  }
+
+  if (uploadBtn) {
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = "Compressing…";
+    uploadBtn.style.opacity = "0.7";
+    uploadBtn.style.cursor = "not-allowed";
+  }
+}
+
+function setCompressedButtonState(){
+  if (continueBtn) {
+    continueBtn.disabled = false;
+    continueBtn.textContent = "Download your compressed PDF →";
+    continueBtn.style.opacity = "1";
+    continueBtn.style.cursor = "pointer";
+  }
+
+  if (uploadBtn) {
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = "Prepare smaller PDF";
+    uploadBtn.style.opacity = "1";
+    uploadBtn.style.cursor = "pointer";
+  }
+}
+
+uploadBtn?.addEventListener("click", () => {
+  setCompressingButtonState();
+});
+
+const resultPreview = document.getElementById("resultPreview");
+
+if (resultPreview) {
+  const resultObserver = new MutationObserver(() => {
+    const isVisible =
+      resultPreview.style.display !== "none" &&
+      window.getComputedStyle(resultPreview).display !== "none";
+
+    if (isVisible) {
+      setCompressedButtonState();
+    }
+  });
+
+  resultObserver.observe(resultPreview, {
+    attributes: true,
+    attributeFilter: ["style", "class"]
+  });
+}
+
 window.addEventListener("pdfops:free-download-started", () => {
   setTimeout(openNextToolModal, 1200);
 });
