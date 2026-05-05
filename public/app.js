@@ -179,6 +179,7 @@
   let compressPreviewState = "idle"; // idle | loading | ready | failed
   let compressPreviewError = "";
   let previewPaywallOpenedForJob = null;
+  let latestCompressionResult = null;
 
   // ====== EXPOSE SELECTION TO TOOL PAGES (rotate preview etc.) ======
   const publishSelected = () => {
@@ -234,6 +235,45 @@
     if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
     return `${(n / (1024 * 1024)).toFixed(2)} MB`;
   };
+
+  const getPaidCompressionRoute = (compressedBytes, fileName = "") => {
+  const mb = compressedBytes / (1024 * 1024);
+  const lowerName = String(fileName || "").toLowerCase();
+
+  if (lowerName.includes("cv") || lowerName.includes("resume")) {
+    return {
+      url: "/compress-pdf-for-job-application",
+      label: "Fix this for a job application →",
+      reason: "Still too large for some job application portals."
+    };
+  }
+
+  if (mb > 5) {
+    return {
+      url: "/compress-pdf-under-5mb",
+      label: "Fix this PDF under 5MB →",
+      reason: "Still above 5MB. Use the dedicated 5MB fixer."
+    };
+  }
+
+  if (mb > 2) {
+    return {
+      url: "/compress-pdf-under-2mb",
+      label: "Fix this PDF under 2MB →",
+      reason: "Still above 2MB. Use the dedicated 2MB fixer."
+    };
+  }
+
+  if (mb > 1) {
+    return {
+      url: "/compress-pdf-under-1mb",
+      label: "Fix this PDF under 1MB →",
+      reason: "Need a stricter 1MB upload limit? Use the 1MB fixer."
+    };
+  }
+
+  return null;
+};
 
   const escapeHtml = (str) =>
     String(str).replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[m]));
@@ -788,9 +828,17 @@ continueBtn.textContent =
     if (isCompressWorking) {
       unlockBtn.textContent = "Compressing…";
     } else if (mode === "compress_pdf") {
-      unlockBtn.textContent = isHomepageFreeCompress
-        ? "Download free PDF →"
-        : "Unlock Download →";
+      const paidRoute = latestCompressionResult?.paidRoute || null;
+
+      if (isHomepageFreeCompress && paidRoute) {
+        unlockBtn.textContent = paidRoute.label;
+        unlockBtn.dataset.routeTo = paidRoute.url;
+      } else {
+        unlockBtn.textContent = isHomepageFreeCompress
+          ? "Download free PDF →"
+          : "Unlock Download →";
+        delete unlockBtn.dataset.routeTo;
+      }
     }
     }
 
@@ -2154,6 +2202,13 @@ continueBtn.textContent =
       const fallback = !!result.fallback;
       const isActuallySmaller = !!result.isActuallySmaller;
 
+      latestCompressionResult = {
+      originalBytes,
+      compressedBytes,
+      savedPercent: Math.max(0, Math.round(((originalBytes - compressedBytes) / originalBytes) * 100)),
+      paidRoute: getPaidCompressionRoute(compressedBytes, selected?.[0]?.name || "")
+    };
+
       if (!originalBytes || !compressedBytes) {
         throw new Error("Preview size data missing");
       }
@@ -2179,11 +2234,19 @@ continueBtn.textContent =
         saved_percent: computedSavedPercent
       });
 
-      if (unlockBtnEl) {
+    if (unlockBtnEl) {
+      const paidRoute = latestCompressionResult?.paidRoute;
+
+      if (isHomepageFreeCompress && paidRoute) {
+        unlockBtnEl.textContent = paidRoute.label;
+        unlockBtnEl.dataset.routeTo = paidRoute.url;
+      } else {
         unlockBtnEl.textContent = isHomepageFreeCompress
           ? "Download free PDF →"
           : "Unlock Download →";
+        delete unlockBtnEl.dataset.routeTo;
       }
+    }
 
       compressPreviewState = "ready";
       compressPreviewError = "";
@@ -2712,6 +2775,19 @@ if (unlockBtn) {
           setStatus("Add a PDF");
           setHint("Select a PDF first.");
         }
+        return;
+      }
+
+      const paidRoute = latestCompressionResult?.paidRoute || null;
+
+      if (paidRoute) {
+        track("homepage_paid_route_clicked", {
+          destination: paidRoute.url,
+          compressed_bytes: latestCompressionResult?.compressedBytes || null,
+          saved_percent: latestCompressionResult?.savedPercent || null
+        });
+
+        window.location.href = paidRoute.url;
         return;
       }
 
